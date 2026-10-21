@@ -2,13 +2,12 @@ import logging
 import warnings
 from functools import cached_property
 
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied, ValidationError
 from django.db import router, transaction
 from django.db.models import ProtectedError, RestrictedError
 from rest_framework import mixins as drf_mixins
 from rest_framework import status
 from rest_framework.exceptions import MethodNotAllowed
-from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
@@ -222,6 +221,9 @@ class NetBoxModelViewSet(
     """
     Extend DRF's ModelViewSet to support bulk update and delete functions.
     """
+    # The primary keys of objects whose rows have been locked by the current request (see lock_objects())
+    locked_pks = frozenset()
+
     def get_object_with_snapshot(self):
         """
         Save a pre-change snapshot of the object immediately after retrieving it. This snapshot will be used to
@@ -234,18 +236,23 @@ class NetBoxModelViewSet(
 
     def lock_object(self):
         """
-        Lock the row of the requested object until the end of the current transaction. Call this before retrieving
-        the object, so that the object retrieved reflects any write committed by a concurrent request which held the
-        lock first.
+        Lock the row of the requested object until the end of the current transaction (see lock_objects()). Call
+        this before retrieving the object.
+
+        The object is found by its URL lookup alone. If it cannot be found this way (e.g. because get_object() has
+        been overridden to support another form of lookup), no lock is taken, and the request proceeds as it would
+        otherwise.
         """
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
-        queryset = (
-            self.queryset.model.objects
-            .order_by()  # Clear default ordering to avoid JOINs
-            .select_for_update(no_key=True)  # no_key: Avoid blocking foreign key inserts that reference this object
-            .values('pk')
-        )
-        get_object_or_404(queryset, **{self.lookup_field: self.kwargs[lookup_url_kwarg]})
+        if lookup_url_kwarg not in self.kwargs:
+            return
+        try:
+            self.locked_pks = mixins.lock_objects(
+                self.queryset.model._default_manager.filter(**{self.lookup_field: self.kwargs[lookup_url_kwarg]})
+            )
+        except (TypeError, ValueError, ValidationError):
+            # The lookup value is not valid for the lookup field
+            pass
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -400,11 +407,15 @@ class NetBoxModelViewSet(
         using = router.db_for_write(model)
         try:
             with transaction.atomic(using=using), mixins.discard_events_on_rollback(self, using=using):
-                # Re-check the If-Match ETag under a row-level lock to close the TOCTOU window
-                # between the initial check in update() and the actual write.
+                # Check the If-Match ETag under a row-level lock to close the TOCTOU window between any
+                # earlier check and the actual write. An object retrieved only once its row had been
+                # locked is already current; otherwise, lock its row and re-fetch it.
                 if self._get_if_match(self.request):
-                    locked = model.objects.select_for_update().get(pk=serializer.instance.pk)
-                    self._validate_etag(self.request, locked)
+                    if serializer.instance.pk in self.locked_pks:
+                        current = serializer.instance
+                    else:
+                        current = model._default_manager.select_for_update().get(pk=serializer.instance.pk)
+                    self._validate_etag(self.request, current)
                 instance = serializer.save()
                 self._validate_objects(instance)
         except ObjectDoesNotExist:

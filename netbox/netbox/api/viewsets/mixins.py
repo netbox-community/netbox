@@ -36,6 +36,7 @@ __all__ = (
     'get_invalid_entries_response',
     'get_missing_objects_response',
     'get_non_list_response',
+    'lock_objects',
     'resolve_bulk_error_status',
 )
 
@@ -276,6 +277,27 @@ def discard_events_on_rollback(sender, using=None):
         raise
     if transaction.get_connection(using).needs_rollback:
         clear_events.send(sender=sender)
+
+
+def lock_objects(queryset):
+    """
+    Lock the rows of the objects matched by the given QuerySet until the end of the current
+    transaction, and return their primary keys.
+
+    Call this before retrieving objects to be modified, so that each object retrieved reflects any
+    write committed by a concurrent request which locked it first. Otherwise, each request would
+    save its own copy of an object, reverting any fields which another request had changed since
+    that copy was retrieved.
+    """
+    return set(
+        queryset
+        # Lock rows in a consistent order, so that concurrent requests locking overlapping sets of
+        # objects cannot deadlock. This also clears any default ordering, which may require JOINs.
+        .order_by('pk')
+        # no_key: Avoid blocking foreign key inserts that reference these objects
+        .select_for_update(no_key=True)
+        .values_list('pk', flat=True)
+    )
 
 
 class BackgroundOperationMixin:
@@ -612,6 +634,12 @@ class BulkUpdateModelMixin:
         error_statuses = set()
         using = router.db_for_write(self.queryset.model)
         with transaction.atomic(using=using), discard_events_on_rollback(self, using=using):
+            # Lock the objects before retrieving them (when iterating over the QuerySet below), so that
+            # concurrent updates to the same objects are applied one after the other
+            self.locked_pks = lock_objects(
+                self.queryset.model._default_manager.filter(pk__in=update_data.keys())
+            )
+
             # Validate and save each object in turn so subsequent validations see the DB
             # state left by prior saves (e.g. two items renamed to the same name: the second
             # will fail validation rather than raising an integrity error on save).
