@@ -30,6 +30,7 @@ __all__ = (
     'BulkUpdateModelMixin',
     'CustomFieldsMixin',
     'ExportTemplatesMixin',
+    'ObjectLockingMixin',
     'ObjectValidationMixin',
     'discard_events_on_rollback',
     'get_duplicate_objects_response',
@@ -37,7 +38,6 @@ __all__ = (
     'get_missing_objects_errors',
     'get_missing_objects_response',
     'get_non_list_response',
-    'lock_objects',
     'resolve_bulk_error_status',
 )
 
@@ -271,28 +271,35 @@ def discard_events_on_rollback(sender, using=None):
         clear_events.send(sender=sender)
 
 
-@contextmanager
-def lock_objects(viewset, queryset):
+class ObjectLockingMixin:
     """
-    Lock the rows of the objects matched by the given QuerySet, and record their primary keys on the
-    viewset as `locked_pks` for the duration of the block. Enter this immediately within the
-    transaction to which the locks belong (they are held until it ends), before retrieving the
-    objects to be modified.
+    Lock the rows of objects to be modified before retrieving them.
     """
-    viewset.locked_pks = set(
-        queryset
-        # Lock rows in a consistent order, so that concurrent requests locking overlapping sets of
-        # objects cannot deadlock. This also clears any default ordering, which may require JOINs.
-        .order_by('pk')
-        # no_key: Avoid blocking foreign key inserts that reference these objects
-        .select_for_update(no_key=True)
-        .values_list('pk', flat=True)
-    )
-    try:
-        yield
-    finally:
-        # The locks are released when the transaction ends
-        viewset.locked_pks = frozenset()
+    # The primary keys of objects whose rows are locked by the current transaction
+    locked_pks = frozenset()
+
+    @contextmanager
+    def lock_objects(self, queryset):
+        """
+        Lock the rows of the objects matched by the given QuerySet, and record their primary keys as
+        `locked_pks` for the duration of the block. Enter this immediately within the transaction to
+        which the locks belong (they are held until it ends), before retrieving the objects to be
+        modified.
+        """
+        self.locked_pks = set(
+            queryset
+            # Lock rows in a consistent order, so that concurrent requests locking overlapping sets of
+            # objects cannot deadlock. This also clears any default ordering, which may require JOINs.
+            .order_by('pk')
+            # no_key: Avoid blocking foreign key inserts that reference these objects
+            .select_for_update(no_key=True)
+            .values_list('pk', flat=True)
+        )
+        try:
+            yield
+        finally:
+            # The locks are released when the transaction ends
+            self.locked_pks = frozenset()
 
 
 class BackgroundOperationMixin:
@@ -529,7 +536,7 @@ class BulkCreateModelMixin:
         return created_pks, errors, resolve_bulk_error_status(error_statuses)
 
 
-class BulkUpdateModelMixin:
+class BulkUpdateModelMixin(ObjectLockingMixin):
     """
     Support bulk modification of objects using the list endpoint for a model. Accepts a PATCH action with a list of one
     or more JSON objects, each specifying the numeric ID of an object to be updated as well as the attributes to be set.
@@ -633,7 +640,7 @@ class BulkUpdateModelMixin:
             discard_events_on_rollback(self, using=using),
             # Lock the objects before retrieving them, so that concurrent updates to the same objects
             # are applied one after the other
-            lock_objects(self, self.queryset.model._default_manager.filter(pk__in=update_data.keys())),
+            self.lock_objects(self.queryset.model._default_manager.filter(pk__in=update_data.keys())),
         ):
             objects = list(objects)
 
