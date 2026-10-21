@@ -4,9 +4,10 @@ from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import NON_FIELD_ERRORS
-from django.db import DEFAULT_DB_ALIAS, connections
+from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.test import RequestFactory, TestCase, TransactionTestCase, override_settings, tag
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils.timezone import now
 from rest_framework.exceptions import ValidationError
@@ -548,3 +549,34 @@ class BulkOperationRoutingTestCase(TransactionTestCase):
         self.assertEqual([e['id'] for e in response.data['errors']], [sites[0].pk])
         self.assertEqual(Site.objects.count(), 2)
         flush_events.assert_not_called()
+
+
+class ObjectUpdateLockingTestCase(APITestCase):
+
+    @tag('regression')  # Ref: #23445
+    def test_update_locks_object_before_retrieving_it(self):
+        """
+        Lock the row of an object being updated before retrieving it, and hold the lock until the object has been
+        saved. A concurrent update to the same object must then wait for this one to complete, rather than having its
+        changes reverted when this one saves a copy of the object retrieved before they were committed.
+        """
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        self.add_permissions('dcim.change_site')
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site.pk})
+
+        with CaptureQueriesContext(connection) as ctx:
+            response = self.client.patch(url, {'description': 'Description'}, format='json', **self.header)
+        self.assertHttpStatus(response, 200)
+
+        table = Site._meta.db_table
+        queries = [q['sql'] for q in ctx.captured_queries]
+        lock = next(i for i, sql in enumerate(queries) if f'FROM "{table}"' in sql)
+        update = next(i for i, sql in enumerate(queries) if sql.startswith(f'UPDATE "{table}"'))
+
+        # The first query to read the Site must lock its row
+        self.assertIn('FOR NO KEY UPDATE', queries[lock])
+
+        # The transaction (here, a savepoint within the test's transaction) which takes the lock must not end until
+        # the Site has been saved
+        savepoint = next((sql for sql in reversed(queries[:lock]) if sql.startswith('SAVEPOINT ')), None)
+        self.assertIn(f'RELEASE {savepoint}', queries[update + 1:])
