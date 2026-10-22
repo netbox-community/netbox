@@ -45,9 +45,16 @@ class BaseModelSerializer(serializers.ModelSerializer):
 
         super().__init__(*args, **kwargs)
 
+    @property
+    def resolves_existing_object(self):
+        """
+        Indicates whether this serializer resolves its input to an existing object, rather than validating new data.
+        """
+        return self.nested
+
     def run_validation(self, data=empty):
-        # A nested serializer resolves its input to an existing object, so skip validators and validate()
-        if self.nested:
+        # An existing object needs no validation, so skip validators and validate()
+        if self.resolves_existing_object:
             is_empty_value, data = self.validate_empty_values(data)
             if is_empty_value:
                 return data
@@ -57,9 +64,8 @@ class BaseModelSerializer(serializers.ModelSerializer):
 
     def to_internal_value(self, data):
 
-        # If initialized as a nested serializer, we should expect to receive the attrs or PK
-        # identifying a related object.
-        if self.nested:
+        # Expect to receive the attrs or PK identifying an existing object
+        if self.resolves_existing_object:
             queryset = self.Meta.model.objects.all()
             request = self.context.get('request')
             user = request.user if request else None

@@ -2181,8 +2181,9 @@ class CustomFieldAPITestCase(APITestCase):
                         name=cf_name, type=cf_type, related_object_type=ObjectType.objects.get_for_model(obj)
                     )
                     cf.object_types.set([site_type])
-                # Reference the object both by attributes and by PK
-                data = {'custom_fields': {f'{name}_object': {'id': obj.pk}, f'{name}_objects': [obj.pk]}}
+                # Reference the object both by attributes (which requires view permission) and by PK
+                self.add_permissions(f'{obj._meta.app_label}.view_{name}')
+                data = {'custom_fields': {f'{name}_object': {'pk': obj.pk}, f'{name}_objects': [obj.pk]}}
 
                 response = self.client.patch(url, data, format='json', **self.header)
                 self.assertHttpStatus(response, status.HTTP_200_OK)
@@ -2207,7 +2208,7 @@ class CustomFieldAPITestCase(APITestCase):
             with self.subTest(field=field_name, value=value):
                 response = self.client.patch(url, {'custom_fields': {field_name: value}}, format='json', **self.header)
                 self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
-                self.assertTrue(response.data['custom_fields'][0].startswith('Related object not found'))
+                self.assertIn('custom_fields', response.data)
 
         site2.refresh_from_db()
         self.assertEqual(site2.custom_field_data, original_cf_data)

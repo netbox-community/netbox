@@ -23,7 +23,7 @@ from ipam.models import VRF, RouteTarget
 from netbox.api.exceptions import QuerySetNotOrdered, SerializerNotFound
 from netbox.api.fields import ContentTypeField, IntegerRangeSerializer, RelatedObjectCountField
 from netbox.api.pagination import NetBoxPagination
-from netbox.api.serializers import ValidatedModelSerializer
+from netbox.api.serializers import ValidatedModelSerializer, WritableNestedSerializer
 from users.constants import TOKEN_PREFIX
 from users.models import Token, User
 from utilities.api import get_serializer_for_model
@@ -451,6 +451,28 @@ class ValidatedModelSerializerTestCase(TestCase):
 
         with patch.object(OptedInSerializer, 'validate') as validate:
             self.assertEqual(serializer.run_validation(export_template.pk), export_template)
+        validate.assert_not_called()
+
+
+class WritableNestedSerializerTestCase(TestCase):
+
+    def test_skips_validation(self):
+        """A WritableNestedSerializer resolves its input without running validators or validate()."""
+
+        class NestedExportTemplateSerializer(WritableNestedSerializer):
+            class Meta:
+                model = ExportTemplate
+                fields = ['id', 'name']
+
+        export_template = ExportTemplate.objects.create(name='Export Template 1', template_code='{# untouched #}')
+        serializer = NestedExportTemplateSerializer()
+
+        with (
+            patch.object(NestedExportTemplateSerializer, 'run_validators') as run_validators,
+            patch.object(NestedExportTemplateSerializer, 'validate') as validate,
+        ):
+            self.assertEqual(serializer.run_validation(export_template.pk), export_template)
+        run_validators.assert_not_called()
         validate.assert_not_called()
 
 
