@@ -229,7 +229,7 @@ class RenderTemplateMixin(models.Model):
         """
         Return a copy of params with 'finalize' replaced by the value stored on this template's
         database record, or removed if the template has no stored value. Raises TemplateError if
-        a stored value exists but this instance's template code differs from the stored row. Runs
+        this saved template's row is gone or its stored code differs from this instance's. Runs
         one query when params contain 'finalize', and none otherwise.
         """
         if 'finalize' not in params:
@@ -239,14 +239,12 @@ class RenderTemplateMixin(models.Model):
             stored = type(self)._base_manager.using(self._state.db).filter(pk=self.pk).values_list(
                 'environment_params', 'template_code'
             ).first()
-            if stored is not None:
-                stored_params, stored_code = stored
-                stored_finalize = (stored_params or {}).get('finalize')
-                # Fail instead of rendering without the stored value, which gives different output (#23375).
-                if stored_finalize is not None and stored_code != self.template_code:
-                    raise TemplateError(
-                        _('The template code differs from the saved template. Reload the template and try again.')
-                    )
+            # Fail instead of rendering code the stored row no longer backs, which gives different output (#23375).
+            if stored is None or stored[1] != self.template_code:
+                raise TemplateError(
+                    _('The template differs from the saved template. Reload the template and try again.')
+                )
+            stored_finalize = (stored[0] or {}).get('finalize')
         if stored_finalize is None:
             logger.warning(
                 'Ignoring the deprecated "finalize" environment parameter on %s (pk=%s): '

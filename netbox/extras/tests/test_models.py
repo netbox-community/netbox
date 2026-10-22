@@ -1635,6 +1635,21 @@ class ExportTemplateStoredOnlyFinalizeTestCase(TestCase):
         with self.assertRaises(TemplateError):
             t.render()
 
+    @tag('regression')
+    def test_render_fails_when_stored_template_is_edited_after_load(self):
+        t = self._create_stored()
+        # An edit that saves new code must also remove 'finalize', since clean() rejects it
+        ExportTemplate.objects.filter(pk=t.pk).update(template_code='{{ "edited" }}', environment_params={})
+        with self.assertRaises(TemplateError):
+            t.render()
+
+    @tag('regression')
+    def test_render_fails_when_stored_template_is_deleted_after_load(self):
+        t = self._create_stored()
+        ExportTemplate.objects.filter(pk=t.pk).delete()
+        with self.assertRaises(TemplateError):
+            t.render()
+
     def test_no_query_without_finalize(self):
         t = ExportTemplate.objects.create(
             name='plain',
