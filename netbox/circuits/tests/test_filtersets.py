@@ -377,6 +377,8 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         provider_networks = ProviderNetwork.objects.all()[:2]
         params = {'provider_network_id': [provider_networks[0].pk, provider_networks[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'provider_network': [provider_networks[0].name, provider_networks[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
         circuit_type = CircuitType.objects.first()
@@ -596,6 +598,16 @@ class CircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     def test_provider_network(self):
         provider_networks = ProviderNetwork.objects.all()[:2]
         params = {'provider_network_id': [provider_networks[0].pk, provider_networks[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'provider_network': [provider_networks[0].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'provider_network': [provider_networks[0].name, provider_networks[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_provider_network_shared_name(self):
+        """A name shared by networks of two providers matches both networks."""
+        ProviderNetwork.objects.filter(name='Provider Network 2').update(name='Provider Network 1')
+        params = {'provider_network': ['Provider Network 1']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_cabled(self):
@@ -1064,6 +1076,8 @@ class VirtualCircuitTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         provider_networks = ProviderNetwork.objects.all()[:2]
         params = {'provider_network_id': [provider_networks[0].pk, provider_networks[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'provider_network': [provider_networks[0].name, provider_networks[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
         virtual_circuit_types = VirtualCircuitType.objects.all()[:2]
@@ -1258,6 +1272,8 @@ class VirtualCircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTestMixin
     def test_provider_network(self):
         provider_networks = ProviderNetwork.objects.all()[:2]
         params = {'provider_network_id': [provider_networks[0].pk, provider_networks[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'provider_network': [provider_networks[0].name, provider_networks[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_provider_account(self):
