@@ -17,7 +17,7 @@ class MyModel(models.Model):
         return f'{self.foo} {self.bar}'
 ```
 
-Every model includes by default a numeric primary key. This value is generated automatically by the database, and can be referenced as `pk` or `id`.
+Every model includes by default a numeric primary key. This value is generated automatically by the database (unless supplied by a [primary key allocator](#primary-key-allocators)), and can be referenced as `pk` or `id`.
 
 !!! note
     Model names should adhere to [PEP8](https://www.python.org/dev/peps/pep-0008/#class-names) standards and be CapWords (no underscores).  Using underscores in model names will result in problems with permissions.
@@ -209,6 +209,56 @@ Two constraints apply to an implementation:
 Exceptions raised by an implementation propagate to the caller unchanged: `Cable.update_dependent_objects()` raises `UnsupportedCablePath` where `Cable.save()` converts it to `AbortRequest`. The hook is not tied to a request, so it is for the caller to decide how a failure is handled.
 
 The caller is responsible for calling the method only once every related object is in place: `Cable.update_dependent_objects()` retraces the cable's paths, which requires its `CableTermination` objects to exist.
+
+## Primary Key Allocators
+
+!!! info "This feature was introduced in NetBox v4.8."
+
+By default, the database assigns each new object's primary key from its table's sequence. A plugin can instead supply primary keys by registering a primary key allocator with the `register_pk_allocator()` decorator from `netbox.utils`. An allocator is a callable which accepts a model class, a count, and the alias of the database to which the new objects will be written. It returns either a list of exactly that many primary keys for the model, or `None` to defer to the next allocator.
+
+```python
+from netbox.utils import register_pk_allocator
+
+@register_pk_allocator
+def my_allocator(model, count, using):
+    if not handles_database(using) or not handles_model(model):
+        return None
+    return reserve_pks(model, count)
+```
+
+Allocators are consulted in the order in which they were registered. If no allocator supplies primary keys, the database assigns them as usual. Registering an allocator which is already registered has no effect.
+
+NetBox consults allocators whenever an object without a primary key is created via the ORM, from both `save()` and `bulk_create()`, for any model with an automatically assigned (auto field) primary key. This includes NetBox's own models, plugin models, the auto-created through models of many-to-many relationships, models belonging to other Django apps (such as `ContentType`), and the historical models used by data migrations (`RunPython` operations). An object which already has a primary key is saved as usual, without consulting allocators.
+
+When an allocator supplies a primary key, the object is inserted as a new row: if that primary key is already in use, `save()` or `bulk_create()` fails rather than overwriting the existing row. If the insert fails for any reason, the allocated primary key is withdrawn from the object, so that saving it again obtains a new primary key from the allocators. Two options of `bulk_create()` change this behavior:
+
+* With `ignore_conflicts=True`, a row whose primary key is already in use is skipped silently, like any other conflicting row. Since there's no telling which rows were inserted, the allocated primary keys are then withdrawn from every object, as `bulk_create()` doesn't set primary keys in this mode.
+* With `update_conflicts=True` and the primary key among `unique_fields`, the existing row with that primary key is updated instead.
+
+A few things to keep in mind when writing an allocator:
+
+* It is called for every model with an auto field primary key, and for every database. It should return `None` promptly for any model or database it doesn't handle.
+* The model it receives may be a historical model, built from migration state while a data migration runs. Identify models by their attributes (such as `model._meta.label` or `model._meta.db_table`) rather than by comparing classes.
+* Under multi-table inheritance, it receives the parent model, which owns the primary key column. For a proxy model, it receives the concrete model.
+* `save()` requests one primary key at a time, whereas `bulk_create()` requests all of the primary keys it needs in a single call. An allocator which obtains primary keys from a remote source may wish to fetch them in blocks and hand them out from a local cache.
+* It must never return a primary key which is already in use. Some operations, such as adding many-to-many relationships or tags, silently skip rows which conflict with existing ones, so a duplicate primary key won't always raise an error.
+* Primary keys it supplies don't advance the table's sequence. If it supplies values which the sequence could later reach, it is responsible for advancing the sequence past them (for example, using PostgreSQL's `setval()`). Otherwise, once the allocator stops supplying primary keys, the database may assign primary keys which are already in use.
+
+!!! tip
+    Consider registering allocators inside your PluginConfig's `ready()` method.
+
+### Inserting Rows Outside the ORM
+
+Code which inserts rows directly, for example using raw SQL (including `RunSQL` migration operations) or PostgreSQL's `COPY`, bypasses the ORM and with it any registered allocators. Such code should call `allocate_pks()` from `netbox.utils` to obtain primary keys for the new rows, and insert them explicitly. This function returns a list of primary keys from the first allocator which supplies them, or `None` if the database should assign them. As with `save()`, allocators receive the model which owns the primary key column, and are consulted only if it's an auto field. Pass the alias of the database being written to as `using`; if it's omitted, the database router's choice for writing the model is assumed.
+
+```python
+from netbox.utils import allocate_pks
+
+pks = allocate_pks(MyModel, count=len(rows), using=connection.alias)
+if pks is None:
+    # Omit the primary key column and let the database assign values
+    ...
+```
 
 ## Choice Sets
 
