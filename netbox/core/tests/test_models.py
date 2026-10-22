@@ -1,21 +1,64 @@
+import tempfile
 import uuid
+from contextlib import contextmanager
 from datetime import timedelta
+from io import StringIO
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase
+from django.core.management import call_command
+from django.db import IntegrityError, connection
+from django.test import TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
-from core.choices import JobNotificationChoices, JobStatusChoices, ObjectChangeActionChoices
-from core.models import DataSource, Job, ObjectType
+from core.choices import DataSourceStatusChoices, JobNotificationChoices, JobStatusChoices, ObjectChangeActionChoices
+from core.data_backends import LocalBackend
+from core.exceptions import SyncError
+from core.models import AutoSyncRecord, DataFile, DataSource, Job, ObjectType
+from core.signals import post_sync
 from dcim.models import Device, Location, Site
-from extras.models import Notification
+from extras.models import ConfigTemplate, Notification
 from netbox.constants import CENSOR_TOKEN, CENSOR_TOKEN_CHANGED
 from users.models import User
+from utilities.querysets import RestrictedQuerySet
+from utilities.testing import PinnedConnectionRouter
 
 
-class DataSourceIgnoreRulesTestCase(TestCase):
+class DataSourceTestCase(TestCase):
+
+    def setUp(self):
+        # A synced local source, used by the sync tests
+        temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(temp_dir.cleanup)
+        self.root = Path(temp_dir.name)
+        (self.root / 'a.txt').write_text('old\n')
+        (self.root / 'obsolete.txt').write_text('old\n')
+        self.datasource = DataSource.objects.create(name='Data Source 2', type='local', source_url=self.root.as_uri())
+        self.datasource.sync()
+        self.original_files = list(self.datasource.datafiles.values())
+        self.last_synced = self.datasource.last_synced
+
+        # The next sync finds one file changed, one removed and one added
+        (self.root / 'a.txt').write_text('new\n')
+        (self.root / 'obsolete.txt').unlink()
+        (self.root / 'b.txt').write_text('new\n')
+
+    def assert_files_unchanged(self):
+        self.assertEqual(list(self.datasource.datafiles.values()), self.original_files)
+        self.datasource.refresh_from_db()
+        self.assertEqual(self.datasource.last_synced, self.last_synced)
+
+    def assert_files_synced(self):
+        self.assertEqual(
+            dict(self.datasource.datafiles.values_list('path', 'data')),
+            {'a.txt': b'new\n', 'b.txt': b'new\n'},
+        )
+        self.datasource.refresh_from_db()
+        self.assertEqual(self.datasource.status, DataSourceStatusChoices.COMPLETED)
+        self.assertGreater(self.datasource.last_synced, self.last_synced)
 
     def test_no_ignore_rules(self):
         ds = DataSource(ignore_rules='')
@@ -33,9 +76,6 @@ class DataSourceIgnoreRulesTestCase(TestCase):
         self.assertTrue(ds._ignore('dev/README.md'))
         self.assertTrue(ds._ignore('dev/script.py'))
         self.assertFalse(ds._ignore('prod/script.py'))
-
-
-class DataSourceChangeLoggingTestCase(TestCase):
 
     def test_password_added_on_create(self):
         datasource = DataSource.objects.create(
@@ -150,6 +190,90 @@ class DataSourceChangeLoggingTestCase(TestCase):
         self.assertEqual(objectchange.prechange_data['parameters']['password'], CENSOR_TOKEN)
         self.assertEqual(objectchange.postchange_data['parameters']['username'], 'username2')
         self.assertEqual(objectchange.postchange_data['parameters']['password'], CENSOR_TOKEN)
+
+    def test_sync_rolls_back_read_failure(self):
+        """A sync that fails reading a new file keeps the synced files and their links."""
+        obsolete = self.datasource.datafiles.get(path='obsolete.txt')
+        template = ConfigTemplate.objects.create(
+            name='Config Template 1',
+            data_source=self.datasource,
+            data_file=obsolete,
+            data_path=obsolete.path,
+            template_code='old\n',
+            auto_sync_enabled=True,
+        )
+        autosync = AutoSyncRecord.objects.get(datafile=obsolete)
+        (self.root / 'link.txt').symlink_to('missing.txt')
+
+        with patch.object(post_sync, 'send') as send:
+            with self.assertRaises(FileNotFoundError):
+                call_command('syncdatasource', self.datasource.name, stdout=StringIO())
+
+        self.assert_files_unchanged()
+        self.assertEqual(self.datasource.status, DataSourceStatusChoices.FAILED)
+        template.refresh_from_db()
+        self.assertEqual(template.data_file_id, obsolete.pk)
+        self.assertTrue(AutoSyncRecord.objects.filter(pk=autosync.pk, datafile=obsolete).exists())
+        send.assert_not_called()
+
+    def test_sync_rolls_back_create_failure(self):
+        """A sync that fails creating its new files keeps the synced files."""
+        with patch.object(RestrictedQuerySet, 'bulk_create', side_effect=IntegrityError('Simulated bulk create error')):
+            with self.assertRaisesMessage(IntegrityError, 'Simulated bulk create error'):
+                self.datasource.sync()
+
+        self.assert_files_unchanged()
+
+    def test_sync_rolls_back_backend_cleanup_failure(self):
+        """A sync whose backend fails during cleanup keeps the synced files."""
+
+        @contextmanager
+        def fetch(backend):
+            yield str(self.root)
+            raise OSError('Simulated cleanup error')
+
+        with patch.object(LocalBackend, 'fetch', fetch):
+            with self.assertRaisesMessage(OSError, 'Simulated cleanup error'):
+                self.datasource.sync()
+
+        self.assert_files_unchanged()
+
+    def test_sync_locks_datasource_before_reading_files(self):
+        """Take the sync lock inside the transaction, before the files are read and the sync completes."""
+        with CaptureQueriesContext(connection) as context:
+            self.datasource.sync()
+
+        queries = [query['sql'] for query in context.captured_queries]
+        begins = [i for i, sql in enumerate(queries) if sql.startswith('SAVEPOINT')]
+        locks = [i for i, sql in enumerate(queries) if 'pg_advisory_xact_lock' in sql]
+        reads = [i for i, sql in enumerate(queries) if sql.startswith('SELECT') and 'FROM "core_datafile"' in sql]
+        completions = [
+            i for i, sql in enumerate(queries) if sql.startswith('UPDATE "core_datasource"') and "'completed'" in sql
+        ]
+        commits = [i for i, sql in enumerate(queries) if sql.startswith('RELEASE SAVEPOINT')]
+        self.assertTrue(locks)
+        self.assertLess(begins[0], locks[0])
+        self.assertLess(locks[0], reads[0])
+        self.assertLess(reads[0], completions[0])
+        self.assertLess(completions[0], commits[0])
+
+    def test_post_sync_failure_preserves_synced_files(self):
+        """A failing post_sync receiver leaves the completed sync in place."""
+        with patch.object(post_sync, 'send', side_effect=SyncError('Simulated post_sync error')):
+            with self.assertRaisesMessage(SyncError, 'Simulated post_sync error'):
+                self.datasource.sync()
+
+        self.assert_files_synced()
+
+    def test_sync_pins_datafile_queries_to_transaction_connection(self):
+        """Run the data file reads, updates and deletes of a sync on its transaction's connection."""
+        # Django routes a new data file's construction and validation itself
+        (self.root / 'b.txt').unlink()
+
+        with override_settings(DATABASE_ROUTERS=[PinnedConnectionRouter(DataFile)]):
+            self.datasource.sync()
+
+        self.assertEqual(dict(self.datasource.datafiles.values_list('path', 'data')), {'a.txt': b'new\n'})
 
 
 class ObjectTypeTestCase(TestCase):
