@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
-from django.db import DEFAULT_DB_ALIAS, IntegrityError, connection, router, transaction
+from django.db import DEFAULT_DB_ALIAS, IntegrityError, connection, models, router, transaction
 from django.db.migrations.state import ProjectState
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
@@ -11,7 +11,7 @@ from django.test.utils import CaptureQueriesContext
 from account.models import UserToken
 from core.models import ObjectType
 from dcim.models import Manufacturer, Site
-from extras.models import Tag
+from extras.models import CachedValue, Tag
 from netbox.registry import registry
 from netbox.utils import allocate_pks, register_pk_allocator
 from tenancy.models import Tenant
@@ -114,6 +114,15 @@ class PKAllocatorTestCase(TestCase):
 
         with self.assertRaises(ValueError):
             allocate_pks(Site, 2)
+
+    def test_allocate_pks_model(self):
+        # As with save(), allocators receive the model which owns the primary key column, and only if it's an auto field
+        calls = []
+        register_pk_allocator(lambda model, count, using: calls.append(model))
+
+        for model in (ObjectType, UserToken, CachedValue):
+            self.assertIsNone(allocate_pks(model))
+        self.assertEqual(calls, [ContentType, Token])
 
     def test_save_without_allocator(self):
         manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
@@ -284,6 +293,25 @@ class PKAllocatorTestCase(TestCase):
 
         self.assertEqual([m.pk for m in manufacturers], [None, None])
         self.assertTrue(all(m._state.adding for m in manufacturers))
+
+    def test_interrupted_insert(self):
+        # Allocated primary keys are withdrawn even if the INSERT is interrupted by an exception other than Exception
+        allocator, calls = get_sequential_allocator(Manufacturer)
+        register_pk_allocator(allocator)
+        manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
+        manufacturers = [Manufacturer(name='Manufacturer 2', slug='manufacturer-2')]
+
+        interrupt_save = patch.object(models.Model, '_do_insert', side_effect=KeyboardInterrupt)
+        with self.assertRaises(KeyboardInterrupt), interrupt_save, transaction.atomic():
+            manufacturer.save()
+        interrupt_bulk_create = patch.object(models.QuerySet, '_batched_insert', side_effect=KeyboardInterrupt)
+        with self.assertRaises(KeyboardInterrupt), interrupt_bulk_create, transaction.atomic():
+            Manufacturer.objects.bulk_create(manufacturers)
+
+        self.assertEqual(calls.count((Manufacturer, 1, DEFAULT_DB_ALIAS)), 2)
+        self.assertIsNone(manufacturer.pk)
+        self.assertIsNone(manufacturers[0].pk)
+        self.assertTrue(manufacturers[0]._state.adding)
 
     def test_bulk_create_ignoring_conflicts(self):
         # When conflicting rows are ignored, bulk_create() can't tell which objects were inserted, so allocated primary

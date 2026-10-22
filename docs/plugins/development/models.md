@@ -249,7 +249,7 @@ A few things to keep in mind when writing an allocator:
 
 ### Inserting Rows Outside the ORM
 
-Code which inserts rows directly, for example using raw SQL (including `RunSQL` migration operations) or PostgreSQL's `COPY`, bypasses the ORM and with it any registered allocators. Such code should call `allocate_pks()` from `netbox.utils` to obtain primary keys for the new rows, and insert them explicitly. This function returns a list of primary keys from the first allocator which supplies them, or `None` if the database should assign them. Pass the alias of the database being written to as `using`; if it's omitted, the database router's choice for writing the model is assumed.
+Code which inserts rows directly, for example using raw SQL (including `RunSQL` migration operations) or PostgreSQL's `COPY`, bypasses the ORM and with it any registered allocators. Such code should call `allocate_pks()` from `netbox.utils` to obtain primary keys for the new rows, and insert them explicitly. This function returns a list of primary keys from the first allocator which supplies them, or `None` if the database should assign them. As with `save()`, allocators receive the model which owns the primary key column, and are consulted only if it's an auto field. Pass the alias of the database being written to as `using`; if it's omitted, the database router's choice for writing the model is assumed.
 
 ```python
 from netbox.utils import allocate_pks

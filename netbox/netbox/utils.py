@@ -1,4 +1,5 @@
 from django.db import router
+from django.db.models.fields import AutoFieldMixin
 
 from netbox.registry import registry
 from utilities.choices import Choice
@@ -98,6 +99,14 @@ def allocate_pks(model, count=1, using=None):
     inserts rows outside the ORM (e.g. using raw SQL or COPY) can call this to obtain primary keys in the same manner
     as Model.save() and QuerySet.bulk_create().
     """
+    # Allocators receive the model which owns the primary key column (the concrete parent, for a proxy or multi-table
+    # inheritance child), and only if it's an auto field
+    pk = model._meta.pk
+    while pk.remote_field and pk.remote_field.parent_link:
+        pk = pk.target_field
+    if not isinstance(pk, AutoFieldMixin):
+        return None
+    model = pk.model
     if using is None:
         using = router.db_for_write(model)
     for allocator in registry['pk_allocators']:
@@ -106,8 +115,8 @@ def allocate_pks(model, count=1, using=None):
             if len(pks) != count:
                 name = getattr(allocator, '__qualname__', allocator)
                 raise ValueError(
-                    f"Primary key allocator {name} returned {len(pks)} primary keys for {model._meta.label} "
-                    f"(expected {count})."
+                    f'Primary key allocator {name} returned {len(pks)} primary keys for {model._meta.label} '
+                    f'(expected {count}).'
                 )
             return pks
     return None

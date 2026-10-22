@@ -44,28 +44,28 @@ def save_table_with_pk_allocation(
     concrete_model = instance._meta.concrete_model
     # The values to restore if the save fails, carried over from the insertion of any multi-table inheritance parents
     unallocated = vars(instance).pop('_unallocated_pks', {})
-    if (
-        _can_allocate_pks(cls)
-        and not (force_update or update_fields)
-        and not instance._is_pk_set(cls._meta)
-        and (pks := allocate_pks(pk.model, using=using))
-    ):
-        # Parent links are set from the allocated primary key once the parent has been inserted
-        parent_links = [
-            field.attname
-            for model in (concrete_model, *concrete_model._meta.get_parent_list())
-            for field in model._meta.parents.values() if field
-        ]
-        for attname in (pk.attname, *parent_links):
-            unallocated.setdefault(attname, getattr(instance, attname))
-        setattr(instance, pk.attname, pks[0])
-        force_insert = True
     try:
+        if (
+            _can_allocate_pks(cls)
+            and not (force_update or update_fields)
+            and not instance._is_pk_set(cls._meta)
+            and (pks := allocate_pks(cls, using=using))
+        ):
+            # Parent links are set from the allocated primary key once the parent has been inserted
+            parent_links = [
+                field.attname
+                for model in (concrete_model, *concrete_model._meta.get_parent_list())
+                for field in model._meta.parents.values() if field
+            ]
+            for attname in (pk.attname, *parent_links):
+                unallocated.setdefault(attname, getattr(instance, attname))
+            setattr(instance, pk.attname, pks[0])
+            force_insert = True
         updated = _save_table(
             instance, raw=raw, cls=cls, force_insert=force_insert, force_update=force_update, using=using,
             update_fields=update_fields
         )
-    except Exception:
+    except BaseException:
         for attname, value in unallocated.items():
             setattr(instance, attname, value)
         raise
@@ -90,7 +90,7 @@ def prepare_for_bulk_create_with_pk_allocation(queryset, objs):
     if (
         objs_without_pk
         and _can_allocate_pks(queryset.model)
-        and (pks := allocate_pks(pk.model, len(objs_without_pk), using=queryset.db))
+        and (pks := allocate_pks(queryset.model, len(objs_without_pk), using=queryset.db))
     ):
         queryset._unallocated_pks = [
             (obj, getattr(obj, pk.attname), obj._state.adding, obj._state.db) for obj in objs_without_pk
@@ -129,7 +129,7 @@ def bulk_create_with_pk_allocation(
             queryset, objs, batch_size=batch_size, ignore_conflicts=ignore_conflicts,
             update_conflicts=update_conflicts, update_fields=update_fields, unique_fields=unique_fields
         )
-    except Exception:
+    except BaseException:
         withdraw_allocated_pks()
         raise
     if ignore_conflicts:
