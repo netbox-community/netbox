@@ -30,10 +30,12 @@ __all__ = (
     'BulkUpdateModelMixin',
     'CustomFieldsMixin',
     'ExportTemplatesMixin',
+    'ObjectLockingMixin',
     'ObjectValidationMixin',
     'discard_events_on_rollback',
     'get_duplicate_objects_response',
     'get_invalid_entries_response',
+    'get_missing_objects_errors',
     'get_missing_objects_response',
     'get_non_list_response',
     'resolve_bulk_error_status',
@@ -194,37 +196,28 @@ def get_duplicate_objects_response(object_ids):
     )
 
 
-def get_missing_objects_response(object_ids, queryset):
+def get_missing_objects_errors(object_ids, found_pks):
     """
-    Return a structured error Response naming each of the given object IDs which the queryset does
-    not match, or None if it matches them all.
-
-    An ID goes unmatched either because no such object exists or because the requesting user's
-    object-level permissions exclude it. The two are deliberately not distinguished, consistent with
-    the single-object endpoints, which return a 404 in both cases.
-
-    Bulk operations call this before performing any work: an unresolvable ID means the request names
-    an object the client cannot act on, so there is nothing to be gained by attempting the batch (it
-    would only be rolled back). Note that the status is 400 rather than the 409 a bulk delete
-    returns for a dependency conflict, as this is a problem with the request itself rather than with
-    the current state of the database.
+    Return a list of per-object errors naming each of the given object IDs which is not among the
+    PKs found.
     """
-    found_pks = set(queryset.values_list('pk', flat=True))
-
-    errors = [
+    return [
         {
             'id': object_id,
             'errors': {
                 'id': [_("Object with ID {id} does not exist").format(id=object_id)],
             },
         }
-        # NetBox's bulk actions reject a repeated ID before reaching this point (see
-        # get_duplicate_objects_response), but de-duplicate anyway so that any other caller reports
-        # such an ID once rather than once per occurrence. dict.fromkeys() preserves the order of
-        # first appearance.
-        for object_id in dict.fromkeys(object_ids)
-        if object_id not in found_pks
+        for object_id in dict.fromkeys(object_ids) if object_id not in found_pks
     ]
+
+
+def get_missing_objects_response(object_ids, queryset):
+    """
+    Return a structured error Response naming each of the given object IDs which the queryset does
+    not match, or None if it matches them all.
+    """
+    errors = get_missing_objects_errors(object_ids, set(queryset.values_list('pk', flat=True)))
     if not errors:
         return None
 
@@ -276,6 +269,37 @@ def discard_events_on_rollback(sender, using=None):
         raise
     if transaction.get_connection(using).needs_rollback:
         clear_events.send(sender=sender)
+
+
+class ObjectLockingMixin:
+    """
+    Lock the rows of objects to be modified before retrieving them.
+    """
+    # The primary keys of objects whose rows are locked by the current transaction
+    locked_pks = frozenset()
+
+    @contextmanager
+    def lock_objects(self, queryset):
+        """
+        Lock the rows of the objects matched by the given QuerySet, and record their primary keys as
+        `locked_pks` for the duration of the block. Enter this immediately within the transaction to
+        which the locks belong (they are held until it ends), before retrieving the objects to be
+        modified.
+        """
+        self.locked_pks = set(
+            queryset
+            # Lock rows in a consistent order, so that concurrent requests locking overlapping sets of
+            # objects cannot deadlock. This also clears any default ordering, which may require JOINs.
+            .order_by('pk')
+            # no_key: Avoid blocking foreign key inserts that reference these objects
+            .select_for_update(no_key=True)
+            .values_list('pk', flat=True)
+        )
+        try:
+            yield
+        finally:
+            # The locks are released when the transaction ends
+            self.locked_pks = frozenset()
 
 
 class BackgroundOperationMixin:
@@ -512,7 +536,7 @@ class BulkCreateModelMixin:
         return created_pks, errors, resolve_bulk_error_status(error_statuses)
 
 
-class BulkUpdateModelMixin:
+class BulkUpdateModelMixin(ObjectLockingMixin):
     """
     Support bulk modification of objects using the list endpoint for a model. Accepts a PATCH action with a list of one
     or more JSON objects, each specifying the numeric ID of an object to be updated as well as the attributes to be set.
@@ -611,7 +635,21 @@ class BulkUpdateModelMixin:
         errors = []
         error_statuses = set()
         using = router.db_for_write(self.queryset.model)
-        with transaction.atomic(using=using), discard_events_on_rollback(self, using=using):
+        with (
+            transaction.atomic(using=using),
+            discard_events_on_rollback(self, using=using),
+            # Lock the objects before retrieving them, so that concurrent updates to the same objects
+            # are applied one after the other
+            self.lock_objects(self.queryset.model._default_manager.filter(pk__in=update_data.keys())),
+        ):
+            objects = list(objects)
+
+            # Report any object which can no longer be found (e.g. because it was deleted after
+            # get_missing_objects_response() checked for it), rather than silently omitting it
+            if missing := get_missing_objects_errors(update_data.keys(), {obj.pk for obj in objects}):
+                errors.extend(missing)
+                error_statuses.add(status.HTTP_400_BAD_REQUEST)
+
             # Validate and save each object in turn so subsequent validations see the DB
             # state left by prior saves (e.g. two items renamed to the same name: the second
             # will fail validation rather than raising an integrity error on save).

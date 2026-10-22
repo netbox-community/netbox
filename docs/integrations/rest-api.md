@@ -701,7 +701,7 @@ $ curl -s -X PATCH \
     --data '{"status": "decommissioning"}'
 ```
 
-A literal `If-Match: *` value matches any current ETag and may be used to assert simply that the object exists. Submitting `If-Match` is optional; requests without the header retain prior (last-write-wins) behavior.
+A literal `If-Match: *` value matches any current ETag and may be used to assert simply that the object exists. Submitting `If-Match` is optional; requests without the header retain prior (last-write-wins) behavior for the fields they set.
 
 ### Adding and Removing Tags
 
