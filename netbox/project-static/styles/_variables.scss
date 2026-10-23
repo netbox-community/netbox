@@ -7,6 +7,9 @@ $font-family-monospace: 'Roboto Mono Variable', monospace;
 // Set the navigation sidebar width
 $sidebar-width: 18rem;
 
+// Folded sidebar width, centering the 1.25rem menu icons between their 1rem link paddings
+$sidebar-folded-width: 3.25rem;
+
 // Reduce the default button padding
 $btn-padding-x: 0.5rem;
 $btn-padding-y: 0.25rem;

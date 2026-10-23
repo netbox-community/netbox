@@ -7,6 +7,7 @@
   $font-family-sans-serif: netbox.$font-family-sans-serif,
   $font-family-monospace: netbox.$font-family-monospace,
   $sidebar-width: netbox.$sidebar-width,
+  $sidebar-folded-width: netbox.$sidebar-folded-width,
   $btn-padding-x: netbox.$btn-padding-x,
   $btn-padding-y: netbox.$btn-padding-y,
   $table-cell-padding-x: netbox.$table-cell-padding-x,
@@ -60,6 +61,8 @@
   $dropdown-divider-margin-y: 0.25rem,
   $enable-smooth-scroll: false,
   $mark-padding: 0.1875em 0,
+  // About 1.25:1 on both the white and the navy bars
+  $navbar-border-color: light-dark(var(--gray-200), var(--gray-800)),
   $navbar-light-active-bg: rgba(0, 0, 0, 0.06),
   $pre-bg: transparent,
   $pre-color: inherit,
