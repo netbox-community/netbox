@@ -11,7 +11,7 @@ curl -H "Authorization: Bearer $TOKEN" \
 -H "Content-Type: application/json" \
 -H "Accept: application/json" \
 http://netbox/graphql/ \
---data '{"query": "query {circuit_list(filters:{status: STATUS_ACTIVE}) {cid provider {name}}}"}'
+--data '{"query": "query {circuit_list(filters:{status: {exact: ACTIVE}}) {cid provider {name}}}"}'
 ```
 
 The response will include the requested data formatted as JSON:
@@ -57,7 +57,9 @@ Filters can be specified as key-value pairs within parentheses immediately follo
 query {
   site_list(
     filters: {
-      status: STATUS_ACTIVE
+      status: {
+        exact: STATUS_ACTIVE
+      }
     }
   ) {
     name
@@ -71,7 +73,9 @@ Filters can be combined with logical operators, such as `OR` and `NOT`. For exam
 query {
   site_list(
     filters: {
-      status: STATUS_PLANNED,
+      status: {
+        exact: STATUS_PLANNED
+      },
       OR: {
         tenant: {
           name: {
@@ -93,7 +97,7 @@ query {
   device_list {
     id
     name
-    interfaces(filters: {enabled: true}) {
+    interfaces(filters: {enabled: {exact: true}}) {
       name
     }
   }

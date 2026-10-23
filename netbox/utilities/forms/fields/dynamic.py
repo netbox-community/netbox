@@ -62,6 +62,7 @@ class DynamicModelChoiceMixin:
     Attributes:
         query_params: A dictionary of additional key/value pairs to attach to the API request
         initial_params: A dictionary of child field references to use for selecting a parent field's initial value
+            (every matching object for a multiple-choice field, the first for a single-choice field)
         null_option: The string used to represent a null selection (if any)
         disabled_indicator: The name of the field which, if populated, will disable selection of the
             choice (DEPRECATED: pass `context={'disabled': '$fieldname'}` instead)
@@ -144,7 +145,12 @@ class DynamicModelChoiceMixin:
                 if value:
                     filter_kwargs[kwarg] = value
             if filter_kwargs:
-                self.initial = self.queryset.filter(**filter_kwargs).first()
+                queryset = self.queryset.filter(**filter_kwargs)
+                if isinstance(self, forms.ModelMultipleChoiceField):
+                    # A lookup across a reverse relation yields one row per matching child
+                    self.initial = list(queryset.distinct())
+                else:
+                    self.initial = queryset.first()
 
         # Modify the QuerySet of the field before we return it. Limit choices to any data already bound: Options
         # will be populated on-demand via the APISelect widget.

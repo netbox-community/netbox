@@ -24,13 +24,17 @@ Jinja2 template code, if being defined locally rather than replicated from a dat
 
 A dictionary of any additional parameters to pass when instantiating the [Jinja2 environment](https://jinja.palletsprojects.com/en/3.1.x/api/#jinja2.Environment). Jinja2 supports various optional parameters which can be used to modify its default behavior.
 
-The `undefined` and `finalize` Jinja environment parameters, which must reference a Python class or function, can define a dotted path to the desired resource. For example:
+The `undefined` Jinja environment parameter, which must reference a Python class, can define a dotted path to the desired resource. For example:
 
 ```json
 {
     "undefined": "jinja2.StrictUndefined"
 }
 ```
+
+!!! note "Changed in NetBox v4.6.1"
+
+    The `finalize` parameter is deprecated and cannot be set on new or modified templates. Templates that already have it saved continue to honor it.
 
 ### MIME Type
 

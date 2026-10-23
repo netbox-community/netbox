@@ -33,7 +33,7 @@
   "frontport:api_list_objects": 14,
   "frontport:list_objects_with_permission": 21,
   "frontporttemplate:api_list_objects": 12,
-  "interface:api_list_objects": 23,
+  "interface:api_list_objects": 21,
   "interface:list_objects_with_permission": 17,
   "interfaceconnection:list_objects_with_permission": 40,
   "interfacetemplate:api_list_objects": 11,

@@ -1,0 +1,41 @@
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > [!IMPORTANT]
+        > This form is for **first-time contributors**, who must be vouched for before submitting pull requests. Please read through our [contributing guide](https://github.com/netbox-community/netbox/blob/main/CONTRIBUTING.md) before proceeding.
+        >
+        > Please keep your introduction **concise** and write it **in your own words**. Do not use AI to write it for you. Once your request has been approved, a maintainer will reply with `!vouch` and you will be able to submit pull requests.
+  - type: textarea
+    attributes:
+      label: About you
+      description: >
+        Tell us a bit about yourself. What is your background, and how do you use NetBox?
+      placeholder: >
+        I'm a network engineer at a regional ISP, and we've been using NetBox to manage our...
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Why do you want to contribute?
+      description: >
+        What motivates you to contribute to NetBox? If you have a specific change in mind, please link to the
+        relevant issue (e.g. #1234).
+      placeholder: >
+        I'd like to work on #1234, which affects our deployment because...
+    validations:
+      required: true
+  - type: checkboxes
+    attributes:
+      label: "I acknowledge that:"
+      options:
+        - label: >-
+            I wrote this introduction myself, in my own words, without the use of AI.
+          required: true
+        - label: >-
+            I have read the [contributing guide](https://github.com/netbox-community/netbox/blob/main/CONTRIBUTING.md)
+            and understand the contribution process.
+          required: true
+        - label: >-
+            I must wait to be assigned as the owner of an issue before submitting a PR for it.
+          required: true

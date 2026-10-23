@@ -1429,12 +1429,12 @@ class RenderTemplateMixinRenderTestCase(TestCase):
         with self.assertRaises(UndefinedError):
             strict.render({})
 
-    def test_environment_params_finalize_legacy_resolution(self):
+    def test_environment_params_stored_finalize_resolution(self):
         """
-        Existing finalize values continue to resolve via import_string() as a
-        legacy carve-out (CVE-2026-29514). New use is blocked by clean().
+        A stored 'finalize' value still resolves via import_string(). clean() blocks new use (CVE-2026-29514).
         """
-        t = ConfigTemplate(
+        # create() does not call clean(). This matches a value stored before clean() blocked it.
+        t = ConfigTemplate.objects.create(
             name='finalize',
             template_code='{{ v }}',
             environment_params={'finalize': 'extras.tests.test_models.finalize_none_to_dash'},
@@ -1592,6 +1592,89 @@ class ExportTemplateRenderTestCase(TestCase):
         self.assertEqual(response['Content-Type'], DEFAULT_MIME_TYPE)
         self.assertEqual(response['Content-Disposition'], 'attachment; filename="netbox_sites.txt"')
         self.assertEqual(response.content.decode(), 'Site A\nSite B\nSite C\n')
+
+
+class ExportTemplateStoredOnlyFinalizeTestCase(TestCase):
+    """
+    Tests that render() honors 'finalize' only with the value stored on the template's database record.
+    """
+    TEMPLATE_CODE = '{{ "netbox" }}'
+
+    def _create_stored(self):
+        """
+        Create a template with a stored 'finalize' value.
+        """
+        # create() does not call clean(). This matches a value stored before clean() blocked it.
+        return ExportTemplate.objects.create(
+            name='stored',
+            template_code=self.TEMPLATE_CODE,
+            environment_params={'finalize': 'builtins.len'},
+        )
+
+    @tag('regression')
+    def test_unsaved_template_ignores_finalize(self):
+        t = ExportTemplate(
+            name='unsaved',
+            template_code=self.TEMPLATE_CODE,
+            environment_params={'finalize': 'builtins.len'},
+        )
+        with self.assertLogs('extras.models.mixins', 'WARNING'):
+            self.assertEqual(t.render(), 'netbox')
+
+    def test_stored_finalize_is_applied(self):
+        self._create_stored()
+        t = ExportTemplate.objects.get(name='stored')
+        self.assertEqual(t.render(), '6')
+
+    @tag('regression')
+    def test_finalize_added_in_memory_is_ignored(self):
+        t = ExportTemplate.objects.create(name='saved', template_code=self.TEMPLATE_CODE)
+        t.environment_params = {'finalize': 'builtins.len'}
+        with self.assertLogs('extras.models.mixins', 'WARNING'):
+            self.assertEqual(t.render(), 'netbox')
+
+    @tag('regression')
+    def test_finalize_changed_in_memory_uses_stored_value(self):
+        t = self._create_stored()
+        t.environment_params = {'finalize': 'builtins.repr'}
+        with self.assertNoLogs('extras.models.mixins', 'WARNING'):
+            self.assertEqual(t.render(), '6')
+
+    @tag('regression')
+    def test_render_fails_when_template_code_differs_from_stored(self):
+        t = self._create_stored()
+        t.template_code = '{{ "changed" }}'
+        with self.assertRaises(TemplateError):
+            t.render()
+
+    @tag('regression')
+    def test_render_fails_when_stored_template_is_edited_after_load(self):
+        t = self._create_stored()
+        # An edit that saves new code must also remove 'finalize', since clean() rejects it
+        ExportTemplate.objects.filter(pk=t.pk).update(template_code='{{ "edited" }}', environment_params={})
+        with self.assertRaises(TemplateError):
+            t.render()
+
+    @tag('regression')
+    def test_render_fails_when_stored_template_is_deleted_after_load(self):
+        t = self._create_stored()
+        ExportTemplate.objects.filter(pk=t.pk).delete()
+        with self.assertRaises(TemplateError):
+            t.render()
+
+    def test_no_query_without_finalize(self):
+        t = ExportTemplate.objects.create(
+            name='plain',
+            template_code=self.TEMPLATE_CODE,
+            environment_params={'trim_blocks': True},
+        )
+        with self.assertNumQueries(0):
+            t.get_environment_params()
+
+    def test_one_query_with_stored_finalize(self):
+        t = self._create_stored()
+        with self.assertNumQueries(1):
+            t.get_environment_params()
 
 
 class WebhookPayloadUrlValidationTestCase(TestCase):
@@ -1888,9 +1971,11 @@ class JinjaEnvironmentParamsIntegrationTestCase(TestCase):
         self.assertIs(params['trim_blocks'], True)
 
     def test_full_pipeline_finalize_resolves(self):
+        # Only a stored 'finalize' value resolves (#23375).
         template = self._make_template({
             'finalize': 'extras.tests.test_models.finalize_none_to_dash',
         })
+        template.save()
         params = template.get_environment_params()
         self.assertIs(params['finalize'], finalize_none_to_dash)
 

@@ -437,6 +437,12 @@ export class DynamicTomSelect extends NetBoxTomSelect {
     this.updateQueryParams(target.name);
     this.updatePathValues(target.name);
 
+    // A dependency only filters what can be added to a field that preserves its selection.
+    if (this.input.hasAttribute('data-preserve-selection')) {
+      this.load(this.lastValue);
+      return;
+    }
+
     // Clear any previous selection(s) as the parent filter has changed
     this.clear();
 

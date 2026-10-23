@@ -53,9 +53,8 @@ WEBHOOK_EVENT_TYPES = {
 #   None  = any JSON-serializable value accepted (scalars, booleans, etc.)
 #   dict  = only dict keys accepted; dict values are the resolved Python objects
 #
-# Note: 'finalize' is intentionally absent. It is deprecated and handled as a
-# legacy carve-out in RenderTemplateMixin (blocked from new use, but existing
-# stored values continue to resolve via import_string at render time).
+# Note: 'finalize' is intentionally absent. RenderTemplateMixin resolves only the
+# stored value of this deprecated parameter (#23375).
 JINJA_ENV_PARAMS_ALLOWED = {
     # Boolean / scalar params (accept any JSON-serializable value)
     'auto_reload': None,
@@ -86,7 +85,7 @@ JINJA_ENV_PARAMS_ALLOWED = {
     # Excluded (dangerous — accept callables or trigger imports):
     #   'bytecode_cache' — accepts arbitrary object
     #   'extensions'     — Jinja2 internally calls import_string() on string entries
-    #   'finalize'       — deprecated; legacy carve-out in RenderTemplateMixin
+    #   'finalize'       — deprecated and stored-only, see RenderTemplateMixin
     #   'loader'         — accepts arbitrary object
 }
 

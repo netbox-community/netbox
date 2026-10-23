@@ -846,6 +846,10 @@ SPECTACULAR_SETTINGS = {
     'SWAGGER_UI_DIST': 'SIDECAR',
     'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
     'POSTPROCESSING_HOOKS': [],
+    # Integer path parameters (e.g. <int:pk>) carry 64-bit object IDs
+    'PATH_CONVERTER_OVERRIDES': {
+        'int': {'type': 'integer', 'format': 'int64'},
+    },
 }
 
 #
@@ -1039,11 +1043,15 @@ for plugin_name in PLUGINS:
 # Monkey-patching
 #
 
+from django.db import models  # noqa: E402
 from rest_framework.utils import field_mapping  # noqa: E402
+from strawberry.schema.types.scalar import DEFAULT_SCALAR_REGISTRY  # noqa: E402
 from strawberry_django import pagination  # noqa: E402
 from strawberry_django.fields.field import StrawberryDjangoField  # noqa: E402
+from strawberry_django.fields.types import field_type_map  # noqa: E402
 
 from netbox.graphql.pagination import OffsetPaginationInput, apply_pagination  # noqa: E402
+from netbox.graphql.scalars import BigInt, BigIntScalar  # noqa: E402
 
 # TODO: Remove this once #20547 has been implemented
 # Override DRF's get_unique_validators() function with our own (see bug #19302)
@@ -1054,6 +1062,16 @@ pagination.OffsetPaginationInput = OffsetPaginationInput
 
 # Patch StrawberryDjangoField to use our custom `apply_pagination()` method with support for cursor-based pagination
 StrawberryDjangoField.apply_pagination = apply_pagination
+
+# Map 64-bit integer model fields to the BigInt scalar, since GraphQL's Int type is limited to 32 bits
+field_type_map.update({
+    models.BigIntegerField: BigInt,
+    models.PositiveBigIntegerField: BigInt,
+})
+
+# Register the BigInt scalar by default, so that any Strawberry schema (including one built by a plugin) can resolve it
+# without having to declare it in its own scalar_map
+DEFAULT_SCALAR_REGISTRY[BigInt] = BigIntScalar
 
 
 # UNSUPPORTED FUNCTIONALITY: Import any local overrides.

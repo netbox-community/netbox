@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 
 import yaml
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.messages import get_messages
 from django.db import connection
 from django.http import QueryDict, StreamingHttpResponse
 from django.test import override_settings, tag
@@ -4234,6 +4235,55 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         self.client.post(self._get_url('bulk_delete'), data)
         self.assertEqual(device.interfaces.count(), 4)  # Child & parent were both deleted
 
+    @tag('regression')  # Issue #23467
+    def test_bulk_add_interfaces_excludes_restricted_devices(self):
+        """
+        Bulk-adding interfaces ignores devices the user is not permitted to view.
+        """
+        visible_device = Device.objects.get(name='Device 1')
+        site = Site.objects.create(name='Site 2', slug='site-2')
+        hidden_device = create_test_device('Hidden Device', site=site)
+
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['view'],
+            constraints={'site__slug': 'site-1'},
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Device))
+        self.add_permissions('dcim.add_interface')
+        url = reverse('dcim:device_bulk_add_interface')
+
+        # The selected objects table omits the hidden device
+        response = self.client.post(url, data=post_data({'pk': [visible_device.pk, hidden_device.pk]}))
+        self.assertHttpStatus(response, 200)
+        self.assertEqual([row.record for row in response.context['table'].rows], [visible_device])
+        self.assertNotContains(response, hidden_device.name)
+        self.assertNotIn(hidden_device, response.context['form'].fields['pk'].queryset)
+        self.assertEqual(response.context['form']['pk'].value(), [visible_device.pk])
+
+        # Selecting all filtered devices matches only permitted devices
+        response = self.client.post(f'{url}?site_id={site.pk}', data=post_data({'_all': True}))
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(
+            [str(message) for message in get_messages(response.wsgi_request)],
+            ['No devices were selected.']
+        )
+
+        # Creation skips the hidden device
+        response = self.client.post(url, data=post_data({
+            'pk': [visible_device.pk, hidden_device.pk],
+            'name': 'Bulk Interface',
+            'type': InterfaceTypeChoices.TYPE_1GE_FIXED,
+            '_create': True,
+        }))
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(
+            list(Interface.objects.filter(name='Bulk Interface').values_list('device', flat=True)),
+            [visible_device.pk]
+        )
+
     def test_rename_select_all_spans_pages(self):
         """
         Tests the bulk rename functionality for interfaces spanning multiple pages in the UI.
@@ -4724,7 +4774,7 @@ class ModuleBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
         """
         Bulk-adding module bays expands the name pattern per device and applies enabled to every new bay.
         """
-        self.add_permissions('dcim.add_modulebay')
+        self.add_permissions('dcim.add_modulebay', 'dcim.view_device')
         device1 = Device.objects.get(name='Device 1')
         device2 = create_test_device('Device 2')
         initial_count = self._get_queryset().count()

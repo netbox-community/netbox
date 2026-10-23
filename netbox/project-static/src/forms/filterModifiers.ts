@@ -16,12 +16,26 @@ export function initFilterModifiers(): void {
     const modifierSelects = form.querySelectorAll<HTMLSelectElement>('.modifier-select');
     if (modifierSelects.length === 0) continue;
 
-    initializeFromURL(form);
+    // HTMX-driven forms submit via XHR; navigating away would discard the page the form lives in
+    const isHtmxForm = form.hasAttribute('hx-get') || form.hasAttribute('data-hx-get');
+
+    // The object selector lives in a modal, so the page URL doesn't reflect its state
+    if (!form.hasAttribute('data-object-selector')) {
+      initializeFromURL(form);
+    }
 
     modifierSelects.forEach(select => {
       select.addEventListener('change', () => handleModifierChange(select));
       handleModifierChange(select);
     });
+
+    if (isHtmxForm) {
+      // Rewrite field names on the outgoing HTMX request instead of navigating
+      form.addEventListener('htmx:configRequest', e => {
+        handleFormDataTransform(form, e.detail.formData);
+      });
+      continue;
+    }
 
     // Must use submit event for GET forms
     form.addEventListener('submit', e => {

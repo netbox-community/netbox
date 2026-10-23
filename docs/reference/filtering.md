@@ -50,6 +50,12 @@ GET /api/dcim/sites/?cf_foo=123
 
 Custom fields can be mixed with built-in fields to further narrow results. When creating a custom string field, the type of filtering selected (loose versus exact) determines whether partial or full matching is used.
 
+Boolean custom fields support the `empty` [lookup expression](#lookup-expressions), which matches objects holding no value for the field. A value of `false` is not considered empty. For example, the following query will return only sites where a boolean custom field named `managed` has not been set:
+
+```no-highlight
+GET /api/dcim/sites/?cf_managed__empty=true
+```
+
 ## Lookup Expressions
 
 Certain model fields also support filtering using additional lookup expressions. This allows

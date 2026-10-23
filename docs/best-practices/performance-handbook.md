@@ -163,7 +163,9 @@ You can specify filters when making a GraphQL query to limit the set of objects 
 query {
   site_list(
     filters: {
-      status: STATUS_ACTIVE
+      status: {
+        exact: STATUS_ACTIVE
+      }
     }
   ) {
     name

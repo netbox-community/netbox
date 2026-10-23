@@ -1,15 +1,3 @@
-/**
- * interface for htmx configRequest event
- */
-declare global {
-  interface HTMLElementEventMap {
-    'htmx:configRequest': CustomEvent<{
-      parameters: Record<string, string>;
-      headers: Record<string, string>;
-    }>;
-  }
-}
-
 function initMarkdownPreview(markdownWidget: HTMLDivElement) {
   const previewButton = markdownWidget.querySelector('button.preview-button') as HTMLButtonElement;
   const textarea = markdownWidget.querySelector('textarea') as HTMLTextAreaElement;

@@ -26,7 +26,11 @@ __all__ = (
 FORM_FIELD_LOOKUPS = {
     QueryField: [],
     forms.BooleanField: [],
-    forms.NullBooleanField: [],
+    forms.NullBooleanField: [
+        ('exact', _('is')),
+        (MODIFIER_EMPTY_TRUE, _('is empty')),
+        (MODIFIER_EMPTY_FALSE, _('is not empty')),
+    ],
     forms.CharField: [
         ('exact', _('is')),
         ('n', _('is not')),

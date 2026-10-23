@@ -34,6 +34,9 @@ ADVISORY_LOCK_KEYS = {
 
     # Custom field data
     'custom-field-data': 115100,
+
+    # Data source synchronization
+    'data-source-sync': 120100,
 }
 
 # General-purpose tokens

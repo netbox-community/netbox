@@ -15,15 +15,15 @@ from rest_framework.settings import api_settings
 from rest_framework.test import APIClient
 
 from core.models import DataFile, DataSource, ObjectType
-from dcim.api.serializers import RackSerializer
-from dcim.models import Device, Site
+from dcim.api.serializers import InterfaceSerializer, RackSerializer
+from dcim.models import Device, Rack, Site
 from extras.models import ExportTemplate
 from ipam.api.serializers import RouteTargetSerializer, VRFSerializer
 from ipam.models import VRF, RouteTarget
 from netbox.api.exceptions import QuerySetNotOrdered, SerializerNotFound
 from netbox.api.fields import ContentTypeField, IntegerRangeSerializer, RelatedObjectCountField
 from netbox.api.pagination import NetBoxPagination
-from netbox.api.serializers import ValidatedModelSerializer
+from netbox.api.serializers import ValidatedModelSerializer, WritableNestedSerializer
 from users.constants import TOKEN_PREFIX
 from users.models import Token, User
 from utilities.api import get_serializer_for_model
@@ -108,8 +108,8 @@ class RelatedObjectCountFieldTestCase(TestCase):
     """
     RelatedObjectCountFields are populated by annotations applied to a viewset's queryset, which are only
     added when serializing an object via its own endpoint (including ?brief=1). They are never annotated when
-    the object is rendered as a nested related object, so they must be omitted from nested representations to
-    keep the generated OpenAPI schema honest. See #22154.
+    the object is rendered as a nested related object, so those without a fallback must be omitted from nested
+    representations to keep the generated OpenAPI schema honest. See #22154.
     """
     def test_count_field_omitted_when_nested(self):
         """A nested serializer must drop RelatedObjectCountFields (e.g. RackSerializer.device_count)."""
@@ -125,6 +125,16 @@ class RelatedObjectCountFieldTestCase(TestCase):
         serializer = RackSerializer(fields=RackSerializer.Meta.brief_fields)
         self.assertIn('device_count', serializer.fields)
         self.assertIsInstance(serializer.fields['device_count'], RelatedObjectCountField)
+
+    def test_count_field_with_fallback_retained_when_nested(self):
+        """A nested serializer keeps a requested count field that has a fallback."""
+        serializer = InterfaceSerializer(nested=True, fields=['id', 'count_ipaddresses'])
+        self.assertEqual(set(serializer.fields), {'id', 'count_ipaddresses'})
+
+    def test_count_field_without_fallback_omitted_when_unannotated(self):
+        """A count field without a fallback is left out of an unannotated object's representation."""
+        serializer = RackSerializer(Rack(pk=1), fields=['id', 'device_count'])
+        self.assertEqual(serializer.data, {'id': 1})
 
 
 class NetBoxPaginationTestCase(TestCase):
@@ -427,7 +437,7 @@ class ValidatedModelSerializerTestCase(TestCase):
         self.assertEqual(opted_in.validated_data['template_code'], '{{ synced }}')
 
     def test_nested_serializer_skips_model_validation(self):
-        """A serializer representing a nested object returns its input untouched."""
+        """A serializer representing a nested object resolves its input without calling validate()."""
 
         class OptedInSerializer(ValidatedModelSerializer):
             class Meta:
@@ -436,10 +446,34 @@ class ValidatedModelSerializerTestCase(TestCase):
                 brief_fields = ('name',)
                 model_clean_fields = ('template_code',)
 
+        export_template = ExportTemplate.objects.create(name='Export Template 1', template_code='{# untouched #}')
         serializer = OptedInSerializer(nested=True)
-        data = {'template_code': '{# untouched #}'}
 
-        self.assertEqual(serializer.validate(data), data)
+        with patch.object(OptedInSerializer, 'validate') as validate:
+            self.assertEqual(serializer.run_validation(export_template.pk), export_template)
+        validate.assert_not_called()
+
+
+class WritableNestedSerializerTestCase(TestCase):
+
+    def test_skips_validation(self):
+        """A WritableNestedSerializer resolves its input without running validators or validate()."""
+
+        class NestedExportTemplateSerializer(WritableNestedSerializer):
+            class Meta:
+                model = ExportTemplate
+                fields = ['id', 'name']
+
+        export_template = ExportTemplate.objects.create(name='Export Template 1', template_code='{# untouched #}')
+        serializer = NestedExportTemplateSerializer()
+
+        with (
+            patch.object(NestedExportTemplateSerializer, 'run_validators') as run_validators,
+            patch.object(NestedExportTemplateSerializer, 'validate') as validate,
+        ):
+            self.assertEqual(serializer.run_validation(export_template.pk), export_template)
+        run_validators.assert_not_called()
+        validate.assert_not_called()
 
 
 ROUTED_ALIAS = 'routed'

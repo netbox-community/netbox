@@ -20,6 +20,7 @@ from utilities import filters
 from utilities.constants import (
     FILTER_ARRAY_BASED_LOOKUP_MAP,
     FILTER_CHAR_BASED_LOOKUP_MAP,
+    FILTER_EMPTY_LOOKUP_MAP,
     FILTER_NEGATION_LOOKUP_MAP,
     FILTER_NUMERIC_BASED_LOOKUP_MAP,
     FILTER_TAG_LOOKUP_MAP,
@@ -63,6 +64,9 @@ class BaseFilterSet(django_filters.FilterSet):
     FILTER_DEFAULTS.update({
         models.AutoField: {
             'filter_class': filters.MultiValueNumberFilter
+        },
+        models.BigIntegerField: {
+            'filter_class': filters.MultiValueBigNumberFilter
         },
         models.CharField: {
             'filter_class': filters.MultiValueCharFilter
@@ -190,6 +194,10 @@ class BaseFilterSet(django_filters.FilterSet):
             filters.MultiValueCharFilter,
         )):
             return FILTER_CHAR_BASED_LOOKUP_MAP
+
+        if isinstance(existing_filter, django_filters.BooleanFilter) and hasattr(existing_filter, 'custom_field'):
+            # A boolean custom field may hold no value at all, so it supports only the empty lookup
+            return FILTER_EMPTY_LOOKUP_MAP
 
         return None
 

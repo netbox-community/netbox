@@ -4,6 +4,7 @@ from django import forms
 from django.template.loader import render_to_string
 from django.test import TestCase
 
+from circuits.models import CircuitTermination
 from dcim.choices import (
     CableEndChoices,
     CableProfileChoices,
@@ -14,6 +15,7 @@ from dcim.choices import (
     LinkStatusChoices,
     PortTypeChoices,
     PowerOutletStatusChoices,
+    VirtualDeviceContextStatusChoices,
 )
 from dcim.forms import *
 from dcim.models import *
@@ -1113,6 +1115,29 @@ class InterfaceTestCase(TestCase):
         self.assertNotIn('tagged_vlans', form.cleaned_data.keys())
         self.assertNotIn('qinq_svlan', form.cleaned_data.keys())
 
+    def test_child_interface_preselects_every_parent_vdc(self):
+        """A child interface's form pre-selects every virtual device context of its parent."""
+        vdcs = (
+            VirtualDeviceContext(
+                device=self.device,
+                name='VDC 1',
+                identifier=1,
+                status=VirtualDeviceContextStatusChoices.STATUS_ACTIVE
+            ),
+            VirtualDeviceContext(
+                device=self.device,
+                name='VDC 2',
+                identifier=2,
+                status=VirtualDeviceContextStatusChoices.STATUS_ACTIVE
+            ),
+        )
+        VirtualDeviceContext.objects.bulk_create(vdcs)
+        self.interface.vdcs.set(vdcs)
+
+        form = InterfaceForm(initial={'device': self.device.pk, 'parent': self.interface.pk})
+
+        self.assertCountEqual([vdc.pk for vdc in form['vdcs'].field.queryset], [vdc.pk for vdc in vdcs])
+
 
 class CableTestCase(TestCase):
 
@@ -1146,6 +1171,14 @@ class CableTestCase(TestCase):
             PowerPort(device=cls.device_b, name='Power Port 2'),
         )
         PowerPort.objects.bulk_create(cls.power_ports)
+
+    def _make_edit_form(self):
+        cable = Cable(
+            a_terminations=[self.interfaces_a[0]],
+            b_terminations=[self.interfaces_b[1], self.interface_c],
+        )
+        cable.save()
+        return get_cable_form(Interface, Interface)(instance=Cable.objects.get(pk=cable.pk))
 
     def test_invalid_side_designation_raises_value_error(self):
         """_clean_side rejects a side other than 'a' or 'b' with ValueError."""
@@ -1482,6 +1515,62 @@ class CableTestCase(TestCase):
         })
         self.assertFalse(form.is_valid())
         self.assertIn('side termination not unique', str(form.errors.get('side_b_name')))
+
+    def test_edit_form_selects_every_device_terminating_an_end(self):
+        """The edit form selects every device terminating an end of the cable."""
+        form = self._make_edit_form()
+
+        self.assertCountEqual(
+            [device.pk for device in form['termination_b_device'].field.queryset],
+            [self.device_b.pk, self.device_c.pk]
+        )
+
+    def test_edit_form_names_the_device_of_each_termination(self):
+        """Each termination option names its device, so identically named interfaces stay distinct."""
+        html = str(self._make_edit_form()['b_terminations'])
+
+        for interface in (self.interfaces_b[1], self.interface_c):
+            self.assertInHTML(
+                f'<option value="{interface.pk}" data-parent="{interface.device}" selected>et-0/0/1</option>', html
+            )
+
+    def test_termination_fields_preserve_their_selection(self):
+        """Only the termination fields keep their selection when a parent selector changes."""
+        for termination_type, parent in (
+            (Interface, 'device'),
+            (PowerFeed, 'powerpanel'),
+            (CircuitTermination, 'circuit'),
+        ):
+            fields = get_cable_form(termination_type, termination_type)().fields
+            with self.subTest(termination_type=termination_type.__name__):
+                self.assertIn('data-preserve-selection', fields['b_terminations'].widget.attrs)
+                self.assertNotIn('data-preserve-selection', fields[f'termination_b_{parent}'].widget.attrs)
+
+    def test_edit_form_saves_terminations_outside_the_device_filter(self):
+        """Saving keeps every selected termination and its row, even when its device is not in the Device filter."""
+        cable = self._make_edit_form().instance
+        rows = CableTermination.objects.filter(cable=cable, cable_end=CableEndChoices.SIDE_B)
+        existing_rows = set(rows.values_list('pk', flat=True))
+        device_d = create_test_device('Device D', site=self.site)
+        interface_d = Interface.objects.create(
+            device=device_d, name='et-0/0/1', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        b_terminations = [self.interfaces_b[1], self.interface_c, interface_d]
+
+        form = get_cable_form(Interface, Interface)(instance=Cable.objects.get(pk=cable.pk), data={
+            'a_terminations_type': 'dcim.interface',
+            'b_terminations_type': 'dcim.interface',
+            'termination_a_device': [self.device_a.pk],
+            'termination_b_device': [device_d.pk],
+            'a_terminations': [self.interfaces_a[0].pk],
+            'b_terminations': [interface.pk for interface in b_terminations],
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+
+        self.assertCountEqual(Cable.objects.get(pk=cable.pk).b_terminations, b_terminations)
+        self.assertTrue(existing_rows.issubset(rows.values_list('pk', flat=True)))
 
 
 class SiteFormTestCase(TestCase):

@@ -69,10 +69,6 @@ class TaggableModelSerializer(serializers.Serializer):
         return ret
 
     def validate(self, data):
-        # Skip validation for nested serializer representations (e.g. when used as a related field)
-        if type(data) is not dict:
-            return super().validate(data)
-
         if data.get('tags') and (data.get('add_tags') or data.get('remove_tags')):
             raise serializers.ValidationError({
                 'tags': 'Cannot specify "tags" together with "add_tags" or "remove_tags".'

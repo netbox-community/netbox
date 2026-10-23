@@ -1334,15 +1334,16 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
         logger = logging.getLogger('netbox.views.BulkComponentCreateView')
         parent_model_name = self.parent_model._meta.verbose_name_plural
         model_name = self.queryset.model._meta.verbose_name_plural
+        parent_queryset = self.parent_model.objects.restrict(request.user, 'view')
 
         # Are we editing *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all') and self.filterset is not None:
-            queryset = self.filterset(request.GET, self.parent_model.objects.only('pk'), request=request).qs
+            queryset = self.filterset(request.GET, parent_queryset.only('pk'), request=request).qs
             pk_list = [obj.pk for obj in queryset]
         else:
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 
-        selected_objects = self.parent_model.objects.filter(pk__in=pk_list)
+        selected_objects = parent_queryset.filter(pk__in=pk_list)
         if not selected_objects:
             messages.warning(
                 request,
@@ -1352,7 +1353,11 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
         table = self.table(selected_objects, orderable=False)
 
         if '_create' in request.POST:
-            form = self.form(request.POST)
+            # Drop any selected parent objects which the user is not permitted to view
+            post_data = request.POST.copy()
+            post_data.setlist('pk', [obj.pk for obj in selected_objects])
+            form = self.form(post_data)
+            restrict_form_fields(form, request.user)
 
             if form.is_valid():
                 logger.debug("Form validation was successful")
@@ -1445,7 +1450,8 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
                 logger.debug("Form validation failed")
 
         else:
-            form = self.form(initial={'pk': pk_list})
+            form = self.form(initial={'pk': [obj.pk for obj in selected_objects]})
+            restrict_form_fields(form, request.user)
 
         return render(request, self.template_name, {
             'form': form,

@@ -13,11 +13,11 @@ from rest_framework import status
 
 from core.models import ObjectType
 from dcim.choices import InterfaceModeChoices
-from dcim.models import Platform, Site
+from dcim.models import Interface, Platform, Site
 from extras.choices import CustomFieldTypeChoices
-from extras.models import ConfigContext, ConfigTemplate, CustomField
-from ipam.choices import VLANQinQRoleChoices
-from ipam.models import VLAN, VRF, IPAddress, Prefix
+from extras.models import ConfigContext, ConfigTemplate, CustomField, ExportTemplate
+from ipam.choices import FHRPGroupProtocolChoices, VLANQinQRoleChoices
+from ipam.models import VLAN, VRF, FHRPGroup, FHRPGroupAssignment, IPAddress, Prefix
 from users.constants import TOKEN_PREFIX
 from users.models import Token
 from utilities.testing import (
@@ -485,6 +485,39 @@ class VirtualMachineTestCase(APIViewTestCases.APIViewTestCase):
         self.assertEqual(
             {row['name']: row['config_context'] for row in data['data']['virtual_machine_list']}, expected
         )
+
+    @tag('regression')  # Issue #23448
+    def test_config_context_graphql_selection(self):
+        """
+        GraphQL annotates config context for virtual machines with no cache however config_context is selected,
+        including through fragments, without a query per virtual machine.
+        """
+        self.add_permissions('virtualization.view_virtualmachine')
+        ConfigContext.objects.create(name='Config Context 1', weight=100, data={'foo': 123})
+        VirtualMachine.objects.update(_config_context_data=None)
+        expected = {vm.name: vm.render_config_context() for vm in VirtualMachine.objects.all()}
+
+        queries = {
+            'field': '{ virtual_machine_list { name config_context } }',
+            'inline fragment': '{ virtual_machine_list { ... on VirtualMachineType { name config_context } } }',
+            'named fragment': (
+                'fragment F on VirtualMachineType { name config_context } query { virtual_machine_list { ...F } }'
+            ),
+        }
+        for shape, query in queries.items():
+            with self.subTest(shape=shape):
+                with CaptureQueriesContext(connection) as captured:
+                    response = self.client.post(
+                        reverse('graphql'), data={'query': query}, format='json', **self.header
+                    )
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                data = response.json()
+                self.assertNotIn('errors', data)
+                rows = data['data']['virtual_machine_list']
+                self.assertEqual({row['name']: row['config_context'] for row in rows}, expected)
+                # Rendered by the annotation in a single query, not one fallback query per virtual machine
+                sql = [captured_query['sql'] for captured_query in captured.captured_queries]
+                self.assertEqual(len([s for s in sql if '"extras_configcontext"' in s]), 1)
 
     def test_config_context_included_by_default_in_list_view(self):
         """
@@ -1061,6 +1094,73 @@ class VMInterfaceTestCase(APIViewTestCases.APIViewTestCase):
         }
         response = self.client.post(self._get_list_url(), data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_count_ipaddresses_and_fhrp_groups(self):
+        """Counts come from annotations of the VM interface's object type, never from loaded related objects."""
+        self.add_permissions('virtualization.view_vminterface')
+        vm_interface = VMInterface.objects.get(name='Interface 1')
+        group = FHRPGroup.objects.create(
+            pk=vm_interface.pk, protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=1
+        )
+        other_group = FHRPGroup.objects.create(
+            pk=vm_interface.pk + 1, protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=2
+        )
+        interface = Interface.objects.create(
+            pk=vm_interface.pk, device=create_test_device('Device 1'), name='eth0', type='1000base-t'
+        )
+        IPAddress.objects.bulk_create((
+            IPAddress(address='192.0.2.1/24', assigned_object=vm_interface),
+            IPAddress(address='2001:db8::1/64', assigned_object=vm_interface),
+            IPAddress(address='192.0.2.2/24', assigned_object=interface),
+            IPAddress(address='192.0.2.254/24', assigned_object=group),
+        ))
+        FHRPGroupAssignment.objects.bulk_create((
+            FHRPGroupAssignment(group=group, interface=vm_interface, priority=100),
+            # Two on the dcim interface, so a count of the wrong object type cannot match
+            FHRPGroupAssignment(group=group, interface=interface, priority=100),
+            FHRPGroupAssignment(group=other_group, interface=interface, priority=100),
+        ))
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(self._get_list_url(), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        counts = {
+            row['name']: (row['count_ipaddresses'], row['count_fhrp_groups']) for row in response.data['results']
+        }
+        self.assertEqual(counts, {'Interface 1': (2, 1), 'Interface 2': (0, 0), 'Interface 3': (0, 0)})
+        # Only the VM interface statement reads the related tables, through its two count subqueries
+        statements = [
+            query['sql'] for query in queries.captured_queries
+            if '"ipam_ipaddress"' in query['sql'] or '"ipam_fhrpgroupassignment"' in query['sql']
+        ]
+        self.assertEqual(len(statements), 1)
+        self.assertTrue(statements[0].startswith('SELECT "virtualization_vminterface"'))
+        # Unannotated instances count through the relations
+        self.assertEqual((vm_interface.count_ipaddresses, vm_interface.count_fhrp_groups), (2, 1))
+
+    def test_export_template_prefetches_related_objects(self):
+        """An API export renders model instances, so it prefetches each counted relation once."""
+        self.add_permissions('virtualization.view_vminterface', 'extras.view_exporttemplate')
+        vm_interface = VMInterface.objects.get(name='Interface 1')
+        IPAddress.objects.create(address='192.0.2.1/24', assigned_object=vm_interface)
+        group = FHRPGroup.objects.create(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=1)
+        FHRPGroupAssignment.objects.create(group=group, interface=vm_interface, priority=100)
+        export_template = ExportTemplate.objects.create(
+            name='VM Interface Relations',
+            template_code=(
+                '{% for interface in queryset %}{{ interface.name }}={{ interface.ip_addresses.all()|length }}/'
+                '{{ interface.fhrp_group_assignments.all()|length }},{% endfor %}'
+            ),
+        )
+        export_template.object_types.set([ObjectType.objects.get_for_model(VMInterface)])
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(self._get_list_url(), {'export': export_template.name}, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.content.decode(), 'Interface 1=1/1,Interface 2=0/0,Interface 3=0/0,')
+        for table in ('ipam_ipaddress', 'ipam_fhrpgroupassignment'):
+            statements = [query['sql'] for query in queries.captured_queries if f'FROM "{table}"' in query['sql']]
+            self.assertEqual(len(statements), 1, table)
 
 
 class VirtualDiskTestCase(APIViewTestCases.APIViewTestCase):

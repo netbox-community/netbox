@@ -1,5 +1,4 @@
 from extras.models import Tag
-from utilities.api import get_related_object_by_attrs
 
 from .base import BaseModelSerializer
 
@@ -15,11 +14,9 @@ class WritableNestedSerializer(BaseModelSerializer):
     dictionary of attributes which can be used to uniquely identify the related object. This class should be
     subclassed to return a full representation of the related object on read.
     """
-    def to_internal_value(self, data):
-        queryset = self.Meta.model.objects.all()
-        request = self.context.get('request')
-        user = request.user if request else None
-        return get_related_object_by_attrs(queryset, data, user=user)
+    @property
+    def resolves_existing_object(self):
+        return True
 
 
 # Declared here for use by PrimaryModelSerializer

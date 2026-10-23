@@ -51,7 +51,7 @@ class JournalEntrySerializer(NetBoxModelSerializer):
     def validate(self, data):
 
         # Validate that the parent object exists
-        if not self.nested and 'assigned_object_type' in data and 'assigned_object_id' in data:
+        if 'assigned_object_type' in data and 'assigned_object_id' in data:
             try:
                 data['assigned_object_type'].get_object_for_this_type(id=data['assigned_object_id'])
             except ObjectDoesNotExist:

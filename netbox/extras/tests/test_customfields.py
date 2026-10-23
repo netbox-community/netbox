@@ -21,7 +21,7 @@ from core.models import Job, ObjectChange, ObjectType
 from dcim.choices import InterfaceTypeChoices
 from dcim.filtersets import SiteFilterSet
 from dcim.forms import SiteImportForm
-from dcim.models import Cable, Device, Interface, Manufacturer, Rack, Site
+from dcim.models import Cable, Device, Interface, Manufacturer, Module, ModuleBay, ModuleType, Rack, Site
 from dcim.tables import SiteTable
 from extras.api.customfields import CustomFieldListSerializer
 from extras.choices import *
@@ -33,18 +33,19 @@ from extras.jobs import (
     provision_custom_field,
     purge_custom_field,
 )
-from extras.models import CustomField, CustomFieldChoiceSet, Tag
+from extras.models import CustomField, CustomFieldChoiceSet, ImageAttachment, JournalEntry, Tag
 from ipam.api.serializers import VLANSerializer
-from ipam.models import VLAN
+from ipam.models import VLAN, Service, ServiceTemplate
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from netbox.context import query_cache
 from netbox.context_managers import event_tracking
 from netbox.tables.columns import CustomFieldColumn
 from netbox.tests.dummy_plugin.models import DummyNetBoxModel
+from users.models import Token
 from utilities.exceptions import AbortRequest
 from utilities.filters import MultiValueCharFilter, MultiValueContentTypeFilter
-from utilities.testing import APITestCase, TestCase, create_test_device
-from virtualization.models import VirtualMachine
+from utilities.testing import APITestCase, TestCase, create_test_device, create_test_virtualmachine
+from virtualization.models import VirtualMachine, VMInterface
 
 
 def get_primary_table_queries(queries, model):
@@ -2140,6 +2141,79 @@ class CustomFieldAPITestCase(APITestCase):
         )
 
     @tag('regression')
+    def test_update_single_object_with_object_values_using_custom_validation(self):
+        """
+        Object and multi-object custom fields accept objects whose serializers implement validate() (#23422).
+        """
+        device = create_test_device('Device 1')
+        module_type = ModuleType.objects.create(manufacturer=device.device_type.manufacturer, model='Module Type 1')
+        module_bay = ModuleBay.objects.create(device=device, name='Module Bay 1')
+        targets = (
+            Interface.objects.create(device=device, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Module.objects.create(device=device, module_bay=module_bay, module_type=module_type),
+            ImageAttachment.objects.create(
+                object_type=ObjectType.objects.get_for_model(Device),
+                object_id=device.pk,
+                image='image-attachments/image.png',
+                image_height=100,
+                image_width=100,
+            ),
+            JournalEntry.objects.create(assigned_object=device, comments='Journal entry'),
+            Service.objects.create(parent=device, name='Service 1', port_mappings=['tcp/22']),
+            ServiceTemplate.objects.create(name='Service Template 1', port_mappings=['tcp/22']),
+            Token.objects.create(user=self.user),
+            self.user,
+            VMInterface.objects.create(virtual_machine=create_test_virtualmachine('VM 1'), name='eth0'),
+        )
+        site = Site.objects.get(name='Site 1')
+        site_type = ObjectType.objects.get_for_model(Site)
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site.pk})
+        self.add_permissions('dcim.change_site')
+
+        for obj in targets:
+            name = obj._meta.model_name
+            with self.subTest(model=name):
+                for cf_type, cf_name in (
+                    (CustomFieldTypeChoices.TYPE_OBJECT, f'{name}_object'),
+                    (CustomFieldTypeChoices.TYPE_MULTIOBJECT, f'{name}_objects'),
+                ):
+                    cf = CustomField.objects.create(
+                        name=cf_name, type=cf_type, related_object_type=ObjectType.objects.get_for_model(obj)
+                    )
+                    cf.object_types.set([site_type])
+                # Reference the object both by attributes (which requires view permission) and by PK
+                self.add_permissions(f'{obj._meta.app_label}.view_{name}')
+                data = {'custom_fields': {f'{name}_object': {'pk': obj.pk}, f'{name}_objects': [obj.pk]}}
+
+                response = self.client.patch(url, data, format='json', **self.header)
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                site.refresh_from_db()
+                self.assertEqual(site.custom_field_data[f'{name}_object'], obj.pk)
+                self.assertEqual(site.custom_field_data[f'{name}_objects'], [obj.pk])
+
+    def test_update_single_object_rejects_unknown_object_values(self):
+        """Object and multi-object custom fields reject references which match no object."""
+        site2 = Site.objects.get(name='Site 2')
+        original_cf_data = {**site2.custom_field_data}
+        missing_pk = VLAN.objects.order_by('-pk').values_list('pk', flat=True).first() + 1
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
+        self.add_permissions('dcim.change_site', 'ipam.view_vlan')
+
+        for field_name, value in (
+            ('object_field', missing_pk),
+            ('object_field', {'name': 'VLAN 99'}),
+            ('multiobject_field', [missing_pk]),
+            ('multiobject_field', [{'name': 'VLAN 99'}]),
+        ):
+            with self.subTest(field=field_name, value=value):
+                response = self.client.patch(url, {'custom_fields': {field_name: value}}, format='json', **self.header)
+                self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+                self.assertIn('custom_fields', response.data)
+
+        site2.refresh_from_db()
+        self.assertEqual(site2.custom_field_data, original_cf_data)
+
+    @tag('regression')
     def test_update_single_object_rejects_unknown_custom_fields(self):
         site2 = Site.objects.get(name='Site 2')
         original_cf_data = {**site2.custom_field_data}
@@ -2878,6 +2952,15 @@ class CustomFieldModelFilterTestCase(TestCase):
     def test_filter_boolean(self):
         self.assertEqual(self.filterset({'cf_cf3': True}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf3': False}, self.queryset).qs.count(), 1)
+        # False is a value, so only the object carrying no value for the field is empty
+        self.assertEqual(self.filterset({'cf_cf3__empty': True}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf3__empty': False}, self.queryset).qs.count(), 3)
+
+    def test_filter_boolean_empty_null(self):
+        # An explicit null is empty, just as a missing key is
+        Site.objects.create(name='Site 5', slug='site-5', custom_field_data={'cf3': None})
+        self.assertEqual(self.filterset({'cf_cf3__empty': True}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf3__empty': False}, self.queryset).qs.count(), 3)
 
     def test_filter_text_strict(self):
         self.assertEqual(self.filterset({'cf_cf4': ['foo']}, self.queryset).qs.count(), 1)
