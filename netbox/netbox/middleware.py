@@ -28,6 +28,7 @@ __all__ = (
     'PrometheusAfterMiddleware',
     'PrometheusBeforeMiddleware',
     'RemoteUserMiddleware',
+    'SentryNotFoundMiddleware',
     'SocialAuthExceptionMiddleware',
 )
 
@@ -47,6 +48,32 @@ class CommonMiddleware(DjangoCommonMiddleware):
         if request.method in self.UNSAFE_METHODS and is_api_request(request):
             return False
         return super().should_redirect_with_slash(request)
+
+
+class SentryNotFoundMiddleware:
+    """
+    Report unresolved 404s to Sentry after CommonMiddleware has run.
+
+    handler_404 marks request._sentry_report_404 before response middleware
+    runs. CommonMiddleware may still replace that 404 with an APPEND_SLASH
+    redirect, so the event is sent only when the response is still a 404.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        # Import sentry_sdk only when reporting. It is an optional extra, and a
+        # redirect that began as a 404 must not touch it.
+        if (
+            settings.SENTRY_ENABLED
+            and getattr(request, '_sentry_report_404', False)
+            and response.status_code == 404
+        ):
+            from sentry_sdk import capture_message
+            capture_message("Page not found", level="error")
+        return response
 
 
 class CoreMiddleware:

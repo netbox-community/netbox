@@ -1,8 +1,10 @@
 import json
+import sys
 from contextlib import contextmanager
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
+from django.conf import settings
 from django.core.signals import got_request_exception
 from django.db.utils import InternalError
 from django.test import RequestFactory, override_settings
@@ -10,7 +12,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from netbox.middleware import CoreMiddleware, MaintenanceModeMiddleware
-from utilities.testing import TestCase
+from utilities.testing import TestCase, disable_warnings
 
 
 class CoreMiddlewareTestCase(TestCase):
@@ -156,3 +158,75 @@ class CoreMiddlewareTestCase(TestCase):
             response = self.process_internal_error(request, 'Simulated maintenance mode GraphQL error')
 
         self.assert_json_500_response(response)
+
+
+class SentryNotFoundMiddlewareTestCase(TestCase):
+    """
+    Sentry must see the status CommonMiddleware left behind.
+
+    GET and HEAD without a trailing slash are APPEND_SLASH redirects and are not
+    reported. A path that is still missing, including an unsafe API method, is.
+    """
+
+    def setUp(self):
+        super().setUp()
+
+        self.capture_message = Mock()
+        sentry_sdk = Mock()
+        sentry_sdk.capture_message = self.capture_message
+        patcher = patch.dict(sys.modules, {'sentry_sdk': sentry_sdk})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    @override_settings(SENTRY_ENABLED=True)
+    def test_get_and_head_slash_redirect_is_not_reported(self):
+        url = reverse('api-status').rstrip('/')
+
+        for method in ('get', 'head'):
+            with self.subTest(method=method):
+                self.capture_message.reset_mock()
+                response = getattr(self.client, method)(url)
+
+                self.assertIn(response.status_code, (status.HTTP_301_MOVED_PERMANENTLY, status.HTTP_302_FOUND))
+                self.assertTrue(response['Location'].endswith('/'))
+                self.capture_message.assert_not_called()
+
+    @override_settings(SENTRY_ENABLED=True)
+    def test_unresolved_path_is_reported(self):
+        url = reverse('api-status') + 'missing'
+
+        with disable_warnings('django.request'):
+            response = self.client.get(url)
+
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+        self.capture_message.assert_called_once_with("Page not found", level="error")
+
+    @override_settings(SENTRY_ENABLED=True)
+    def test_post_without_trailing_slash_is_reported(self):
+        url = reverse('api-status').rstrip('/')
+
+        with disable_warnings('django.request'):
+            response = self.client.post(url)
+
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+        self.capture_message.assert_called_once_with("Page not found", level="error")
+
+    @override_settings(SENTRY_ENABLED=False)
+    def test_disabled_sentry_does_not_report_or_import_sdk(self):
+        import netbox.middleware as middleware
+
+        # sentry_sdk is optional and must not be imported when the middleware module loads.
+        self.assertNotIn('sentry_sdk', vars(middleware))
+
+        url = reverse('api-status') + 'missing'
+        with disable_warnings('django.request'):
+            response = self.client.get(url)
+
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+        self.capture_message.assert_not_called()
+
+    def test_registered_outside_common_middleware(self):
+        # Debug, metrics, and dummy-plugin middleware may surround this entry.
+        sentry_index = settings.MIDDLEWARE.index('netbox.middleware.SentryNotFoundMiddleware')
+        common_index = settings.MIDDLEWARE.index('netbox.middleware.CommonMiddleware')
+        self.assertLess(sentry_index, common_index)

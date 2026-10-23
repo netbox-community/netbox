@@ -532,6 +532,8 @@ if not DEBUG and 'collectstatic' not in sys.argv:
 
 # Middleware
 MIDDLEWARE = [
+    # Must precede CommonMiddleware so the response phase runs after APPEND_SLASH.
+    'netbox.middleware.SentryNotFoundMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
