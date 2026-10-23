@@ -1,14 +1,13 @@
-import { StateManager } from './state';
 import { getElements, isElement } from './util';
-
-type NavState = { pinned: boolean };
-type BodyAttr = 'show' | 'hide' | 'hidden' | 'pinned';
 
 // Keep in sync with Bootstrap's `lg` breakpoint and `navbar-expand-lg` in base/layout.html.
 const SIDENAV_DESKTOP_MEDIA = '(min-width: 992px)';
 
-// Session-scoped, unlike the localStorage `netbox-sidenav` pin state.
+// Session-scoped, unlike the localStorage fold state.
 const SCROLL_STATE_KEY = 'netbox-sidenav-scroll';
+
+// Read before the first paint by initSidebar() in js/setmode.js.
+const FOLD_STATE_KEY = 'netbox-sidebar';
 
 class SideNav {
   /**
@@ -17,145 +16,131 @@ class SideNav {
   private base: HTMLElement;
 
   /**
-   * SideNav internal state manager.
+   * The menu below the logo, which scrolls in the desktop layout.
    */
-  private state: StateManager<NavState>;
+  private menu: HTMLElement;
+
+  /**
+   * The desktop layout, the only one where the sidebar folds.
+   */
+  private desktopMedia: MediaQueryList;
 
   /**
    * First nav item matching the current page, cached at construction.
    */
   private activePageLink: Nullable<HTMLDivElement> = null;
 
+  /**
+   * Menu offset of the unfolded layout, the expanded sidebar or the hover overlay. The compact
+   * rail hides the open groups, so it cannot hold this offset.
+   */
+  private unfoldedScrollTop = 0;
+
+  /**
+   * A folded rail reveals the active item on its first hover, unless the unfolded menu was
+   * scrolled before.
+   */
+  private revealPending = false;
+
   constructor(base: HTMLElement) {
     this.base = base;
-    this.state = new StateManager<NavState>(
-      { pinned: true },
-      { persist: true, key: 'netbox-sidenav' },
-    );
+    this.menu = base.querySelector<HTMLElement>('.navbar-collapse') ?? base;
+    this.desktopMedia = window.matchMedia(SIDENAV_DESKTOP_MEDIA);
 
     this.init();
     this.initLinks();
     this.initScrollPosition();
+    this.initMenuScroll();
   }
 
   /**
-   * Determine if `document.body` has a sidenav attribute.
+   * Whether the sidebar is set to fold on desktop.
    */
-  private bodyHas(attr: BodyAttr): boolean {
-    return document.body.hasAttribute(`data-sidenav-${attr}`);
+  private isFolded(): boolean {
+    return document.documentElement.getAttribute('data-bs-sidebar') === 'folded-hover';
   }
 
   /**
-   * Remove sidenav attributes from `document.body`.
+   * Whether the menu shows its unfolded layout, expanded or opened by hover or keyboard focus.
    */
-  private bodyRemove(...attrs: BodyAttr[]): void {
-    for (const attr of attrs) {
-      document.body.removeAttribute(`data-sidenav-${attr}`);
-    }
-  }
-
-  /**
-   * Add sidenav attributes to `document.body`.
-   */
-  private bodyAdd(...attrs: BodyAttr[]): void {
-    for (const attr of attrs) {
-      document.body.setAttribute(`data-sidenav-${attr}`, '');
-    }
+  private isUnfolded(): boolean {
+    return !this.isFolded() || this.base.matches(':hover, :has(:focus-visible)');
   }
 
   /**
    * Set initial values & add event listeners.
    */
-  private init() {
-    for (const toggler of this.base.querySelectorAll('.sidenav-toggle')) {
-      toggler.addEventListener('click', event => this.onToggle(event));
+  private init(): void {
+    for (const toggle of getElements<HTMLButtonElement>('.sidebar-toggle')) {
+      toggle.addEventListener('click', () => this.setFolded(!this.isFolded()));
     }
+    this.syncToggles();
 
-    for (const toggler of getElements<HTMLButtonElement>('.sidenav-toggle-mobile')) {
-      toggler.addEventListener('click', event => this.onMobileToggle(event));
-    }
-
-    const desktopMedia = window.matchMedia(SIDENAV_DESKTOP_MEDIA);
-    this.setResponsiveState(desktopMedia.matches);
-    desktopMedia.addEventListener('change', event => {
-      this.setResponsiveState(event.matches);
+    // Below lg the menu does not scroll and loses its offset.
+    this.desktopMedia.addEventListener('change', () => {
       this.initLinks();
+      if (!this.desktopMedia.matches) return;
+      if (this.isUnfolded()) this.menu.scrollTop = this.unfoldedScrollTop;
+      this.shade();
     });
 
-    window.addEventListener('resize', () => this.onResize());
+    // The hover overlay returns to where the unfolded menu was, unless keyboard focus opened it.
+    this.base.addEventListener('mouseenter', () => {
+      if (this.isFolded() && !this.base.matches(':has(:focus-visible)')) {
+        this.menu.scrollTop = this.unfoldedScrollTop;
+        if (this.revealPending && this.desktopMedia.matches) {
+          this.revealPending = false;
+          this.revealActiveLink();
+        }
+      }
+    });
 
-    this.base.addEventListener('mouseenter', () => this.onEnter());
-    this.base.addEventListener('mouseleave', () => this.onLeave());
+    // A mouse unpin would leave focus on the pin that the folded rail clips away.
+    this.base.addEventListener('mouseleave', () => {
+      if (!this.isFolded()) return;
+      for (const toggle of getElements<HTMLButtonElement>('.sidebar-toggle')) {
+        if (toggle === document.activeElement && !toggle.matches(':focus-visible')) {
+          toggle.blur();
+        }
+      }
+    });
   }
 
   /**
-   * Apply the appropriate sidenav state for the current responsive layout.
-   */
-  private setResponsiveState(isDesktop: boolean): void {
-    this.bodyRemove('hide');
-
-    if (isDesktop && this.state.get('pinned')) {
-      this.bodyRemove('hidden');
-      this.bodyAdd('show', 'pinned');
-    } else {
-      this.bodyRemove('show', 'pinned');
-      this.bodyAdd('hidden');
-    }
-  }
-
-  /**
-   * If the sidenav is shown, expand active nav links. Otherwise, collapse them.
+   * Expand the active menu group on desktop, folded or not, and collapse it on mobile.
    */
   private initLinks(): void {
     for (const link of this.getActiveLinks()) {
       this.activePageLink ??= link;
-
-      if (this.bodyHas('show')) {
-        this.activateLink(link, 'expand');
-      } else if (this.bodyHas('hidden')) {
-        this.activateLink(link, 'collapse');
-      }
+      this.activateLink(link, this.desktopMedia.matches ? 'expand' : 'collapse');
     }
   }
 
   /**
-   * Show the sidenav.
+   * Fold or unfold the desktop sidebar and remember the choice. Open menu groups stay open.
    */
-  private show(): void {
-    this.bodyAdd('show');
-    this.bodyRemove('hidden', 'hide');
-  }
-
-  /**
-   * Hide the sidenav and close any nested collapse elements.
-   */
-  private hide(): void {
-    this.bodyAdd('hidden');
-    this.bodyRemove('pinned', 'show');
-    for (const collapse of this.base.querySelectorAll('.collapse')) {
-      collapse.classList.remove('show');
+  private setFolded(folded: boolean): void {
+    if (folded) {
+      document.documentElement.setAttribute('data-bs-sidebar', 'folded-hover');
+    } else {
+      document.documentElement.removeAttribute('data-bs-sidebar');
+      this.menu.scrollTop = this.unfoldedScrollTop;
     }
-  }
-
-  /**
-   * Pin the sidenav.
-   */
-  private pin(): void {
-    this.bodyAdd('show', 'pinned');
-    this.bodyRemove('hidden');
-    this.state.set('pinned', true);
-  }
-
-  /**
-   * Unpin the sidenav.
-   */
-  private unpin(): void {
-    this.bodyRemove('pinned', 'show');
-    this.bodyAdd('hidden');
-    for (const collapse of this.base.querySelectorAll('.collapse')) {
-      collapse.classList.remove('show');
+    try {
+      localStorage.setItem(FOLD_STATE_KEY, folded ? 'folded' : 'expanded');
+    } catch {
+      // A failed write still applies to the current page.
     }
-    this.state.set('pinned', false);
+    this.syncToggles();
+  }
+
+  /**
+   * Mark the pin buttons pressed while the sidebar is pinned.
+   */
+  private syncToggles(): void {
+    for (const toggle of getElements<HTMLButtonElement>('.sidebar-toggle')) {
+      toggle.setAttribute('aria-pressed', String(!this.isFolded()));
+    }
   }
 
   /**
@@ -212,106 +197,73 @@ class SideNav {
   }
 
   /**
-   * Whether the aside currently overflows, as opposed to whether the layout lets it scroll at all.
-   */
-  private isScrollable(): boolean {
-    return this.base.scrollHeight > this.base.clientHeight;
-  }
-
-  /**
    * Restore the offset saved for this browser tab, reveal the active item when it falls outside
-   * the sidebar viewport, and save the offset again on the way out. One offset per tab, so a
-   * shorter menu can clamp a deeper value.
+   * the menu viewport, and save the offset again on the way out. One offset per tab, so a shorter
+   * menu can clamp a deeper value. A folded sidebar applies both when the overlay opens on hover,
+   * the reveal only the first time.
    */
   private initScrollPosition(): void {
-    const initiallyScrollable = this.isScrollable();
     const storedScrollTop = sessionStorage.getItem(SCROLL_STATE_KEY);
 
     // Leave a missing offset alone so the browser's own restoration survives.
     if (storedScrollTop !== null) {
-      this.base.scrollTop = Number(storedScrollTop);
+      this.unfoldedScrollTop = Number(storedScrollTop);
+      // The pointer can already rest on a folded rail.
+      if (this.isUnfolded()) {
+        this.menu.scrollTop = this.unfoldedScrollTop;
+      }
     }
 
     // Reveal only in the fixed desktop layout. In the mobile flow layout, scrollIntoView would scroll the page.
-    if (window.matchMedia(SIDENAV_DESKTOP_MEDIA).matches) {
-      const menu = this.activePageLink?.closest<HTMLElement>('.nav-item.dropdown');
-      // A closed dropdown has no box to measure, so reveal its heading instead.
-      const target =
-        menu && !menu.querySelector('.dropdown-menu.show') ? menu : this.activePageLink;
-
-      target?.scrollIntoView({ block: 'nearest' });
+    if (this.desktopMedia.matches) {
+      if (this.isUnfolded()) {
+        this.revealActiveLink();
+      } else {
+        this.revealPending = true;
+      }
     }
 
+    // Only scrolling changes the offset, so a menu that cannot scroll keeps the stored one.
     window.addEventListener('pagehide', () => {
-      // Zero counts only from a sidebar that was already scrollable at load, not one that grew on hover.
-      if (this.isScrollable() && (initiallyScrollable || this.base.scrollTop > 0)) {
-        sessionStorage.setItem(SCROLL_STATE_KEY, String(this.base.scrollTop));
-      }
+      sessionStorage.setItem(SCROLL_STATE_KEY, String(this.unfoldedScrollTop));
     });
   }
 
   /**
-   * Show the sidenav and expand any active menu groups.
+   * Scroll the active item into the menu viewport when it falls outside.
    */
-  private onEnter(): void {
-    if (!this.bodyHas('pinned')) {
-      this.bodyRemove('hide', 'hidden');
-      this.bodyAdd('show');
-      for (const link of this.getActiveLinks()) {
-        this.activateLink(link, 'expand');
-      }
-    }
+  private revealActiveLink(): void {
+    const menu = this.activePageLink?.closest<HTMLElement>('.nav-item.dropdown');
+    // A closed dropdown has no box to measure, so reveal its heading instead.
+    const target = menu && !menu.querySelector('.dropdown-menu.show') ? menu : this.activePageLink;
+
+    target?.scrollIntoView({ block: 'nearest' });
   }
 
   /**
-   * Hide the sidenav and collapse any active menu groups.
+   * Track the unfolded menu's offset and shade the logo row while the menu is scrolled.
    */
-  private onLeave(): void {
-    if (!this.bodyHas('pinned')) {
-      this.bodyRemove('show');
-      this.bodyAdd('hide');
-      for (const link of this.getActiveLinks()) {
-        this.activateLink(link, 'collapse');
-      }
-      this.bodyRemove('hide');
-      this.bodyAdd('hidden');
-    }
+  private initMenuScroll(): void {
+    this.menu.addEventListener(
+      'scroll',
+      () => {
+        // Neither the compact rail nor the mobile menu holds the unfolded desktop offset.
+        if (this.desktopMedia.matches && this.isUnfolded()) {
+          this.unfoldedScrollTop = this.menu.scrollTop;
+          this.revealPending = false;
+        }
+        this.shade();
+      },
+      { passive: true },
+    );
+    this.shade();
   }
 
   /**
-   * Close the (unpinned) sidenav when the window is resized.
+   * Mark the sidebar while its menu is scrolled, so the logo row casts a shadow.
    */
-  private onResize(): void {
-    if (this.bodyHas('show') && !this.bodyHas('pinned')) {
-      this.bodyRemove('show');
-      this.bodyAdd('hidden');
-    }
-  }
-
-  /**
-   * Pin & unpin the sidenav when the pin button is toggled.
-   */
-  private onToggle(event: Event): void {
-    event.preventDefault();
-
-    if (this.state.get('pinned')) {
-      this.unpin();
-    } else {
-      this.pin();
-    }
-  }
-
-  /**
-   * Handle sidenav visibility state for small screens. On small screens, there is no pinned state,
-   * only open/closed.
-   */
-  private onMobileToggle(event: Event): void {
-    event.preventDefault();
-    if (this.bodyHas('hidden')) {
-      this.show();
-    } else {
-      this.hide();
-    }
+  private shade(): void {
+    this.base.classList.toggle('menu-scrolled', this.menu.scrollTop > 0);
   }
 }
 
