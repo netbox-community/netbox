@@ -1024,13 +1024,17 @@ class Device(
             if self.virtual_chassis_id != stored_vc_id:
                 self.clean_vc_lag_membership()
 
-    def clean_vc_lag_membership(self):
+    def clean_vc_lag_membership(self, members=None):
         """
         Raise ValidationError if any interface would form a LAG with a device outside this device's virtual chassis.
+        `members` overrides the set of fellow chassis members (used when the chassis has not been saved yet).
         """
         lag_members = Interface.objects.filter(device=self, lag__isnull=False).exclude(lag__device=self)
         lag_peers = Interface.objects.filter(lag__device=self).exclude(device=self)
-        if self.virtual_chassis_id:
+        if members is not None:
+            lag_members = lag_members.exclude(lag__device__in=members)
+            lag_peers = lag_peers.exclude(device__in=members)
+        elif self.virtual_chassis_id:
             lag_members = lag_members.exclude(lag__device__virtual_chassis=self.virtual_chassis_id)
             lag_peers = lag_peers.exclude(device__virtual_chassis=self.virtual_chassis_id)
         interfaces = [

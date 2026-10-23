@@ -5303,6 +5303,13 @@ class VirtualChassisAddMemberView(ObjectPermissionRequiredMixin, GetReturnURLMix
             }
             membership_form = forms.DeviceVCMembershipForm(data=data, validate_vc_position=True, instance=device)
 
+            # DeviceVCMembershipForm has no virtual_chassis field, so this error cannot surface through is_valid()
+            try:
+                device.clean_vc_lag_membership()
+            except ValidationError as e:
+                membership_form = forms.DeviceVCMembershipForm(data=data)
+                membership_form.add_error(None, e.messages)
+
             if membership_form.is_valid():
                 membership_form.save()
                 messages.success(request, mark_safe(
