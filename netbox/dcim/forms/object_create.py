@@ -385,10 +385,18 @@ class VirtualChassisCreateForm(OwnerMixin, NetBoxModelForm):
     def clean(self):
         super().clean()
 
-        if self.cleaned_data['members'] and self.cleaned_data['initial_position'] is None:
+        members = self.cleaned_data.get('members')
+        if members and self.cleaned_data['initial_position'] is None:
             raise forms.ValidationError({
                 'initial_position': _("A position must be specified for the first VC member.")
             })
+
+        # Members are saved without full_clean(), so check cross-chassis LAGs here
+        for member in members or []:
+            try:
+                member.clean_vc_lag_membership(members=members)
+            except forms.ValidationError as e:
+                raise forms.ValidationError({'members': e.messages})
 
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)

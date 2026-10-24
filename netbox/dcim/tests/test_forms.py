@@ -154,6 +154,30 @@ class DeviceTestCase(TestCase):
         self.assertTrue(form.is_valid())
         self.assertTrue(form.save())
 
+    def test_vc_member_removal_blocked_by_cross_chassis_lag(self):
+        device1 = Device.objects.get(name='Device 1')
+        device2 = Device.objects.create(
+            name='Device 2', device_type=device1.device_type, role=device1.role, site=device1.site
+        )
+        vc = VirtualChassis.objects.create(name='VC 1', master=device1)
+        Device.objects.filter(pk=device1.pk).update(virtual_chassis=vc, vc_position=1)
+        Device.objects.filter(pk=device2.pk).update(virtual_chassis=vc, vc_position=2)
+        lag = Interface.objects.create(device=device1, name='lag0', type=InterfaceTypeChoices.TYPE_LAG)
+        Interface.objects.create(device=device2, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED, lag=lag)
+
+        device2.refresh_from_db()
+        form = DeviceForm(instance=device2, data={
+            'name': device2.name,
+            'role': device2.role.pk,
+            'device_type': device2.device_type.pk,
+            'site': device2.site.pk,
+            'status': DeviceStatusChoices.STATUS_ACTIVE,
+            'virtual_chassis': None,
+            'vc_position': None,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('virtual_chassis', form.errors)
+
     def test_non_racked_device_with_face(self):
         form = DeviceForm(data={
             'name': 'New Device',

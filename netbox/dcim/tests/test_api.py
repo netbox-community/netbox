@@ -6310,6 +6310,24 @@ class VirtualChassisTestCase(APIViewTestCases.APIViewTestCase):
             'owner': 99999,
         }
 
+    @tag('regression')  # Ref: #23212
+    def test_remove_member_blocked_by_cross_chassis_lag(self):
+        self.add_permissions('dcim.change_device')
+        master = Device.objects.get(name='Device 1')
+        member = Device.objects.get(name='Device 2')
+        Interface.objects.filter(device=member, name='2/1').update(
+            lag=Interface.objects.create(device=master, name='lag0', type=InterfaceTypeChoices.TYPE_LAG)
+        )
+
+        url = reverse('dcim-api:device-detail', kwargs={'pk': member.pk})
+        data = {'virtual_chassis': None, 'vc_position': None}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('virtual_chassis', response.data)
+
+        member.refresh_from_db()
+        self.assertEqual(member.virtual_chassis.name, 'Virtual Chassis 1')
+
 
 class PowerPanelTestCase(APIViewTestCases.APIViewTestCase):
     model = PowerPanel
