@@ -282,6 +282,24 @@ class Trunk2C12PCableProfile(BaseCableProfile):
     b_connectors = a_connectors
 
 
+class Trunk3C8PCableProfile(BaseCableProfile):
+    a_connectors = {
+        1: 8,
+        2: 8,
+        3: 8,
+    }
+    b_connectors = a_connectors
+
+
+class Trunk3C12PCableProfile(BaseCableProfile):
+    a_connectors = {
+        1: 12,
+        2: 12,
+        3: 12,
+    }
+    b_connectors = a_connectors
+
+
 class Trunk4C1PCableProfile(BaseCableProfile):
     a_connectors = {
         1: 1,
@@ -328,6 +346,16 @@ class Trunk4C8PCableProfile(BaseCableProfile):
         2: 8,
         3: 8,
         4: 8,
+    }
+    b_connectors = a_connectors
+
+
+class Trunk4C12PCableProfile(BaseCableProfile):
+    a_connectors = {
+        1: 12,
+        2: 12,
+        3: 12,
+        4: 12,
     }
     b_connectors = a_connectors
 

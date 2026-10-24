@@ -1844,12 +1844,15 @@ class CableProfileChoices(ChoiceSet):
     TRUNK_2C6P = 'trunk-2c6p'
     TRUNK_2C8P = 'trunk-2c8p'
     TRUNK_2C12P = 'trunk-2c12p'
+    TRUNK_3C8P = 'trunk-3c8p'
+    TRUNK_3C12P = 'trunk-3c12p'
     TRUNK_4C1P = 'trunk-4c1p'
     TRUNK_4C2P = 'trunk-4c2p'
     TRUNK_4C4P = 'trunk-4c4p'
     TRUNK_4C4P_SHUFFLE = 'trunk-4c4p-shuffle'
     TRUNK_4C6P = 'trunk-4c6p'
     TRUNK_4C8P = 'trunk-4c8p'
+    TRUNK_4C12P = 'trunk-4c12p'
     TRUNK_8C1P = 'trunk-8c1p'
     TRUNK_8C4P = 'trunk-8c4p'
     TRUNK_12C1P = 'trunk-12c1p'
@@ -1884,12 +1887,15 @@ class CableProfileChoices(ChoiceSet):
                 Choice(TRUNK_2C6P, _('2C6P trunk')),
                 Choice(TRUNK_2C8P, _('2C8P trunk')),
                 Choice(TRUNK_2C12P, _('2C12P trunk')),
+                Choice(TRUNK_3C8P, _('3C8P trunk')),
+                Choice(TRUNK_3C12P, _('3C12P trunk')),
                 Choice(TRUNK_4C1P, _('4C1P trunk')),
                 Choice(TRUNK_4C2P, _('4C2P trunk')),
                 Choice(TRUNK_4C4P, _('4C4P trunk')),
                 Choice(TRUNK_4C4P_SHUFFLE, _('4C4P trunk (shuffle)')),
                 Choice(TRUNK_4C6P, _('4C6P trunk')),
                 Choice(TRUNK_4C8P, _('4C8P trunk')),
+                Choice(TRUNK_4C12P, _('4C12P trunk')),
                 Choice(TRUNK_8C1P, _('8C1P trunk')),
                 Choice(TRUNK_8C4P, _('8C4P trunk')),
                 Choice(TRUNK_12C1P, _('12C1P trunk')),
