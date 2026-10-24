@@ -34,6 +34,7 @@ from netbox.choices import (
 )
 from tenancy.models import Tenant
 from users.models import ObjectPermission, Owner, User
+from utilities.exceptions import PermissionsViolation
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
 
@@ -5664,6 +5665,66 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.bulk_edit_data = {
             'domain': 'domain-x',
         }
+
+    def test_add_member_without_device_permission(self):
+        self.add_permissions('dcim.view_virtualchassis', 'dcim.change_virtualchassis')
+        vc = VirtualChassis.objects.get(name='VC1')
+        device = Device.objects.get(name='Device 10')
+        url = reverse('dcim:virtualchassis_add_member', kwargs={'pk': vc.pk})
+
+        response = self.client.post(url, {'device': device.pk, 'vc_position': 4, 'vc_priority': ''})
+        self.assertHttpStatus(response, 200)
+        device.refresh_from_db()
+        self.assertIsNone(device.virtual_chassis)
+
+    def test_add_member_with_constrained_device_permission(self):
+        self.add_permissions('dcim.view_virtualchassis', 'dcim.change_virtualchassis')
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['change'],
+            constraints={'name': 'Device 11'}
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Device))
+        vc = VirtualChassis.objects.get(name='VC1')
+        url = reverse('dcim:virtualchassis_add_member', kwargs={'pk': vc.pk})
+
+        # Attempt to add a device outside the permitted set
+        device = Device.objects.get(name='Device 10')
+        response = self.client.post(url, {'device': device.pk, 'vc_position': 4, 'vc_priority': ''})
+        self.assertHttpStatus(response, 200)
+        device.refresh_from_db()
+        self.assertIsNone(device.virtual_chassis)
+
+        # Add a permitted device
+        device = Device.objects.get(name='Device 11')
+        response = self.client.post(url, {'device': device.pk, 'vc_position': 4, 'vc_priority': ''})
+        self.assertHttpStatus(response, 302)
+        device.refresh_from_db()
+        self.assertEqual(device.virtual_chassis, vc)
+        self.assertEqual(device.vc_position, 4)
+
+    def test_add_member_violating_device_permission_constraint(self):
+        self.add_permissions('dcim.view_virtualchassis', 'dcim.change_virtualchassis')
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['change'],
+            constraints={'virtual_chassis__isnull': True}
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Device))
+        vc = VirtualChassis.objects.get(name='VC1')
+        device = Device.objects.get(name='Device 10')
+        url = reverse('dcim:virtualchassis_add_member', kwargs={'pk': vc.pk})
+
+        # The device may be changed, but not into a virtual chassis member
+        response = self.client.post(url, {'device': device.pk, 'vc_position': 4, 'vc_priority': ''})
+        self.assertHttpStatus(response, 200)
+        self.assertIn(PermissionsViolation.message, response.context['membership_form'].non_field_errors())
+        device.refresh_from_db()
+        self.assertIsNone(device.virtual_chassis)
 
 
 class PowerPanelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
