@@ -4,9 +4,10 @@ from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import NON_FIELD_ERRORS
-from django.db import DEFAULT_DB_ALIAS, connections
+from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.test import RequestFactory, TestCase, TransactionTestCase, override_settings, tag
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils.timezone import now
 from rest_framework.exceptions import ValidationError
@@ -16,6 +17,7 @@ from rest_framework.test import APIClient
 
 from core.models import DataFile, DataSource, ObjectType
 from dcim.api.serializers import InterfaceSerializer, RackSerializer
+from dcim.api.views import SiteViewSet
 from dcim.models import Device, Rack, Site
 from extras.models import ExportTemplate
 from ipam.api.serializers import RouteTargetSerializer, VRFSerializer
@@ -24,6 +26,7 @@ from netbox.api.exceptions import QuerySetNotOrdered, SerializerNotFound
 from netbox.api.fields import ContentTypeField, IntegerRangeSerializer, RelatedObjectCountField
 from netbox.api.pagination import NetBoxPagination
 from netbox.api.serializers import ValidatedModelSerializer, WritableNestedSerializer
+from netbox.api.viewsets.mixins import BulkUpdateModelMixin
 from users.constants import TOKEN_PREFIX
 from users.models import Token, User
 from utilities.api import get_serializer_for_model
@@ -572,3 +575,134 @@ class BulkOperationRoutingTestCase(TransactionTestCase):
         self.assertEqual([e['id'] for e in response.data['errors']], [sites[0].pk])
         self.assertEqual(Site.objects.count(), 2)
         flush_events.assert_not_called()
+
+
+class ObjectUpdateLockingTestCase(APITestCase):
+    """
+    An update must lock the rows of the objects being updated before retrieving them, and hold the locks until the
+    objects have been saved. A concurrent update to the same objects then waits for this one to complete, rather than
+    having its changes reverted when this one saves copies of the objects retrieved before they were committed.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(cls.sites)
+
+    def setUp(self):
+        super().setUp()
+        self.add_permissions('dcim.change_site')
+
+    def assertLockedUntilSaved(self, queries):
+        """
+        Assert that the given queries lock the rows of the Sites being updated (once) before retrieving them, within a
+        transaction which does not end until they have been saved.
+        """
+        table = Site._meta.db_table
+        locks = [
+            i for i, sql in enumerate(queries)
+            if f'FROM "{table}"' in sql and sql.endswith(('FOR UPDATE', 'FOR NO KEY UPDATE'))
+        ]
+        self.assertEqual(len(locks), 1, "Expected exactly one query to lock the Sites' rows")
+        lock = locks[0]
+        # The first query to select the Sites' fields (rather than only their PKs)
+        retrieval = next(i for i, sql in enumerate(queries) if sql.startswith(f'SELECT "{table}"."id", '))
+        self.assertLess(lock, retrieval, "The Sites were retrieved before their rows were locked")
+        last_save = max(i for i, sql in enumerate(queries) if sql.startswith(f'UPDATE "{table}"'))
+
+        # Find the transaction which took the lock: the innermost savepoint open at that point (as each test runs
+        # within a transaction, a transaction opened by the view appears as a savepoint)
+        savepoints = []
+        for sql in queries[:lock]:
+            if sql.startswith('SAVEPOINT '):
+                savepoints.append(sql.removeprefix('SAVEPOINT '))
+            elif sql.startswith(('RELEASE SAVEPOINT ', 'ROLLBACK TO SAVEPOINT ')):
+                savepoints.remove(sql.split()[-1])
+        self.assertTrue(savepoints, "The Sites' rows were not locked within a transaction")
+        self.assertIn(
+            f'RELEASE SAVEPOINT {savepoints[-1]}',
+            queries[last_save + 1:],
+            "The transaction which locked the Sites' rows ended before they were saved",
+        )
+
+    @tag('regression')  # Ref: #23445
+    def test_update_locks_object_before_retrieving_it(self):
+        """
+        Lock the row of an object before retrieving it for an update. The If-Match ETag is then checked against the
+        object retrieved, rather than against a copy re-fetched under a second lock.
+        """
+        site = Site.objects.get(pk=self.sites[0].pk)
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site.pk})
+        header = {**self.header, 'HTTP_IF_MATCH': SiteViewSet._get_etag(site)}
+
+        with CaptureQueriesContext(connection) as ctx:
+            response = self.client.patch(url, {'description': 'Description'}, format='json', **header)
+        self.assertHttpStatus(response, 200)
+        self.assertLockedUntilSaved([q['sql'] for q in ctx.captured_queries])
+
+    @tag('regression')  # Ref: #23445
+    def test_bulk_update_locks_objects_before_retrieving_them(self):
+        """
+        Lock the rows of all objects being updated in bulk before retrieving them. The If-Match ETag is then checked
+        against each object retrieved, rather than against a copy re-fetched under a second lock.
+        """
+        sites = Site.objects.filter(pk__in=[site.pk for site in self.sites])
+        data = [{'id': site.pk, 'description': 'Description'} for site in sites]
+        header = {**self.header, 'HTTP_IF_MATCH': ', '.join(SiteViewSet._get_etag(site) for site in sites)}
+
+        with CaptureQueriesContext(connection) as ctx:
+            response = self.client.patch(reverse('dcim-api:site-list'), data, format='json', **header)
+        self.assertHttpStatus(response, 200)
+        self.assertLockedUntilSaved([q['sql'] for q in ctx.captured_queries])
+
+    def test_bulk_update_with_stale_etag(self):
+        """Reject a bulk update if any object's current ETag does not match the If-Match header."""
+        data = [{'id': site.pk, 'description': 'Description'} for site in self.sites]
+        header = {**self.header, 'HTTP_IF_MATCH': 'W/"stale"'}
+
+        response = self.client.patch(reverse('dcim-api:site-list'), data, format='json', **header)
+        self.assertHttpStatus(response, 412)
+        self.assertFalse(Site.objects.filter(description='Description').exists())
+
+    @tag('regression')  # Ref: #23445
+    def test_bulk_update_with_object_deleted_concurrently(self):
+        """
+        Reject a bulk update if any object can no longer be found once the objects have been locked (e.g. because it
+        was deleted after the view checked that each object exists), rather than silently omitting it.
+        """
+        data = [{'id': site.pk, 'description': 'Description'} for site in self.sites]
+        perform_bulk_update = BulkUpdateModelMixin.perform_bulk_update
+
+        def delete_then_perform_bulk_update(viewset, *args, **kwargs):
+            # Delete a Site between the view's check for missing objects and the bulk update
+            Site.objects.filter(pk=self.sites[1].pk).delete()
+            return perform_bulk_update(viewset, *args, **kwargs)
+
+        with patch.object(BulkUpdateModelMixin, 'perform_bulk_update', delete_then_perform_bulk_update):
+            response = self.client.patch(reverse('dcim-api:site-list'), data, format='json', **self.header)
+        self.assertHttpStatus(response, 400)
+        self.assertEqual([e['id'] for e in response.data['errors']], [self.sites[1].pk])
+        self.assertFalse(Site.objects.filter(description='Description').exists())
+
+    def test_lock_object(self):
+        """
+        Lock the requested object for the duration of the block if it can be found by its URL lookup, and otherwise
+        take no lock.
+        """
+        for attrs, locked_pks in (
+            ({'kwargs': {'pk': self.sites[0].pk}}, {self.sites[0].pk}),
+            # Not a valid PK (e.g. for a viewset whose get_object() accepts a slug)
+            ({'kwargs': {'pk': 'site-1'}}, set()),
+            # No lookup value
+            ({'kwargs': {}}, set()),
+            # Not a model field (e.g. for a viewset whose get_object() filters on an annotation)
+            ({'kwargs': {'circuit_count': 0}, 'lookup_field': 'circuit_count'}, set()),
+        ):
+            with self.subTest(**attrs):
+                viewset = SiteViewSet(**attrs)
+                with viewset.lock_object():
+                    self.assertEqual(viewset.locked_pks, locked_pks)
+                self.assertEqual(viewset.locked_pks, set())
