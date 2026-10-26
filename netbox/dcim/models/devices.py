@@ -1018,6 +1018,42 @@ class Device(
                 ).format(virtual_chassis=self.vc_master_for)
             })
 
+        # Validate cross-chassis LAGs only when virtual chassis membership changes
+        if self.pk:
+            stored_vc_id = Device.objects.filter(pk=self.pk).values_list('virtual_chassis_id', flat=True).first()
+            if self.virtual_chassis_id != stored_vc_id:
+                self.clean_vc_lag_membership()
+
+    def clean_vc_lag_membership(self, members=None):
+        """
+        Raise ValidationError if any interface would form a LAG with a device outside this device's virtual chassis.
+        `members` overrides the set of fellow chassis members (used when the chassis has not been saved yet).
+        """
+        lag_members = Interface.objects.filter(device=self, lag__isnull=False).exclude(lag__device=self)
+        lag_peers = Interface.objects.filter(lag__device=self).exclude(device=self)
+        if members is not None:
+            lag_members = lag_members.exclude(lag__device__in=members)
+            lag_peers = lag_peers.exclude(device__in=members)
+        elif self.virtual_chassis_id:
+            lag_members = lag_members.exclude(lag__device__virtual_chassis=self.virtual_chassis_id)
+            lag_peers = lag_peers.exclude(device__virtual_chassis=self.virtual_chassis_id)
+        interfaces = [
+            *lag_members.select_related('device', 'lag__device'),
+            *lag_peers.select_related('device', 'lag__device'),
+        ]
+        if interfaces:
+            # Cap the listed interfaces to keep the message readable
+            max_listed = 5
+            listed = ', '.join(f'{i.device}:{i} ({i.lag.device}:{i.lag})' for i in interfaces[:max_listed])
+            if len(interfaces) > max_listed:
+                listed += _(' (and {count} more)').format(count=len(interfaces) - max_listed)
+            raise ValidationError({
+                'virtual_chassis': _(
+                    'Virtual chassis membership cannot be changed while interfaces form a LAG with another device '
+                    'outside the virtual chassis: {interfaces}'
+                ).format(interfaces=listed)
+            })
+
     def _check_duplicate_component_names(self, components):
         """
         Check for duplicate component names after resolving {vc_position} placeholders.
