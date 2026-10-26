@@ -102,14 +102,15 @@ When a request does time out, the failure is recorded by the `netbox.webhooks` l
 
 The following context variables are available to the text and link templates.
 
-| Variable      | Description                                          |
-|---------------|------------------------------------------------------|
-| `event`       | The event type (`create`, `update`, or `delete`)     |
-| `timestamp`   | The time at which the event occurred                 |
-| `object_type` | The type of object impacted (`app_label.model_name`) |
-| `data`        | A complete serialized representation of the object   |
-| `snapshots`   | Pre- and post-change snapshots of the object         |
-| `request`     | Data about the triggering request (if available)     |
+| Variable            | Description                                                 |
+|---------------------|-------------------------------------------------------------|
+| `event`             | The event type (`create`, `update`, or `delete`)            |
+| `timestamp`         | The time at which the event occurred                        |
+| `object_type`       | The type of object impacted (`app_label.model_name`)        |
+| `data`              | A complete serialized representation of the object          |
+| `snapshots`         | Pre- and post-change snapshots of the object                |
+| `object_change_ids` | IDs of the change log records for the event (if available)  |
+| `request`           | Data about the triggering request (if available)            |
 
 !!! note
     The `request` variable is populated in the context only when the webhook is associated with a triggering request. It exposes `request.id` (the unique request ID) and `request.user` (the name of the user associated with the change), among other attributes.

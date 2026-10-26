@@ -45,7 +45,9 @@ def generate_signature(request_body, secret):
 
 
 @job('default')
-def send_webhook(event_rule, object_type, event_type, data, timestamp, request=None, snapshots=None):
+def send_webhook(
+    event_rule, object_type, event_type, data, timestamp, request=None, snapshots=None, object_change_ids=None
+):
     """
     Make a POST request to the defined Webhook
     """
@@ -62,6 +64,8 @@ def send_webhook(event_rule, object_type, event_type, data, timestamp, request=N
         context['request'] = get_safe_request_context(request)
     if snapshots:
         context['snapshots'] = snapshots
+    if object_change_ids:
+        context['object_change_ids'] = object_change_ids
 
     # Add any additional context from plugins
     callback_data = {}

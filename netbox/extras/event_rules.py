@@ -42,6 +42,7 @@ class WebhookAction(EventRuleAction):
             'event_type': event_context['event_type'],
             'data': action_data,
             'snapshots': event_context.get('snapshots'),
+            'object_change_ids': event_context.get('object_change_ids'),
             'timestamp': timezone.now().isoformat(),
             'retry': get_rq_retry(),
         }
