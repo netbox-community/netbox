@@ -11,7 +11,7 @@ curl -H "Authorization: Bearer $TOKEN" \
 -H "Content-Type: application/json" \
 -H "Accept: application/json" \
 http://netbox/graphql/ \
---data '{"query": "query {circuit_list(filters:{status: {exact: ACTIVE}}) {cid provider {name}}}"}'
+--data '{"query": "query {circuit_list(filters:{status: {exact: STATUS_ACTIVE}}) {cid provider {name}}}"}'
 ```
 
 The response will include the requested data formatted as JSON:
