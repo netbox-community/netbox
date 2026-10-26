@@ -43,7 +43,6 @@ def get_sequential_allocator(model, start=1_000_000):
 class PKAllocatorTestCase(TestCase):
 
     def setUp(self):
-        # Start each test with no registered allocators
         patcher = patch.dict(registry, {'pk_allocators': []})
         patcher.start()
         self.addCleanup(patcher.stop)
@@ -65,7 +64,6 @@ class PKAllocatorTestCase(TestCase):
         self.assertIs(register_pk_allocator(allocator), allocator)
         self.assertEqual(registry['pk_allocators'], [allocator])
 
-        # Registering the same allocator again has no effect
         register_pk_allocator(allocator)
         self.assertEqual(registry['pk_allocators'], [allocator])
 
@@ -98,11 +96,18 @@ class PKAllocatorTestCase(TestCase):
         allocator, calls = get_sequential_allocator(Site)
         register_pk_allocator(allocator)
 
-        # Without an explicit database, the router's choice for writing the model is assumed
-        with patch.object(router, 'db_for_write', return_value='elsewhere'):
+        # The router is asked about the model passed, rather than the model which owns the primary key column
+        with patch.object(router, 'db_for_write', side_effect=lambda model, **hints: model._meta.label):
             allocate_pks(Site)
             allocate_pks(Site, using='other')
-        self.assertEqual(calls, [(Site, 1, 'elsewhere'), (Site, 1, 'other')])
+            allocate_pks(UserToken)
+            allocate_pks(ObjectType)
+        self.assertEqual(calls, [
+            (Site, 1, 'dcim.Site'),
+            (Site, 1, 'other'),
+            (Token, 1, 'account.UserToken'),
+            (ContentType, 1, 'core.ObjectType'),
+        ])
 
     def test_allocate_pks_iterable(self):
         register_pk_allocator(lambda model, count, using: (100 + i for i in range(count)))
@@ -116,7 +121,7 @@ class PKAllocatorTestCase(TestCase):
             allocate_pks(Site, 2)
 
     def test_allocate_pks_model(self):
-        # As with save(), allocators receive the model which owns the primary key column, and only if it's an auto field
+        # Allocators receive the model which owns the primary key column, and only if it's an auto field
         calls = []
         register_pk_allocator(lambda model, count, using: calls.append(model))
 
@@ -131,7 +136,6 @@ class PKAllocatorTestCase(TestCase):
         with CaptureQueriesContext(connection) as ctx:
             manufacturer.save()
 
-        # The database assigns the primary key on a single INSERT
         self.assertIsNotNone(manufacturer.pk)
         inserts, updates = self.get_table_writes(ctx.captured_queries, Manufacturer)
         self.assertEqual(len(inserts), 1)
@@ -145,7 +149,6 @@ class PKAllocatorTestCase(TestCase):
         with CaptureQueriesContext(connection) as ctx:
             manufacturer.save()
 
-        # The allocated primary key is used on a single INSERT, without first attempting an UPDATE
         self.assertEqual(manufacturer.pk, 1_000_000)
         self.assertEqual(calls.count((Manufacturer, 1, DEFAULT_DB_ALIAS)), 1)
         inserts, updates = self.get_table_writes(ctx.captured_queries, Manufacturer)
@@ -154,7 +157,6 @@ class PKAllocatorTestCase(TestCase):
         self.assertTrue(Manufacturer.objects.filter(pk=1_000_000, name='Manufacturer 1').exists())
 
     def test_save_cloned_instance_with_allocator(self):
-        # A fetched instance whose primary key has been cleared (e.g. to clone it) is also inserted directly
         source = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         allocator, calls = get_sequential_allocator(Manufacturer)
         register_pk_allocator(allocator)
@@ -207,13 +209,12 @@ class PKAllocatorTestCase(TestCase):
         self.assertEqual(source.name, 'Manufacturer 1')
 
     def test_save_with_declining_allocator(self):
-        # The allocator supplies primary keys only for Site, so the database assigns one for the Manufacturer
+        # The allocator supplies primary keys only for Site
         allocator, calls = get_sequential_allocator(Site)
         register_pk_allocator(allocator)
         manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
         manufacturer.save()
 
-        # The allocator is consulted only once
         self.assertEqual(calls.count((Manufacturer, 1, DEFAULT_DB_ALIAS)), 1)
         self.assertIsNotNone(manufacturer.pk)
         self.assertLess(manufacturer.pk, 1_000_000)
@@ -228,7 +229,6 @@ class PKAllocatorTestCase(TestCase):
         with CaptureQueriesContext(connection) as ctx:
             Manufacturer.objects.bulk_create(manufacturers)
 
-        # All three primary keys are requested in a single call, and all objects are inserted in one statement
         pks = [1_000_000, 1_000_001, 1_000_002]
         self.assertEqual([m.pk for m in manufacturers], pks)
         self.assertEqual(calls, [(Manufacturer, 3, DEFAULT_DB_ALIAS)])
@@ -248,7 +248,6 @@ class PKAllocatorTestCase(TestCase):
         with CaptureQueriesContext(connection) as ctx:
             Manufacturer.objects.bulk_create(manufacturers)
 
-        # Primary keys are requested only for the objects without one, and every object is inserted together
         self.assertEqual(calls, [(Manufacturer, 2, DEFAULT_DB_ALIAS)])
         self.assertEqual([m.pk for m in manufacturers], [500, 1_000_000, 1_000_001])
         inserts, updates = self.get_table_writes(ctx.captured_queries, Manufacturer)
@@ -263,7 +262,6 @@ class PKAllocatorTestCase(TestCase):
 
         Manufacturer.objects.bulk_create(manufacturers)
 
-        # The allocator is consulted once for all three objects, and the database assigns their primary keys
         self.assertEqual(calls, [(Manufacturer, 3, DEFAULT_DB_ALIAS)])
         self.assertTrue(all(m.pk is not None and m.pk < 1_000_000 for m in manufacturers))
 
@@ -281,7 +279,7 @@ class PKAllocatorTestCase(TestCase):
         self.assertEqual(calls, [(Manufacturer, 2, DEFAULT_DB_ALIAS)])
 
     def test_bulk_create_with_colliding_allocator(self):
-        # A failed INSERT withdraws the allocated primary keys from every object
+        # The first allocated primary key collides with the existing row
         source = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         register_pk_allocator(lambda model, count, using: [source.pk, 1_000_000] if model is Manufacturer else None)
         manufacturers = [
@@ -295,7 +293,7 @@ class PKAllocatorTestCase(TestCase):
         self.assertTrue(all(m._state.adding for m in manufacturers))
 
     def test_interrupted_insert(self):
-        # Allocated primary keys are withdrawn even if the INSERT is interrupted by an exception other than Exception
+        # KeyboardInterrupt derives from BaseException rather than Exception
         allocator, calls = get_sequential_allocator(Manufacturer)
         register_pk_allocator(allocator)
         manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
@@ -363,7 +361,6 @@ class PKAllocatorTestCase(TestCase):
         self.assertIsNone(site.pk)
 
     def test_many_to_many_with_allocator(self):
-        # Auto-created many-to-many through models are also supported
         through_model = Tag.object_types.through
         allocator, calls = get_sequential_allocator(through_model)
         register_pk_allocator(allocator)
@@ -374,7 +371,7 @@ class PKAllocatorTestCase(TestCase):
         self.assertEqual(list(through_model.objects.filter(tag=tag).values_list('pk', flat=True)), [1_000_000])
 
     def test_third_party_model_with_allocator(self):
-        # Models of other Django apps, which use their own default_auto_field, are also supported
+        # ContentType's primary key is an AutoField, rather than NetBox's default BigAutoField
         allocator, calls = get_sequential_allocator(ContentType)
         register_pk_allocator(allocator)
         content_type = ContentType.objects.create(app_label='test', model='test')
@@ -382,8 +379,7 @@ class PKAllocatorTestCase(TestCase):
         self.assertEqual(content_type.pk, 1_000_000)
 
     def test_multi_table_inheritance_with_allocator(self):
-        # The allocator receives the parent model, which owns the primary key column, and the primary key it supplies
-        # is shared by the parent and child rows
+        # The allocator receives the parent model, which owns the primary key column
         allocator, calls = get_sequential_allocator(ContentType)
         register_pk_allocator(allocator)
         object_type = ObjectType(app_label='test', model='test')
@@ -421,7 +417,6 @@ class PKAllocatorTestCase(TestCase):
             self.assertEqual(len(updates), 0)
         self.assertFalse(ContentType.objects.filter(pk=1_000_000).exists())
 
-        # A failed update of the saved object leaves its primary key intact
         object_type.public = None
         with self.assertRaises(IntegrityError), transaction.atomic():
             object_type.save()
@@ -441,7 +436,6 @@ class PKAllocatorTestCase(TestCase):
         self.assertEqual(token.pk, 1_000_000)
 
     def test_historical_model_with_allocator(self):
-        # The historical models used by data migrations are also supported, via both save() and bulk_create()
         HistoricalManufacturer = ProjectState.from_apps(apps).apps.get_model('dcim', 'Manufacturer')
         self.assertIsNot(HistoricalManufacturer, Manufacturer)
         allocator, calls = get_sequential_allocator(Manufacturer)
@@ -461,7 +455,6 @@ class PKAllocatorTestCase(TestCase):
         allocator, calls = get_sequential_allocator(Manufacturer)
         register_pk_allocator(allocator)
 
-        # Allocators aren't consulted for an instance with a preset primary key, which updates the existing row
         with CaptureQueriesContext(connection) as ctx:
             Manufacturer(pk=manufacturer.pk, name='Manufacturer 2', slug='manufacturer-2').save()
 
@@ -476,7 +469,6 @@ class PKAllocatorTestCase(TestCase):
         allocator, calls = get_sequential_allocator(Manufacturer)
         register_pk_allocator(allocator)
 
-        # Allocators aren't consulted for a forced update, which requires a primary key
         for kwargs in ({'force_update': True}, {'update_fields': ['name']}):
             with self.subTest(**kwargs), self.assertRaises(ValueError), transaction.atomic():
                 Manufacturer(name='Manufacturer 1', slug='manufacturer-1').save(**kwargs)

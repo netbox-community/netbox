@@ -99,6 +99,8 @@ def allocate_pks(model, count=1, using=None):
     inserts rows outside the ORM (e.g. using raw SQL or COPY) can call this to obtain primary keys in the same manner
     as Model.save() and QuerySet.bulk_create().
     """
+    if using is None:
+        using = router.db_for_write(model)
     # Allocators receive the model which owns the primary key column (the concrete parent, for a proxy or multi-table
     # inheritance child), and only if it's an auto field
     pk = model._meta.pk
@@ -107,8 +109,6 @@ def allocate_pks(model, count=1, using=None):
     if not isinstance(pk, AutoFieldMixin):
         return None
     model = pk.model
-    if using is None:
-        using = router.db_for_write(model)
     for allocator in registry['pk_allocators']:
         if (pks := allocator(model, count, using)) is not None:
             pks = list(pks)
