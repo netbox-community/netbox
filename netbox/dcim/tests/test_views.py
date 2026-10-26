@@ -5748,6 +5748,71 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertIsNone(member.virtual_chassis)
         self.assertIsNone(member.vc_position)
 
+    @tag('regression')  # Ref: #23486
+    def test_edit_members_records_prechange_data(self):
+        self.add_permissions('dcim.change_virtualchassis')
+        vc = VirtualChassis.objects.get(name='VC1')
+        members = list(vc.members.order_by('vc_position'))
+
+        data = {
+            'name': vc.name,
+            'domain': vc.domain,
+            'master': vc.master.pk,
+            'form-TOTAL_FORMS': 3,
+            'form-INITIAL_FORMS': 3,
+            'form-MIN_NUM_FORMS': 0,
+            'form-MAX_NUM_FORMS': 1000,
+        }
+        for i, member in enumerate(members):
+            data[f'form-{i}-id'] = member.pk
+            data[f'form-{i}-vc_position'] = member.vc_position
+            data[f'form-{i}-vc_priority'] = ''
+        # Change the priority of the first member only
+        data['form-0-vc_priority'] = 20
+
+        url = reverse('dcim:virtualchassis_edit', kwargs={'pk': vc.pk})
+        response = self.client.post(url, data)
+        self.assertHttpStatus(response, 302)
+
+        objectchanges = ObjectChange.objects.filter(
+            changed_object_type=ContentType.objects.get_for_model(Device),
+            changed_object_id=members[0].pk,
+        )
+        self.assertEqual(objectchanges.count(), 1)
+        objectchange = objectchanges.first()
+        self.assertEqual(objectchange.prechange_data['vc_position'], 1)
+        self.assertIsNone(objectchange.prechange_data['vc_priority'])
+        self.assertEqual(objectchange.postchange_data['vc_position'], 1)
+        self.assertEqual(objectchange.postchange_data['vc_priority'], 20)
+
+        # Unchanged members should not be logged
+        self.assertFalse(ObjectChange.objects.filter(
+            changed_object_type=ContentType.objects.get_for_model(Device),
+            changed_object_id__in=[m.pk for m in members[1:]],
+        ).exists())
+
+    @tag('regression')  # Ref: #23486
+    def test_delete_records_member_prechange_data(self):
+        self.add_permissions('dcim.delete_virtualchassis')
+        vc = VirtualChassis.objects.get(name='VC1')
+        members = list(vc.members.order_by('vc_position'))
+
+        url = reverse('dcim:virtualchassis_delete', kwargs={'pk': vc.pk})
+        response = self.client.post(url, {'confirm': True})
+        self.assertHttpStatus(response, 302)
+
+        # Each member should have a single change record capturing its detachment from the VC
+        for member in members:
+            objectchange = ObjectChange.objects.get(
+                changed_object_type=ContentType.objects.get_for_model(Device),
+                changed_object_id=member.pk,
+            )
+            self.assertEqual(objectchange.action, ObjectChangeActionChoices.ACTION_UPDATE)
+            self.assertEqual(objectchange.prechange_data['virtual_chassis'], vc.pk)
+            self.assertEqual(objectchange.prechange_data['vc_position'], member.vc_position)
+            self.assertIsNone(objectchange.postchange_data['virtual_chassis'])
+            self.assertIsNone(objectchange.postchange_data['vc_position'])
+
 
 class PowerPanelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = PowerPanel

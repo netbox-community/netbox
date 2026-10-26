@@ -6328,6 +6328,25 @@ class VirtualChassisTestCase(APIViewTestCases.APIViewTestCase):
         member.refresh_from_db()
         self.assertEqual(member.virtual_chassis.name, 'Virtual Chassis 1')
 
+    @tag('regression')  # Ref: #23486
+    def test_create_with_master_records_prechange_data(self):
+        self.add_permissions('dcim.add_virtualchassis')
+        master = Device.objects.get(name='Device 10')
+
+        data = {'name': 'Virtual Chassis 4', 'master': master.pk}
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+
+        objectchange = ObjectChange.objects.get(
+            changed_object_type=ContentType.objects.get_for_model(Device),
+            changed_object_id=master.pk,
+        )
+        self.assertEqual(objectchange.action, ObjectChangeActionChoices.ACTION_UPDATE)
+        self.assertIsNone(objectchange.prechange_data['virtual_chassis'])
+        self.assertIsNone(objectchange.prechange_data['vc_position'])
+        self.assertEqual(objectchange.postchange_data['virtual_chassis'], response.data['id'])
+        self.assertEqual(objectchange.postchange_data['vc_position'], 1)
+
 
 class PowerPanelTestCase(APIViewTestCases.APIViewTestCase):
     model = PowerPanel

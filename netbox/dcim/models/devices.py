@@ -1344,9 +1344,11 @@ class VirtualChassis(PrimaryModel):
                 set(interfaces),
             )
 
-        # Clear vc_position and vc_priority on member devices BEFORE calling super().delete()
-        # This must be done here because on_delete=SET_NULL executes before pre_delete signal
+        # Detach member devices BEFORE calling super().delete() so a single snapshotted change record captures the
+        # cleared virtual_chassis, vc_position, and vc_priority (on_delete=SET_NULL would skip the changelog)
         for device in self.members.all():
+            device.snapshot()
+            device.virtual_chassis = None
             device.vc_position = None
             device.vc_priority = None
             device.save()
