@@ -729,7 +729,7 @@ class LocationView(GetRelatedModelsMixin, generic.ObjectView):
                         'dcim.Device',
                         url_params={
                             'site': lambda ctx: ctx['object'].site_id,
-                            'parent': lambda ctx: ctx['object'].pk,
+                            'location': lambda ctx: ctx['object'].pk,
                         }
                     ),
                 ],
