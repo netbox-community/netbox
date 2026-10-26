@@ -1124,7 +1124,9 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_64GFC_QSFP_PLUS = '64gfc-qsfpp'
     TYPE_64GFC_SFP_DD = '64gfc-sfpdd'
     TYPE_64GFC_SFP_PLUS = '64gfc-sfpp'
+    TYPE_128GFC_SFP_PLUS = '128gfc-sfpp'
     TYPE_128GFC_QSFP28 = '128gfc-qsfp28'
+    TYPE_256GFC_SFP_PLUS = '256gfc-sfpp'
 
     # InfiniBand 1X
     TYPE_INFINIBAND_SDR = 'infiniband-sdr'
@@ -1468,7 +1470,9 @@ class InterfaceTypeChoices(ChoiceSet):
                 Choice(TYPE_64GFC_QSFP_PLUS, 'QSFP+ (64GFC)'),
                 Choice(TYPE_64GFC_SFP_DD, 'SFP-DD (64GFC)'),
                 Choice(TYPE_64GFC_SFP_PLUS, 'SFP+ (64GFC)'),
+                Choice(TYPE_128GFC_SFP_PLUS, 'SFP+ (128GFC)'),
                 Choice(TYPE_128GFC_QSFP28, 'QSFP28 (128GFC)'),
+                Choice(TYPE_256GFC_SFP_PLUS, 'SFP+ (256GFC)'),
             )
         ),
         (
