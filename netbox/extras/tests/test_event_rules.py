@@ -8,6 +8,7 @@ from unittest.mock import Mock, PropertyMock, patch
 import django_rq
 import requests
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.http import HttpResponse
 from django.test import RequestFactory, TestCase, override_settings, tag
@@ -220,7 +221,9 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         self.assertEqual(len(job.kwargs['data']['tags']), len(response.data['tags']))
         self.assertEqual(job.kwargs['snapshots']['postchange']['name'], 'Site 1')
         self.assertEqual(job.kwargs['snapshots']['postchange']['tags'], ['Bar', 'Foo'])
-        objectchange = ObjectChange.objects.get(changed_object_id=response.data['id'])
+        objectchange = ObjectChange.objects.get(
+            changed_object_type=ContentType.objects.get_for_model(Site), changed_object_id=response.data['id']
+        )
         self.assertEqual(job.kwargs['object_change_ids'], [objectchange.pk])
 
     def test_single_create_rollback_discards_events(self):
@@ -399,7 +402,9 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         self.assertEqual(job.kwargs['snapshots']['prechange']['tags'], ['Bar', 'Foo'])
         self.assertEqual(job.kwargs['snapshots']['postchange']['name'], 'Site X')
         self.assertEqual(job.kwargs['snapshots']['postchange']['tags'], ['Baz'])
-        objectchange = ObjectChange.objects.get(changed_object_id=site.pk)
+        objectchange = ObjectChange.objects.get(
+            changed_object_type=ContentType.objects.get_for_model(Site), changed_object_id=site.pk
+        )
         self.assertEqual(job.kwargs['object_change_ids'], [objectchange.pk])
 
     def test_single_update_rollback_discards_events(self):
@@ -545,7 +550,9 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         self.assertEqual(job.kwargs['data']['foo'], 3)
         self.assertEqual(job.kwargs['snapshots']['prechange']['name'], 'Site 1')
         self.assertEqual(job.kwargs['snapshots']['prechange']['tags'], ['Bar', 'Foo'])
-        objectchange = ObjectChange.objects.get(changed_object_id=site.pk)
+        objectchange = ObjectChange.objects.get(
+            changed_object_type=ContentType.objects.get_for_model(Site), changed_object_id=site.pk
+        )
         self.assertEqual(job.kwargs['object_change_ids'], [objectchange.pk])
 
     def test_single_delete_rollback_discards_events(self):
@@ -855,7 +862,7 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         self.assertEqual(job.kwargs['event_type'], JOB_COMPLETED)
         self.assertEqual(job.kwargs['object_type'], script_type)
         self.assertNotIn('request', job.kwargs)
-        self.assertIsNone(job.kwargs['object_change_ids'])
+        self.assertNotIn('object_change_ids', job.kwargs)
 
     def _job_event_rule(self, conditions=None):
         webhook = Webhook.objects.get(name='Webhook 1')
@@ -1086,7 +1093,9 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
             site.save()
 
         object_change_ids = list(
-            ObjectChange.objects.filter(changed_object_id=site.pk).order_by('pk').values_list('pk', flat=True)
+            ObjectChange.objects.filter(
+                changed_object_type=ContentType.objects.get_for_model(Site), changed_object_id=site.pk
+            ).order_by('pk').values_list('pk', flat=True)
         )
         self.assertEqual(len(object_change_ids), 2)
         self.assertEqual(self.queue.count, 1)
@@ -1112,7 +1121,7 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         flush_events(list(queue.values()))
 
         job = self.queue.jobs[0]
-        self.assertEqual(job.kwargs['object_change_ids'], [])
+        self.assertNotIn('object_change_ids', job.kwargs)
         with patch.object(Session, 'send', dummy_send):
             send_webhook(**job.kwargs)
 

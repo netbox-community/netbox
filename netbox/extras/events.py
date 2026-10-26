@@ -153,7 +153,7 @@ def enqueue_event(queue, instance, request, event_type, object_change_id=None):
         )
 
     # A coalesced event may span multiple ObjectChanges
-    object_change_ids = queue[key]['object_change_ids']
+    object_change_ids = queue[key].setdefault('object_change_ids', [])
     if object_change_id is not None and object_change_id not in object_change_ids:
         object_change_ids.append(object_change_id)
 
