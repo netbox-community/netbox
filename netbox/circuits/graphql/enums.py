@@ -11,6 +11,6 @@ __all__ = (
 
 
 CircuitPriorityEnum = strawberry.enum(CircuitPriorityChoices.as_enum(prefix='priority'))
-CircuitStatusEnum = strawberry.enum(CircuitStatusChoices.as_enum('status'))
+CircuitStatusEnum = strawberry.enum(CircuitStatusChoices.as_enum(prefix='status'))
 CircuitTerminationSideEnum = strawberry.enum(CircuitTerminationSideChoices.as_enum(prefix='side'))
 VirtualCircuitTerminationRoleEnum = strawberry.enum(VirtualCircuitTerminationRoleChoices.as_enum(prefix='role'))
