@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  discussions: write
 
 # Serialize updates to the VOUCHED file
 concurrency:
@@ -21,7 +22,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # An app token is required to push the VOUCHED update to the protected default branch.
-      # Discussions write is needed for the action to react to the command comment on success.
       - name: Create app token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         id: app-token
@@ -29,7 +29,6 @@ jobs:
           app-id: 1076524
           private-key: ${{ secrets.HOUSEKEEPING_SECRET_KEY }}
           permission-contents: write
-          permission-discussions: write
 
       - name: Check out repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -46,4 +45,5 @@ jobs:
           unvouch-keyword: "!unvouch"
           roles: "admin,maintain,write"
         env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          # Used for API calls (reading the comment, reacting to it); the push uses the app token from checkout
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
