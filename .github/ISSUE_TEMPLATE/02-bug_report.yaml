@@ -82,3 +82,12 @@ body:
       description: >
         If you would like to propose a specific fix likely to resolve this issue, please
         describe it here (optional).
+  - type: checkboxes
+    attributes:
+      label: Volunteer
+      description: >
+        Check this box if you would like to own this issue and submit a pull request to
+        resolve it once it has been accepted (optional). Please don't submit a pull request
+        until the issue has been assigned to you.
+      options:
+        - label: I volunteer to submit a fix for this bug if it is accepted
