@@ -1,19 +1,47 @@
 // Navbar and light theme styling
 .navbar-vertical.navbar-expand-lg {
-  // Scroll the whole sidebar as Tabler 1.4 did. sidenav.ts saves and restores its offset.
   @include media-breakpoint-up(lg) {
-    overflow-y: auto;
+    // Clip the wide logo while the hover unfold grows the width, without making the aside scroll
+    overflow-x: clip;
 
-    > [class^='container'] {
-      height: auto;
-      min-height: 100%;
-    }
-    .navbar-collapse {
-      min-height: auto;
-      overflow-y: visible;
-    }
+    // Match the top bar's height, folded or not, even in a short window
     .navbar-brand {
+      flex-shrink: 0;
       justify-content: center;
+      height: $navbar-height;
+      padding-block: 0;
+    }
+
+    // Shade the logo row once the menu below it is scrolled (sidenav.ts sets the class)
+    &.menu-scrolled .navbar-brand {
+      position: relative;
+      z-index: 2;
+      // The top bar's bottom line, continued across the logo row
+      box-shadow:
+        inset 0 calc(-1 * var(--tblr-navbar-border-width)) 0 0 var(--tblr-navbar-border-color),
+        var(--tblr-shadow-md);
+    }
+
+    // The top bar buttons' box, which Tabler sets on .navbar .navbar-nav .nav-link
+    $pin-box: 2.5rem;
+
+    .sidebar-toggle {
+      position: absolute;
+      top: $navbar-height * 0.5;
+      // From the start edge, so the hover unfold reveals the pin instead of moving it. The box is
+      // centered on an icon at the menu icons' inset.
+      inset-inline-start: calc(
+        #{$sidebar-width} - var(--tblr-page-padding) - #{($sidebar-nav-icon-width + $pin-box) * 0.5}
+      );
+      // Above the shaded logo row
+      z-index: 3;
+      justify-content: center;
+      min-width: $pin-box;
+      min-height: $pin-box;
+      border-radius: var(--tblr-border-radius);
+      // .nav-link's hover tint, which only .navbar-nav defines
+      --tblr-nav-link-hover-bg: var(--tblr-hover-bg);
+      translate: 0 -50%;
     }
 
     // Tabler 1.6 drops the bar that marks the active menu group
@@ -105,6 +133,18 @@
     a:hover {
       text-decoration: none;
     }
+
+    // Stack the logo and the edition label without line box gaps
+    > a {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.125rem;
+    }
+    // The label hangs below the logo, which sits 0.6rem from the row's top
+    .netbox-edition {
+      margin-bottom: -0.45rem;
+    }
   }
 
   // Navigation geometric graphic for non-community editions
@@ -114,7 +154,8 @@
     left: 0;
     mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.3) 100%);
     opacity: 0.5;
-    position: fixed;
+    // The aside clips it while the hover unfold grows
+    position: absolute;
     user-drag: none;
     user-select: none;
     -moz-user-select: none;
@@ -125,6 +166,77 @@
 
     @include media-breakpoint-up(lg) {
       display: block;
+    }
+  }
+}
+
+// Tabler hides submenus opened by class on a folded sidebar, keep them for the hover unfold
+html[data-bs-sidebar='folded-hover'] .navbar-vertical.navbar-expand-lg {
+  @include media-breakpoint-up(lg) {
+    .navbar-collapse .navbar-nav .dropdown-menu.show {
+      display: block;
+    }
+
+    // Keep the expanded width, so the unfold animation reveals the menu instead of rewrapping it
+    .navbar-collapse {
+      width: $sidebar-width;
+    }
+  }
+}
+
+// initSidebar() sets the attribute before the first paint
+html:not([data-bs-sidebar='folded-hover']) .sidebar-toggle .mdi-pin-off,
+html[data-bs-sidebar='folded-hover'] .sidebar-toggle .mdi-pin {
+  display: none;
+}
+
+// Folded rail, unfolded again by hover or keyboard focus (Tabler's folded-hover)
+html[data-bs-sidebar='folded-hover']
+  .navbar-vertical.navbar-expand-lg:not(:hover):not(:has(:focus-visible)) {
+  @include media-breakpoint-up(lg) {
+    // Clip the expanded-width menu to the rail, since NetBox opens no flyouts
+    overflow-x: clip;
+
+    // Crop the logo to its leading square mark, centered over the icons
+    .navbar-brand {
+      --tblr-sidebar-brand-padding-x: #{($sidebar-folded-width - $navbar-brand-image-height) * 0.5};
+      justify-content: flex-start;
+    }
+    .navbar-brand-image {
+      width: $navbar-brand-image-height;
+      object-fit: cover;
+      object-position: left center;
+    }
+
+    // Collapse the edition label like the titles. Its line stays, so nothing shifts on unfold.
+    .netbox-edition {
+      width: 0;
+      overflow: hidden;
+      opacity: 0;
+    }
+
+    // The release info stays as an invisible spacer, so the menu keeps its height
+    .netbox-release {
+      visibility: hidden;
+    }
+    // The 18rem motif does not fit the rail
+    img.motif {
+      display: none;
+    }
+
+    // Open submenus stay open, out of view but in the accessibility tree, until the rail unfolds.
+    // Without Tabler's flyout offset and min-width, the hidden box stays inside the menu.
+    .dropdown-menu.show {
+      inset-inline-start: 0 !important;
+      min-width: 0 !important;
+      @include visually-hidden();
+    }
+
+    // Keep the menu a scroll container, so the overlay can return to the unfolded offset, but
+    // never a sideways one
+    .navbar-collapse {
+      overflow-x: hidden;
+      overflow-y: auto;
     }
   }
 }
@@ -161,7 +273,8 @@ html[data-bs-theme='dark'] .navbar-vertical.navbar-expand-lg {
       background-color: $navbar-dark-active-bg !important;
     }
   }
-  .text-secondary {
+  // The pin keeps the top bar's button color
+  .text-secondary:not(.sidebar-toggle) {
     color: $bright-teal !important;
   }
 

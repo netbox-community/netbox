@@ -37,9 +37,15 @@ Blocks:
           <a href="{% url 'home' %}">
             <img src="{% static 'logo_netbox_dark_teal.svg' %}" alt="{% trans "NetBox Logo" %}" class="navbar-brand-image hide-theme-dark">
             <img src="{% static 'logo_netbox_bright_teal.svg' %}" alt="{% trans "NetBox Logo" %}" class="navbar-brand-image hide-theme-light">
-            <div class="netbox-edition fw-semibold text-center fs-5 my-1">{{ settings.RELEASE.edition }}</div>
+            <div class="netbox-edition fw-semibold text-center fs-6">{{ settings.RELEASE.edition }}</div>
           </a>
         </h1>
+
+        {# Sidebar pin (desktop view) #}
+        <button type="button" class="nav-link sidebar-toggle fs-2 p-0 text-secondary d-none d-lg-flex" title="{% trans "Pin sidebar" %}" aria-label="{% trans "Pin sidebar" %}" aria-pressed="true" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="bottom">
+          <i class="mdi mdi-pin" aria-hidden="true"></i>
+          <i class="mdi mdi-pin-off" aria-hidden="true"></i>
+        </button>
 
         {# User menu (mobile view) #}
         <div class="navbar-nav flex-row align-items-center d-lg-none">
@@ -53,7 +59,7 @@ Blocks:
           {% nav %}
 
           {# Release info #}
-          <div class="text-muted text-center fs-5 my-3 px-3">
+          <div class="netbox-release text-muted text-center fs-5 my-3 px-3">
             {{ settings.RELEASE.name }}
             {% if not settings.RELEASE.features.commercial and not settings.ISOLATED_DEPLOYMENT %}
               <div>
