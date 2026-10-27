@@ -1,5 +1,4 @@
 import csv
-import re
 from itertools import chain
 
 from django.conf import settings
@@ -8,7 +7,7 @@ from django.db.models import FETCH_PEERS
 from django.utils.translation import gettext as _
 
 from netbox.registry import registry
-from utilities.constants import CSV_DELIMITERS
+from utilities.constants import CSV_DELIMITERS, SLUG_RE
 
 __all__ = (
     'CSVExporter',
@@ -19,8 +18,6 @@ __all__ = (
     'get_exporters',
     'register_exporter',
 )
-
-SLUG_RE = re.compile(r'^[a-z][a-z0-9_]*(\.[a-z0-9_]+)*$')
 
 
 class Exporter:
