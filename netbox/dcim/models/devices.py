@@ -1344,14 +1344,24 @@ class VirtualChassis(PrimaryModel):
                 set(interfaces),
             )
 
-        # Clear vc_position and vc_priority on member devices BEFORE calling super().delete()
-        # This must be done here because on_delete=SET_NULL executes before pre_delete signal
-        for device in self.members.all():
+        # Detach the members at the database level first, so that deletion doesn't record an intermediate state
+        # for them (on_delete=SET_NULL leaves vc_position and vc_priority set)
+        members = list(self.members.all())
+        for device in members:
+            device.snapshot()
+        Device.objects.filter(pk__in=[device.pk for device in members]).update(virtual_chassis=None)
+
+        ret = super().delete(*args, **kwargs)
+
+        # Record each member's removal only once the VC is gone, so that the change is valid on its own (a member
+        # can't otherwise be removed from a VC while designated as its master)
+        for device in members:
+            device.virtual_chassis = None
             device.vc_position = None
             device.vc_priority = None
             device.save()
 
-        return super().delete(*args, **kwargs)
+        return ret
 
 
 class VirtualDeviceContext(PrimaryModel):
