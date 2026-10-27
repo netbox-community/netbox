@@ -62,7 +62,7 @@ class SiteSerializer(PrimaryModelSerializer):
     )
 
     # Related object counts
-    circuit_count = RelatedObjectCountField('circuit_terminations')
+    circuit_count = RelatedObjectCountField('circuittermination_set')
     device_count = RelatedObjectCountField('devices')
     prefix_count = RelatedObjectCountField('prefix_set')
     rack_count = RelatedObjectCountField('racks')

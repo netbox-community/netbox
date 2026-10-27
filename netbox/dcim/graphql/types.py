@@ -681,14 +681,14 @@ class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, Nested
 
     @strawberry_django.field(
         prefetch_related=lambda info: RestrictedPrefetch(
-            'circuit_terminations', info.context.request.user, 'view',
+            'circuittermination_set', info.context.request.user, 'view',
             queryset=CircuitTermination.objects.all()
         ),
     )
     def circuit_terminations(self) -> list[
         Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')]
     ]:
-        return self.circuit_terminations.all()
+        return self.circuittermination_set.all()
 
 
 @register_type(
@@ -1118,14 +1118,14 @@ class RegionType(VLANGroupsMixin, ContactsMixin, NestedLtreeGroupObjectType):
 
     @strawberry_django.field(
         prefetch_related=lambda info: RestrictedPrefetch(
-            'circuit_terminations', info.context.request.user, 'view',
+            'circuittermination_set', info.context.request.user, 'view',
             queryset=CircuitTermination.objects.all()
         ),
     )
     def circuit_terminations(self) -> list[
         Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')]
     ]:
-        return self.circuit_terminations.all()
+        return self.circuittermination_set.all()
 
 
 @register_type(
@@ -1160,14 +1160,14 @@ class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, PrimaryObj
 
     @strawberry_django.field(
         prefetch_related=lambda info: RestrictedPrefetch(
-            'circuit_terminations', info.context.request.user, 'view',
+            'circuittermination_set', info.context.request.user, 'view',
             queryset=CircuitTermination.objects.all()
         ),
     )
     def circuit_terminations(self) -> list[
         Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')]
     ]:
-        return self.circuit_terminations.all()
+        return self.circuittermination_set.all()
 
 
 @register_type(
@@ -1195,14 +1195,14 @@ class SiteGroupType(VLANGroupsMixin, ContactsMixin, NestedLtreeGroupObjectType):
 
     @strawberry_django.field(
         prefetch_related=lambda info: RestrictedPrefetch(
-            'circuit_terminations', info.context.request.user, 'view',
+            'circuittermination_set', info.context.request.user, 'view',
             queryset=CircuitTermination.objects.all()
         ),
     )
     def circuit_terminations(self) -> list[
         Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')]
     ]:
-        return self.circuit_terminations.all()
+        return self.circuittermination_set.all()
 
 
 @register_type(

@@ -227,6 +227,9 @@ def handle_deleted_object(sender, instance, **kwargs):
                 continue
             related_model = relation.related_model
             related_field_name = relation.remote_field.name
+            # Skip denormalized cache fields, which their models keep in sync
+            if related_field_name.startswith('_'):
+                continue
             if not issubclass(related_model, ChangeLoggingMixin):
                 # We only care about triggering the m2m_changed signal for models which support
                 # change logging

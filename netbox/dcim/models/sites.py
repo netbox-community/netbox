@@ -55,6 +55,12 @@ class Region(ContactsMixin, NestedLtreeGroupModel):
         object_id_field='scope_id',
         related_query_name='region'
     )
+    circuit_terminations = GenericRelation(
+        to='circuits.CircuitTermination',
+        content_type_field='termination_type',
+        object_id_field='termination_id',
+        related_query_name='region'
+    )
 
     class Meta:
         ordering = ('sort_path',)
@@ -118,6 +124,12 @@ class SiteGroup(ContactsMixin, NestedLtreeGroupModel):
         to='wireless.WirelessLAN',
         content_type_field='scope_type',
         object_id_field='scope_id',
+        related_query_name='site_group'
+    )
+    circuit_terminations = GenericRelation(
+        to='circuits.CircuitTermination',
+        content_type_field='termination_type',
+        object_id_field='termination_id',
         related_query_name='site_group'
     )
 
@@ -264,6 +276,12 @@ class Site(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
         object_id_field='scope_id',
         related_query_name='site'
     )
+    circuit_terminations = GenericRelation(
+        to='circuits.CircuitTermination',
+        content_type_field='termination_type',
+        object_id_field='termination_id',
+        related_query_name='site'
+    )
 
     clone_fields = (
         'status', 'region', 'group', 'tenant', 'facility', 'time_zone', 'physical_address', 'shipping_address',
@@ -327,6 +345,12 @@ class Location(ContactsMixin, ImageAttachmentsMixin, NestedLtreeGroupModel):
         to='ipam.VLANGroup',
         content_type_field='scope_type',
         object_id_field='scope_id',
+        related_query_name='location'
+    )
+    circuit_terminations = GenericRelation(
+        to='circuits.CircuitTermination',
+        content_type_field='termination_type',
+        object_id_field='termination_id',
         related_query_name='location'
     )
 
