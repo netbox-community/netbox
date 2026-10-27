@@ -112,15 +112,6 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
     # Export methods
     #
 
-    def get_export_queryset(self, exporter):
-        """
-        Return the queryset of objects to be exported using the given exporter.
-
-        Args:
-            exporter: The Exporter instance
-        """
-        return self.queryset
-
     def get_export_rows(self, table, columns=None):
         """
         Return the column headers and an iterator of cell values for each row to be exported from the table.
@@ -180,8 +171,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
         """
         Deprecated: Export the queryset of objects as concatenated YAML documents.
         """
-        exporter = get_exporter('yaml')
-        return exporter.export(request=self.request, queryset=self.get_export_queryset(exporter))
+        return get_exporter('yaml').export(request=self.request, queryset=self.queryset)
 
     # TODO: Remove in NetBox v5.0
     def export_table(self, table, columns=None, filename=None, delimiter=None):
@@ -273,12 +263,11 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
                 exporter = get_exporter('yaml')
             else:
                 exporter = get_exporter('csv')
-            queryset = self.get_export_queryset(exporter)
             if not isinstance(exporter, TableExporter):
-                data = exporter.export(request=request, queryset=queryset)
+                data = exporter.export(request=request, queryset=self.queryset)
                 return self.get_export_response(exporter, data)
 
-            table = self.get_table(queryset, request, has_table_actions)
+            table = self.get_table(self.queryset, request, has_table_actions)
             columns = [name for name, _ in table.selected_columns] if current_view else None
 
             # TODO: Remove in NetBox v5.0 along with export_table()

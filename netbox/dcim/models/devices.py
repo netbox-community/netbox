@@ -220,6 +220,8 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     prerequisite_models = (
         'dcim.Manufacturer',
     )
+    # Avoid one module_bay_types query per module bay template when exporting to YAML
+    yaml_prefetch = ('modulebaytemplates__module_bay_types',)
 
     class Meta:
         ordering = ['manufacturer', 'model']

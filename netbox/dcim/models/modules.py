@@ -227,6 +227,8 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     prerequisite_models = (
         'dcim.Manufacturer',
     )
+    # Avoid one module_bay_types query per module type when exporting to YAML
+    yaml_prefetch = ('module_bay_types',)
 
     class Meta:
         ordering = ('profile', 'manufacturer', 'model')

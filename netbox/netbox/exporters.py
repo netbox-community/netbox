@@ -4,6 +4,7 @@ from itertools import chain
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.db.models import FETCH_PEERS
 from django.utils.translation import gettext as _
 
 from netbox.registry import registry
@@ -125,6 +126,8 @@ class YAMLExporter(Exporter):
         return hasattr(model, 'to_yaml')
 
     def export(self, *, request, queryset):
+        # Prefetch the relations named by the model, and batch any other foreign key lookups across all objects
+        queryset = queryset.prefetch_related(*getattr(queryset.model, 'yaml_prefetch', ())).fetch_mode(FETCH_PEERS)
         return '---\n'.join(obj.to_yaml() for obj in queryset)
 
 

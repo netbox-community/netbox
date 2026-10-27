@@ -4,8 +4,10 @@ from unittest import skipIf
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.db import connection
 from django.http import StreamingHttpResponse
 from django.test import RequestFactory, SimpleTestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
 from dcim.models import DeviceType, Manufacturer, Site
@@ -108,6 +110,22 @@ class CSVExporterTestCase(SimpleTestCase):
     def test_write_rows_streaming(self):
         data = get_exporter('csv').write_rows(self.headers, iter(self.rows))
         self.assertEqual(list(data), ['Name,Count\r\n', 'Site 1,1\r\n', '"Site, 2",\r\n'])
+
+
+class YAMLExporterTestCase(TestCase):
+
+    def test_export_fetches_peers(self):
+        """
+        Related objects are fetched for all exported objects at once, rather than one by one.
+        """
+        for i in range(1, 4):
+            manufacturer = Manufacturer.objects.create(name=f'Manufacturer {i}', slug=f'manufacturer-{i}')
+            DeviceType.objects.create(manufacturer=manufacturer, model=f'Device Type {i}', slug=f'device-type-{i}')
+
+        with CaptureQueriesContext(connection) as queries:
+            get_exporter('yaml').export(request=None, queryset=DeviceType.objects.all())
+        manufacturer_queries = [q for q in queries.captured_queries if 'FROM "dcim_manufacturer"' in q['sql']]
+        self.assertEqual(len(manufacturer_queries), 1)
 
 
 class ExportViewTestCase(TestCase):
