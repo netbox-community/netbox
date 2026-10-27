@@ -22,6 +22,7 @@ from utilities.filters import (
     MultiValueCharFilter,
     MultiValueContentTypeFilter,
     MultiValueNumberFilter,
+    NonUniqueModelMultipleChoiceFilter,
     TreeNodeMultipleChoiceFilter,
 )
 from utilities.filtersets import register_filterset
@@ -675,7 +676,7 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
         field_name='pk',
         label=_('Virtual machine (ID)'),
     )
-    interface = django_filters.ModelMultipleChoiceFilter(
+    interface = NonUniqueModelMultipleChoiceFilter(
         field_name='interface__name',
         queryset=Interface.objects.all(),
         to_field_name='name',
@@ -686,7 +687,7 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
         queryset=Interface.objects.all(),
         label=_('Interface (ID)'),
     )
-    vminterface = django_filters.ModelMultipleChoiceFilter(
+    vminterface = NonUniqueModelMultipleChoiceFilter(
         field_name='vminterface__name',
         queryset=VMInterface.objects.all(),
         to_field_name='name',

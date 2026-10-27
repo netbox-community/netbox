@@ -25,6 +25,7 @@ __all__ = (
     'MultiValueTimeFilter',
     'MultiValueTimeZoneFilter',
     'MultiValueWWNFilter',
+    'NonUniqueModelMultipleChoiceFilter',
     'NullableCharFieldFilter',
     'NumericArrayFilter',
     'TreeNodeMultipleChoiceFilter',
@@ -174,6 +175,17 @@ class TreeNodeMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilter):
 
     def filter(self, qs, value):
         value = [node.get_descendants(include_self=True) if not isinstance(node, str) else node for node in value]
+        return super().filter(qs, value)
+
+
+class NonUniqueModelMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilter):
+    """
+    A ModelMultipleChoiceFilter whose to_field_name is not unique (e.g. interface name). The stock filter adds one
+    identical predicate per matching object, which can produce a huge OR clause; keep only one object per value.
+    """
+    def filter(self, qs, value):
+        to_field_name = self.field.to_field_name
+        value = list({getattr(v, to_field_name or 'pk', v): v for v in value}.values())
         return super().filter(qs, value)
 
 

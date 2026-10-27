@@ -9060,12 +9060,32 @@ class MACAddressTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'interface': [interfaces[0].name, interfaces[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_interface_name_shared_by_devices(self):
+        interface = Interface.objects.create(
+            device=Device.objects.get(name='Device 1'), name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        MACAddress.objects.create(mac_address='00-00-00-01-01-02', assigned_object=interface)
+        filterset = self.filterset({'interface': ['Interface 3']}, self.queryset)
+        self.assertEqual(filterset.qs.count(), 3)
+        self.assertEqual(str(filterset.qs.query).count('"dcim_interface"."name" ='), 1)
+        self.assertFalse(self.filterset({'interface': ['no-such-interface']}, self.queryset).is_valid())
+
     def test_vminterface(self):
         vm_interfaces = VMInterface.objects.all()[:2]
         params = {'vminterface_id': [vm_interfaces[0].pk, vm_interfaces[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'vminterface': [vm_interfaces[0].name, vm_interfaces[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_vminterface_name_shared_by_virtual_machines(self):
+        vm_interface = VMInterface.objects.create(
+            virtual_machine=VirtualMachine.objects.get(name='Virtual Machine 1'), name='Interface 3'
+        )
+        MACAddress.objects.create(mac_address='00-00-00-04-01-02', assigned_object=vm_interface)
+        filterset = self.filterset({'vminterface': ['Interface 3']}, self.queryset)
+        self.assertEqual(filterset.qs.count(), 3)
+        self.assertEqual(str(filterset.qs.query).count('"virtualization_vminterface"."name" ='), 1)
+        self.assertFalse(self.filterset({'vminterface': ['no-such-interface']}, self.queryset).is_valid())
 
     def test_assigned(self):
         params = {'assigned': True}

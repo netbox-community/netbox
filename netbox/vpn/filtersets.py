@@ -7,7 +7,12 @@ from dcim.models import Device, Interface
 from ipam.models import VLAN, IPAddress, RouteTarget
 from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
-from utilities.filters import MultiValueBigNumberFilter, MultiValueCharFilter, MultiValueContentTypeFilter
+from utilities.filters import (
+    MultiValueBigNumberFilter,
+    MultiValueCharFilter,
+    MultiValueContentTypeFilter,
+    NonUniqueModelMultipleChoiceFilter,
+)
 from utilities.filtersets import register_filterset
 from virtualization.models import VirtualMachine, VMInterface
 
@@ -105,7 +110,7 @@ class TunnelTerminationFilterSet(NetBoxModelFilterSet):
         distinct=False,
     )
     termination_type = MultiValueContentTypeFilter()
-    interface = django_filters.ModelMultipleChoiceFilter(
+    interface = NonUniqueModelMultipleChoiceFilter(
         field_name='interface__name',
         queryset=Interface.objects.all(),
         to_field_name='name',
@@ -116,7 +121,7 @@ class TunnelTerminationFilterSet(NetBoxModelFilterSet):
         queryset=Interface.objects.all(),
         label=_('Interface (ID)'),
     )
-    vminterface = django_filters.ModelMultipleChoiceFilter(
+    vminterface = NonUniqueModelMultipleChoiceFilter(
         field_name='vminterface__name',
         queryset=VMInterface.objects.all(),
         to_field_name='name',
@@ -438,7 +443,7 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         queryset=VirtualMachine.objects.all(),
         label=_('Virtual machine (ID)'),
     )
-    interface = django_filters.ModelMultipleChoiceFilter(
+    interface = NonUniqueModelMultipleChoiceFilter(
         field_name='interface__name',
         queryset=Interface.objects.all(),
         to_field_name='name',
@@ -449,7 +454,7 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         queryset=Interface.objects.all(),
         label=_('Interface (ID)'),
     )
-    vminterface = django_filters.ModelMultipleChoiceFilter(
+    vminterface = NonUniqueModelMultipleChoiceFilter(
         field_name='vminterface__name',
         queryset=VMInterface.objects.all(),
         to_field_name='name',
