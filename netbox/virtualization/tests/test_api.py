@@ -1139,7 +1139,7 @@ class VMInterfaceTestCase(APIViewTestCases.APIViewTestCase):
         self.assertEqual((vm_interface.count_ipaddresses, vm_interface.count_fhrp_groups), (2, 1))
 
     def test_ordering_by_count_annotation(self):
-        """Ordering by a count annotation sorts a response that renders it and is ignored by one that does not."""
+        """Ordering by a count annotation sorts the response whether or not it renders the count."""
         self.add_permissions('virtualization.view_vminterface')
         groups = FHRPGroup.objects.bulk_create((
             FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=1),
@@ -1153,19 +1153,13 @@ class VMInterfaceTestCase(APIViewTestCases.APIViewTestCase):
         ))
         url = f'{self._get_list_url()}?ordering=-_count_fhrp_groups'
 
-        response = self.client.get(url, **self.header)
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(
-            [row['name'] for row in response.data['results']], ['Interface 2', 'Interface 3', 'Interface 1']
-        )
-
-        # Responses without the count carry no annotation to order by, so they keep the default ordering
-        for params in ('&brief=1', '&fields=id,name'):
+        # Responses without the count annotate it for the ordering alone
+        for params in ('', '&brief=1', '&fields=id,name'):
             with self.subTest(params=params):
                 response = self.client.get(url + params, **self.header)
                 self.assertHttpStatus(response, status.HTTP_200_OK)
                 self.assertEqual(
-                    [row['name'] for row in response.data['results']], ['Interface 1', 'Interface 2', 'Interface 3']
+                    [row['name'] for row in response.data['results']], ['Interface 2', 'Interface 3', 'Interface 1']
                 )
 
     def test_export_template_prefetches_related_objects(self):
