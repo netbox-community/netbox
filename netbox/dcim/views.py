@@ -20,6 +20,7 @@ from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import ASN, VLAN, IPAddress, Prefix, VLANGroup
 from ipam.tables import VLANTranslationRuleTable
 from ipam.ui.panels import FHRPGroupAssignmentsPanel
+from netbox.exporters import YAMLExporter
 from netbox.object_actions import *
 from netbox.ui import actions, layout
 from netbox.ui.breadcrumbs import Breadcrumb, filtered_list_url, object_view_url
@@ -1449,10 +1450,12 @@ class DeviceTypeListView(generic.ObjectListView):
     filterset_form = forms.DeviceTypeFilterForm
     table = tables.DeviceTypeTable
 
-    def export_yaml(self):
-        # Avoid one module_bay_types query per module bay template across the export.
-        self.queryset = self.queryset.prefetch_related('modulebaytemplates__module_bay_types')
-        return super().export_yaml()
+    def get_export_queryset(self, exporter):
+        queryset = super().get_export_queryset(exporter)
+        if isinstance(exporter, YAMLExporter):
+            # Avoid one module_bay_types query per module bay template across the export.
+            queryset = queryset.prefetch_related('modulebaytemplates__module_bay_types')
+        return queryset
 
 
 @register_model_view(DeviceType)
@@ -1914,12 +1917,14 @@ class ModuleTypeListView(generic.ObjectListView):
     filterset_form = forms.ModuleTypeFilterForm
     table = tables.ModuleTypeTable
 
-    def export_yaml(self):
-        # Avoid one module_bay_types query per module type across the export. (Unlike
-        # DeviceType.to_yaml(), ModuleType.to_yaml() doesn't export module bay templates at
-        # all, so there's nothing to prefetch alongside it.)
-        self.queryset = self.queryset.prefetch_related('module_bay_types')
-        return super().export_yaml()
+    def get_export_queryset(self, exporter):
+        queryset = super().get_export_queryset(exporter)
+        if isinstance(exporter, YAMLExporter):
+            # Avoid one module_bay_types query per module type across the export. (Unlike
+            # DeviceType.to_yaml(), ModuleType.to_yaml() doesn't export module bay templates at
+            # all, so there's nothing to prefetch alongside it.)
+            queryset = queryset.prefetch_related('module_bay_types')
+        return queryset
 
 
 @register_model_view(ModuleType)

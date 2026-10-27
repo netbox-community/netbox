@@ -18,32 +18,30 @@ function quickSearchEventHandler(event: Event): void {
 }
 
 /**
- * Clear the existing search parameters in the link to export Current View.
+ * Update the links to export the current view with the quick search query.
+ *
+ * @param query Quick search query
  */
-function clearLinkParams(): void {
-  const link = document.getElementById('export_current_view') as HTMLLinkElement;
-  const linkUpdated = link?.href.split('&')[0];
-  link.setAttribute('href', linkUpdated);
+function updateExportLinks(query: string): void {
+  for (const link of document.querySelectorAll<HTMLAnchorElement>('a.export-current-view')) {
+    const url = new URL(link.href);
+    if (query) {
+      url.searchParams.set('q', query);
+    } else {
+      url.searchParams.delete('q');
+    }
+    link.href = url.toString();
+  }
 }
 
 /**
- * Update the Export View link to add the Quick Search parameters.
- * @param event
+ * Update the export links to include the quick search query.
+ *
+ * @param event "change" event for the quicksearch input
  */
 function handleQuickSearchParams(event: Event): void {
-  const quickSearchParameters = event.currentTarget as HTMLInputElement;
-
-  // Clear the existing search parameters
-  clearLinkParams();
-
-  if (quickSearchParameters != null) {
-    const link = document.getElementById('export_current_view') as HTMLLinkElement;
-    const params = new URLSearchParams();
-    params.set('q', quickSearchParameters.value);
-    const search_parameter = params.toString();
-    const linkUpdated = link?.href + '&' + search_parameter;
-    link.setAttribute('href', linkUpdated);
-  }
+  const quicksearch = event.currentTarget as HTMLInputElement;
+  updateExportLinks(quicksearch.value);
 }
 
 /**
@@ -71,7 +69,7 @@ export function initQuickSearch(): void {
           quicksearch.value = '';
           await new Promise(f => setTimeout(f, 100));
           quicksearch.dispatchEvent(search);
-          clearLinkParams();
+          updateExportLinks('');
         },
         {
           passive: true,

@@ -5,7 +5,6 @@ from contextlib import contextmanager
 from copy import deepcopy
 from types import SimpleNamespace
 
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRel
 from django.core.exceptions import FieldDoesNotExist, ImproperlyConfigured, ObjectDoesNotExist, ValidationError
@@ -13,11 +12,14 @@ from django.db import IntegrityError, router, transaction
 from django.db.models import ManyToManyField, ProtectedError, RestrictedError
 from django.db.models.fields.reverse_related import ManyToManyRel
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.encoding import force_str
 from django.utils.http import content_disposition_header
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from django_tables2.data import TableQuerysetData
+from django_tables2.rows import BoundRow
 
 from core.exceptions import JobFailed
 from core.models import ObjectType
@@ -25,12 +27,12 @@ from core.signals import clear_events
 from extras.choices import CustomFieldUIEditableChoices
 from extras.models import CustomField, ExportTemplate
 from netbox.choices import ImportMethodChoices
+from netbox.exporters import TableExporter, get_exporter
 from netbox.forms.bulk_rename import NetBoxModelBulkRenameForm
 from netbox.models.features import ChangeLoggingMixin
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
-from utilities.export import TableExport, stream_table_csv_response
 from utilities.forms import BulkDeleteForm, BulkRenameForm, restrict_form_fields
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.htmx import htmx_partial
@@ -56,6 +58,8 @@ __all__ = (
     'BulkRenameView',
     'ObjectListView',
 )
+
+EXPORT_CHUNK_SIZE = 1000
 
 
 # TODO: Remove in NetBox v5.0.
@@ -108,24 +112,22 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
     # Export methods
     #
 
-    def export_yaml(self):
+    def get_export_queryset(self, exporter):
         """
-        Export the queryset of objects as concatenated YAML documents.
-        """
-        yaml_data = [obj.to_yaml() for obj in self.queryset]
+        Return the queryset of objects to be exported using the given exporter.
 
-        return '---\n'.join(yaml_data)
-
-    def export_table(self, table, columns=None, filename=None, delimiter=None):
+        Args:
+            exporter: The Exporter instance
         """
-        Export all table data in CSV format.
+        return self.queryset
+
+    def get_export_rows(self, table, columns=None):
+        """
+        Return the column headers and an iterator of cell values for each row to be exported from the table.
 
         Args:
             table: The Table instance to export
             columns: A list of specific columns to include. If None, all columns will be exported.
-            filename: The name of the file attachment sent to the client. If None, will be determined automatically
-                from the queryset model name.
-            delimiter: The character used to separate columns (a comma is used by default)
         """
         exclude_columns = {'pk', 'actions'}
         all_columns = [col_name for col_name, _ in table.selected_columns + table.available_columns]
@@ -138,23 +140,64 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
         # those currently visible in the configured table view.
         table._apply_prefetching(columns=[c for c in all_columns if c not in exclude_columns])
 
-        filename = filename or f'netbox_{self.queryset.model._meta.verbose_name_plural}.csv'
+        export_columns = [
+            column for column in table.columns.iterall()
+            if not (column.column.exclude_from_export or column.name in exclude_columns)
+        ]
+        headers = [force_str(column.header, strings_only=True) for column in export_columns]
 
-        if settings.STREAMING_EXPORTS:
-            return stream_table_csv_response(
-                table=table,
-                exclude_columns=exclude_columns,
-                filename=filename,
-                delimiter=delimiter,
-            )
+        def iter_rows():
+            if isinstance(table.data, TableQuerysetData):
+                records = table.data.data.iterator(chunk_size=EXPORT_CHUNK_SIZE)
+            else:
+                records = table.data
+            for record in records:
+                row = BoundRow(record, table=table)
+                yield [force_str(row.get_cell_value(column.name), strings_only=True) for column in export_columns]
 
-        exporter = TableExport(
-            export_format=TableExport.CSV,
-            table=table,
-            exclude_columns=exclude_columns,
-            delimiter=delimiter,
-        )
-        return exporter.response(filename=filename)
+        return headers, iter_rows()
+
+    def get_export_response(self, exporter, data, filename=None):
+        """
+        Return an HTTP response delivering the exported data as a file attachment.
+
+        Args:
+            exporter: The Exporter instance which produced the data
+            data: The exported data, as str or bytes, or as an iterable of chunks to be streamed
+            filename: The name of the file attachment. If None, will be determined automatically from the queryset
+                model name.
+        """
+        filename = filename or f'netbox_{self.queryset.model._meta.verbose_name_plural}.{exporter.file_extension}'
+        if isinstance(data, (str, bytes)):
+            response = HttpResponse(data, content_type=exporter.content_type)
+        else:
+            response = StreamingHttpResponse(data, content_type=exporter.content_type)
+        response['Content-Disposition'] = content_disposition_header(as_attachment=True, filename=filename)
+        return response
+
+    # TODO: Remove in NetBox v5.0
+    def export_yaml(self):
+        """
+        Deprecated: Export the queryset of objects as concatenated YAML documents.
+        """
+        exporter = get_exporter('yaml')
+        return exporter.export(request=self.request, queryset=self.get_export_queryset(exporter))
+
+    # TODO: Remove in NetBox v5.0
+    def export_table(self, table, columns=None, filename=None, delimiter=None):
+        """
+        Deprecated: Export all table data in CSV format.
+
+        Args:
+            table: The Table instance to export
+            columns: A list of specific columns to include. If None, all columns will be exported.
+            filename: The name of the file attachment sent to the client. If None, will be determined automatically
+                from the queryset model name.
+            delimiter: The character used to separate columns (a comma is used by default)
+        """
+        exporter = get_exporter('csv')
+        headers, rows = self.get_export_rows(table, columns)
+        return self.get_export_response(exporter, exporter.write_rows(headers, rows, delimiter), filename)
 
     def export_template(self, template, request):
         """
@@ -209,15 +252,8 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
         if 'export' in request.GET:
 
-            # Export the current table view
-            if request.GET['export'] == 'table':
-                table = self.get_table(self.queryset, request, has_table_actions)
-                columns = [name for name, _ in table.selected_columns]
-                delimiter = request.user.config.get('csv_delimiter') if request.user.is_authenticated else None
-                return self.export_table(table, columns, delimiter=delimiter)
-
             # Render an ExportTemplate
-            if request.GET['export']:
+            if request.GET['export'] not in ('', 'table'):
                 template = get_object_or_404(
                     ExportTemplate.objects.restrict(request.user, 'view'),
                     object_types=object_type,
@@ -225,17 +261,34 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
                 )
                 return self.export_template(template, request)
 
-            # Check for YAML export support on the model
-            if hasattr(model, 'to_yaml'):
-                response = HttpResponse(self.export_yaml(), content_type='text/yaml')
-                filename = 'netbox_{}.yaml'.format(self.queryset.model._meta.verbose_name_plural)
-                response['Content-Disposition'] = content_disposition_header(as_attachment=True, filename=filename)
-                return response
+            # Export the current table view or all data, in the requested format (YAML or CSV by default)
+            current_view = request.GET['export'] == 'table'
+            if slug := request.GET.get('export_format'):
+                exporter = get_exporter(slug)
+                if not exporter or not exporter.supports_model(model) or (
+                    current_view and not isinstance(exporter, TableExporter)
+                ):
+                    raise Http404(_("Invalid export format: {format}").format(format=slug))
+            elif not current_view and get_exporter('yaml').supports_model(model):
+                exporter = get_exporter('yaml')
+            else:
+                exporter = get_exporter('csv')
+            queryset = self.get_export_queryset(exporter)
+            if not isinstance(exporter, TableExporter):
+                data = exporter.export(request=request, queryset=queryset)
+                return self.get_export_response(exporter, data)
 
-            # Fall back to default table/YAML export
-            table = self.get_table(self.queryset, request, has_table_actions)
-            delimiter = request.user.config.get('csv_delimiter') if request.user.is_authenticated else None
-            return self.export_table(table, delimiter=delimiter)
+            table = self.get_table(queryset, request, has_table_actions)
+            columns = [name for name, _ in table.selected_columns] if current_view else None
+
+            # TODO: Remove in NetBox v5.0 along with export_table()
+            if exporter.slug == 'csv' and type(self).export_table is not ObjectListView.export_table:
+                delimiter = request.user.config.get('csv_delimiter') if request.user.is_authenticated else None
+                return self.export_table(table, columns, delimiter=delimiter)
+
+            headers, rows = self.get_export_rows(table, columns)
+            data = exporter.export_rows(request=request, headers=headers, rows=rows)
+            return self.get_export_response(exporter, data)
 
         # Render the objects table
         table = self.get_table(self.queryset, request, has_table_actions)

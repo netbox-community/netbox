@@ -32,6 +32,7 @@ from netbox.choices import (
     ImportFormatChoices,
     WeightUnitChoices,
 )
+from netbox.exporters import get_exporter
 from tenancy.models import Tenant
 from users.models import ObjectPermission, Owner, User
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
@@ -1288,13 +1289,14 @@ inventory-items:
         five_bay_device_type = make_device_type('Export Query DT Five Bays', 5)
 
         view = DeviceTypeListView()
+        exporter = get_exporter('yaml')
         view.queryset = DeviceType.objects.filter(pk=one_bay_device_type.pk)
         with CaptureQueriesContext(connection) as one_bay_queries:
-            view.export_yaml()
+            exporter.export(request=None, queryset=view.get_export_queryset(exporter))
 
         view.queryset = DeviceType.objects.filter(pk=five_bay_device_type.pk)
         with CaptureQueriesContext(connection) as five_bay_queries:
-            view.export_yaml()
+            exporter.export(request=None, queryset=view.get_export_queryset(exporter))
 
         self.assertEqual(len(one_bay_queries), len(five_bay_queries))
 
@@ -1519,6 +1521,14 @@ console-ports:
         content = b''.join(response.streaming_content).decode('utf-8')
         rows = list(csv.reader(StringIO(content)))
         self.assertGreater(len(rows), 1)
+        self.assertEqual(len(rows) - 1, DeviceType.objects.count())
+
+        # Test CSV export of all data
+        response = self.client.get(f'{url}?export&export_format=csv')
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(response.get('Content-Type'), 'text/csv; charset=utf-8')
+        content = b''.join(response.streaming_content).decode('utf-8')
+        rows = list(csv.reader(StringIO(content)))
         self.assertEqual(len(rows) - 1, DeviceType.objects.count())
 
 
@@ -2177,7 +2187,7 @@ interfaces:
             self.assertEqual(channel.parent, imported_parent)
 
     def test_bulk_yaml_export_prefetches_module_bay_types_on_the_module_type_itself(self):
-        """Compares an unprefetched to_yaml() call per instance against export_yaml() (which
+        """Compares an unprefetched to_yaml() call per instance against a YAML export (which
         prefetches and issues no queries of its own beyond that), rather than a row-count
         comparison, which other per-instance relations that legitimately scale with it would
         swamp."""
@@ -2195,9 +2205,10 @@ interfaces:
             [obj.to_yaml() for obj in ModuleType.objects.filter(pk__in=pks)]
 
         view = ModuleTypeListView()
+        exporter = get_exporter('yaml')
         view.queryset = ModuleType.objects.filter(pk__in=pks)
         with CaptureQueriesContext(connection) as prefetched:
-            view.export_yaml()
+            exporter.export(request=None, queryset=view.get_export_queryset(exporter))
 
         # Without the prefetch, each of the 5 module types issues its own module_bay_types
         # query; with it, exactly one query serves all 5.
@@ -2224,6 +2235,14 @@ interfaces:
         content = b''.join(response.streaming_content).decode('utf-8')
         rows = list(csv.reader(StringIO(content)))
         self.assertGreater(len(rows), 1)
+        self.assertEqual(len(rows) - 1, ModuleType.objects.count())
+
+        # Test CSV export of all data
+        response = self.client.get(f'{url}?export&export_format=csv')
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(response.get('Content-Type'), 'text/csv; charset=utf-8')
+        content = b''.join(response.streaming_content).decode('utf-8')
+        rows = list(csv.reader(StringIO(content)))
         self.assertEqual(len(rows) - 1, ModuleType.objects.count())
 
     @tag('regression')  # Issue #22961

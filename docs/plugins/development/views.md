@@ -154,6 +154,7 @@ Below are the class definitions for NetBox's multi-object views. These views han
     options:
       members:
         - get_table
+        - get_export_queryset
         - export_table
         - export_template
 
