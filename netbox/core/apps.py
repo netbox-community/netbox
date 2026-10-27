@@ -9,6 +9,11 @@ from PIL import Image
 from core.events import *
 from netbox.events import EVENT_TYPE_KIND_DANGER, EVENT_TYPE_KIND_SUCCESS, EVENT_TYPE_KIND_WARNING, EventType
 from utilities.migration import custom_deconstruct
+from utilities.pk_allocation import (
+    bulk_create_with_pk_allocation,
+    prepare_for_bulk_create_with_pk_allocation,
+    save_table_with_pk_allocation,
+)
 
 # Ignore verbose_name & verbose_name_plural Meta options when calculating model migrations
 AlterModelOptions.ALTER_OPTION_KEYS.remove('verbose_name')
@@ -16,6 +21,11 @@ AlterModelOptions.ALTER_OPTION_KEYS.remove('verbose_name_plural')
 
 # Use our custom destructor to ignore certain attributes when calculating field migrations
 models.Field.deconstruct = custom_deconstruct
+
+# Consult any registered primary key allocators when creating new objects, via either save() or bulk_create()
+models.Model._save_table = save_table_with_pk_allocation
+models.QuerySet._prepare_for_bulk_create = prepare_for_bulk_create_with_pk_allocation
+models.QuerySet.bulk_create = bulk_create_with_pk_allocation
 
 # Cap the maximum size of an image Pillow will decode, to mitigate decompression-bomb DoS attacks. Pillow raises a
 # DecompressionBombError when an image's declared dimensions exceed 2x this value, before allocating pixel buffers.
