@@ -14,7 +14,7 @@ Install the minimum local build tooling (all three are also included in the `dev
 python -m pip install --upgrade build packaging twine
 ```
 
-Building also requires a freshly rendered copy of the documentation site (see [Building](#building) below). The documentation toolchain, including `zensical`, `mkdocs`, `mkdocs-material`, `mkdocstrings`, and `mkdocstrings-python`, is pinned in `requirements.txt` rather than the `dev` group because it is also needed outside packaging, such as documentation previews and CI's `docs` job.
+Building also requires a freshly rendered copy of the documentation site (see [Building](#building) below). The documentation toolchain, including `zensical`, `mkdocs`, `mkdocstrings`, and `mkdocstrings-python`, is pinned in `requirements.txt` rather than the `dev` group because it is also needed outside packaging, such as documentation previews and CI's `docs` job.
 
 ## Building
 
