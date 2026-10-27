@@ -14,7 +14,7 @@ django-storages==1.14.6
 django-tables2==3.0.1
 django-taggit==6.1.0
 django-timezone-field==7.2.2
-djangorestframework==3.18.0
+djangorestframework==3.18.3
 drf-spectacular==0.30.0
 drf-spectacular-sidecar==2026.10.1
 feedparser==6.0.14
