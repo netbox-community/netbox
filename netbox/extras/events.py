@@ -106,9 +106,10 @@ def get_snapshots(instance, event_type):
     }
 
 
-def enqueue_event(queue, instance, request, event_type):
+def enqueue_event(queue, instance, request, event_type, object_change_id=None):
     """
-    Enqueue (or coalesce) an event for a created/updated/deleted object.
+    Enqueue (or coalesce) an event for a created/updated/deleted object. If provided, object_change_id identifies the
+    ObjectChange recorded for the change.
 
     Events are processed after the request completes.
     """
@@ -146,9 +147,15 @@ def enqueue_event(queue, instance, request, event_type):
             object=instance,
             event_type=event_type,
             snapshots=get_snapshots(instance, event_type),
+            object_change_ids=[],
             request=request,
             user=request.user,
         )
+
+    # A coalesced event may span multiple ObjectChanges
+    object_change_ids = queue[key].setdefault('object_change_ids', [])
+    if object_change_id is not None and object_change_id not in object_change_ids:
+        object_change_ids.append(object_change_id)
 
     # For delete events, eagerly serialize the payload before the row is gone.
     # This covers both first-time enqueues and coalesced update→delete promotions.

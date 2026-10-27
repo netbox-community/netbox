@@ -8,6 +8,7 @@ from unittest.mock import Mock, PropertyMock, patch
 import django_rq
 import requests
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.http import HttpResponse
 from django.test import RequestFactory, TestCase, override_settings, tag
@@ -18,7 +19,7 @@ from rest_framework import status
 
 from core.choices import JobNotificationChoices, ManagedFileRootPathChoices
 from core.events import *
-from core.models import Job, ObjectType
+from core.models import Job, ObjectChange, ObjectType
 from dcim.choices import DeviceStatusChoices, InterfaceTypeChoices, SiteStatusChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
 from extras.choices import EventRuleActionChoices
@@ -220,6 +221,10 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         self.assertEqual(len(job.kwargs['data']['tags']), len(response.data['tags']))
         self.assertEqual(job.kwargs['snapshots']['postchange']['name'], 'Site 1')
         self.assertEqual(job.kwargs['snapshots']['postchange']['tags'], ['Bar', 'Foo'])
+        objectchange = ObjectChange.objects.get(
+            changed_object_type=ContentType.objects.get_for_model(Site), changed_object_id=response.data['id']
+        )
+        self.assertEqual(job.kwargs['object_change_ids'], [objectchange.pk])
 
     def test_single_create_rollback_discards_events(self):
         """
@@ -397,6 +402,10 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         self.assertEqual(job.kwargs['snapshots']['prechange']['tags'], ['Bar', 'Foo'])
         self.assertEqual(job.kwargs['snapshots']['postchange']['name'], 'Site X')
         self.assertEqual(job.kwargs['snapshots']['postchange']['tags'], ['Baz'])
+        objectchange = ObjectChange.objects.get(
+            changed_object_type=ContentType.objects.get_for_model(Site), changed_object_id=site.pk
+        )
+        self.assertEqual(job.kwargs['object_change_ids'], [objectchange.pk])
 
     def test_single_update_rollback_discards_events(self):
         """
@@ -541,6 +550,10 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         self.assertEqual(job.kwargs['data']['foo'], 3)
         self.assertEqual(job.kwargs['snapshots']['prechange']['name'], 'Site 1')
         self.assertEqual(job.kwargs['snapshots']['prechange']['tags'], ['Bar', 'Foo'])
+        objectchange = ObjectChange.objects.get(
+            changed_object_type=ContentType.objects.get_for_model(Site), changed_object_id=site.pk
+        )
+        self.assertEqual(job.kwargs['object_change_ids'], [objectchange.pk])
 
     def test_single_delete_rollback_discards_events(self):
         """
@@ -696,6 +709,7 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
             self.assertEqual(body['request']['method'], 'GET')
             self.assertEqual(body['request']['path'], url_path)
             self.assertEqual(body['request']['user'], 'testuser')
+            self.assertEqual(body['object_change_ids'], [123])
 
             return HttpResponse()
 
@@ -712,6 +726,7 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
             instance=site,
             request=request,
             event_type=OBJECT_CREATED,
+            object_change_id=123,
         )
         flush_events(list(webhooks_queue.values()))
 
@@ -847,6 +862,7 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         self.assertEqual(job.kwargs['event_type'], JOB_COMPLETED)
         self.assertEqual(job.kwargs['object_type'], script_type)
         self.assertNotIn('request', job.kwargs)
+        self.assertNotIn('object_change_ids', job.kwargs)
 
     def _job_event_rule(self, conditions=None):
         webhook = Webhook.objects.get(name='Webhook 1')
@@ -1054,6 +1070,60 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         self.assertIn('data', event.data)
         self.assertEqual(event['data']['name'], 'Site 1')
         self.assertIsNone(event['snapshots']['postchange'])
+
+    def test_coalesced_event_includes_all_object_change_ids(self):
+        """
+        An event coalesced from multiple changes to an object within a single request should reference
+        each ObjectChange recorded for it, in order and without duplicates.
+        """
+        request = RequestFactory().get(reverse('dcim:site_add'))
+        request.id = uuid.uuid4()
+        request.user = self.user
+
+        with event_tracking(request):
+            site = Site(name='Site 1', slug='site-1')
+            site.save()
+            site.snapshot()
+            site.description = 'foo'
+            site.save()
+            # Updates the prior ObjectChange rather than recording a new one
+            site.tags.set(Tag.objects.filter(name='Foo'))
+            # Records no ObjectChange
+            site.snapshot()
+            site.save()
+
+        object_change_ids = list(
+            ObjectChange.objects.filter(
+                changed_object_type=ContentType.objects.get_for_model(Site), changed_object_id=site.pk
+            ).order_by('pk').values_list('pk', flat=True)
+        )
+        self.assertEqual(len(object_change_ids), 2)
+        self.assertEqual(self.queue.count, 1)
+        job = self.queue.jobs[0]
+        self.assertEqual(job.kwargs['event_type'], OBJECT_CREATED)
+        self.assertEqual(job.kwargs['object_change_ids'], object_change_ids)
+
+    def test_send_webhook_omits_empty_object_change_ids(self):
+        """
+        The webhook context should omit object_change_ids if no ObjectChanges were recorded for the event.
+        """
+        def dummy_send(_, request, **kwargs):
+            self.assertNotIn('object_change_ids', json.loads(request.body))
+            return HttpResponse()
+
+        request = RequestFactory().get(reverse('dcim:site_add'))
+        request.id = uuid.uuid4()
+        request.user = self.user
+
+        queue = {}
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        enqueue_event(queue, site, request, OBJECT_CREATED)
+        flush_events(list(queue.values()))
+
+        job = self.queue.jobs[0]
+        self.assertNotIn('object_change_ids', job.kwargs)
+        with patch.object(Session, 'send', dummy_send):
+            send_webhook(**job.kwargs)
 
     @tag('regression')  # #21338
     def test_cable_creation_event_payload_includes_connected_endpoints(self):
