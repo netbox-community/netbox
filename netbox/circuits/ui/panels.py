@@ -125,6 +125,7 @@ class CircuitPanel(panels.ObjectAttributesPanel):
     install_date = attrs.DateTimeAttr('install_date', spec='date')
     termination_date = attrs.DateTimeAttr('termination_date', spec='date')
     commit_rate = attrs.TemplatedAttr('commit_rate', template_name='circuits/circuit/attrs/commit_rate.html')
+    burst_rate = attrs.TemplatedAttr('burst_rate', template_name='circuits/circuit/attrs/commit_rate.html')
     description = attrs.TextAttr('description')
 
 
@@ -164,6 +165,7 @@ class VirtualCircuitPanel(panels.ObjectAttributesPanel):
     type = attrs.RelatedObjectAttr('type', linkify=True, colored=True)
     status = attrs.ChoiceAttr('status')
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
+    burst_rate = attrs.TemplatedAttr('burst_rate', template_name='circuits/circuit/attrs/commit_rate.html')
     description = attrs.TextAttr('description')
 
 

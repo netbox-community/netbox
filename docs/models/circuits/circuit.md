@@ -55,3 +55,7 @@ The date on which the circuit is scheduled to be disconnected.
 ### Commit Rate
 
 The committed rate (throughput) of the circuit, in kilobits per second.
+
+### Burst Rate
+
+The maximum rate (throughput) to which the circuit may burst above its commit rate, in kilobits per second.

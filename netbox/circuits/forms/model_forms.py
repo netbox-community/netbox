@@ -180,7 +180,7 @@ class CircuitForm(DistanceValidationMixin, TenancyForm, PrimaryModelForm):
             'tags',
             name=_('Circuit')
         ),
-        FieldSet('install_date', 'termination_date', 'commit_rate', name=_('Service Parameters')),
+        FieldSet('install_date', 'termination_date', 'commit_rate', 'burst_rate', name=_('Service Parameters')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
@@ -188,12 +188,16 @@ class CircuitForm(DistanceValidationMixin, TenancyForm, PrimaryModelForm):
         model = Circuit
         fields = [
             'cid', 'type', 'provider', 'provider_account', 'status', 'install_date', 'termination_date', 'commit_rate',
-            'distance', 'distance_unit', 'description', 'tenant_group', 'tenant', 'owner', 'comments', 'tags',
+            'burst_rate', 'distance', 'distance_unit', 'description', 'tenant_group', 'tenant', 'owner', 'comments',
+            'tags',
         ]
         widgets = {
             'install_date': DatePicker(),
             'termination_date': DatePicker(),
             'commit_rate': NumberWithOptions(
+                options=CircuitCommitRateChoices
+            ),
+            'burst_rate': NumberWithOptions(
                 options=CircuitCommitRateChoices
             ),
         }
@@ -324,15 +328,21 @@ class VirtualCircuitForm(TenancyForm, PrimaryModelForm):
             'provider_network', 'provider_account', 'cid', 'type', 'status', 'description', 'tags',
             name=_('Virtual circuit'),
         ),
+        FieldSet('burst_rate', name=_('Service Parameters')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
         model = VirtualCircuit
         fields = [
-            'cid', 'provider_network', 'provider_account', 'type', 'status', 'description', 'tenant_group', 'tenant',
-            'owner', 'comments', 'tags',
+            'cid', 'provider_network', 'provider_account', 'type', 'status', 'burst_rate', 'description',
+            'tenant_group', 'tenant', 'owner', 'comments', 'tags',
         ]
+        widgets = {
+            'burst_rate': NumberWithOptions(
+                options=CircuitCommitRateChoices
+            ),
+        }
 
 
 class VirtualCircuitTerminationForm(NetBoxModelForm):

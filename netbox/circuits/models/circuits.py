@@ -101,6 +101,12 @@ class Circuit(ContactsMixin, ImageAttachmentsMixin, DistanceMixin, PrimaryModel)
         verbose_name=_('commit rate (Kbps)'),
         help_text=_("Committed rate")
     )
+    burst_rate = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        verbose_name=_('burst rate (Kbps)'),
+        help_text=_('Burst rate')
+    )
 
     # Cache associated CircuitTerminations
     termination_a = models.ForeignKey(
@@ -129,7 +135,7 @@ class Circuit(ContactsMixin, ImageAttachmentsMixin, DistanceMixin, PrimaryModel)
 
     clone_fields = (
         'provider', 'provider_account', 'type', 'status', 'tenant', 'install_date', 'termination_date', 'commit_rate',
-        'description',
+        'burst_rate', 'description',
     )
     prerequisite_models = (
         'circuits.CircuitType',

@@ -153,6 +153,13 @@ class CircuitBulkEditForm(PrimaryModelBulkEditForm):
             options=CircuitCommitRateChoices
         )
     )
+    burst_rate = forms.IntegerField(
+        required=False,
+        label=_('Burst rate (Kbps)'),
+        widget=NumberWithOptions(
+            options=CircuitCommitRateChoices
+        )
+    )
     distance = forms.DecimalField(
         label=_('Distance'),
         min_value=0,
@@ -168,12 +175,15 @@ class CircuitBulkEditForm(PrimaryModelBulkEditForm):
     model = Circuit
     fieldsets = (
         FieldSet('provider', 'type', 'status', 'description', name=_('Circuit')),
-        FieldSet('provider_account', 'install_date', 'termination_date', 'commit_rate', name=_('Service Parameters')),
+        FieldSet(
+            'provider_account', 'install_date', 'termination_date', 'commit_rate', 'burst_rate',
+            name=_('Service Parameters')
+        ),
         FieldSet('distance', 'distance_unit', name=_('Attributes')),
         FieldSet('tenant', name=_('Tenancy')),
     )
     nullable_fields = (
-        'tenant', 'commit_rate', 'description', 'comments',
+        'tenant', 'commit_rate', 'burst_rate', 'description', 'comments',
     )
 
 
@@ -286,14 +296,22 @@ class VirtualCircuitBulkEditForm(PrimaryModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
+    burst_rate = forms.IntegerField(
+        required=False,
+        label=_('Burst rate (Kbps)'),
+        widget=NumberWithOptions(
+            options=CircuitCommitRateChoices
+        )
+    )
 
     model = VirtualCircuit
     fieldsets = (
         FieldSet('provider_network', 'provider_account', 'status', 'description', name=_('Virtual circuit')),
+        FieldSet('burst_rate', name=_('Service Parameters')),
         FieldSet('tenant', name=_('Tenancy')),
     )
     nullable_fields = (
-        'provider_account', 'tenant', 'description', 'comments',
+        'provider_account', 'tenant', 'burst_rate', 'description', 'comments',
     )
 
 

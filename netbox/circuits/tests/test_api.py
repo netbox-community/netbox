@@ -107,6 +107,7 @@ class CircuitTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['cid', 'description', 'display', 'id', 'provider', 'url']
     bulk_update_data = {
         'status': 'planned',
+        'burst_rate': 4000,
     }
     bulk_update_invalid_data = {
         'status': 'not-a-valid-status',
@@ -173,6 +174,7 @@ class CircuitTestCase(APIViewTestCases.APIViewTestCase):
                 'provider': providers[1].pk,
                 'provider_account': provider_accounts[1].pk,
                 'type': circuit_types[1].pk,
+                'burst_rate': 2000,
             },
             {
                 'cid': 'Circuit 5',
@@ -598,6 +600,7 @@ class VirtualCircuitTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['cid', 'description', 'display', 'id', 'provider_network', 'url']
     bulk_update_data = {
         'status': 'planned',
+        'burst_rate': 20000,
     }
     bulk_update_invalid_data = {
         'status': 'not-a-valid-status',
@@ -642,6 +645,7 @@ class VirtualCircuitTestCase(APIViewTestCases.APIViewTestCase):
                 'provider_account': provider_account.pk,
                 'type': virtual_circuit_type.pk,
                 'status': CircuitStatusChoices.STATUS_PLANNED,
+                'burst_rate': 10000,
             },
             {
                 'cid': 'Virtual Circuit 5',

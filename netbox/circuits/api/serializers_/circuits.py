@@ -117,7 +117,7 @@ class CircuitSerializer(PrimaryModelSerializer):
         model = Circuit
         fields = [
             'id', 'url', 'display_url', 'display', 'cid', 'provider', 'provider_account', 'type', 'status', 'tenant',
-            'install_date', 'termination_date', 'commit_rate', 'description', 'distance', 'distance_unit',
+            'install_date', 'termination_date', 'commit_rate', 'burst_rate', 'description', 'distance', 'distance_unit',
             'termination_a', 'termination_z', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
             'assignments',
         ]
@@ -188,7 +188,8 @@ class VirtualCircuitSerializer(PrimaryModelSerializer):
         model = VirtualCircuit
         fields = [
             'id', 'url', 'display_url', 'display', 'cid', 'provider_network', 'provider_account', 'type', 'status',
-            'tenant', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'tenant', 'burst_rate', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created',
+            'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'provider_network', 'cid', 'description')
 

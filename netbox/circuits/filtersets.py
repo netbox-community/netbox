@@ -278,7 +278,8 @@ class CircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilt
     class Meta:
         model = Circuit
         fields = (
-            'id', 'cid', 'description', 'install_date', 'termination_date', 'commit_rate', 'distance', 'distance_unit',
+            'id', 'cid', 'description', 'install_date', 'termination_date', 'commit_rate', 'burst_rate', 'distance',
+            'distance_unit',
         )
 
     def search(self, queryset, name, value):
@@ -587,7 +588,7 @@ class VirtualCircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = VirtualCircuit
-        fields = ('id', 'cid', 'description')
+        fields = ('id', 'cid', 'burst_rate', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():

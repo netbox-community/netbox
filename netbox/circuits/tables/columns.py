@@ -7,11 +7,11 @@ __all__ = (
 
 class CommitRateColumn(tables.TemplateColumn):
     """
-    Humanize the commit rate in the column view
+    Humanize a rate (commit rate, burst rate) in the column view
     """
     template_code = """
         {% load helpers %}
-        {{ record.commit_rate|humanize_speed }}
+        {{ value|humanize_speed }}
         """
 
     def __init__(self, *args, **kwargs):

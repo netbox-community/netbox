@@ -5,6 +5,8 @@ from circuits.models import *
 from netbox.tables import NetBoxTable, OrganizationalModelTable, PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 
+from .columns import CommitRateColumn
+
 __all__ = (
     'VirtualCircuitTable',
     'VirtualCircuitTerminationTable',
@@ -58,6 +60,9 @@ class VirtualCircuitTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModel
         verbose_name=_('Type'),
     )
     status = columns.ChoiceFieldColumn()
+    burst_rate = CommitRateColumn(
+        verbose_name=_('Burst Rate')
+    )
     termination_count = columns.LinkedCountColumn(
         viewname='circuits:virtualcircuittermination_list',
         url_params={'virtual_circuit_id': 'pk'},
@@ -76,7 +81,8 @@ class VirtualCircuitTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModel
         model = VirtualCircuit
         fields = (
             'pk', 'id', 'cid', 'provider', 'provider_account', 'provider_network', 'type', 'status', 'tenant',
-            'tenant_group', 'description', 'comments', 'contacts', 'tags', 'created', 'last_updated', 'assignments',
+            'tenant_group', 'burst_rate', 'description', 'comments', 'contacts', 'tags', 'created', 'last_updated',
+            'assignments',
         )
         default_columns = (
             'pk', 'cid', 'provider', 'provider_account', 'provider_network', 'type', 'status', 'tenant',

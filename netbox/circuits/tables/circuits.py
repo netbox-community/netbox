@@ -77,6 +77,9 @@ class CircuitTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
     commit_rate = CommitRateColumn(
         verbose_name=_('Commit Rate')
     )
+    burst_rate = CommitRateColumn(
+        verbose_name=_('Burst Rate')
+    )
     distance = columns.DistanceColumn()
     tags = columns.TagColumn(
         url_name='circuits:circuit_list'
@@ -91,8 +94,8 @@ class CircuitTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
         model = Circuit
         fields = (
             'pk', 'id', 'cid', 'provider', 'provider_account', 'type', 'status', 'tenant', 'tenant_group',
-            'termination_a', 'termination_z', 'install_date', 'termination_date', 'commit_rate', 'description',
-            'comments', 'contacts', 'tags', 'created', 'last_updated', 'assignments',
+            'termination_a', 'termination_z', 'install_date', 'termination_date', 'commit_rate', 'burst_rate',
+            'description', 'comments', 'contacts', 'tags', 'created', 'last_updated', 'assignments',
         )
         default_columns = (
             'pk', 'cid', 'provider', 'type', 'status', 'tenant', 'termination_a', 'termination_z', 'description',

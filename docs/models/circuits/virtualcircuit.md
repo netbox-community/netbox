@@ -35,3 +35,7 @@ The operational status of the virtual circuit. By default, the following statuse
 
 !!! tip "Custom circuit statuses"
     Additional circuit statuses may be defined by setting `Circuit.status` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.
+
+### Burst Rate
+
+The maximum rate (throughput) to which the virtual circuit may burst, in kilobits per second.

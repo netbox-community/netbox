@@ -258,6 +258,7 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 install_date='2020-01-01',
                 termination_date='2021-01-01',
                 commit_rate=1000,
+                burst_rate=2000,
                 status=CircuitStatusChoices.STATUS_ACTIVE,
                 description='foobar1',
                 distance=10,
@@ -272,6 +273,7 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 install_date='2020-01-02',
                 termination_date='2021-01-02',
                 commit_rate=2000,
+                burst_rate=4000,
                 status=CircuitStatusChoices.STATUS_ACTIVE,
                 description='foobar2',
                 distance=20,
@@ -286,6 +288,7 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 install_date='2020-01-03',
                 termination_date='2021-01-03',
                 commit_rate=3000,
+                burst_rate=6000,
                 status=CircuitStatusChoices.STATUS_PLANNED,
                 distance=30,
                 distance_unit=DistanceUnitChoices.UNIT_METER,
@@ -299,6 +302,7 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 install_date='2020-01-04',
                 termination_date='2021-01-04',
                 commit_rate=4000,
+                burst_rate=8000,
                 status=CircuitStatusChoices.STATUS_PLANNED,
             ),
             Circuit(
@@ -310,6 +314,7 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 install_date='2020-01-05',
                 termination_date='2021-01-05',
                 commit_rate=5000,
+                burst_rate=10000,
                 status=CircuitStatusChoices.STATUS_OFFLINE,
             ),
             Circuit(
@@ -321,6 +326,7 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 install_date='2020-01-06',
                 termination_date='2021-01-06',
                 commit_rate=6000,
+                burst_rate=12000,
                 status=CircuitStatusChoices.STATUS_OFFLINE,
             ),
         )
@@ -357,6 +363,10 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
 
     def test_commit_rate(self):
         params = {'commit_rate': ['1000', '2000']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_burst_rate(self):
+        params = {'burst_rate': ['2000', '4000']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_provider(self):
@@ -1027,6 +1037,7 @@ class VirtualCircuitTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 cid='Virtual Circuit 1',
                 type=virtual_circuit_types[0],
                 status=CircuitStatusChoices.STATUS_PLANNED,
+                burst_rate=10000,
                 description='virtualcircuit1',
             ),
             VirtualCircuit(
@@ -1036,6 +1047,7 @@ class VirtualCircuitTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 cid='Virtual Circuit 2',
                 type=virtual_circuit_types[1],
                 status=CircuitStatusChoices.STATUS_ACTIVE,
+                burst_rate=20000,
                 description='virtualcircuit2',
             ),
             VirtualCircuit(
@@ -1045,6 +1057,7 @@ class VirtualCircuitTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 cid='Virtual Circuit 3',
                 type=virtual_circuit_types[2],
                 status=CircuitStatusChoices.STATUS_DEPROVISIONING,
+                burst_rate=30000,
                 description='virtualcircuit3',
             ),
         )
@@ -1056,6 +1069,10 @@ class VirtualCircuitTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
 
     def test_cid(self):
         params = {'cid': ['Virtual Circuit 1', 'Virtual Circuit 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_burst_rate(self):
+        params = {'burst_rate': ['10000', '20000']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_provider(self):

@@ -117,6 +117,9 @@ class CircuitFilter(
     commit_rate: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
+    burst_rate: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+        strawberry_django.filter_field()
+    )
     terminations: Annotated['CircuitTerminationFilter', strawberry.lazy('circuits.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -198,6 +201,9 @@ class VirtualCircuitFilter(TenancyFilterMixin, PrimaryModelFilter):
     )
     type_id: ID | None = strawberry_django.filter_field()
     status: BaseFilterLookup[Annotated['CircuitStatusEnum', strawberry.lazy('circuits.graphql.enums')]] | None = (
+        strawberry_django.filter_field()
+    )
+    burst_rate: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     group_assignments: Annotated['CircuitGroupAssignmentFilter', strawberry.lazy('circuits.graphql.filters')] | None = (

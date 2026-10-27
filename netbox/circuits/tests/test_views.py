@@ -165,16 +165,17 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'install_date': datetime.date(2020, 1, 1),
             'termination_date': datetime.date(2021, 1, 1),
             'commit_rate': 1000,
+            'burst_rate': 2000,
             'description': 'A new circuit',
             'comments': 'Some comments',
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            "cid,provider,provider_account,type,status",
-            "Circuit 4,Provider 1,Provider Account 1,Circuit Type 1,active",
-            "Circuit 5,Provider 1,Provider Account 1,Circuit Type 1,active",
-            "Circuit 6,Provider 1,Provider Account 1,Circuit Type 1,active",
+            "cid,provider,provider_account,type,status,burst_rate",
+            "Circuit 4,Provider 1,Provider Account 1,Circuit Type 1,active,2000",
+            "Circuit 5,Provider 1,Provider Account 1,Circuit Type 1,active,2000",
+            "Circuit 6,Provider 1,Provider Account 1,Circuit Type 1,active,2000",
         )
 
         cls.csv_update_data = (
@@ -191,6 +192,7 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'status': CircuitStatusChoices.STATUS_DECOMMISSIONED,
             'tenant': None,
             'commit_rate': 2000,
+            'burst_rate': 4000,
             'description': 'New description',
             'comments': 'New comments',
         }
@@ -674,24 +676,25 @@ class VirtualCircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'provider_account': provider_accounts[1].pk,
             'type': virtual_circuit_types[1].pk,
             'status': CircuitStatusChoices.STATUS_PLANNED,
+            'burst_rate': 10000,
             'description': 'A new virtual circuit',
             'comments': 'Some comments',
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            "cid,provider_network,provider_account,type,status",
+            "cid,provider_network,provider_account,type,status,burst_rate",
             (
                 f"Virtual Circuit 4,Provider Network 1,Provider Account 1,{virtual_circuit_types[0].name},"
-                f"{CircuitStatusChoices.STATUS_PLANNED}"
+                f"{CircuitStatusChoices.STATUS_PLANNED},10000"
             ),
             (
                 f"Virtual Circuit 5,Provider Network 1,Provider Account 1,{virtual_circuit_types[0].name},"
-                f"{CircuitStatusChoices.STATUS_PLANNED}"
+                f"{CircuitStatusChoices.STATUS_PLANNED},10000"
             ),
             (
                 f"Virtual Circuit 6,Provider Network 1,Provider Account 1,{virtual_circuit_types[0].name},"
-                f"{CircuitStatusChoices.STATUS_PLANNED}"
+                f"{CircuitStatusChoices.STATUS_PLANNED},10000"
             ),
         )
 
@@ -716,6 +719,7 @@ class VirtualCircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'provider_account': provider_accounts[1].pk,
             'type': virtual_circuit_types[1].pk,
             'status': CircuitStatusChoices.STATUS_DECOMMISSIONED,
+            'burst_rate': 20000,
             'description': 'New description',
             'comments': 'New comments',
         }

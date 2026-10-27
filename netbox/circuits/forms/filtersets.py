@@ -131,8 +131,8 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, PrimaryModelF
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('provider_id', 'provider_account_id', 'provider_network_id', name=_('Provider')),
         FieldSet(
-            'type_id', 'status', 'install_date', 'termination_date', 'commit_rate', 'distance', 'distance_unit',
-            name=_('Attributes')
+            'type_id', 'status', 'install_date', 'termination_date', 'commit_rate', 'burst_rate', 'distance',
+            'distance_unit', name=_('Attributes')
         ),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Location')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
@@ -209,6 +209,14 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, PrimaryModelF
         required=False,
         min_value=0,
         label=_('Commit rate (Kbps)'),
+        widget=NumberWithOptions(
+            options=CircuitCommitRateChoices
+        )
+    )
+    burst_rate = forms.IntegerField(
+        required=False,
+        min_value=0,
+        label=_('Burst rate (Kbps)'),
         widget=NumberWithOptions(
             options=CircuitCommitRateChoices
         )
@@ -338,7 +346,7 @@ class VirtualCircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, Primar
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('provider_id', 'provider_account_id', 'provider_network_id', name=_('Provider')),
-        FieldSet('type_id', 'status', name=_('Attributes')),
+        FieldSet('type_id', 'status', 'burst_rate', name=_('Attributes')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
@@ -373,6 +381,14 @@ class VirtualCircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, Primar
         label=_('Status'),
         choices=CircuitStatusChoices,
         required=False
+    )
+    burst_rate = forms.IntegerField(
+        required=False,
+        min_value=0,
+        label=_('Burst rate (Kbps)'),
+        widget=NumberWithOptions(
+            options=CircuitCommitRateChoices
+        )
     )
     tag = TagFilterField(model)
 

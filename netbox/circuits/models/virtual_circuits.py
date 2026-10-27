@@ -69,6 +69,12 @@ class VirtualCircuit(ContactsMixin, PrimaryModel):
         blank=True,
         null=True
     )
+    burst_rate = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        verbose_name=_('burst rate (Kbps)'),
+        help_text=_('Burst rate')
+    )
 
     group_assignments = GenericRelation(
         to='circuits.CircuitGroupAssignment',
@@ -78,7 +84,7 @@ class VirtualCircuit(ContactsMixin, PrimaryModel):
     )
 
     clone_fields = (
-        'provider_network', 'provider_account', 'status', 'tenant', 'description',
+        'provider_network', 'provider_account', 'status', 'tenant', 'burst_rate', 'description',
     )
     prerequisite_models = (
         'circuits.ProviderNetwork',
