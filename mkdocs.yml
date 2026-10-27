@@ -54,8 +54,8 @@ markdown_extensions:
     - footnotes
     - md_in_html
     - pymdownx.emoji:
-        emoji_index: !!python/name:material.extensions.emoji.twemoji
-        emoji_generator: !!python/name:material.extensions.emoji.to_svg
+        emoji_index: !!python/name:zensical.extensions.emoji.twemoji
+        emoji_generator: !!python/name:zensical.extensions.emoji.to_svg
     - pymdownx.superfences:
         custom_fences:
           - name: mermaid
