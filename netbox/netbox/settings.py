@@ -30,8 +30,6 @@ from utilities.release import load_release_data
 from utilities.security import validate_peppers
 from utilities.string import trailing_slash
 
-from .monkey import get_unique_validators
-
 #
 # Environment setup
 #
@@ -1044,7 +1042,6 @@ for plugin_name in PLUGINS:
 #
 
 from django.db import models  # noqa: E402
-from rest_framework.utils import field_mapping  # noqa: E402
 from strawberry.schema.types.scalar import DEFAULT_SCALAR_REGISTRY  # noqa: E402
 from strawberry_django import pagination  # noqa: E402
 from strawberry_django.fields.field import StrawberryDjangoField  # noqa: E402
@@ -1052,10 +1049,6 @@ from strawberry_django.fields.types import field_type_map  # noqa: E402
 
 from netbox.graphql.pagination import OffsetPaginationInput, apply_pagination  # noqa: E402
 from netbox.graphql.scalars import BigInt, BigIntScalar  # noqa: E402
-
-# TODO: Remove this once #20547 has been implemented
-# Override DRF's get_unique_validators() function with our own (see bug #19302)
-field_mapping.get_unique_validators = get_unique_validators
 
 # Override strawberry-django's OffsetPaginationInput class to add the `start` parameter
 pagination.OffsetPaginationInput = OffsetPaginationInput
