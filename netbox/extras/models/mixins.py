@@ -12,6 +12,7 @@ from django.http import HttpResponse
 from django.utils.http import content_disposition_header
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
+from jinja2 import TemplateError
 
 from core.models import ObjectType
 from extras.constants import DEFAULT_MIME_TYPE, JINJA_ENV_PARAMS_ALLOWED, SCRIPT_MODULE_NAME_PREFIX
@@ -191,7 +192,7 @@ class RenderTemplateMixin(models.Model):
     def _filter_environment_params(params):
         """
         Return a copy of params with only permitted keys. Keys not in the allowlist are
-        stripped, except 'finalize' which is a deprecated legacy carve-out.
+        stripped, except 'finalize', which is deprecated and stored-only.
         """
         return {
             key: value for key, value in params.items()
@@ -217,12 +218,41 @@ class RenderTemplateMixin(models.Model):
     @staticmethod
     def _resolve_finalize(params):
         """
-        Legacy carve-out: resolve the deprecated 'finalize' parameter via import_string().
-        Existing templates with finalize continue to work; new use is blocked by clean().
+        Resolve the deprecated 'finalize' parameter via import_string(). Call
+        _restrict_finalize_to_stored() first. clean() blocks new use.
         """
         if 'finalize' in params and type(params['finalize']) is str:
             return {**params, 'finalize': import_string(params['finalize'])}
         return params
+
+    def _restrict_finalize_to_stored(self, params):
+        """
+        Return a copy of params with 'finalize' replaced by the value stored on this template's
+        database record, or removed if the template has no stored value. Raises TemplateError if
+        this saved template's row is gone or its stored code differs from this instance's. Runs
+        one query when params contain 'finalize', and none otherwise.
+        """
+        if 'finalize' not in params:
+            return params
+        stored_finalize = None
+        if self.pk is not None:
+            stored = type(self)._base_manager.using(self._state.db).filter(pk=self.pk).values_list(
+                'environment_params', 'template_code'
+            ).first()
+            # Fail instead of rendering code the stored row no longer backs, which gives different output (#23375).
+            if stored is None or stored[1] != self.template_code:
+                raise TemplateError(
+                    _('The template differs from the saved template. Reload the template and try again.')
+                )
+            stored_finalize = (stored[0] or {}).get('finalize')
+        if stored_finalize is None:
+            logger.warning(
+                'Ignoring the deprecated "finalize" environment parameter on %s (pk=%s): '
+                'it is not stored on the template.',
+                type(self).__name__, self.pk,
+            )
+            return {key: value for key, value in params.items() if key != 'finalize'}
+        return {**params, 'finalize': stored_finalize}
 
     def get_environment_params(self):
         """
@@ -232,6 +262,7 @@ class RenderTemplateMixin(models.Model):
         params = dict(self.environment_params or {})
         params = self._filter_environment_params(params)
         params = self._resolve_mapped_params(params)
+        params = self._restrict_finalize_to_stored(params)
         params = self._resolve_finalize(params)
         return params
 

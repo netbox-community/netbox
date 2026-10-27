@@ -45,6 +45,10 @@ FILTER_TREENODE_NEGATION_LOOKUP_MAP = dict(
     n='in'
 )
 
+FILTER_EMPTY_LOOKUP_MAP = dict(
+    empty='empty'
+)
+
 #
 # HTTP Request META safe copy
 #

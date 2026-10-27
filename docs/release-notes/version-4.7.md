@@ -1,5 +1,53 @@
 # NetBox v4.7
 
+## v4.7.4 (2026-10-27)
+
+!!! warning "Image Thumbnails on Remote Storage"
+    This release upgrades the sorl-thumbnail dependency to v13.4.0, which fixes how cached image thumbnails resolve their storage backend. If your `STORAGES` configuration defines `OPTIONS` for a `BACKEND` path which re-exports a class defined elsewhere (for example, `storages.backends.s3boto3.S3Boto3Storage`, which is an alias of `storages.backends.s3.S3Storage`), run `manage.py thumbnail clear` once after upgrading. This purges sorl-thumbnail's record of previously generated thumbnails, which may reference the storage backend without its configured options. No image files are deleted.
+
+!!! warning "GraphQL Circuit Status Values"
+    The GraphQL enum for circuit and virtual circuit status is now exposed correctly as `CircuitStatusEnum`, and its values carry the `STATUS_` prefix used by other status enums. Queries which filter on unprefixed values (e.g. `{exact: ACTIVE}`) must be updated to use the prefixed form (e.g. `{exact: STATUS_ACTIVE}`). See [#23469](https://github.com/netbox-community/netbox/issues/23469) for details.
+
+### Enhancements
+
+* [#23031](https://github.com/netbox-community/netbox/issues/23031) - Add 8C1P, 12C1P, and 24C1P trunk cable profiles
+* [#23238](https://github.com/netbox-community/netbox/issues/23238) - Support the `__empty` lookup for boolean custom field filters
+* [#23365](https://github.com/netbox-community/netbox/issues/23365) - Add a copy-to-clipboard button for site addresses
+* [#23463](https://github.com/netbox-community/netbox/issues/23463) - Include the IDs of the associated change log records (`object_change_ids`) in event data and webhook payloads
+
+### Performance Improvements
+
+* [#23076](https://github.com/netbox-community/netbox/issues/23076) - Avoid reloading deferred columns for each object when resolving the `display` field via GraphQL
+* [#23259](https://github.com/netbox-community/netbox/issues/23259) - Coalesce search cache updates rather than enqueuing a background job for each change
+* [#23286](https://github.com/netbox-community/netbox/issues/23286) - Count the IP addresses and FHRP group assignments of device and VM interfaces in REST API responses without loading the related objects
+* [#23355](https://github.com/netbox-community/netbox/issues/23355) - Prefetch the objects referenced by object custom fields when rendering REST API lists
+* [#23371](https://github.com/netbox-community/netbox/issues/23371) - Avoid deep-copying cached config context data when serializing REST and GraphQL API responses
+
+### Bug Fixes
+
+* [#22359](https://github.com/netbox-community/netbox/issues/22359) - Apply the `query_params` of a custom script `ObjectVar` to its object selector
+* [#22714](https://github.com/netbox-community/netbox/issues/22714) - Recover the schedules of system jobs (e.g. housekeeping) lost from the task queue, such as after restoring a database backup
+* [#22883](https://github.com/netbox-community/netbox/issues/22883) - Retain existing terminations when editing a cable with multiple devices on one end, and identify the device of each termination
+* [#23212](https://github.com/netbox-community/netbox/issues/23212) - Prevent the removal of a virtual chassis member whose interfaces form a LAG with another member
+* [#23235](https://github.com/netbox-community/netbox/issues/23235) - Restrict the jobs listed under an object's or script's jobs tab to those the user is permitted to view
+* [#23329](https://github.com/netbox-community/netbox/issues/23329) - Prevent a search within the object selector from reloading the parent form
+* [#23364](https://github.com/netbox-community/netbox/issues/23364) - Restrict the most recent job reported by the scripts REST API endpoint to jobs the user is permitted to view
+* [#23372](https://github.com/netbox-community/netbox/issues/23372) - Fix exception when listing bookmarks, journal entries, and other objects assigned to objects which have no REST API serializer
+* [#23375](https://github.com/netbox-community/netbox/issues/23375) - Resolve the deprecated `finalize` environment parameter for export and config templates only from the template's saved record
+* [#23422](https://github.com/netbox-community/netbox/issues/23422) - Fix exception when assigning a service or service template to an object custom field via the REST API
+* [#23423](https://github.com/netbox-community/netbox/issues/23423) - Represent 64-bit integer fields (such as object IDs) as `BigInt` in the GraphQL API
+* [#23424](https://github.com/netbox-community/netbox/issues/23424) - Declare object IDs as 64-bit integers in the OpenAPI schema
+* [#23425](https://github.com/netbox-community/netbox/issues/23425) - Fix "integer out of range" error when tagging an object with an ID greater than 2,147,483,647
+* [#23445](https://github.com/netbox-community/netbox/issues/23445) - Prevent concurrent REST API updates to an object from overwriting each other's changes
+* [#23448](https://github.com/netbox-community/netbox/issues/23448) - Fix the GraphQL `config_context` field when selected within an inline or named fragment
+* [#23464](https://github.com/netbox-community/netbox/issues/23464) - Apply data source synchronizations atomically, so that a failed sync leaves the previously synchronized files unchanged
+* [#23467](https://github.com/netbox-community/netbox/issues/23467) - Enforce view permissions on parent devices and virtual machines when creating components in bulk
+* [#23469](https://github.com/netbox-community/netbox/issues/23469) - Expose the GraphQL circuit status enum as `CircuitStatusEnum`, with values prefixed by `STATUS_` (consistent with other status enums)
+* [#23473](https://github.com/netbox-community/netbox/issues/23473) - Enable filtering circuits, circuit terminations, virtual circuits, and virtual circuit terminations by provider network name
+* [#23484](https://github.com/netbox-community/netbox/issues/23484) - Pre-populate the location when adding a non-racked device from a location's view
+
+---
+
 ## v4.7.3 (2026-10-13)
 
 ### Enhancements

@@ -49,7 +49,11 @@ class NetBoxModelFilter(
     ChangeLoggingMixin,
     BaseModelFilter
 ):
-    pass
+    """
+    Base GraphQL filter for models which inherit from NetBoxModel. Adds filters for change logging, custom fields,
+    journal entries, and tags. Subclasses of PrimaryModel, OrganizationalModel, and NestedGroupModel should use the
+    corresponding filter class instead.
+    """
 
 
 @dataclass

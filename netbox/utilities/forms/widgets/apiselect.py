@@ -2,6 +2,7 @@ import json
 
 from django import forms
 from django.conf import settings
+from django.forms.models import ModelChoiceIteratorValue
 from django.utils.translation import gettext_lazy as _
 
 __all__ = (
@@ -27,6 +28,10 @@ class APISelect(forms.Select):
         # Add quick-add context data, if enabled for the widget
         if hasattr(self, 'quick_add_context'):
             context['quick_add'] = self.quick_add_context
+        # Read from attrs: __deepcopy__ resets static_params but leaves the serialized attribute intact
+        raw = self.attrs.get('data-static-params', '[]')
+        parsed = json.loads(raw)
+        context['static_params'] = {item['queryParam']: item['queryValue'] for item in parsed}
 
         return context
 
@@ -46,6 +51,17 @@ class APISelect(forms.Select):
         result.dynamic_params = {}
         result.static_params = {}
         return result
+
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        """Name each model option's parent object, which options loaded from the REST API carry already."""
+        option = super().create_option(name, value, label, selected, index, subindex, attrs)
+        parent_field = self.attrs.get('ts-parent-field')
+        if parent_field and isinstance(value, ModelChoiceIteratorValue):
+            # The context names an API field, which need not be a model attribute
+            parent = getattr(value.instance, parent_field, None)
+            if parent is not None:
+                option['attrs']['data-parent'] = str(parent)
+        return option
 
     def _process_query_param(self, key, value) -> None:
         """

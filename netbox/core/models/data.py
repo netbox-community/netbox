@@ -8,12 +8,12 @@ import yaml
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
-from django.db import models
+from django.db import connections, models, router, transaction
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from netbox.constants import CENSOR_TOKEN, CENSOR_TOKEN_CHANGED
+from netbox.constants import ADVISORY_LOCK_KEYS, CENSOR_TOKEN, CENSOR_TOKEN_CHANGED
 from netbox.models import PrimaryModel
 from netbox.models.features import JobsMixin
 from netbox.registry import registry
@@ -183,6 +183,8 @@ class DataSource(JobsMixin, PrimaryModel):
         """
         from core.signals import post_sync, pre_sync
 
+        using = router.db_for_write(self.__class__, instance=self)
+
         if self.status == DataSourceStatusChoices.SYNCING:
             raise SyncError(_("Cannot initiate sync; syncing already in progress."))
 
@@ -190,7 +192,7 @@ class DataSource(JobsMixin, PrimaryModel):
         pre_sync.send(sender=self.__class__, instance=self)
 
         self.status = DataSourceStatusChoices.SYNCING
-        DataSource.objects.filter(pk=self.pk).update(status=self.status)
+        DataSource.objects.using(using).filter(pk=self.pk).update(status=self.status)
 
         # Replicate source data locally
         try:
@@ -199,10 +201,18 @@ class DataSource(JobsMixin, PrimaryModel):
             raise SyncError(
                 _("There was an error initializing the backend. A dependency needs to be installed: ") + str(e)
             )
-        with backend.fetch() as local_path:
+
+        # The backend's cleanup runs inside the transaction, so its failure rolls back the import too
+        with transaction.atomic(using=using), backend.fetch() as local_path:
+
+            # Serialize syncs of this source without locking its row, which edits and status updates still write
+            with connections[using].cursor() as cursor:
+                cursor.execute(
+                    'SELECT pg_advisory_xact_lock(%s, %s)', (ADVISORY_LOCK_KEYS['data-source-sync'], self.pk)
+                )
 
             logger.debug(f'Syncing files from source root {local_path}')
-            data_files = self.datafiles.all()
+            data_files = DataFile.objects.using(using).filter(source=self)
             known_paths = {df.path for df in data_files}
             logger.debug(f'Starting with {len(known_paths)} known files')
 
@@ -220,13 +230,13 @@ class DataSource(JobsMixin, PrimaryModel):
                     continue
 
             # Bulk update modified files
-            updated_count = DataFile.objects.bulk_update(
+            updated_count = DataFile.objects.using(using).bulk_update(
                 updated_files, ('last_updated', 'size', 'hash', 'data'), batch_size=settings.BULK_UPDATE_CHUNK_SIZE
             )
             logger.debug(f"Updated {updated_count} files")
 
             # Bulk delete deleted files
-            deleted_count, __ = DataFile.objects.filter(pk__in=deleted_file_ids).delete()
+            deleted_count, __ = DataFile.objects.using(using).filter(pk__in=deleted_file_ids).delete()
             logger.debug(f"Deleted {deleted_count} files")
 
             # Walk the local replication to find new files
@@ -239,13 +249,17 @@ class DataSource(JobsMixin, PrimaryModel):
                 datafile.refresh_from_disk(source_root=local_path)
                 datafile.full_clean()
                 new_datafiles.append(datafile)
-            created_count = len(DataFile.objects.bulk_create(new_datafiles, batch_size=100))
+            created_count = len(DataFile.objects.using(using).bulk_create(new_datafiles, batch_size=100))
             logger.debug(f"Created {created_count} data files")
 
-        # Update status & last_synced time
+            # Update status & last_synced time
+            last_synced = timezone.now()
+            DataSource.objects.using(using).filter(pk=self.pk).update(
+                status=DataSourceStatusChoices.COMPLETED, last_synced=last_synced
+            )
+
         self.status = DataSourceStatusChoices.COMPLETED
-        self.last_synced = timezone.now()
-        DataSource.objects.filter(pk=self.pk).update(status=self.status, last_synced=self.last_synced)
+        self.last_synced = last_synced
 
         # Emit the post_sync signal
         post_sync.send(sender=self.__class__, instance=self)

@@ -1,8 +1,9 @@
 import logging
 import warnings
+from contextlib import contextmanager
 from functools import cached_property
 
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.exceptions import FieldError, ObjectDoesNotExist, PermissionDenied, ValidationError
 from django.db import router, transaction
 from django.db.models import ProtectedError, RestrictedError
 from rest_framework import mixins as drf_mixins
@@ -12,6 +13,7 @@ from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
+from netbox.api.fields import RelatedObjectCountField
 from netbox.api.serializers.features import ChangeLogMessageSerializer
 from utilities.api import get_annotations_for_serializer, get_fields_for_serializer, get_prefetches_for_serializer
 from utilities.exceptions import AbortRequest, PreconditionFailed
@@ -123,7 +125,8 @@ class BaseViewSet(GenericViewSet):
             qs = qs.prefetch_related(*prefetch)
 
         # Dynamically resolve annotations for RelatedObjectCountFields on the serializer and attach them to the queryset
-        if annotations := get_annotations_for_serializer(serializer_class, **self.field_kwargs):
+        exclude = self.fallback_count_fields if self.renders_whole_objects else ()
+        if annotations := get_annotations_for_serializer(serializer_class, **self.field_kwargs, exclude=exclude):
             qs = qs.annotate(**annotations)
 
         return qs
@@ -134,10 +137,11 @@ class BaseViewSet(GenericViewSet):
             return []
         if fields is None:
             # Exports and writes render whole objects (templates, event payloads), so they load every declaration
-            if 'export' in self.request.query_params or self.request.method not in SAFE_METHODS:
+            if self.renders_whole_objects:
                 fields = set().union(*self.field_prefetches)
             else:
-                fields = self.response_fields
+                # Reads annotate the counts with a fallback in place of their declarations
+                fields = self.response_fields - self.fallback_count_fields
         return [
             lookup
             for field_names, lookups in self.field_prefetches.items()
@@ -174,6 +178,19 @@ class BaseViewSet(GenericViewSet):
         """Return the serializer field names rendered for this request, as selected by field_kwargs."""
         return frozenset(get_fields_for_serializer(self.get_serializer_class(), **self.field_kwargs))
 
+    @cached_property
+    def renders_whole_objects(self):
+        """Return True for exports and writes, whatever fields the response selects."""
+        return 'export' in self.request.query_params or self.request.method not in SAFE_METHODS
+
+    @cached_property
+    def fallback_count_fields(self):
+        """Return the names of the count fields annotated for reads only."""
+        return frozenset(
+            name for name, field in self.get_serializer_class()._declared_fields.items()
+            if type(field) is RelatedObjectCountField and field.fallback_source
+        )
+
 
 class NetBoxReadOnlyModelViewSet(
     ETagMixin,
@@ -192,6 +209,7 @@ class NetBoxModelViewSet(
     mixins.BulkCreateModelMixin,
     mixins.BulkUpdateModelMixin,
     mixins.BulkDestroyModelMixin,
+    mixins.ObjectLockingMixin,
     mixins.ObjectValidationMixin,
     mixins.CustomFieldsMixin,
     mixins.ExportTemplatesMixin,
@@ -214,6 +232,22 @@ class NetBoxModelViewSet(
         if hasattr(obj, 'snapshot'):
             obj.snapshot()
         return obj
+
+    @contextmanager
+    def lock_object(self):
+        """
+        Lock the row of the requested object for the duration of the block (see lock_objects()). Enter this
+        immediately within a transaction, before retrieving the object.
+        """
+        manager = self.queryset.model._default_manager
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        try:
+            queryset = manager.filter(**{self.lookup_field: self.kwargs[lookup_url_kwarg]})
+        except (KeyError, FieldError, TypeError, ValueError, ValidationError):
+            # The URL has no lookup value, or the lookup is not valid for the model
+            queryset = manager.none()
+        with self.lock_objects(queryset):
+            yield
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -330,14 +364,20 @@ class NetBoxModelViewSet(
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
-        instance = self.get_object_with_snapshot()
 
-        # Enforce If-Match precondition (RFC 9110 §13.1.1)
-        self._validate_etag(self.request, instance)
+        # Lock the object before retrieving it, so that concurrent updates to the same object are applied one after
+        # the other. Otherwise, each would save its own copy of the object, reverting any fields which another
+        # update had changed since that copy was retrieved.
+        using = router.db_for_write(self.queryset.model)
+        with transaction.atomic(using=using), self.lock_object():
+            instance = self.get_object_with_snapshot()
 
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+            # Enforce If-Match precondition (RFC 9110 §13.1.1)
+            self._validate_etag(self.request, instance)
+
+            serializer = self.get_serializer(instance, data=request.data, partial=partial)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
 
         # After updating the instance, re-initialize the serializer with a queryset
         # to ensure related objects are prefetched.
@@ -361,11 +401,15 @@ class NetBoxModelViewSet(
         using = router.db_for_write(model)
         try:
             with transaction.atomic(using=using), mixins.discard_events_on_rollback(self, using=using):
-                # Re-check the If-Match ETag under a row-level lock to close the TOCTOU window
-                # between the initial check in update() and the actual write.
+                # Check the If-Match ETag under a row-level lock to close the TOCTOU window between any
+                # earlier check and the actual write. An object retrieved only once its row had been
+                # locked is already current; otherwise, lock its row and re-fetch it.
                 if self._get_if_match(self.request):
-                    locked = model.objects.select_for_update().get(pk=serializer.instance.pk)
-                    self._validate_etag(self.request, locked)
+                    if serializer.instance.pk in self.locked_pks:
+                        current = serializer.instance
+                    else:
+                        current = model._default_manager.select_for_update().get(pk=serializer.instance.pk)
+                    self._validate_etag(self.request, current)
                 instance = serializer.save()
                 self._validate_objects(instance)
         except ObjectDoesNotExist:

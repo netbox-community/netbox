@@ -43,6 +43,36 @@ class CableProfileLinkPeerTestCase(BaseCablePathTestCase):
             self.assertEqual(interface.link_peers, [rear_port])
             self.assertEqual(rear_port.link_peers, [interface])
 
+    def test_trunk_xc1p_link_peers(self):
+        """
+        Link peers for the 8C1P, 12C1P, and 24C1P trunk profiles should map each A connector to its B counterpart.
+        """
+        for profile, count in (
+            (CableProfileChoices.TRUNK_8C1P, 8),
+            (CableProfileChoices.TRUNK_12C1P, 12),
+            (CableProfileChoices.TRUNK_24C1P, 24),
+        ):
+            with self.subTest(profile=profile):
+                a_ports = [
+                    RearPort.objects.create(device=self.device, name=f'{profile} A{i}', positions=1)
+                    for i in range(1, count + 1)
+                ]
+                b_ports = [
+                    RearPort.objects.create(device=self.device, name=f'{profile} B{i}', positions=1)
+                    for i in range(1, count + 1)
+                ]
+
+                cable = Cable(profile=profile, a_terminations=a_ports, b_terminations=b_ports)
+                cable.clean()
+                cable.save()
+
+                for a_port, b_port in zip(a_ports, b_ports):
+                    a_port.refresh_from_db()
+                    b_port.refresh_from_db()
+
+                    self.assertEqual(a_port.link_peers, [b_port])
+                    self.assertEqual(b_port.link_peers, [a_port])
+
     @tag('regression')  # #21917
     def test_breakout_shuffle_link_peers(self):
         """

@@ -729,7 +729,7 @@ class LocationView(GetRelatedModelsMixin, generic.ObjectView):
                         'dcim.Device',
                         url_params={
                             'site': lambda ctx: ctx['object'].site_id,
-                            'parent': lambda ctx: ctx['object'].pk,
+                            'location': lambda ctx: ctx['object'].pk,
                         }
                     ),
                 ],
@@ -5303,6 +5303,13 @@ class VirtualChassisAddMemberView(ObjectPermissionRequiredMixin, GetReturnURLMix
             }
             membership_form = forms.DeviceVCMembershipForm(data=data, validate_vc_position=True, instance=device)
 
+            # DeviceVCMembershipForm has no virtual_chassis field, so this error cannot surface through is_valid()
+            try:
+                device.clean_vc_lag_membership()
+            except ValidationError as e:
+                membership_form = forms.DeviceVCMembershipForm(data=data)
+                membership_form.add_error(None, e.messages)
+
             if membership_form.is_valid():
                 membership_form.save()
                 messages.success(request, mark_safe(
@@ -5356,15 +5363,22 @@ class VirtualChassisRemoveMemberView(ObjectPermissionRequiredMixin, GetReturnURL
             return redirect(device.get_absolute_url())
 
         if form.is_valid():
+            virtual_chassis = device.virtual_chassis
             device.snapshot()
             device.virtual_chassis = None
             device.vc_position = None
             device.vc_priority = None
+            try:
+                device.clean_vc_lag_membership()
+            except ValidationError as e:
+                for message in e.messages:
+                    messages.error(request, message)
+                return redirect(self.get_return_url(request, device))
             device.save()
 
             msg = _('Removed {device} from virtual chassis {chassis}').format(
                 device=device,
-                chassis=device.virtual_chassis
+                chassis=virtual_chassis
             )
             messages.success(request, msg)
 

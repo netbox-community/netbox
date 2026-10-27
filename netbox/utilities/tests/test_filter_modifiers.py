@@ -196,6 +196,16 @@ class FilterModifierMixinTestCase(TestCase):
 
         self.assertNotIsInstance(form.fields['boolean_field'].widget, FilterModifierWidget)
 
+    def test_mixin_skips_null_boolean_field_without_empty_lookup(self):
+        """NullBooleanField should not be enhanced when the filterset offers no empty lookup for it."""
+        class TestForm(FilterModifierMixin, forms.Form):
+            boolean_field = forms.NullBooleanField(required=False)
+            model = TestModel
+
+        form = TestForm()
+
+        self.assertNotIsInstance(form.fields['boolean_field'].widget, FilterModifierWidget)
+
     def test_mixin_enhances_tag_filter_field(self):
         """TagFilterField should be enhanced even though it's a MultipleChoiceField."""
         class TestForm(FilterModifierMixin, forms.Form):
@@ -408,3 +418,54 @@ class ObjectCustomFieldEmptyLookupTestCase(TestCase):
         _, result = self._make_form_and_result('cf_test_obj_cf__empty=false')
         self.assertGreater(len(result['applied_filters']), 0)
         self.assertIn('not empty', result['applied_filters'][0]['link_text'].lower())
+
+
+class BooleanCustomFieldEmptyLookupTestCase(TestCase):
+    """
+    A boolean custom field may hold no value at all, so its filter form field offers the empty
+    modifiers alongside an exact match (see #23238).
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create(username='test_user_bool_cf')
+        cf = CustomField(name='test_bool_cf', type=CustomFieldTypeChoices.TYPE_BOOLEAN)
+        cf.save()
+        cf.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+    def _make_form_and_result(self, querystring):
+        query_params = QueryDict(querystring)
+        form = SiteFilterForm(query_params)
+        request = RequestFactory().get('/', query_params)
+        request.user = self.user
+        context = Context({'request': request})
+        result = applied_filters(context, Site, form, query_params)
+        return form, result
+
+    def test_field_enhanced_with_empty_modifiers(self):
+        """The boolean custom field should offer exact and empty modifiers."""
+        form = SiteFilterForm()
+        widget = form.fields['cf_test_bool_cf'].widget
+
+        self.assertIsInstance(widget, FilterModifierWidget)
+        lookup_codes = [lookup[0] for lookup in widget.lookups]
+        self.assertEqual(lookup_codes, ['exact', 'empty_true', 'empty_false'])
+
+    def test_filter_pill_appears_for_exact(self):
+        """An exact match on the boolean custom field still produces a single filter pill."""
+        _, result = self._make_form_and_result('cf_test_bool_cf=False')
+        self.assertEqual(len(result['applied_filters']), 1)
+        self.assertEqual(result['applied_filters'][0]['name'], 'cf_test_bool_cf')
+
+    def test_filter_pill_appears_for_empty_true(self):
+        """A filter pill showing 'is empty' must be generated for a boolean CF with __empty=true."""
+        form, result = self._make_form_and_result('cf_test_bool_cf__empty=true')
+        self.assertNotIn('cf_test_bool_cf', form.errors)
+        self.assertEqual(len(result['applied_filters']), 1)
+        self.assertIn('is empty', result['applied_filters'][0]['link_text'].lower())
+
+    def test_filter_pill_appears_for_empty_false(self):
+        """A filter pill showing 'is not empty' must be generated for a boolean CF with __empty=false."""
+        _, result = self._make_form_and_result('cf_test_bool_cf__empty=false')
+        self.assertEqual(len(result['applied_filters']), 1)
+        self.assertIn('is not empty', result['applied_filters'][0]['link_text'].lower())

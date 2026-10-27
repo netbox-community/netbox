@@ -35,6 +35,7 @@ The following data is available as context for Jinja2 templates:
     * `request.user` - The name of the authenticated user who made the request (if available)
 * `data` - A detailed representation of the object in its current state. This is typically equivalent to the model's representation in NetBox's REST API.
 * `snapshots` - Minimal "snapshots" of the object state both before and after the change was made; provided as a dictionary with keys named `prechange` and `postchange`. These are not as extensive as the fully serialized representation, but contain enough information to convey what has changed.
+* `object_change_ids` - The IDs of the [change log](../features/change-logging.md) records associated with the event (if any), in the order they were recorded. Multiple changes made to an object within a single request produce a single event, which may reference several change records.
 
 ### Sanitizing Header Values
 
@@ -87,7 +88,10 @@ If no body template is specified, the request body will be populated with a JSON
             "status": "active",
             ...
         }
-    }
+    },
+    "object_change_ids": [
+        52
+    ]
 }
 ```
 

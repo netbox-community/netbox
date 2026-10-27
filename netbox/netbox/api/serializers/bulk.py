@@ -1,6 +1,7 @@
 import copy
 import functools
 
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
@@ -17,7 +18,7 @@ __all__ = (
 
 
 class BulkOperationSerializer(ChangeLogMessageSerializer):
-    id = serializers.IntegerField()
+    id = serializers.IntegerField(max_value=models.BigIntegerField.MAX_BIGINT)
 
 
 # The two serializers below are schema-only: they are never used to validate or render data. The
@@ -31,6 +32,7 @@ class BulkOperationEntryErrorSerializer(serializers.Serializer):
     """
     id = serializers.IntegerField(
         required=False,
+        max_value=models.BigIntegerField.MAX_BIGINT,
         help_text=_(
             "The ID of the object which failed. Present once the entry has been matched to an "
             "object; mutually exclusive with `index`."

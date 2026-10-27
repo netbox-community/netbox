@@ -1,11 +1,12 @@
 from django.contrib.postgres.aggregates import JSONBAgg
-from django.db.models import Case, JSONField, OuterRef, Q, Subquery, When
+from django.db.models import Case, Expression, JSONField, OuterRef, Q, Subquery, When
 
 from extras.models.tags import TaggedItem
 from utilities.query_functions import EmptyGroupByJSONBAgg
 from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
+    'ConfigContextDataExpression',
     'ConfigContextModelQuerySet',
     'ConfigContextQuerySet',
     'NotificationQuerySet',
@@ -91,7 +92,13 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
     """
     def annotate_config_context_data(self, only_invalidated=False):
         """
-        Attach the subquery annotation to the base queryset.
+        Attach the subquery annotation to the base queryset. See get_config_context_data_expression().
+        """
+        return self.annotate(config_context_data=self.get_config_context_data_expression(only_invalidated))
+
+    def get_config_context_data_expression(self, only_invalidated=False):
+        """
+        Return the unresolved expression which aggregates the config context data applicable to each row.
 
         Args:
             only_invalidated: If True, evaluate the (expensive) aggregation subquery only for rows
@@ -121,7 +128,7 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
                 default=None,
                 output_field=JSONField(),
             )
-        return self.annotate(config_context_data=subquery)
+        return subquery
 
     def _get_config_context_filters(self):
         # Construct the set of Q objects for the specific object types
@@ -191,6 +198,25 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
         )
 
         return base_query
+
+
+class ConfigContextDataExpression(Expression):
+    """
+    A model-agnostic form of ConfigContextModelQuerySet.get_config_context_data_expression(), built for the model of
+    the query it is resolved against so its outer references bind to that query's joins.
+    """
+    def __init__(self, only_invalidated=False):
+        super().__init__(output_field=JSONField())
+        self.only_invalidated = only_invalidated
+
+    def resolve_expression(self, query=None, *args, **kwargs):
+        manager = query.model._default_manager
+        if not hasattr(manager, 'get_config_context_data_expression'):
+            raise TypeError(
+                f'{query.model.__name__} must use ConfigContextModelQuerySet to annotate config context data'
+            )
+        expression = manager.get_config_context_data_expression(self.only_invalidated)
+        return expression.resolve_expression(query, *args, **kwargs)
 
 
 class NotificationQuerySet(RestrictedQuerySet):

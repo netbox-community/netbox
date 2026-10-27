@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Annotated, TypeVar
 
 import strawberry
 import strawberry_django
+from strawberry.scalars import ID
 from strawberry_django import BaseFilterLookup, DatetimeFilterLookup, FilterLookup, StrFilterLookup
 
 __all__ = (
@@ -42,11 +43,11 @@ class SyncedDataFilterMixin:
     data_source: Annotated['DataSourceFilter', strawberry.lazy('core.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    data_source_id: FilterLookup[int] | None = strawberry_django.filter_field()
+    data_source_id: ID | None = strawberry_django.filter_field()
     data_file: Annotated['DataFileFilter', strawberry.lazy('core.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    data_file_id: FilterLookup[int] | None = strawberry_django.filter_field()
+    data_file_id: ID | None = strawberry_django.filter_field()
     data_path: StrFilterLookup | None = strawberry_django.filter_field()
     auto_sync_enabled: FilterLookup[bool] | None = strawberry_django.filter_field()
     data_synced: DatetimeFilterLookup | None = strawberry_django.filter_field()

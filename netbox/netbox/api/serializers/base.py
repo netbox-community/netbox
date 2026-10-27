@@ -3,6 +3,7 @@ from functools import cached_property
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
+from rest_framework.fields import empty
 
 from netbox.api.fields import RelatedObjectCountField
 from utilities.api import get_related_object_by_attrs
@@ -44,11 +45,27 @@ class BaseModelSerializer(serializers.ModelSerializer):
 
         super().__init__(*args, **kwargs)
 
+    @property
+    def resolves_existing_object(self):
+        """
+        Indicates whether this serializer resolves its input to an existing object, rather than validating new data.
+        """
+        return self.nested
+
+    def run_validation(self, data=empty):
+        # An existing object needs no validation, so skip validators and validate()
+        if self.resolves_existing_object:
+            is_empty_value, data = self.validate_empty_values(data)
+            if is_empty_value:
+                return data
+            return self.to_internal_value(data)
+
+        return super().run_validation(data)
+
     def to_internal_value(self, data):
 
-        # If initialized as a nested serializer, we should expect to receive the attrs or PK
-        # identifying a related object.
-        if self.nested:
+        # Expect to receive the attrs or PK identifying an existing object
+        if self.resolves_existing_object:
             queryset = self.Meta.model.objects.all()
             request = self.context.get('request')
             user = request.user if request else None
@@ -74,11 +91,11 @@ class BaseModelSerializer(serializers.ModelSerializer):
 
         # Related object counts are populated by annotations applied to the viewset's queryset, but these
         # annotations are not applied when the object is represented as a nested (brief) related object. Omit
-        # these fields when serializing a nested object to avoid advertising fields that will never be populated
-        # (and which would otherwise be declared as required in the generated OpenAPI schema). See #22154.
+        # fields without a fallback when serializing a nested object to avoid advertising fields that will never be
+        # populated (and which would otherwise be declared as required in the generated OpenAPI schema). See #22154.
         if self.nested:
             for field_name, field in list(fields.items()):
-                if isinstance(field, RelatedObjectCountField):
+                if isinstance(field, RelatedObjectCountField) and not field.fallback_source:
                     fields.pop(field_name)
 
         return fields
@@ -104,11 +121,6 @@ class ValidatedModelSerializer(BaseModelSerializer):
         return []
 
     def validate(self, data):
-
-        # Skip validation if we're being used to represent a nested object
-        if self.nested:
-            return data
-
         attrs = data.copy()
 
         # Skip ManyToManyFields

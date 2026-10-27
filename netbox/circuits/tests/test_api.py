@@ -241,6 +241,19 @@ class CircuitTestCase(APIViewTestCases.APIViewTestCase):
         self.assertEqual(circuit.description, 'New description')
         self.assertEqual(list(circuit.group_assignments.all()), [assignment])
 
+    @tag('regression')  # Ref: #23469
+    def test_graphql_filter_by_status(self):
+        """Circuits can be filtered by status in GraphQL using the prefixed enum values."""
+        self.add_permissions('circuits.view_circuit')
+        Circuit.objects.filter(cid='Circuit 1').update(status=CircuitStatusChoices.STATUS_PLANNED)
+
+        query = '{ circuit_list(filters: {status: {exact: STATUS_PLANNED}}) { cid } }'
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = response.json()
+        self.assertNotIn('errors', data)
+        self.assertEqual([circuit['cid'] for circuit in data['data']['circuit_list']], ['Circuit 1'])
+
 
 class CircuitTerminationTestCase(APIViewTestCases.APIViewTestCase):
     model = CircuitTermination

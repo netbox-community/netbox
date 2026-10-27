@@ -27,7 +27,7 @@ django-htmx
 # NestedGroupModel base remains MPTT-backed for plugins still using it. Also
 # required by historical migrations that pre-date the switch to PostgreSQL ltree.
 # NetBox core runtime uses netbox.models.ltree.LtreeModel instead.
-django-mptt
+django-mptt==0.18.0
 
 # Context managers for PostgreSQL advisory locks (successor to django-pglocks)
 # https://github.com/Xof/django-pgware
@@ -69,8 +69,7 @@ django-timezone-field
 
 # A REST API framework for Django projects
 # https://www.django-rest-framework.org/community/release-notes/
-# TODO: Re-evaluate the monkey-patch of get_unique_validators() before upgrading
-djangorestframework==3.18.0
+djangorestframework>=3.18.2
 
 # Sane and flexible OpenAPI 3 schema generation for Django REST framework.
 # https://github.com/tfranzel/drf-spectacular/blob/master/CHANGELOG.rst
@@ -103,10 +102,6 @@ Markdown
 # Retain MkDocs 1.x for mkdocstrings
 # https://github.com/mkdocs/mkdocs
 mkdocs<2.0
-
-# MkDocs Material theme (for documentation build)
-# https://squidfunk.github.io/mkdocs-material/changelog/
-mkdocs-material
 
 # Introspection for embedded code
 # https://github.com/mkdocstrings/mkdocstrings/blob/main/CHANGELOG.md
@@ -163,7 +158,7 @@ social-auth-app-django<7.0.0
 social-auth-core<6.0.0
 
 # Image thumbnail generation
-# https://github.com/jazzband/sorl-thumbnail/blob/master/CHANGES.rst
+# https://github.com/mariocesar/sorl-thumbnail/blob/main/CHANGES.rst
 sorl-thumbnail
 
 # Strawberry GraphQL

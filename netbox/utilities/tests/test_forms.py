@@ -5,14 +5,20 @@ from types import SimpleNamespace
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, override_settings
+from django.utils.html import escape
 
-from dcim.models import Site
+from dcim.models import Rack, Site
 from netbox.choices import ImportFormatChoices
 from utilities.choices import Choice, ChoiceSet
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.forms.fields import ChoiceField, MultipleChoiceField, TypedChoiceField
 from utilities.forms.fields.csv import CSVSelectWidget
-from utilities.forms.fields.dynamic import DynamicChoiceField, DynamicMultipleChoiceField
+from utilities.forms.fields.dynamic import (
+    DynamicChoiceField,
+    DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField,
+    DynamicMultipleChoiceField,
+)
 from utilities.forms.fields.generic import GenericObjectChoiceField
 from utilities.forms.forms import BulkRenameForm
 from utilities.forms.mixins import GenericObjectFormMixin
@@ -684,6 +690,79 @@ class DynamicMultipleChoiceFieldTestCase(TestCase):
         form = self._make_form(data={})
         form.fields['field'].get_bound_field(form, 'field')
         self.assertEqual(form.fields['field'].choices, [])
+
+
+class DynamicModelChoiceFieldTestCase(TestCase):
+    """Validate how dynamic model choice fields seed their initial value and render their options."""
+
+    @classmethod
+    def setUpTestData(cls):
+        # The quote in Site 2's name proves that a rendered parent name is escaped
+        cls.sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site "2"', slug='site-2'),
+        )
+        Site.objects.bulk_create(cls.sites)
+
+        # Rack 2 and Rack 3 share Site 2, so the reverse lookup returns it twice
+        cls.racks = (
+            Rack(name='Rack 1', site=cls.sites[0]),
+            Rack(name='Rack 2', site=cls.sites[1]),
+            Rack(name='Rack 3', site=cls.sites[1]),
+        )
+        Rack.objects.bulk_create(cls.racks)
+
+    def _make_form(self, site_field_class, data=None, rack_context=None):
+        class TestForm(forms.Form):
+            rack = DynamicModelMultipleChoiceField(queryset=Rack.objects.all(), required=False, context=rack_context)
+            site = site_field_class(
+                queryset=Site.objects.all(),
+                required=False,
+                initial_params={'racks__in': '$rack'},
+            )
+        return TestForm(data=data, initial={'rack': [rack.pk for rack in self.racks]})
+
+    def test_multiple_choice_field_selects_every_matching_object(self):
+        """A multiple-choice parent field selects every distinct object matched by initial_params."""
+        field = self._make_form(DynamicModelMultipleChoiceField)['site'].field
+
+        self.assertCountEqual([site.pk for site in field.queryset], [site.pk for site in self.sites])
+        # The queryset filter deduplicates, so only initial reveals a repeated parent
+        self.assertCountEqual(field.initial, self.sites)
+
+    def test_multiple_choice_field_supports_changed_data(self):
+        """An unchanged submission of a multiple-choice parent field is absent from changed_data."""
+        data = {
+            'rack': [rack.pk for rack in self.racks],
+            'site': [site.pk for site in self.sites],
+        }
+        form = self._make_form(DynamicModelMultipleChoiceField, data=data)
+
+        self.assertEqual(form.changed_data, [])
+
+    def test_single_choice_field_selects_one_matching_object(self):
+        """A single-choice parent field still selects one object matched by initial_params."""
+        field = self._make_form(DynamicModelChoiceField)['site'].field
+
+        self.assertIn(field.initial, self.sites)
+        self.assertEqual(field.queryset.count(), 1)
+
+    def test_options_name_their_parent(self):
+        """Each rendered option names its parent object."""
+        html = str(self._make_form(DynamicModelMultipleChoiceField, rack_context={'parent': 'site'})['rack'])
+
+        for rack in self.racks:
+            self.assertInHTML(
+                f'<option value="{rack.pk}" data-parent="{escape(rack.site)}" selected>{rack}</option>', html
+            )
+
+    def test_options_omit_a_missing_parent(self):
+        """Options carry no parent when the context names an unset relation or no model attribute."""
+        unset_parent = self._make_form(DynamicModelMultipleChoiceField, rack_context={'parent': 'location'})
+        unknown_parent = self._make_form(DynamicModelMultipleChoiceField, rack_context={'parent': 'region'})
+
+        self.assertNotIn('data-parent', str(unset_parent['rack']))
+        self.assertNotIn('data-parent', str(unknown_parent['rack']))
 
 
 class GenericObjectChoiceFieldTestCase(TestCase):

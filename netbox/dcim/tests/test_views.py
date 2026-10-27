@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 
 import yaml
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.messages import get_messages
 from django.db import connection
 from django.http import QueryDict, StreamingHttpResponse
 from django.test import override_settings, tag
@@ -4268,6 +4269,55 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         self.client.post(self._get_url('bulk_delete'), data)
         self.assertEqual(device.interfaces.count(), 4)  # Child & parent were both deleted
 
+    @tag('regression')  # Issue #23467
+    def test_bulk_add_interfaces_excludes_restricted_devices(self):
+        """
+        Bulk-adding interfaces ignores devices the user is not permitted to view.
+        """
+        visible_device = Device.objects.get(name='Device 1')
+        site = Site.objects.create(name='Site 2', slug='site-2')
+        hidden_device = create_test_device('Hidden Device', site=site)
+
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['view'],
+            constraints={'site__slug': 'site-1'},
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Device))
+        self.add_permissions('dcim.add_interface')
+        url = reverse('dcim:device_bulk_add_interface')
+
+        # The selected objects table omits the hidden device
+        response = self.client.post(url, data=post_data({'pk': [visible_device.pk, hidden_device.pk]}))
+        self.assertHttpStatus(response, 200)
+        self.assertEqual([row.record for row in response.context['table'].rows], [visible_device])
+        self.assertNotContains(response, hidden_device.name)
+        self.assertNotIn(hidden_device, response.context['form'].fields['pk'].queryset)
+        self.assertEqual(response.context['form']['pk'].value(), [visible_device.pk])
+
+        # Selecting all filtered devices matches only permitted devices
+        response = self.client.post(f'{url}?site_id={site.pk}', data=post_data({'_all': True}))
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(
+            [str(message) for message in get_messages(response.wsgi_request)],
+            ['No devices were selected.']
+        )
+
+        # Creation skips the hidden device
+        response = self.client.post(url, data=post_data({
+            'pk': [visible_device.pk, hidden_device.pk],
+            'name': 'Bulk Interface',
+            'type': InterfaceTypeChoices.TYPE_1GE_FIXED,
+            '_create': True,
+        }))
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(
+            list(Interface.objects.filter(name='Bulk Interface').values_list('device', flat=True)),
+            [visible_device.pk]
+        )
+
     def test_rename_select_all_spans_pages(self):
         """
         Tests the bulk rename functionality for interfaces spanning multiple pages in the UI.
@@ -4758,7 +4808,7 @@ class ModuleBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
         """
         Bulk-adding module bays expands the name pattern per device and applies enabled to every new bay.
         """
-        self.add_permissions('dcim.add_modulebay')
+        self.add_permissions('dcim.add_modulebay', 'dcim.view_device')
         device1 = Device.objects.get(name='Device 1')
         device2 = create_test_device('Device 2')
         initial_count = self._get_queryset().count()
@@ -5648,6 +5698,89 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.bulk_edit_data = {
             'domain': 'domain-x',
         }
+
+    @tag('regression')  # Ref: #23212
+    def test_remove_member_blocked_by_cross_chassis_lag(self):
+        self.add_permissions('dcim.change_device')
+        master = Device.objects.get(name='Device 1')
+        member = Device.objects.get(name='Device 2')
+        lag = Interface.objects.create(device=master, name='lag0', type=InterfaceTypeChoices.TYPE_LAG)
+        Interface.objects.create(device=member, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED, lag=lag)
+
+        url = reverse('dcim:virtualchassis_remove_member', kwargs={'pk': member.pk})
+        response = self.client.post(url, {'confirm': True})
+        self.assertEqual(response.status_code, 302)
+
+        member.refresh_from_db()
+        self.assertEqual(member.virtual_chassis.name, 'VC1')
+        self.assertEqual(member.vc_position, 2)
+
+    @tag('regression')  # Ref: #23212
+    def test_add_member_blocked_by_cross_chassis_lag(self):
+        self.add_permissions('dcim.change_virtualchassis')
+        vc1_member = Device.objects.get(name='Device 1')
+        device = Device.objects.get(name='Device 10')
+        lag = Interface.objects.create(device=vc1_member, name='lag0', type=InterfaceTypeChoices.TYPE_LAG)
+        Interface.objects.create(device=device, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED, lag=lag)
+
+        vc2 = VirtualChassis.objects.get(name='VC2')
+        url = reverse('dcim:virtualchassis_add_member', kwargs={'pk': vc2.pk})
+        response = self.client.post(url, {'device': device.pk, 'vc_position': 4, 'vc_priority': ''})
+        self.assertHttpStatus(response, 200)
+        self.assertIn('outside the virtual chassis', str(response.content))
+
+        device.refresh_from_db()
+        self.assertIsNone(device.virtual_chassis)
+        self.assertIsNone(device.vc_position)
+
+    @tag('regression')  # Ref: #23212
+    def test_create_with_members_blocked_by_cross_chassis_lag(self):
+        self.add_permissions('dcim.add_virtualchassis', 'dcim.view_device')
+        vc1_member = Device.objects.get(name='Device 1')
+        device = Device.objects.get(name='Device 10')
+        lag = Interface.objects.create(device=vc1_member, name='lag0', type=InterfaceTypeChoices.TYPE_LAG)
+        Interface.objects.create(device=device, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED, lag=lag)
+
+        data = {'name': 'VC4', 'members': [device.pk], 'initial_position': 1}
+        response = self.client.post(reverse('dcim:virtualchassis_add'), data)
+        self.assertHttpStatus(response, 200)
+        self.assertIn('outside the virtual chassis', str(response.content))
+        self.assertFalse(VirtualChassis.objects.filter(name='VC4').exists())
+
+        device.refresh_from_db()
+        self.assertIsNone(device.virtual_chassis)
+
+    def test_create_with_members_allowed_with_lag_between_new_members(self):
+        self.add_permissions('dcim.add_virtualchassis', 'dcim.view_device')
+        device1 = Device.objects.get(name='Device 10')
+        device2 = Device.objects.get(name='Device 11')
+        lag = Interface.objects.create(device=device1, name='lag0', type=InterfaceTypeChoices.TYPE_LAG)
+        Interface.objects.create(device=device2, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED, lag=lag)
+
+        data = {'name': 'VC4', 'members': [device1.pk, device2.pk], 'initial_position': 1}
+        response = self.client.post(reverse('dcim:virtualchassis_add'), data)
+        self.assertHttpStatus(response, 302)
+
+        vc = VirtualChassis.objects.get(name='VC4')
+        self.assertEqual(set(vc.members.values_list('name', flat=True)), {'Device 10', 'Device 11'})
+
+    def test_remove_member(self):
+        self.add_permissions('dcim.change_device')
+        master = Device.objects.get(name='Device 1')
+        member = Device.objects.get(name='Device 2')
+
+        # A primary IP on another member's interface must not block removal
+        interface = Interface.objects.create(device=master, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+        ip = IPAddress.objects.create(address='192.0.2.1/24', assigned_object=interface)
+        Device.objects.filter(pk=member.pk).update(primary_ip4=ip)
+
+        url = reverse('dcim:virtualchassis_remove_member', kwargs={'pk': member.pk})
+        response = self.client.post(url, {'confirm': True})
+        self.assertEqual(response.status_code, 302)
+
+        member.refresh_from_db()
+        self.assertIsNone(member.virtual_chassis)
+        self.assertIsNone(member.vc_position)
 
 
 class PowerPanelTestCase(ViewTestCases.PrimaryObjectViewTestCase):

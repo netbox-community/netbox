@@ -27,7 +27,7 @@ class MACAddressShortcutMixin:
         # The mac_address shortcut and the primary_mac_address field both set the primary MAC. Reject
         # only when both are supplied AND they disagree, so a read-modify-write round-trip (which echoes
         # both readable fields with matching values) is accepted while a genuine conflict is rejected.
-        if mac_address is _UNSET or not isinstance(data, dict) or 'primary_mac_address' not in data:
+        if mac_address is _UNSET or 'primary_mac_address' not in data:
             return
 
         primary = data['primary_mac_address']

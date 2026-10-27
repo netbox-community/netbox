@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from circuits.models import Circuit, CircuitTermination
 from dcim.models import *
 from utilities.forms.fields import DynamicModelMultipleChoiceField
+from utilities.forms.widgets import APISelectMultiple
 
 from .model_forms import CableForm
 
@@ -39,8 +40,9 @@ def get_cable_form(a_type, b_type):
                         }
                     )
                     attrs[f'{cable_end}_terminations'] = DynamicModelMultipleChoiceField(
-                        queryset=term_cls.objects.all(),
+                        queryset=term_cls.objects.select_related('device'),
                         label=term_cls._meta.verbose_name.title(),
+                        widget=APISelectMultiple(attrs={'data-preserve-selection': True}),
                         context={
                             'disabled': '_occupied',
                             'parent': 'device',
@@ -66,6 +68,7 @@ def get_cable_form(a_type, b_type):
                     attrs[f'{cable_end}_terminations'] = DynamicModelMultipleChoiceField(
                         queryset=term_cls.objects.all(),
                         label=_('Power Feed'),
+                        widget=APISelectMultiple(attrs={'data-preserve-selection': True}),
                         context={
                             'disabled': '_occupied',
                             'parent': 'powerpanel',
@@ -89,6 +92,7 @@ def get_cable_form(a_type, b_type):
                     attrs[f'{cable_end}_terminations'] = DynamicModelMultipleChoiceField(
                         queryset=term_cls.objects.all(),
                         label=_('Side'),
+                        widget=APISelectMultiple(attrs={'data-preserve-selection': True}),
                         context={
                             'disabled': '_occupied',
                             'parent': 'circuit',

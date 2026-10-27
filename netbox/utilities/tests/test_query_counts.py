@@ -1,4 +1,5 @@
 import os
+from unittest.mock import patch
 
 from django.test import TestCase
 
@@ -19,10 +20,9 @@ class _BaseTestCase:
     model = _FakeModel
 
 
-class AssertExpectedQueryCountLabelTestCase(TestCase):
+class AssertExpectedQueryCountTestCase(TestCase):
     """
-    Verify that assert_expected_query_count uses query_count_model_label when
-    set on the test case and falls back to model._meta.model_name otherwise.
+    Verify the baseline keys and the check modes of assert_expected_query_count.
     """
 
     def _make_test_case(self, label_value=None, set_attr=False):
@@ -49,16 +49,9 @@ class AssertExpectedQueryCountLabelTestCase(TestCase):
         qc_mod._record_update = fake_record
         qc_mod._is_parallel_test_run = lambda: False
         try:
-            old_env = os.environ.get(qc_mod.UPDATE_ENV_VAR)
-            os.environ[qc_mod.UPDATE_ENV_VAR] = '1'
-            try:
+            with patch.dict(os.environ, {'UPDATE_QUERY_COUNTS': '1', 'SKIP_QUERY_COUNTS': ''}):
                 with assert_expected_query_count(test_case, 'test_name'):
                     pass
-            finally:
-                if old_env is None:
-                    del os.environ[qc_mod.UPDATE_ENV_VAR]
-                else:
-                    os.environ[qc_mod.UPDATE_ENV_VAR] = old_env
         finally:
             qc_mod._record_update = original
             qc_mod._is_parallel_test_run = original_parallel
@@ -82,3 +75,49 @@ class AssertExpectedQueryCountLabelTestCase(TestCase):
         tc = self._make_test_case(label_value='', set_attr=True)
         key = self._recorded_key(tc)
         self.assertEqual(key, ':test_name')
+
+    def test_checks_enabled_by_default(self):
+        """A count mismatch fails unless SKIP_QUERY_COUNTS is 1."""
+        tc = self._make_test_case()
+        with (
+            patch.dict(os.environ, {'UPDATE_QUERY_COUNTS': ''}),
+            patch.object(qc_mod, '_load_baseline', return_value={'fakemodel:test_name': 99}),
+        ):
+            os.environ.pop('SKIP_QUERY_COUNTS', None)
+            with self.assertRaisesRegex(AssertionError, 'expected 99, got 0'):
+                with assert_expected_query_count(tc, 'test_name'):
+                    pass
+            os.environ['SKIP_QUERY_COUNTS'] = '0'
+            with self.assertRaisesRegex(AssertionError, 'expected 99, got 0'):
+                with assert_expected_query_count(tc, 'test_name'):
+                    pass
+
+    def test_skip_mode_bypasses_checks(self):
+        """SKIP_QUERY_COUNTS=1 runs the block unchecked, also for a missing key and under --parallel."""
+        tc = self._make_test_case()
+        ran = []
+        with (
+            patch.dict(os.environ, {'UPDATE_QUERY_COUNTS': '', 'SKIP_QUERY_COUNTS': '1'}),
+            patch.object(qc_mod, '_load_baseline', return_value={'fakemodel:test_name': 99}) as load_baseline,
+            patch.object(qc_mod, '_is_parallel_test_run', return_value=True),
+        ):
+            with assert_expected_query_count(tc, 'test_name'):
+                ran.append('test_name')
+            with assert_expected_query_count(tc, 'unrecorded'):
+                ran.append('unrecorded')
+        self.assertEqual(ran, ['test_name', 'unrecorded'])
+        load_baseline.assert_not_called()
+
+    def test_skip_mode_rejects_update_mode(self):
+        """Combining SKIP_QUERY_COUNTS and UPDATE_QUERY_COUNTS raises before the block runs."""
+        tc = self._make_test_case()
+        ran = []
+        with (
+            patch.dict(os.environ, {'UPDATE_QUERY_COUNTS': '1', 'SKIP_QUERY_COUNTS': '1'}),
+            patch.object(qc_mod, '_record_update') as record_update,
+        ):
+            with self.assertRaisesRegex(RuntimeError, 'SKIP_QUERY_COUNTS=1 cannot be combined'):
+                with assert_expected_query_count(tc, 'test_name'):
+                    ran.append('test_name')
+        self.assertEqual(ran, [])
+        record_update.assert_not_called()

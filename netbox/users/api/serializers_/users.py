@@ -63,7 +63,7 @@ class UserSerializer(ValidatedModelSerializer):
     def validate(self, data):
 
         # Enforce password validation rules (if configured)
-        if not self.nested and data.get('password'):
+        if data.get('password'):
             password_validation.validate_password(data['password'], self.instance)
 
         return super().validate(data)

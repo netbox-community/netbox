@@ -19,6 +19,7 @@ __all__ = (
 )
 
 UPDATE_ENV_VAR = 'UPDATE_QUERY_COUNTS'
+SKIP_ENV_VAR = 'SKIP_QUERY_COUNTS'
 BASELINE_FILENAME = 'query_counts.json'
 
 _loaded_baselines = {}
@@ -27,6 +28,11 @@ _lock = threading.Lock()
 
 def _is_update_mode():
     return bool(os.environ.get(UPDATE_ENV_VAR))
+
+
+def _is_skip_mode():
+    # Stricter than _is_update_mode(), so "0" or "false" cannot silently disable the checks
+    return os.environ.get(SKIP_ENV_VAR) == '1'
 
 
 def _is_parallel_test_run():
@@ -98,7 +104,18 @@ def assert_expected_query_count(test_case, name):
     When the `UPDATE_QUERY_COUNTS` environment variable is set, the assertion
     is skipped and the observed count is written back to the baseline file
     immediately. Update mode requires serial test execution (no --parallel).
+
+    When `SKIP_QUERY_COUNTS` is set to 1, the block runs with no baseline lookup
+    or count check. It cannot be combined with `UPDATE_QUERY_COUNTS`.
     """
+    if _is_skip_mode():
+        if _is_update_mode():
+            raise RuntimeError(
+                f"{SKIP_ENV_VAR}=1 cannot be combined with {UPDATE_ENV_VAR}. Unset one of them."
+            )
+        yield
+        return
+
     model = test_case.model
     app_label = model._meta.app_label
     label = getattr(test_case, 'query_count_model_label', None)
