@@ -5684,7 +5684,7 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @tag('regression')  # Ref: #23212
     def test_add_member_blocked_by_cross_chassis_lag(self):
-        self.add_permissions('dcim.change_virtualchassis')
+        self.add_permissions('dcim.change_virtualchassis', 'dcim.change_device')
         vc1_member = Device.objects.get(name='Device 1')
         device = Device.objects.get(name='Device 10')
         lag = Interface.objects.create(device=vc1_member, name='lag0', type=InterfaceTypeChoices.TYPE_LAG)
