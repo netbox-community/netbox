@@ -1425,6 +1425,13 @@ class RackTestCase(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+    def test_ordering_by_count_without_field(self):
+        """Ordering by a count left out of the response is ignored rather than failing the request."""
+        self.add_permissions('dcim.view_rack')
+        response = self.client.get(f'{self._get_list_url()}?ordering=-device_count&fields=id,name', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual([row['name'] for row in response.data['results']], ['Rack 1', 'Rack 2', 'Rack 3'])
+
     def test_get_rack_elevation(self):
         """
         GET a single rack elevation.
@@ -4335,6 +4342,42 @@ class InterfaceTestCase(Mixins.FieldPrefetchMixin, Mixins.ComponentTraceMixin, A
             FHRPGroupAssignment.objects.create(group=fhrp_group, interface=interfaces['e'], priority=100)
             filters.append(f'device_id={device.pk}')
         return [filters[0], '&'.join(filters)]
+
+    def test_ordering_by_count_annotation(self):
+        """Ordering by a count annotation sorts a response that renders it and is ignored by one that does not."""
+        self.add_permissions('dcim.view_interface', 'extras.view_exporttemplate')
+        interfaces = {name: Interface.objects.get(name=name) for name in ('Interface 2', 'Interface 3')}
+        IPAddress.objects.bulk_create((
+            IPAddress(address='192.0.2.1/24', assigned_object=interfaces['Interface 2']),
+            IPAddress(address='192.0.2.2/24', assigned_object=interfaces['Interface 2']),
+            IPAddress(address='192.0.2.3/24', assigned_object=interfaces['Interface 3']),
+        ))
+        export_template = ExportTemplate.objects.create(
+            name='Interfaces', template_code='{% for interface in queryset %}{{ interface.name }},{% endfor %}'
+        )
+        export_template.object_types.set([ObjectType.objects.get_for_model(Interface)])
+        url = f'{self._get_list_url()}?ordering=-_count_ipaddresses'
+
+        for params in ('', '&fields=id,name,count_ipaddresses'):
+            with self.subTest(params=params):
+                response = self.client.get(url + params, **self.header)
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                self.assertEqual(
+                    [row['name'] for row in response.data['results']], ['Interface 2', 'Interface 3', 'Interface 1']
+                )
+
+        # Responses without the count carry no annotation to order by, so they keep the default ordering
+        for params in ('&brief=1', '&fields=id,name', '&export=Interfaces'):
+            with self.subTest(params=params):
+                response = self.client.get(url + params, **self.header)
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                if 'export' in params:
+                    self.assertEqual(response.content.decode(), 'Interface 1,Interface 2,Interface 3,')
+                else:
+                    self.assertEqual(
+                        [row['name'] for row in response.data['results']],
+                        ['Interface 1', 'Interface 2', 'Interface 3'],
+                    )
 
     def test_bulk_delete_child_interfaces(self):
         interface1 = Interface.objects.get(name='Interface 1')

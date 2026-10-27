@@ -1138,6 +1138,36 @@ class VMInterfaceTestCase(APIViewTestCases.APIViewTestCase):
         # Unannotated instances count through the relations
         self.assertEqual((vm_interface.count_ipaddresses, vm_interface.count_fhrp_groups), (2, 1))
 
+    def test_ordering_by_count_annotation(self):
+        """Ordering by a count annotation sorts a response that renders it and is ignored by one that does not."""
+        self.add_permissions('virtualization.view_vminterface')
+        groups = FHRPGroup.objects.bulk_create((
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=1),
+            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=2),
+        ))
+        interfaces = {name: VMInterface.objects.get(name=name) for name in ('Interface 2', 'Interface 3')}
+        FHRPGroupAssignment.objects.bulk_create((
+            FHRPGroupAssignment(group=groups[0], interface=interfaces['Interface 2'], priority=100),
+            FHRPGroupAssignment(group=groups[1], interface=interfaces['Interface 2'], priority=100),
+            FHRPGroupAssignment(group=groups[0], interface=interfaces['Interface 3'], priority=100),
+        ))
+        url = f'{self._get_list_url()}?ordering=-_count_fhrp_groups'
+
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(
+            [row['name'] for row in response.data['results']], ['Interface 2', 'Interface 3', 'Interface 1']
+        )
+
+        # Responses without the count carry no annotation to order by, so they keep the default ordering
+        for params in ('&brief=1', '&fields=id,name'):
+            with self.subTest(params=params):
+                response = self.client.get(url + params, **self.header)
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                self.assertEqual(
+                    [row['name'] for row in response.data['results']], ['Interface 1', 'Interface 2', 'Interface 3']
+                )
+
     def test_export_template_prefetches_related_objects(self):
         """An API export renders model instances, so it prefetches each counted relation once."""
         self.add_permissions('virtualization.view_vminterface', 'extras.view_exporttemplate')
