@@ -63,6 +63,31 @@ class DataSourceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
         }
 
+    def test_sync_form_submission_guard(self):
+        """The Sync form of a ready data source opts into the duplicate submission guard."""
+        self.add_permissions('core.view_datasource', 'core.sync_datasource')
+        datasource = DataSource.objects.first()
+        url = reverse('core:datasource_sync', kwargs={'pk': datasource.pk})
+
+        response = self.client.get(datasource.get_absolute_url())
+
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, f'<form action="{url}" method="post" data-disable-on-submit>')
+
+    def test_sync_buttons_submission_guard(self):
+        """Each ready data source's Sync button opts into the duplicate submission guard."""
+        self.add_permissions('core.view_datasource', 'core.sync_datasource')
+        list_url = reverse('core:datasource_list')
+
+        response = self.client.get(list_url)
+
+        self.assertHttpStatus(response, 200)
+        for name in ('Data Source 1', 'Data Source 2', 'Data Source 3'):
+            url = reverse('core:datasource_sync', kwargs={'pk': DataSource.objects.get(name=name).pk})
+            self.assertContains(
+                response, f'formaction="{url}?return_url={list_url}" formmethod="post" data-disable-on-submit>'
+            )
+
 
 class DataFileTestCase(
     ViewTestCases.GetObjectViewTestCase,
