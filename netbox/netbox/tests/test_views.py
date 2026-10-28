@@ -364,9 +364,9 @@ class DeleteAtomicityMixin:
     Scenario shared by the transactional and autocommit variants of the ObjectDeleteView
     atomicity test (Ref: #22934).
 
-    VirtualChassis.delete() clears vc_position/vc_priority on each member device and saves them
-    before calling super().delete(), so an aborted deletion must roll those writes back. Otherwise
-    they commit while their queued events are discarded, leaving a committed change which
+    VirtualChassis.delete() detaches each member device (clearing its virtual_chassis) before
+    calling super().delete(), so an aborted deletion must roll that write back. Otherwise it
+    commits while the deletion's queued events are discarded, leaving a committed change which
     dispatches no events.
     """
     PROTECTION_RULES = {'dcim.virtualchassis': [CustomValidator({'name': {'eq': 'Nonexistent'}})]}
@@ -395,6 +395,7 @@ class DeleteAtomicityMixin:
     def assertDeleteRolledBack(self, virtual_chassis, device):
         self.assertTrue(VirtualChassis.objects.filter(pk=virtual_chassis.pk).exists())
         device.refresh_from_db()
+        self.assertEqual(device.virtual_chassis_id, virtual_chassis.pk)
         self.assertEqual(device.vc_position, 1)
         self.assertEqual(device.vc_priority, 10)
 
@@ -527,7 +528,8 @@ class RolledBackWriteEventQueueTestCase(DeleteAtomicityMixin, TestCase):
         virtual_chassis, device = self.create_virtual_chassis()
         self.add_permissions('dcim.delete_virtualchassis', 'dcim.view_virtualchassis')
 
-        with self.assertNoEventsDispatched():
+        # The member is detached by a queryset update, so no event is queued before the abort
+        with self.assertNoEventsDispatched(expect_queued=False):
             self.delete_virtual_chassis(virtual_chassis)
 
         self.assertDeleteRolledBack(virtual_chassis, device)
@@ -577,6 +579,6 @@ class DeleteAtomicityTestCase(DeleteAtomicityMixin, TransactionTestCase):
 
         self.delete_virtual_chassis(virtual_chassis)
 
-        # Without the view's atomic block, the member device's cleared position and priority commit
-        # here, leaving a change which dispatches no events
+        # Without the view's atomic block, the member device's cleared virtual_chassis commits here,
+        # leaving a change which dispatches no events
         self.assertDeleteRolledBack(virtual_chassis, device)
