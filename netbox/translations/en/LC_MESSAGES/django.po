@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-27 05:02+0000\n"
+"POT-Creation-Date: 2026-10-28 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -169,8 +169,8 @@ msgstr ""
 msgid "Remote endpoint connecting to a hub"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:43 netbox/circuits/filtersets.py:223
-#: netbox/circuits/filtersets.py:307 netbox/dcim/base_filtersets.py:23
+#: netbox/circuits/filtersets.py:43 netbox/circuits/filtersets.py:229
+#: netbox/circuits/filtersets.py:313 netbox/dcim/base_filtersets.py:23
 #: netbox/dcim/filtersets.py:130 netbox/dcim/filtersets.py:189
 #: netbox/dcim/filtersets.py:250 netbox/dcim/filtersets.py:396
 #: netbox/dcim/filtersets.py:559 netbox/dcim/filtersets.py:1444
@@ -182,8 +182,8 @@ msgstr ""
 msgid "Region (ID)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:50 netbox/circuits/filtersets.py:230
-#: netbox/circuits/filtersets.py:314 netbox/dcim/base_filtersets.py:30
+#: netbox/circuits/filtersets.py:50 netbox/circuits/filtersets.py:236
+#: netbox/circuits/filtersets.py:320 netbox/dcim/base_filtersets.py:30
 #: netbox/dcim/filtersets.py:137 netbox/dcim/filtersets.py:195
 #: netbox/dcim/filtersets.py:257 netbox/dcim/filtersets.py:403
 #: netbox/dcim/filtersets.py:566 netbox/dcim/filtersets.py:1451
@@ -196,8 +196,8 @@ msgstr ""
 msgid "Region (slug)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:56 netbox/circuits/filtersets.py:236
-#: netbox/circuits/filtersets.py:320 netbox/dcim/base_filtersets.py:36
+#: netbox/circuits/filtersets.py:56 netbox/circuits/filtersets.py:242
+#: netbox/circuits/filtersets.py:326 netbox/dcim/base_filtersets.py:36
 #: netbox/dcim/filtersets.py:163 netbox/dcim/filtersets.py:263
 #: netbox/dcim/filtersets.py:409 netbox/dcim/filtersets.py:572
 #: netbox/dcim/filtersets.py:1457 netbox/dcim/filtersets.py:1821
@@ -209,8 +209,8 @@ msgstr ""
 msgid "Site group (ID)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:63 netbox/circuits/filtersets.py:243
-#: netbox/circuits/filtersets.py:327 netbox/dcim/base_filtersets.py:43
+#: netbox/circuits/filtersets.py:63 netbox/circuits/filtersets.py:249
+#: netbox/circuits/filtersets.py:333 netbox/dcim/base_filtersets.py:43
 #: netbox/dcim/filtersets.py:170 netbox/dcim/filtersets.py:270
 #: netbox/dcim/filtersets.py:416 netbox/dcim/filtersets.py:579
 #: netbox/dcim/filtersets.py:1464 netbox/dcim/filtersets.py:1828
@@ -269,8 +269,8 @@ msgstr ""
 msgid "Site"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:74 netbox/circuits/filtersets.py:254
-#: netbox/circuits/filtersets.py:340 netbox/dcim/base_filtersets.py:56
+#: netbox/circuits/filtersets.py:74 netbox/circuits/filtersets.py:260
+#: netbox/circuits/filtersets.py:346 netbox/dcim/base_filtersets.py:56
 #: netbox/dcim/filtersets.py:282 netbox/dcim/filtersets.py:428
 #: netbox/dcim/filtersets.py:553 netbox/extras/filtersets.py:756
 #: netbox/ipam/filtersets.py:280 netbox/ipam/filtersets.py:1031
@@ -289,43 +289,48 @@ msgid "ASN"
 msgstr ""
 
 #: netbox/circuits/filtersets.py:107 netbox/circuits/filtersets.py:137
-#: netbox/circuits/filtersets.py:175 netbox/circuits/filtersets.py:365
-#: netbox/circuits/filtersets.py:441 netbox/circuits/filtersets.py:523
-#: netbox/circuits/filtersets.py:602 netbox/ipam/filtersets.py:285
+#: netbox/circuits/filtersets.py:175 netbox/circuits/filtersets.py:378
+#: netbox/circuits/filtersets.py:454 netbox/circuits/filtersets.py:536
+#: netbox/circuits/filtersets.py:622 netbox/ipam/filtersets.py:285
 msgid "Provider (ID)"
 msgstr ""
 
 #: netbox/circuits/filtersets.py:114 netbox/circuits/filtersets.py:144
-#: netbox/circuits/filtersets.py:182 netbox/circuits/filtersets.py:372
-#: netbox/circuits/filtersets.py:530 netbox/circuits/filtersets.py:609
+#: netbox/circuits/filtersets.py:182 netbox/circuits/filtersets.py:385
+#: netbox/circuits/filtersets.py:543 netbox/circuits/filtersets.py:629
 #: netbox/ipam/filtersets.py:291
 msgid "Provider (slug)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:188 netbox/circuits/filtersets.py:536
-#: netbox/circuits/filtersets.py:615
+#: netbox/circuits/filtersets.py:188 netbox/circuits/filtersets.py:549
+#: netbox/circuits/filtersets.py:635
 msgid "Provider account (ID)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:195 netbox/circuits/filtersets.py:543
-#: netbox/circuits/filtersets.py:622
+#: netbox/circuits/filtersets.py:195 netbox/circuits/filtersets.py:556
+#: netbox/circuits/filtersets.py:642
 msgid "Provider account (account)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:200 netbox/circuits/filtersets.py:548
-#: netbox/circuits/filtersets.py:628
+#: netbox/circuits/filtersets.py:200 netbox/circuits/filtersets.py:561
+#: netbox/circuits/filtersets.py:648
 msgid "Provider network (ID)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:205
+#: netbox/circuits/filtersets.py:206 netbox/circuits/filtersets.py:372
+#: netbox/circuits/filtersets.py:568 netbox/circuits/filtersets.py:655
+msgid "Provider network (name)"
+msgstr ""
+
+#: netbox/circuits/filtersets.py:211
 msgid "Circuit type (ID)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:212
+#: netbox/circuits/filtersets.py:218
 msgid "Circuit type (slug)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:248 netbox/circuits/filtersets.py:333
+#: netbox/circuits/filtersets.py:254 netbox/circuits/filtersets.py:339
 #: netbox/dcim/base_filtersets.py:49 netbox/dcim/filtersets.py:275
 #: netbox/dcim/filtersets.py:421 netbox/dcim/filtersets.py:546
 #: netbox/dcim/filtersets.py:1469 netbox/dcim/filtersets.py:1834
@@ -337,7 +342,7 @@ msgstr ""
 msgid "Site (ID)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:258 netbox/circuits/filtersets.py:346
+#: netbox/circuits/filtersets.py:264 netbox/circuits/filtersets.py:352
 #: netbox/dcim/base_filtersets.py:62 netbox/dcim/filtersets.py:300
 #: netbox/dcim/filtersets.py:434 netbox/dcim/filtersets.py:585
 #: netbox/dcim/filtersets.py:1482 netbox/dcim/filtersets.py:1847
@@ -346,12 +351,12 @@ msgstr ""
 msgid "Location (ID)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:264 netbox/circuits/filtersets.py:269
+#: netbox/circuits/filtersets.py:270 netbox/circuits/filtersets.py:275
 msgid "Termination A (ID)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:295 netbox/circuits/filtersets.py:405
-#: netbox/circuits/filtersets.py:586 netbox/core/filtersets.py:91
+#: netbox/circuits/filtersets.py:301 netbox/circuits/filtersets.py:418
+#: netbox/circuits/filtersets.py:606 netbox/core/filtersets.py:91
 #: netbox/core/filtersets.py:192 netbox/core/filtersets.py:218
 #: netbox/core/filtersets.py:261 netbox/dcim/filtersets.py:1008
 #: netbox/dcim/filtersets.py:1909 netbox/dcim/filtersets.py:3442
@@ -377,7 +382,7 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:300 netbox/circuits/forms/bulk_edit.py:170
+#: netbox/circuits/filtersets.py:306 netbox/circuits/forms/bulk_edit.py:170
 #: netbox/circuits/forms/bulk_edit.py:232
 #: netbox/circuits/forms/bulk_import.py:128
 #: netbox/circuits/forms/filtersets.py:232
@@ -392,7 +397,7 @@ msgstr ""
 msgid "Circuit"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:353 netbox/dcim/base_filtersets.py:69
+#: netbox/circuits/filtersets.py:359 netbox/dcim/base_filtersets.py:69
 #: netbox/dcim/filtersets.py:307 netbox/dcim/filtersets.py:441
 #: netbox/dcim/filtersets.py:592 netbox/dcim/filtersets.py:1489
 #: netbox/dcim/filtersets.py:1854 netbox/dcim/filtersets.py:1961
@@ -401,47 +406,47 @@ msgstr ""
 msgid "Location (slug)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:359
+#: netbox/circuits/filtersets.py:365
 msgid "ProviderNetwork (ID)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:416
+#: netbox/circuits/filtersets.py:429
 msgid "Circuit (CID)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:421
+#: netbox/circuits/filtersets.py:434
 msgid "Circuit (ID)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:426
+#: netbox/circuits/filtersets.py:439
 msgid "Virtual circuit (CID)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:431 netbox/dcim/filtersets.py:2544
+#: netbox/circuits/filtersets.py:444 netbox/dcim/filtersets.py:2544
 msgid "Virtual circuit (ID)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:436
+#: netbox/circuits/filtersets.py:449
 msgid "Provider (name)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:446
+#: netbox/circuits/filtersets.py:459
 msgid "Circuit group (ID)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:453
+#: netbox/circuits/filtersets.py:466
 msgid "Circuit group (slug)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:553
+#: netbox/circuits/filtersets.py:573
 msgid "Virtual circuit type (ID)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:560
+#: netbox/circuits/filtersets.py:580
 msgid "Virtual circuit type (slug)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:591 netbox/circuits/forms/bulk_edit.py:292
+#: netbox/circuits/filtersets.py:611 netbox/circuits/forms/bulk_edit.py:292
 #: netbox/circuits/forms/bulk_import.py:248
 #: netbox/circuits/forms/filtersets.py:384
 #: netbox/circuits/forms/filtersets.py:390
@@ -451,7 +456,7 @@ msgstr ""
 msgid "Virtual circuit"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:634 netbox/dcim/filtersets.py:1721
+#: netbox/circuits/filtersets.py:661 netbox/dcim/filtersets.py:1721
 #: netbox/dcim/filtersets.py:2267 netbox/ipam/filtersets.py:687
 #: netbox/vpn/filtersets.py:117 netbox/vpn/filtersets.py:450
 msgid "Interface (ID)"
@@ -2873,19 +2878,19 @@ msgstr ""
 msgid "Sync Data"
 msgstr ""
 
-#: netbox/core/signals.py:184
+#: netbox/core/signals.py:187
 #, python-brace-format
 msgid "Deletion is prevented by a protection rule: {message}"
 msgstr ""
 
-#: netbox/core/signals.py:358
+#: netbox/core/signals.py:363
 #, python-brace-format
 msgid "Automatic synchronization failed for {count} object:"
 msgid_plural "Automatic synchronization failed for {count} objects:"
 msgstr[0] ""
 msgstr[1] ""
 
-#: netbox/core/signals.py:364
+#: netbox/core/signals.py:369
 #, python-brace-format
 msgid "{count} additional failure is not shown."
 msgid_plural "{count} additional failures are not shown."
@@ -10309,50 +10314,50 @@ msgstr ""
 msgid "Send an outgoing HTTP request to a remote endpoint"
 msgstr ""
 
-#: netbox/extras/event_rules.py:62 netbox/templates/extras/script/base.html:29
+#: netbox/extras/event_rules.py:64 netbox/templates/extras/script/base.html:29
 msgid "Script"
 msgstr ""
 
-#: netbox/extras/event_rules.py:63
+#: netbox/extras/event_rules.py:65
 msgid "Execute a custom script"
 msgstr ""
 
-#: netbox/extras/event_rules.py:108
+#: netbox/extras/event_rules.py:110
 msgid "Notification"
 msgstr ""
 
-#: netbox/extras/event_rules.py:109
+#: netbox/extras/event_rules.py:111
 msgid "Generate a notification for one or more users or groups"
 msgstr ""
 
-#: netbox/extras/events.py:124
+#: netbox/extras/events.py:125
 #, python-brace-format
 msgid "Cannot enqueue an event for an unsaved {app_label}.{model} instance."
 msgstr ""
 
-#: netbox/extras/events.py:184
+#: netbox/extras/events.py:191
 #, python-brace-format
 msgid "Ignoring invalid data payload on {event_type} event (got {data_type})"
 msgstr ""
 
-#: netbox/extras/events.py:209
+#: netbox/extras/events.py:216
 #, python-brace-format
 msgid "Ignoring invalid action_data on event rule \"{rule}\" (got {data_type})"
 msgstr ""
 
-#: netbox/extras/events.py:226
+#: netbox/extras/events.py:233
 #, python-brace-format
 msgid ""
 "Skipping event rule \"{rule}\": action type \"{action_type}\" is not "
 "registered (the providing plugin may not be installed)."
 msgstr ""
 
-#: netbox/extras/events.py:245
+#: netbox/extras/events.py:252
 #, python-brace-format
 msgid "Error processing event rule \"{rule}\" (action: {action_type})"
 msgstr ""
 
-#: netbox/extras/events.py:289
+#: netbox/extras/events.py:296
 #, python-brace-format
 msgid "Cannot import events pipeline {name} error: {error}"
 msgstr ""
@@ -15589,71 +15594,71 @@ msgstr ""
 msgid "Cannot delete stores from registry"
 msgstr ""
 
-#: netbox/netbox/settings.py:913
+#: netbox/netbox/settings.py:911
 msgid "Czech"
 msgstr ""
 
-#: netbox/netbox/settings.py:914
+#: netbox/netbox/settings.py:912
 msgid "Danish"
 msgstr ""
 
-#: netbox/netbox/settings.py:915
+#: netbox/netbox/settings.py:913
 msgid "German"
 msgstr ""
 
-#: netbox/netbox/settings.py:916
+#: netbox/netbox/settings.py:914
 msgid "English"
 msgstr ""
 
-#: netbox/netbox/settings.py:917
+#: netbox/netbox/settings.py:915
 msgid "Spanish"
 msgstr ""
 
-#: netbox/netbox/settings.py:918
+#: netbox/netbox/settings.py:916
 msgid "French"
 msgstr ""
 
-#: netbox/netbox/settings.py:919
+#: netbox/netbox/settings.py:917
 msgid "Italian"
 msgstr ""
 
-#: netbox/netbox/settings.py:920
+#: netbox/netbox/settings.py:918
 msgid "Japanese"
 msgstr ""
 
-#: netbox/netbox/settings.py:921
+#: netbox/netbox/settings.py:919
 msgid "Korean"
 msgstr ""
 
-#: netbox/netbox/settings.py:922
+#: netbox/netbox/settings.py:920
 msgid "Latvian"
 msgstr ""
 
-#: netbox/netbox/settings.py:923
+#: netbox/netbox/settings.py:921
 msgid "Dutch"
 msgstr ""
 
-#: netbox/netbox/settings.py:924
+#: netbox/netbox/settings.py:922
 msgid "Polish"
 msgstr ""
 
-#: netbox/netbox/settings.py:925
+#: netbox/netbox/settings.py:923
 msgid "Portuguese"
 msgstr ""
 
-#: netbox/netbox/settings.py:926
+#: netbox/netbox/settings.py:924
 msgid "Russian"
 msgstr ""
 
-#: netbox/netbox/settings.py:927
+#: netbox/netbox/settings.py:925
 msgid "Turkish"
 msgstr ""
 
-#: netbox/netbox/settings.py:928
+#: netbox/netbox/settings.py:926
 msgid "Ukrainian"
 msgstr ""
 
-#: netbox/netbox/settings.py:929
+#: netbox/netbox/settings.py:927
 msgid "Chinese"
 msgstr ""
 
