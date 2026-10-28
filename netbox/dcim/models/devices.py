@@ -1345,9 +1345,10 @@ class VirtualChassis(PrimaryModel):
                 set(interfaces),
             )
 
-        # Run any protection rules while the members are still attached; the pre_delete handler runs them again,
-        # but only after the members have been detached below
+        # Run any protection rules while the members are still attached, rather than against the detached chassis
+        # from pre_delete
         run_protection_rules(self)
+        self._protection_rules_run = True
 
         with transaction.atomic(using=router.db_for_write(Device)):
             # Detach the members at the database level first, so that deletion doesn't record an intermediate

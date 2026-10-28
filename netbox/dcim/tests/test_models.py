@@ -3663,6 +3663,28 @@ class VirtualChassisTestCase(TestCase):
             [(device1.pk, 1), (device2.pk, 2)],
         )
 
+    @tag('regression')  # Ref: #23486
+    def test_virtualchassis_deletion_runs_protection_rules_once(self):
+        """
+        Protection rules for a virtual chassis are evaluated exactly once per deletion, against its members.
+        """
+        member_counts = []
+
+        class RecordMembers(CustomValidator):
+            def validate(self, instance, request):
+                member_counts.append(instance.members.count())
+
+        device1, device2 = Device.objects.order_by('name')
+        vc = VirtualChassis.objects.create(name='Test VC', master=device1)
+        device2.virtual_chassis = vc
+        device2.vc_position = 2
+        device2.save()
+
+        with override_settings(PROTECTION_RULES={'dcim.virtualchassis': [RecordMembers()]}):
+            vc.delete()
+
+        self.assertEqual(member_counts, [2])
+
     @tag('regression')  # Ref: #22720
     def test_virtualchassis_deletion_blocked_by_cross_chassis_lag(self):
         """

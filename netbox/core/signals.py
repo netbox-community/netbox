@@ -171,10 +171,11 @@ def handle_deleted_object(sender, instance, **kwargs):
     """
     Fires when an object is deleted.
     """
-    # Run any deletion protection rules for the object. Note that this must occur prior
-    # to queueing any events for the object being deleted, in case a validation error is
-    # raised, causing the deletion to fail.
-    run_protection_rules(instance)
+    # Run any deletion protection rules for the object, unless its delete() already has. Note
+    # that this must occur prior to queueing any events for the object being deleted, in case
+    # a validation error is raised, causing the deletion to fail.
+    if not instance.__dict__.pop('_protection_rules_run', False):
+        run_protection_rules(instance)
 
     # Get the current request, or bail if not set
     request = current_request.get()
