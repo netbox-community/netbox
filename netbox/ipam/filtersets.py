@@ -22,6 +22,7 @@ from utilities.filters import (
     MultiValueCharFilter,
     MultiValueContentTypeFilter,
     MultiValueNumberFilter,
+    NonUniqueModelMultipleChoiceFilter,
     TreeNodeMultipleChoiceFilter,
 )
 from utilities.filtersets import register_filterset
@@ -397,10 +398,9 @@ class PrefixFilterSet(PrimaryModelFilterSet, ScopedFilterSet, TenancyFilterSet, 
         to_field_name='id',
         label=_('VLAN Group (ID)'),
     )
-    # VLAN group slugs aren't unique, so match on distinct slugs to avoid redundant predicates
-    vlan_group = django_filters.ModelMultipleChoiceFilter(
+    vlan_group = NonUniqueModelMultipleChoiceFilter(
         field_name='vlan__group__slug',
-        queryset=VLANGroup.objects.order_by('slug').distinct('slug'),
+        queryset=VLANGroup.objects.all(),
         distinct=False,
         to_field_name='slug',
         label=_('VLAN Group (slug)'),
@@ -676,10 +676,9 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
         field_name='pk',
         label=_('Virtual machine (ID)'),
     )
-    # Interface names aren't unique, so match on distinct names to avoid redundant predicates
-    interface = django_filters.ModelMultipleChoiceFilter(
+    interface = NonUniqueModelMultipleChoiceFilter(
         field_name='interface__name',
-        queryset=Interface.objects.order_by('name').distinct('name'),
+        queryset=Interface.objects.all(),
         to_field_name='name',
         label=_('Interface (name)'),
     )
@@ -688,9 +687,9 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
         queryset=Interface.objects.all(),
         label=_('Interface (ID)'),
     )
-    vminterface = django_filters.ModelMultipleChoiceFilter(
+    vminterface = NonUniqueModelMultipleChoiceFilter(
         field_name='vminterface__name',
-        queryset=VMInterface.objects.order_by('name').distinct('name'),
+        queryset=VMInterface.objects.all(),
         to_field_name='name',
         label=_('VM interface (name)'),
     )
@@ -1048,10 +1047,9 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         distinct=False,
         label=_('Group (ID)'),
     )
-    # VLAN group slugs aren't unique, so match on distinct slugs to avoid redundant predicates
-    group = django_filters.ModelMultipleChoiceFilter(
+    group = NonUniqueModelMultipleChoiceFilter(
         field_name='group__slug',
-        queryset=VLANGroup.objects.order_by('slug').distinct('slug'),
+        queryset=VLANGroup.objects.all(),
         distinct=False,
         to_field_name='slug',
         label=_('Group'),

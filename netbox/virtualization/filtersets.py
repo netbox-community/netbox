@@ -13,7 +13,12 @@ from ipam.filtersets import PrimaryIPFilterSet
 from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from users.filterset_mixins import OwnerFilterMixin
-from utilities.filters import MultiValueCharFilter, MultiValueMACAddressFilter, TreeNodeMultipleChoiceFilter
+from utilities.filters import (
+    MultiValueCharFilter,
+    MultiValueMACAddressFilter,
+    NonUniqueModelMultipleChoiceFilter,
+    TreeNodeMultipleChoiceFilter,
+)
 from utilities.filtersets import register_filterset
 
 from .choices import *
@@ -204,10 +209,9 @@ class VirtualMachineFilterSet(
         distinct=False,
         label=_('Device (ID)'),
     )
-    # Device names aren't unique, so match on distinct names to avoid redundant predicates
-    device = django_filters.ModelMultipleChoiceFilter(
+    device = NonUniqueModelMultipleChoiceFilter(
         field_name='device__name',
-        queryset=Device.objects.order_by('name').distinct('name'),
+        queryset=Device.objects.all(),
         distinct=False,
         to_field_name='name',
         label=_('Device'),
