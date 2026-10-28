@@ -1,6 +1,34 @@
 import django.db.models.functions.text
 from django.db import migrations, models
 
+# Installs that applied the pre-squash 0130-0159 migrations individually have
+# auto-named unique constraints in place of the named ones (see #23260). Rename
+# them so the RemoveConstraint operations below find what they expect.
+RENAME_LEGACY_CONSTRAINTS = """
+DO $$
+DECLARE
+    r record;
+BEGIN
+    FOR r IN (
+        SELECT m.tbl, m.old_name, m.new_name
+        FROM (VALUES
+            ('dcim_location', 'dcim_location_site_id_parent_id_name_5c85730c_uniq', 'dcim_location_parent_name'),
+            ('dcim_location', 'dcim_location_site_id_parent_id_slug_4514cb1d_uniq', 'dcim_location_parent_slug'),
+            ('dcim_region', 'dcim_region_parent_id_name_2cd612fe_uniq', 'dcim_region_parent_name'),
+            ('dcim_region', 'dcim_region_parent_id_slug_132fcac2_uniq', 'dcim_region_parent_slug'),
+            ('dcim_sitegroup', 'dcim_sitegroup_parent_id_name_ccdbb50e_uniq', 'dcim_sitegroup_parent_name'),
+            ('dcim_sitegroup', 'dcim_sitegroup_parent_id_slug_e1b53f00_uniq', 'dcim_sitegroup_parent_slug')
+        ) AS m(tbl, old_name, new_name)
+        WHERE EXISTS (
+            SELECT 1 FROM pg_constraint
+            WHERE conrelid = to_regclass(m.tbl) AND conname = m.old_name
+        )
+    ) LOOP
+        EXECUTE format('ALTER TABLE %I RENAME CONSTRAINT %I TO %I', r.tbl, r.old_name, r.new_name);
+    END LOOP;
+END $$;
+"""
+
 
 class Migration(migrations.Migration):
     dependencies = [
@@ -11,6 +39,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunSQL(
+            sql=RENAME_LEGACY_CONSTRAINTS,
+            reverse_sql=migrations.RunSQL.noop,
+        ),
         migrations.RemoveConstraint(
             model_name='devicerole',
             name='dcim_devicerole_parent_name',
