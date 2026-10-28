@@ -2,17 +2,13 @@ import importlib
 import types
 from pathlib import Path
 
-from django.core.exceptions import ImproperlyConfigured, SuspiciousFileOperation, ValidationError
+from django.core.exceptions import ImproperlyConfigured, SuspiciousFileOperation
 from django.core.files.storage import Storage, default_storage
 from django.core.files.utils import validate_file_name
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 from taggit.managers import _TaggableManager
 
-from netbox.config import get_config
 from netbox.context import current_request
-from utilities.data import get_config_value_ci
-from utilities.exceptions import AbortRequest
 
 from .constants import IMAGE_ATTACHMENT_IMAGE_FORMATS
 from .validators import CustomValidator
@@ -24,7 +20,6 @@ __all__ = (
     'is_report',
     'is_script',
     'is_taggable',
-    'run_protection_rules',
     'run_validators',
     'validate_script_content',
 )
@@ -175,20 +170,3 @@ def run_validators(instance, validators):
             raise ImproperlyConfigured(f"Invalid value for custom validator: {validator}")
 
         validator(instance, request)
-
-
-def run_protection_rules(instance):
-    """
-    Run any deletion protection rules configured for the instance's model, raising AbortRequest if one fails.
-
-    A model's delete() may call this itself ahead of super().delete() (e.g. before it alters related objects)
-    and set `_protection_rules_run` on the instance to suppress the repeat evaluation from pre_delete.
-    """
-    model_name = f'{instance._meta.app_label}.{instance._meta.model_name}'
-    validators = get_config_value_ci(get_config().PROTECTION_RULES, model_name, default=[])
-    try:
-        run_validators(instance, validators)
-    except ValidationError as e:
-        raise AbortRequest(
-            _("Deletion is prevented by a protection rule: {message}").format(message=e)
-        )

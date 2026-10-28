@@ -5856,17 +5856,22 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             self.assertIsNone(member.vc_position)
             self.assertIsNone(member.vc_priority)
 
-            # Each member is removed from the VC in a single change with prechange data
-            changes = self._get_member_changes(member)
-            self.assertEqual(changes.count(), 1)
-            change = changes.first()
-            self.assertEqual(change.action, ObjectChangeActionChoices.ACTION_UPDATE)
-            self.assertEqual(change.prechange_data['virtual_chassis'], vc.pk)
-            self.assertIsNotNone(change.prechange_data['vc_position'])
-            self.assertIsNone(change.postchange_data['virtual_chassis'])
-            self.assertIsNone(change.postchange_data['vc_position'])
-            self.assertIsNone(change.postchange_data['vc_priority'])
-        self.assertEqual(self._get_member_changes(members[0]).get().prechange_data['vc_priority'], 10)
+            # Each member is detached and then cleared in two changes, each with prechange data and valid on
+            # its own (a virtual chassis is never recorded without a position)
+            changes = list(self._get_member_changes(member))
+            self.assertEqual(len(changes), 2)
+            detach, clear = changes
+            self.assertEqual(detach.action, ObjectChangeActionChoices.ACTION_UPDATE)
+            self.assertEqual(detach.prechange_data['virtual_chassis'], vc.pk)
+            self.assertIsNotNone(detach.prechange_data['vc_position'])
+            self.assertIsNone(detach.postchange_data['virtual_chassis'])
+            self.assertEqual(detach.postchange_data['vc_position'], detach.prechange_data['vc_position'])
+            self.assertEqual(clear.action, ObjectChangeActionChoices.ACTION_UPDATE)
+            self.assertIsNone(clear.prechange_data['virtual_chassis'])
+            self.assertEqual(clear.prechange_data['vc_position'], detach.postchange_data['vc_position'])
+            self.assertIsNone(clear.postchange_data['vc_position'])
+            self.assertIsNone(clear.postchange_data['vc_priority'])
+        self.assertEqual(self._get_member_changes(members[0]).first().prechange_data['vc_priority'], 10)
 
         # The VC deletion is recorded once, before its (former) master is detached
         vc_change = ObjectChange.objects.get(

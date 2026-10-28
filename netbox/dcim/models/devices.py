@@ -22,7 +22,6 @@ from dcim.fields import MACAddressField
 from dcim.utils import create_port_mappings, update_interface_bridges, update_interface_parents
 from extras.models import ConfigContextModel, CustomField
 from extras.querysets import ConfigContextModelQuerySet
-from extras.utils import run_protection_rules
 from netbox.choices import ColorChoices
 from netbox.config import ConfigItem
 from netbox.models import NestedLtreeGroupModel, OrganizationalModel, PrimaryModel
@@ -1345,28 +1344,16 @@ class VirtualChassis(PrimaryModel):
                 set(interfaces),
             )
 
-        # Run any protection rules while the members are still attached, rather than against the detached chassis
-        # from pre_delete
-        run_protection_rules(self)
-        self._protection_rules_run = True
-
-        with transaction.atomic(using=router.db_for_write(Device)):
-            # Detach the members at the database level first, so that deletion doesn't record an intermediate
-            # state for them (on_delete=SET_NULL leaves vc_position and vc_priority set)
-            members = list(self.members.all())
-            for device in members:
-                device.snapshot()
-            Device.objects.filter(pk__in=[device.pk for device in members]).update(virtual_chassis=None)
-
-            ret = super().delete(*args, **kwargs)
-
-            # Record each member's removal only once the VC is gone, so that the change is valid on its own (a
-            # member can't otherwise be removed from a VC while designated as its master)
-            for device in members:
-                device.virtual_chassis = None
-                device.vc_position = None
-                device.vc_priority = None
-                device.save()
+        # Core's pre_delete handler detaches each member (clearing virtual_chassis) and records that change. Clear the
+        # now-meaningless position and priority afterwards, as a second change which is valid on its own.
+        members = list(self.members.all())
+        ret = super().delete(*args, **kwargs)
+        for device in members:
+            device.refresh_from_db()
+            device.snapshot()
+            device.vc_position = None
+            device.vc_priority = None
+            device.save()
 
         return ret
 
