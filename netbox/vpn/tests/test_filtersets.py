@@ -293,6 +293,19 @@ class TunnelTerminationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'vminterface': [vm_interfaces[0].name, vm_interfaces[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_interface_shared_name(self):
+        # A name shared by several interfaces should resolve to a single filter value
+        Interface.objects.create(
+            device=create_test_device('Device 2'), name='Interface 1', type=InterfaceTypeChoices.TYPE_VIRTUAL
+        )
+        VMInterface.objects.create(
+            virtual_machine=create_test_virtualmachine('Virtual Machine 2'), name='Interface 1'
+        )
+        for param in ('interface', 'vminterface'):
+            filterset = self.filterset({param: ['Interface 1']}, self.queryset)
+            self.assertEqual(filterset.qs.count(), 1)
+            self.assertEqual(len(filterset.form.cleaned_data[param]), 1)
+
     def test_outside_ip(self):
         ip_addresses = IPAddress.objects.all()[:2]
         params = {'outside_ip_id': [ip_addresses[0].pk, ip_addresses[1].pk]}
@@ -920,6 +933,19 @@ class L2VPNTerminationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         vminterfaces = VMInterface.objects.all()[:2]
         params = {'vminterface_id': [vminterfaces[0].pk, vminterfaces[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_interface_shared_name(self):
+        # A name shared by several interfaces should resolve to a single filter value
+        Interface.objects.create(
+            device=create_test_device('Device 2'), name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        VMInterface.objects.create(
+            virtual_machine=create_test_virtualmachine('Virtual Machine 2'), name='Interface 1'
+        )
+        for param in ('interface', 'vminterface'):
+            filterset = self.filterset({param: ['Interface 1']}, self.queryset)
+            self.assertEqual(filterset.qs.count(), 1)
+            self.assertEqual(len(filterset.form.cleaned_data[param]), 1)
 
     def test_vlan(self):
         vlans = VLAN.objects.all()[:2]

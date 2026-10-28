@@ -105,9 +105,10 @@ class TunnelTerminationFilterSet(NetBoxModelFilterSet):
         distinct=False,
     )
     termination_type = MultiValueContentTypeFilter()
+    # Interface names aren't unique, so match on distinct names to avoid redundant predicates
     interface = django_filters.ModelMultipleChoiceFilter(
         field_name='interface__name',
-        queryset=Interface.objects.all(),
+        queryset=Interface.objects.order_by('name').distinct('name'),
         to_field_name='name',
         label=_('Interface (name)'),
     )
@@ -118,7 +119,7 @@ class TunnelTerminationFilterSet(NetBoxModelFilterSet):
     )
     vminterface = django_filters.ModelMultipleChoiceFilter(
         field_name='vminterface__name',
-        queryset=VMInterface.objects.all(),
+        queryset=VMInterface.objects.order_by('name').distinct('name'),
         to_field_name='name',
         label=_('VM interface (name)'),
     )
@@ -438,9 +439,10 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         queryset=VirtualMachine.objects.all(),
         label=_('Virtual machine (ID)'),
     )
+    # Interface names aren't unique, so match on distinct names to avoid redundant predicates
     interface = django_filters.ModelMultipleChoiceFilter(
         field_name='interface__name',
-        queryset=Interface.objects.all(),
+        queryset=Interface.objects.order_by('name').distinct('name'),
         to_field_name='name',
         label=_('Interface (name)'),
     )
@@ -451,7 +453,7 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
     )
     vminterface = django_filters.ModelMultipleChoiceFilter(
         field_name='vminterface__name',
-        queryset=VMInterface.objects.all(),
+        queryset=VMInterface.objects.order_by('name').distinct('name'),
         to_field_name='name',
         label=_('VM interface (name)'),
     )

@@ -9067,6 +9067,19 @@ class MACAddressTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'vminterface': [vm_interfaces[0].name, vm_interfaces[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_interface_shared_name(self):
+        # A name shared by several interfaces should resolve to a single filter value
+        Interface.objects.create(
+            device=Device.objects.get(name='Device 2'), name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        VMInterface.objects.create(
+            virtual_machine=VirtualMachine.objects.get(name='Virtual Machine 2'), name='Interface 1'
+        )
+        for param in ('interface', 'vminterface'):
+            filterset = self.filterset({param: ['Interface 1']}, self.queryset)
+            self.assertEqual(filterset.qs.count(), 1)
+            self.assertEqual(len(filterset.form.cleaned_data[param]), 1)
+
     def test_assigned(self):
         params = {'assigned': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
