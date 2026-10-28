@@ -5,6 +5,7 @@ from contextlib import contextmanager
 from copy import deepcopy
 from types import SimpleNamespace
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRel
 from django.core.exceptions import FieldDoesNotExist, ImproperlyConfigured, ObjectDoesNotExist, ValidationError
@@ -154,15 +155,18 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
         Args:
             exporter: The Exporter instance which produced the data
-            data: The exported data, as str or bytes, or as an iterable of chunks to be streamed
+            data: The exported data, as str or bytes, or as an iterable of chunks (streamed if STREAMING_EXPORTS is
+                enabled)
             filename: The name of the file attachment. If None, will be determined automatically from the queryset
                 model name.
         """
         filename = filename or f'netbox_{self.queryset.model._meta.verbose_name_plural}.{exporter.file_extension}'
-        if isinstance(data, (str, bytes)):
-            response = HttpResponse(data, content_type=exporter.content_type)
-        else:
+        if isinstance(data, (bytearray, memoryview)):
+            data = bytes(data)
+        if settings.STREAMING_EXPORTS and not isinstance(data, (str, bytes)):
             response = StreamingHttpResponse(data, content_type=exporter.content_type)
+        else:
+            response = HttpResponse(data, content_type=exporter.content_type)
         response['Content-Disposition'] = content_disposition_header(as_attachment=True, filename=filename)
         return response
 

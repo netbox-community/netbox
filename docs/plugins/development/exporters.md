@@ -4,7 +4,7 @@
 
 The "Export" button on object list views offers a choice of export formats. NetBox provides CSV and (for device types and module types) YAML exporters. Plugins can register their own exporters to add formats, such as XLSX or JSON, by subclassing NetBox's `TableExporter` or `Exporter` class.
 
-A `TableExporter` exports the rows of the list view's table. NetBox resolves the table's columns and passes the exporter a list of column headers and an iterator of cell values for each row. Table exporters are offered under both "Current View" (the user's selected columns) and "All Data" (all columns).
+A `TableExporter` exports the rows of the list view's table. NetBox resolves the table's columns and calls the exporter's `export_rows()` method (rather than `export()`) with a list of column headers and an iterator of cell values for each row. Table exporters are offered under both "Current View" (the user's selected columns) and "All Data" (all columns).
 
 ```python title="exporters.py"
 import io
@@ -50,7 +50,7 @@ class VendorDeviceTypeExporter(Exporter):
         ...
 ```
 
-The queryset passed to an exporter has the user's filters applied, and is restricted to objects the user has permission to view. `export()` and `export_rows()` return the exported data as a string or bytes, or as an iterable of chunks, which NetBox streams to the client.
+The queryset passed to an exporter has the user's filters applied, and is restricted to objects the user has permission to view. `export()` and `export_rows()` return the exported data as a string or bytes, or as an iterable of chunks. NetBox streams an iterable to the client if [`STREAMING_EXPORTS`](../../configuration/miscellaneous.md#streaming_exports) is enabled; otherwise, it collects the chunks before responding.
 
 The `register_exporter()` decorator registers an exporter with NetBox. Exporters can be defined anywhere within a plugin, but must be imported during plugin initialization, under the PluginConfig's `ready()` method:
 

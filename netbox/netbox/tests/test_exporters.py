@@ -1,4 +1,5 @@
 import csv
+from collections.abc import Iterator
 from io import StringIO
 from unittest import skipIf
 
@@ -96,20 +97,19 @@ class CSVExporterTestCase(SimpleTestCase):
 
     def test_write_rows(self):
         data = get_exporter('csv').write_rows(self.headers, iter(self.rows))
-        self.assertEqual(data, 'Name,Count\r\nSite 1,1\r\n"Site, 2",\r\n')
+        self.assertEqual(list(data), ['Name,Count\r\n', 'Site 1,1\r\n', '"Site, 2",\r\n'])
 
     def test_write_rows_delimiter(self):
         data = get_exporter('csv').write_rows(self.headers, iter(self.rows), delimiter='semicolon')
-        self.assertEqual(data, 'Name;Count\r\nSite 1;1\r\nSite, 2;\r\n')
+        self.assertEqual(''.join(data), 'Name;Count\r\nSite 1;1\r\nSite, 2;\r\n')
 
     def test_write_rows_invalid_delimiter(self):
         with self.assertRaises(ValueError):
             get_exporter('csv').write_rows(self.headers, iter(self.rows), delimiter='invalid')
 
-    @override_settings(STREAMING_EXPORTS=True)
-    def test_write_rows_streaming(self):
-        data = get_exporter('csv').write_rows(self.headers, iter(self.rows))
-        self.assertEqual(list(data), ['Name,Count\r\n', 'Site 1,1\r\n', '"Site, 2",\r\n'])
+    def test_export(self):
+        with self.assertRaisesMessage(NotImplementedError, 'call export_rows() instead'):
+            get_exporter('csv').export(request=None, queryset=None)
 
 
 class YAMLExporterTestCase(TestCase):
@@ -197,8 +197,14 @@ class ExportViewTestCase(TestCase):
     def test_export_plugin_exporter(self):
         response = self.client.get(f'{self.url}?export&export_format=dummy_plugin.site_names')
         self.assertHttpStatus(response, 200)
-        self.assertIsInstance(response, StreamingHttpResponse)
+        self.assertNotIsInstance(response, StreamingHttpResponse)
         self.assertEqual(response['Content-Disposition'], 'attachment; filename="netbox_sites.txt"')
+        self.assertEqual(response.content.decode(), 'Site 1\nSite 2\nSite 3\n')
+
+        # Streamed if STREAMING_EXPORTS is enabled
+        with override_settings(STREAMING_EXPORTS=True):
+            response = self.client.get(f'{self.url}?export&export_format=dummy_plugin.site_names')
+        self.assertIsInstance(response, StreamingHttpResponse)
         self.assertEqual(response.getvalue().decode(), 'Site 1\nSite 2\nSite 3\n')
 
         # Not available for the current view
@@ -221,6 +227,21 @@ class ExportViewTestCase(TestCase):
         self.assertContains(response, '?status=active&export&export_format=dummy_plugin.site_names"')
         self.assertNotContains(response, 'export=table&export_format=dummy_plugin.site_names')
         self.assertNotContains(response, 'export_format=yaml')
+
+    def test_export_response(self):
+        view = SiteListView()
+        view.queryset = Site.objects.all()
+        exporter = get_exporter('csv')
+
+        for streaming in (False, True):
+            for data in ('a,b', b'a,b', bytearray(b'a,b'), memoryview(b'a,b'), iter(['a,', 'b'])):
+                with self.subTest(streaming=streaming, type=type(data).__name__):
+                    with override_settings(STREAMING_EXPORTS=streaming):
+                        response = view.get_export_response(exporter, data)
+                    # Only an iterator is streamed, and only if STREAMING_EXPORTS is enabled
+                    expect_stream = streaming and isinstance(data, Iterator)
+                    self.assertEqual(isinstance(response, StreamingHttpResponse), expect_stream)
+                    self.assertEqual(response.getvalue(), b'a,b')
 
     def test_export_table_override(self):
         """

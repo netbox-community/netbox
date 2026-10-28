@@ -1,7 +1,6 @@
 import csv
 from itertools import chain
 
-from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import FETCH_PEERS
 from django.utils.translation import gettext as _
@@ -50,7 +49,8 @@ class Exporter:
 
     def export(self, *, request, queryset):
         """
-        Return the exported data as str or bytes, or as an iterable of chunks to stream the response.
+        Return the exported data as str or bytes, or as an iterable of chunks (streamed if STREAMING_EXPORTS is
+        enabled).
 
         Args:
             request: The current request
@@ -62,8 +62,11 @@ class Exporter:
 class TableExporter(Exporter):
     """
     An exporter which renders the rows of an object list table. Table exporters are listed under both "Current View"
-    and "All Data".
+    and "All Data". Subclasses implement export_rows() rather than export().
     """
+    def export(self, *, request, queryset):
+        raise NotImplementedError(f"{self.__class__.__name__} is a table exporter; call export_rows() instead")
+
     def export_rows(self, *, request, headers, rows):
         """
         Return the exported data (as for export()) given a list of column headers and an iterator of row values.
@@ -96,8 +99,7 @@ class CSVExporter(TableExporter):
 
     def write_rows(self, headers, rows, delimiter=None):
         """
-        Return the given headers and rows as CSV, either as a string or (if STREAMING_EXPORTS is enabled) as an
-        iterator of lines.
+        Return an iterator of CSV lines for the given headers and rows.
 
         Args:
             headers: A list of column headers
@@ -107,10 +109,7 @@ class CSVExporter(TableExporter):
         if delimiter and delimiter not in CSV_DELIMITERS:
             raise ValueError(_("Invalid delimiter name: {name}").format(name=delimiter))
         writer = csv.writer(_EchoBuffer(), delimiter=CSV_DELIMITERS[delimiter or 'comma'])
-        lines = (writer.writerow(row) for row in chain([headers], rows))
-        if settings.STREAMING_EXPORTS:
-            return lines
-        return ''.join(lines)
+        return (writer.writerow(row) for row in chain([headers], rows))
 
 
 class YAMLExporter(Exporter):
