@@ -544,6 +544,24 @@ class ImageAttachmentTestCase(
             ]
         )
 
+    @tag('regression')
+    def test_add_form_submission_guard(self):
+        """The add form opts into the duplicate submission guard."""
+        self.add_permissions('extras.add_imageattachment')
+        site = Site.objects.get(slug='site-1')
+
+        response = self.client.get(reverse('extras:imageattachment_add'), {
+            'object_type': ContentType.objects.get_for_model(Site).pk,
+            'object_id': site.pk,
+        })
+
+        self.assertHttpStatus(response, 200)
+        self.assertIn(
+            '<form action="" method="post" enctype="multipart/form-data" '
+            'class="object-edit object-edit--with-sticky-actions mt-5" data-disable-on-submit>',
+            response.content.decode(),
+        )
+
 
 class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = ExportTemplate

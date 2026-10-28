@@ -42,7 +42,7 @@ DATA_SOURCE_SYNC_BUTTON = """
 {% load i18n %}
 {% if perms.core.sync_datasource %}
     {% if record.ready_for_sync %}
-        <button class="btn btn-primary btn-sm" type="submit" formaction="{% url 'core:datasource_sync' pk=record.pk %}?return_url={{ request.get_full_path|urlencode }}" formmethod="post">
+        <button class="btn btn-primary btn-sm" type="submit" formaction="{% url 'core:datasource_sync' pk=record.pk %}?return_url={{ request.get_full_path|urlencode }}" formmethod="post" data-disable-on-submit>
             <i class="mdi mdi-sync" aria-hidden="true"></i> {% trans "Sync" %}
         </button>
     {% else %}
