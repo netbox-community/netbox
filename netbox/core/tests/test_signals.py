@@ -724,7 +724,6 @@ class HandleDeletedObjectDirectHandlerTestCase(SimpleTestCase):
             _netbox_private=True,
         )
         # Private models typically don't have to_objectchange, so skip change-log too.
-        config = SimpleNamespace(PROTECTION_RULES={})
         current_request = MagicMock()
         current_request.get.return_value = request
         events_queue_mock = MagicMock()
@@ -732,9 +731,7 @@ class HandleDeletedObjectDirectHandlerTestCase(SimpleTestCase):
 
         with (
             patch.object(signals, 'ManyToOneRel', FakeManyToOneRel),
-            patch.object(signals, 'get_config', return_value=config),
-            patch.object(signals, 'get_config_value_ci', return_value=[]),
-            patch.object(signals, 'run_validators'),
+            patch.object(signals, 'run_protection_rules'),
             patch.object(signals, 'current_request', current_request),
             patch.object(signals, 'events_queue', events_queue_mock),
             patch.object(signals, 'ContentType') as content_type_model,

@@ -19,12 +19,14 @@ from dcim.choices import *
 from dcim.models import *
 from extras.events import serialize_for_event
 from extras.models import CustomField
+from extras.validators import CustomValidator
 from ipam.models import IPAddress, Prefix
 from netbox.choices import DiameterUnitChoices, FlowRateUnitChoices, WeightUnitChoices
 from netbox.context_managers import event_tracking
 from tenancy.models import Tenant
 from users.models import User
 from utilities.data import drange
+from utilities.exceptions import AbortRequest
 from utilities.testing import create_test_device, create_test_image
 from virtualization.models import Cluster, ClusterType
 
@@ -3634,6 +3636,32 @@ class VirtualChassisTestCase(TestCase):
         self.assertIsNone(device2.virtual_chassis)
         self.assertIsNone(device2.vc_position)
         self.assertIsNone(device2.vc_priority)
+
+    @tag('regression')  # Ref: #23486
+    def test_virtualchassis_deletion_protection_rule_sees_members(self):
+        """
+        A protection rule for a virtual chassis must be evaluated while its members are still attached.
+        """
+        class RejectPopulated(CustomValidator):
+            def validate(self, instance, request):
+                if instance.members.exists():
+                    raise ValidationError("Virtual chassis still has members")
+
+        device1, device2 = Device.objects.order_by('name')
+        vc = VirtualChassis.objects.create(name='Test VC', master=device1)
+        device2.virtual_chassis = vc
+        device2.vc_position = 2
+        device2.save()
+
+        with override_settings(PROTECTION_RULES={'dcim.virtualchassis': [RejectPopulated()]}):
+            with self.assertRaises(AbortRequest):
+                vc.delete()
+
+        self.assertTrue(VirtualChassis.objects.filter(pk=vc.pk).exists())
+        self.assertEqual(
+            list(vc.members.order_by('vc_position').values_list('pk', 'vc_position')),
+            [(device1.pk, 1), (device2.pk, 2)],
+        )
 
     @tag('regression')  # Ref: #22720
     def test_virtualchassis_deletion_blocked_by_cross_chassis_lag(self):

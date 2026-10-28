@@ -2,14 +2,13 @@ import logging
 from threading import local
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.signals import request_finished
 from django.db import transaction
 from django.db.models import CASCADE, RESTRICT
 from django.db.models.fields.reverse_related import ManyToManyRel, ManyToOneRel
 from django.db.models.signals import m2m_changed, post_migrate, post_save, pre_delete
 from django.dispatch import Signal, receiver
-from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 from rq.timeouts import JobTimeoutException
@@ -20,12 +19,9 @@ from core.exceptions import SyncError
 from core.models import ObjectType
 from extras.events import enqueue_event
 from extras.models import Tag
-from extras.utils import run_validators
-from netbox.config import get_config
+from extras.utils import run_protection_rules
 from netbox.context import current_request, events_queue
 from netbox.models.features import ChangeLoggingMixin, get_model_features, model_is_public
-from utilities.data import get_config_value_ci
-from utilities.exceptions import AbortRequest
 
 from .models import ConfigRevision, DataSource, ObjectChange
 
@@ -178,14 +174,7 @@ def handle_deleted_object(sender, instance, **kwargs):
     # Run any deletion protection rules for the object. Note that this must occur prior
     # to queueing any events for the object being deleted, in case a validation error is
     # raised, causing the deletion to fail.
-    model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
-    validators = get_config_value_ci(get_config().PROTECTION_RULES, model_name, default=[])
-    try:
-        run_validators(instance, validators)
-    except ValidationError as e:
-        raise AbortRequest(
-            _("Deletion is prevented by a protection rule: {message}").format(message=e)
-        )
+    run_protection_rules(instance)
 
     # Get the current request, or bail if not set
     request = current_request.get()

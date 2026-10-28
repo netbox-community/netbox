@@ -5866,9 +5866,7 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             self.assertIsNone(change.postchange_data['virtual_chassis'])
             self.assertIsNone(change.postchange_data['vc_position'])
             self.assertIsNone(change.postchange_data['vc_priority'])
-        self.assertEqual(
-            ObjectChange.objects.get(changed_object_id=members[0].pk).prechange_data['vc_priority'], 10
-        )
+        self.assertEqual(self._get_member_changes(members[0]).get().prechange_data['vc_priority'], 10)
 
         # The VC deletion is recorded once, before its (former) master is detached
         vc_change = ObjectChange.objects.get(
