@@ -601,6 +601,15 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'device': [devices[0].name, devices[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_device_shared_name(self):
+        # A device name shared by several sites should resolve to a single filter value
+        device = Device.objects.first()
+        site = Site.objects.create(name='Site 99', slug='site-99')
+        Device.objects.create(site=site, name=device.name, device_type=device.device_type, role=device.role)
+        filterset = self.filterset({'device': [device.name]}, self.queryset)
+        self.assertTrue(filterset.is_valid())
+        self.assertEqual(len(filterset.form.cleaned_data['device']), 1)
+
     def test_region(self):
         regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}

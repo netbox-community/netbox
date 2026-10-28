@@ -954,6 +954,14 @@ class L2VPNTerminationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'vlan': ['VLAN 1', 'VLAN 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_vlan_shared_name(self):
+        # A VLAN name shared by several groups should resolve to a single filter value
+        vlan = VLAN.objects.first()
+        VLAN.objects.create(vid=vlan.vid, name=vlan.name)
+        filterset = self.filterset({'vlan': [vlan.name]}, self.queryset)
+        self.assertTrue(filterset.is_valid())
+        self.assertEqual(len(filterset.form.cleaned_data['vlan']), 1)
+
     def test_site(self):
         site = Site.objects.all().first()
         params = {'site_id': [site.pk]}
@@ -967,6 +975,15 @@ class L2VPNTerminationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {'device': ['Device 1']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_device_shared_name(self):
+        # A device name shared by several sites should resolve to a single filter value
+        device = Device.objects.first()
+        site = Site.objects.create(name='Site 99', slug='site-99')
+        Device.objects.create(site=site, name=device.name, device_type=device.device_type, role=device.role)
+        filterset = self.filterset({'device': [device.name]}, self.queryset)
+        self.assertTrue(filterset.is_valid())
+        self.assertEqual(len(filterset.form.cleaned_data['device']), 1)
 
     def test_virtual_machine(self):
         virtual_machine = VirtualMachine.objects.all().first()

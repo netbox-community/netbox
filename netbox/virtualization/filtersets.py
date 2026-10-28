@@ -204,9 +204,10 @@ class VirtualMachineFilterSet(
         distinct=False,
         label=_('Device (ID)'),
     )
+    # Device names aren't unique, so match on distinct names to avoid redundant predicates
     device = django_filters.ModelMultipleChoiceFilter(
         field_name='device__name',
-        queryset=Device.objects.all(),
+        queryset=Device.objects.order_by('name').distinct('name'),
         distinct=False,
         to_field_name='name',
         label=_('Device'),

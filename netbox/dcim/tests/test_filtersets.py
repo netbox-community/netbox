@@ -61,6 +61,18 @@ class DeviceComponentFilterSetTestMixin:
         params = {'tenant': [tenants[0].slug, tenants[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_shared_names(self):
+        # A name or slug shared by several objects should resolve to a single filter value
+        location, rack, device = Location.objects.first(), Rack.objects.first(), Device.objects.first()
+        site = Site.objects.create(name='Site 99', slug='site-99')
+        Location.objects.create(site=site, name=location.name, slug=location.slug)
+        Rack.objects.create(site=site, name=rack.name)
+        Device.objects.create(site=site, name=device.name, device_type=device.device_type, role=device.role)
+        for param, value in (('location', location.slug), ('rack', rack.name), ('device', device.name)):
+            filterset = self.filterset({param: [value]}, self.queryset)
+            self.assertTrue(filterset.is_valid())
+            self.assertEqual(len(filterset.form.cleaned_data[param]), 1)
+
 
 class DeviceComponentTemplateFilterSetTestMixin:
 
@@ -571,6 +583,15 @@ class LocationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'parent': [locations[0].slug, locations[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_parent_shared_slug(self):
+        # A location slug shared by several sites should resolve to a single filter value
+        location = Location.objects.first()
+        site = Site.objects.create(name='Site 99', slug='site-99')
+        Location.objects.create(site=site, name=location.name, slug=location.slug)
+        filterset = self.filterset({'parent': [location.slug]}, self.queryset)
+        self.assertTrue(filterset.is_valid())
+        self.assertEqual(len(filterset.form.cleaned_data['parent']), 1)
 
     def test_ancestor(self):
         locations = Location.objects.filter(parent__isnull=True)[:2]
@@ -3886,6 +3907,18 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'rack': [racks[0].name, racks[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
+    def test_shared_names(self):
+        # A name or slug shared by several objects should resolve to a single filter value
+        location, rack, device = Location.objects.first(), Rack.objects.first(), Device.objects.first()
+        site = Site.objects.create(name='Site 99', slug='site-99')
+        Location.objects.create(site=site, name=location.name, slug=location.slug)
+        Rack.objects.create(site=site, name=rack.name)
+        Device.objects.create(site=site, name=device.name, device_type=device.device_type, role=device.role)
+        for param, value in (('location', location.slug), ('rack', rack.name), ('device', device.name)):
+            filterset = self.filterset({param: [value]}, self.queryset)
+            self.assertTrue(filterset.is_valid())
+            self.assertEqual(len(filterset.form.cleaned_data[param]), 1)
+
 
 class ConsolePortTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLoggedFilterSetTestMixin):
     queryset = ConsolePort.objects.all()
@@ -6212,6 +6245,20 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLogge
         params = {'vdc_identifier': vdc.values_list('identifier', flat=True)}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
+    def test_vdc_shared_name(self):
+        # A VDC name or identifier shared by several devices should resolve to a single filter value
+        vdc = VirtualDeviceContext.objects.first()
+        VirtualDeviceContext.objects.create(
+            device=Device.objects.exclude(pk=vdc.device_id).first(),
+            name=vdc.name,
+            identifier=vdc.identifier,
+            status=vdc.status,
+        )
+        for param, value in (('vdc', vdc.name), ('vdc_identifier', vdc.identifier)):
+            filterset = self.filterset({param: [value]}, self.queryset)
+            self.assertTrue(filterset.is_valid())
+            self.assertEqual(len(filterset.form.cleaned_data[param]), 1)
+
     def test_vlan(self):
         vlan = VLAN.objects.filter(qinq_role=VLANQinQRoleChoices.ROLE_SERVICE).first()
         params = {'vlan_id': vlan.pk}
@@ -7267,6 +7314,15 @@ class DeviceBayTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLogge
         params = {'device': [devices[0].name, devices[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_installed_device_shared_name(self):
+        # A device name shared by several sites should resolve to a single filter value
+        device = Device.objects.first()
+        site = Site.objects.create(name='Site 99', slug='site-99')
+        Device.objects.create(site=site, name=device.name, device_type=device.device_type, role=device.role)
+        filterset = self.filterset({'installed_device': [device.name]}, self.queryset)
+        self.assertTrue(filterset.is_valid())
+        self.assertEqual(len(filterset.form.cleaned_data['installed_device']), 1)
+
 
 class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = InventoryItem.objects.all()
@@ -7662,6 +7718,15 @@ class VirtualChassisTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'master': [masters[0].name, masters[2].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_master_shared_name(self):
+        # A device name shared by several sites should resolve to a single filter value
+        device = Device.objects.first()
+        site = Site.objects.create(name='Site 99', slug='site-99')
+        Device.objects.create(site=site, name=device.name, device_type=device.device_type, role=device.role)
+        filterset = self.filterset({'master': [device.name]}, self.queryset)
+        self.assertTrue(filterset.is_valid())
+        self.assertEqual(len(filterset.form.cleaned_data['master']), 1)
 
     def test_name(self):
         params = {'name': ['VC 1', 'VC 2']}

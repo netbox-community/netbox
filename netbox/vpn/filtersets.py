@@ -417,9 +417,10 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         field_name='pk',
         label=_('Site (ID)'),
     )
+    # Device names aren't unique, so match on distinct names to avoid redundant predicates
     device = django_filters.ModelMultipleChoiceFilter(
         field_name='interface__device__name',
-        queryset=Device.objects.all(),
+        queryset=Device.objects.order_by('name').distinct('name'),
         to_field_name='name',
         label=_('Device (name)'),
     )
@@ -462,9 +463,10 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         queryset=VMInterface.objects.all(),
         label=_('VM Interface (ID)'),
     )
+    # VLAN names aren't unique, so match on distinct names to avoid redundant predicates
     vlan = django_filters.ModelMultipleChoiceFilter(
         field_name='vlan__name',
-        queryset=VLAN.objects.all(),
+        queryset=VLAN.objects.order_by('name').distinct('name'),
         to_field_name='name',
         label=_('VLAN (name)'),
     )

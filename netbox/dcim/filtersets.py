@@ -286,9 +286,10 @@ class LocationFilterSet(TenancyFilterSet, ContactModelFilterSet, NestedGroupMode
         distinct=False,
         label=_('Parent location (ID)'),
     )
+    # Location slugs aren't unique, so match on distinct slugs to avoid redundant predicates
     parent = django_filters.ModelMultipleChoiceFilter(
         field_name='parent__slug',
-        queryset=Location.objects.all(),
+        queryset=Location.objects.order_by('slug').distinct('slug'),
         distinct=False,
         to_field_name='slug',
         label=_('Parent location (slug)'),
@@ -1846,9 +1847,10 @@ class ModuleFilterSet(PrimaryModelFilterSet):
         distinct=False,
         label=_('Location (ID)'),
     )
+    # Location slugs aren't unique, so match on distinct slugs to avoid redundant predicates
     location = django_filters.ModelMultipleChoiceFilter(
         field_name='device__location__slug',
-        queryset=Location.objects.all(),
+        queryset=Location.objects.order_by('slug').distinct('slug'),
         distinct=False,
         to_field_name='slug',
         label=_('Location (slug)'),
@@ -1859,9 +1861,10 @@ class ModuleFilterSet(PrimaryModelFilterSet):
         distinct=False,
         label=_('Rack (ID)'),
     )
+    # Rack names aren't unique, so match on distinct names to avoid redundant predicates
     rack = django_filters.ModelMultipleChoiceFilter(
         field_name='device__rack__name',
-        queryset=Rack.objects.all(),
+        queryset=Rack.objects.order_by('name').distinct('name'),
         distinct=False,
         to_field_name='name',
         label=_('Rack (name)'),
@@ -1871,9 +1874,10 @@ class ModuleFilterSet(PrimaryModelFilterSet):
         distinct=False,
         label=_('Device (ID)'),
     )
+    # Device names aren't unique, so match on distinct names to avoid redundant predicates
     device = django_filters.ModelMultipleChoiceFilter(
         field_name='device__name',
-        queryset=Device.objects.all(),
+        queryset=Device.objects.order_by('name').distinct('name'),
         distinct=False,
         to_field_name='name',
         label=_('Device (name)'),
@@ -1953,9 +1957,10 @@ class DeviceComponentFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
         distinct=False,
         label=_('Location (ID)'),
     )
+    # Location slugs aren't unique, so match on distinct slugs to avoid redundant predicates
     location = django_filters.ModelMultipleChoiceFilter(
         field_name='_location__slug',
-        queryset=Location.objects.all(),
+        queryset=Location.objects.order_by('slug').distinct('slug'),
         distinct=False,
         to_field_name='slug',
         label=_('Location (slug)'),
@@ -1966,9 +1971,10 @@ class DeviceComponentFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
         distinct=False,
         label=_('Rack (ID)'),
     )
+    # Rack names aren't unique, so match on distinct names to avoid redundant predicates
     rack = django_filters.ModelMultipleChoiceFilter(
         field_name='_rack__name',
-        queryset=Rack.objects.all(),
+        queryset=Rack.objects.order_by('name').distinct('name'),
         distinct=False,
         to_field_name='name',
         label=_('Rack (name)'),
@@ -1978,9 +1984,10 @@ class DeviceComponentFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
         distinct=False,
         label=_('Device (ID)'),
     )
+    # Device names aren't unique, so match on distinct names to avoid redundant predicates
     device = django_filters.ModelMultipleChoiceFilter(
         field_name='device__name',
-        queryset=Device.objects.all(),
+        queryset=Device.objects.order_by('name').distinct('name'),
         distinct=False,
         to_field_name='name',
         label=_('Device (name)'),
@@ -2517,15 +2524,16 @@ class InterfaceFilterSet(
         queryset=VirtualDeviceContext.objects.all(),
         label=_('Virtual Device Context')
     )
+    # VDC names and identifiers aren't unique, so match on distinct values to avoid redundant predicates
     vdc_identifier = django_filters.ModelMultipleChoiceFilter(
         field_name='vdcs__identifier',
-        queryset=VirtualDeviceContext.objects.all(),
+        queryset=VirtualDeviceContext.objects.order_by('identifier').distinct('identifier'),
         to_field_name='identifier',
         label=_('Virtual Device Context (Identifier)')
     )
     vdc = django_filters.ModelMultipleChoiceFilter(
         field_name='vdcs__name',
-        queryset=VirtualDeviceContext.objects.all(),
+        queryset=VirtualDeviceContext.objects.order_by('name').distinct('name'),
         to_field_name='name',
         label=_('Virtual Device Context')
     )
@@ -2675,9 +2683,10 @@ class DeviceBayFilterSet(DeviceComponentFilterSet):
         distinct=False,
         label=_('Installed device (ID)'),
     )
+    # Device names aren't unique, so match on distinct names to avoid redundant predicates
     installed_device = django_filters.ModelMultipleChoiceFilter(
         field_name='installed_device__name',
-        queryset=Device.objects.all(),
+        queryset=Device.objects.order_by('name').distinct('name'),
         distinct=False,
         to_field_name='name',
         label=_('Installed device (name)'),
@@ -2762,9 +2771,10 @@ class VirtualChassisFilterSet(PrimaryModelFilterSet):
         distinct=False,
         label=_('Master (ID)'),
     )
+    # Device names aren't unique, so match on distinct names to avoid redundant predicates
     master = django_filters.ModelMultipleChoiceFilter(
         field_name='master__name',
-        queryset=Device.objects.all(),
+        queryset=Device.objects.order_by('name').distinct('name'),
         distinct=False,
         to_field_name='name',
         label=_('Master (name)'),

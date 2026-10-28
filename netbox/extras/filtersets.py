@@ -760,9 +760,10 @@ class ConfigContextFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
         queryset=Location.objects.all(),
         label=_('Location'),
     )
+    # Location slugs aren't unique, so match on distinct slugs to avoid redundant predicates
     location = django_filters.ModelMultipleChoiceFilter(
         field_name='locations__slug',
-        queryset=Location.objects.all(),
+        queryset=Location.objects.order_by('slug').distinct('slug'),
         to_field_name='slug',
         label=_('Location (slug)'),
     )

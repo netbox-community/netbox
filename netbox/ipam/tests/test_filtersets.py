@@ -890,6 +890,15 @@ class PrefixTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'vlan_group': [vlan_groups[0].slug, vlan_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
+    def test_vlan_group_shared_slug(self):
+        # A VLAN group slug shared by several scopes should resolve to a single filter value
+        group = VLANGroup.objects.first()
+        site = Site.objects.create(name='Site 99', slug='site-99')
+        VLANGroup.objects.create(scope=site, name=group.name, slug=group.slug)
+        filterset = self.filterset({'vlan_group': [group.slug]}, self.queryset)
+        self.assertTrue(filterset.is_valid())
+        self.assertEqual(len(filterset.form.cleaned_data['vlan_group']), 1)
+
     def test_vlan(self):
         vlans = VLAN.objects.all()[:2]
         params = {'vlan_id': [vlans[0].pk, vlans[1].pk]}
@@ -2406,6 +2415,15 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'group': [groups[0].slug, groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_group_shared_slug(self):
+        # A VLAN group slug shared by several scopes should resolve to a single filter value
+        group = VLANGroup.objects.first()
+        site = Site.objects.create(name='Site 99', slug='site-99')
+        VLANGroup.objects.create(scope=site, name=group.name, slug=group.slug)
+        filterset = self.filterset({'group': [group.slug]}, self.queryset)
+        self.assertTrue(filterset.is_valid())
+        self.assertEqual(len(filterset.form.cleaned_data['group']), 1)
 
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
