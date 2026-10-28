@@ -1,9 +1,9 @@
 import django.db.models.functions.text
 from django.db import migrations, models
 
-# Installs that applied the pre-squash 0130-0159 migrations individually have
-# auto-named unique constraints in place of the named ones (see #23260). Rename
-# them so the RemoveConstraint operations below find what they expect.
+# Installs that ran 0137 from v3.1-beta1 (see #7960) have auto-named unique
+# constraints in place of the named ones (#23260). Rename them so the
+# RemoveConstraint operations below find what they expect.
 RENAME_LEGACY_CONSTRAINTS = """
 DO $$
 DECLARE
@@ -24,7 +24,14 @@ BEGIN
             WHERE conrelid = to_regclass(m.tbl) AND conname = m.old_name
         )
     ) LOOP
-        EXECUTE format('ALTER TABLE %I RENAME CONSTRAINT %I TO %I', r.tbl, r.old_name, r.new_name);
+        IF EXISTS (
+            SELECT 1 FROM pg_constraint
+            WHERE conrelid = to_regclass(r.tbl) AND conname = r.new_name
+        ) THEN
+            EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', r.tbl, r.old_name);
+        ELSE
+            EXECUTE format('ALTER TABLE %I RENAME CONSTRAINT %I TO %I', r.tbl, r.old_name, r.new_name);
+        END IF;
     END LOOP;
 END $$;
 """
