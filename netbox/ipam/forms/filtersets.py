@@ -8,7 +8,12 @@ from ipam.models import *
 from netbox.forms import NetBoxModelFilterSetForm, OrganizationalModelFilterSetForm, PrimaryModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, add_blank_choice
-from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField
+from utilities.forms.fields import (
+    DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField,
+    MultipleChoiceField,
+    TagFilterField,
+)
 from utilities.forms.rendering import FieldSet
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine
 from vpn.models import L2VPN
@@ -192,8 +197,8 @@ class PrefixFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFi
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet(
-            'within_include', 'family', 'status', 'role_id', 'mask_length', 'is_pool', 'mark_utilized',
-            name=_('Addressing')
+            'within_include', 'family', 'classification', 'status', 'role_id', 'mask_length', 'is_pool',
+            'mark_utilized', name=_('Addressing')
         ),
         FieldSet('vlan_group_id', 'vlan_id', name=_('VLAN Assignment')),
         FieldSet('vrf_id', 'present_in_vrf_id', name=_('VRF')),
@@ -238,6 +243,11 @@ class PrefixFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFi
     status = forms.MultipleChoiceField(
         label=_('Status'),
         choices=PrefixStatusChoices,
+        required=False
+    )
+    classification = MultipleChoiceField(
+        label=_('Classification'),
+        choices=PrefixClassificationChoices,
         required=False
     )
     region_id = DynamicModelMultipleChoiceField(

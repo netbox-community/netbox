@@ -909,6 +909,18 @@ class PrefixTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'status': [PrefixStatusChoices.STATUS_DEPRECATED, PrefixStatusChoices.STATUS_RESERVED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
+    def test_classification(self):
+        """Filter prefixes by address space classification."""
+        params = {'classification': [PrefixClassificationChoices.CLASSIFICATION_PRIVATE]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+        params = {'classification': [
+            PrefixClassificationChoices.CLASSIFICATION_PRIVATE,
+            PrefixClassificationChoices.CLASSIFICATION_DOCUMENTATION,
+        ]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 10)
+        params = {'classification__n': [PrefixClassificationChoices.CLASSIFICATION_PRIVATE]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+
     def test_tenant(self):
         tenants = Tenant.objects.all()[:2]
         params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}

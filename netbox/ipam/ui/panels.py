@@ -137,6 +137,7 @@ class IPAddressPanel(panels.ObjectAttributesPanel):
 
 class PrefixPanel(panels.ObjectAttributesPanel):
     family = attrs.TextAttr('family', format_string='IPv{}', label=_('Family'))
+    classification = attrs.ChoiceAttr('classification')
     vrf = VRFDisplayAttr('vrf', label=_('VRF'))
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
     aggregate = attrs.TemplatedAttr(

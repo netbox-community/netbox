@@ -3,9 +3,10 @@ from dataclasses import dataclass
 import netaddr
 from django.apps import apps
 from django.core.exceptions import ValidationError
-from django.db.models import BooleanField, F, Func, Q
+from django.db.models import BooleanField, Case, CharField, F, Func, Q, Value, When
 from django.utils.translation import gettext_lazy as _
 
+from .choices import PrefixClassificationChoices
 from .constants import *
 
 __all__ = (
@@ -23,6 +24,7 @@ __all__ = (
     'normalize_port_mapping',
     'parse_inet_addresses',
     'port_mapping_q',
+    'prefix_classification_expression',
     'rebuild_prefixes',
     'sorted_int_ports',
     'split_port_mapping',
@@ -304,6 +306,43 @@ def parse_inet_addresses(value):
         except (netaddr.AddrFormatError, ValueError):
             continue
     return parsed
+
+
+def prefix_classification_expression(field_name):
+    """
+    Return a database expression which classifies the network in `field_name`. Public exceptions take precedence over
+    the named classes, which take precedence over special-purpose space. A network spanning several classes is mixed.
+    """
+    def collapse(networks):
+        return [str(cidr) for cidr in netaddr.IPSet(networks).iter_cidrs()]
+
+    def match(lookup, networks):
+        return Q.create([(f'{field_name}__{lookup}', network) for network in networks], connector=Q.OR)
+
+    named = {
+        classification: collapse(networks)
+        for classification, networks in PREFIX_CLASSIFICATION_NETWORKS.items()
+        if classification != PrefixClassificationChoices.CLASSIFICATION_SPECIAL
+    }
+    special = collapse(PREFIX_CLASSIFICATION_NETWORKS[PrefixClassificationChoices.CLASSIFICATION_SPECIAL])
+    exceptions = collapse(PREFIX_CLASSIFICATION_PUBLIC_EXCEPTIONS)
+    enclosed = exceptions + [network for networks in named.values() for network in networks]
+    public = PrefixClassificationChoices.CLASSIFICATION_PUBLIC
+    mixed = PrefixClassificationChoices.CLASSIFICATION_MIXED
+
+    return Case(
+        When(match('net_contained_or_equal', exceptions), then=Value(public)),
+        *[
+            When(match('net_contained_or_equal', networks), then=Value(classification))
+            for classification, networks in named.items()
+        ],
+        # Before the special match, as special blocks enclose some exceptions and named blocks
+        When(match('net_contains', enclosed), then=Value(mixed)),
+        When(match('net_contained_or_equal', special), then=Value(PrefixClassificationChoices.CLASSIFICATION_SPECIAL)),
+        When(match('net_contains', special), then=Value(mixed)),
+        default=Value(public),
+        output_field=CharField(max_length=50),
+    )
 
 
 #
