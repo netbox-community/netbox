@@ -855,6 +855,15 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'virtual_machine': [vms[0].name, vms[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_virtual_machine_shared_name(self):
+        # A virtual machine name shared by several clusters should resolve to a single filter value
+        vm = VirtualMachine.objects.first()
+        cluster = Cluster.objects.create(name='Cluster 99', type=vm.cluster.type)
+        VirtualMachine.objects.create(cluster=cluster, name=vm.name)
+        filterset = self.filterset({'virtual_machine': [vm.name]}, self.queryset)
+        self.assertTrue(filterset.is_valid())
+        self.assertEqual(len(filterset.form.cleaned_data['virtual_machine']), 1)
+
     def test_mac_address(self):
         params = {'mac_address': ['00-00-00-00-00-01', '00-00-00-00-00-02']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -940,6 +949,15 @@ class VirtualDiskTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'virtual_machine': [vms[0].name, vms[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_virtual_machine_shared_name(self):
+        # A virtual machine name shared by several clusters should resolve to a single filter value
+        vm = VirtualMachine.objects.first()
+        cluster = Cluster.objects.create(name='Cluster 99', type=vm.cluster.type)
+        VirtualMachine.objects.create(cluster=cluster, name=vm.name)
+        filterset = self.filterset({'virtual_machine': [vm.name]}, self.queryset)
+        self.assertTrue(filterset.is_valid())
+        self.assertEqual(len(filterset.form.cleaned_data['virtual_machine']), 1)
 
     def test_name(self):
         params = {'name': ['Disk 1', 'Disk 2']}

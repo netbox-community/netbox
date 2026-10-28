@@ -432,7 +432,7 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         queryset=Device.objects.all(),
         label=_('Device (ID)'),
     )
-    virtual_machine = django_filters.ModelMultipleChoiceFilter(
+    virtual_machine = NonUniqueModelMultipleChoiceFilter(
         field_name='vminterface__virtual_machine__name',
         queryset=VirtualMachine.objects.all(),
         to_field_name='name',

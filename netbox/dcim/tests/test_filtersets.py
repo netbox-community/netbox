@@ -62,15 +62,23 @@ class DeviceComponentFilterSetTestMixin:
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_shared_names(self):
-        # A name or slug shared by several objects should resolve to a single filter value
-        location, rack, device = Location.objects.first(), Rack.objects.first(), Device.objects.first()
+        # A name or slug shared by several objects should resolve to a single filter value which still matches
+        # components on each of those objects
+        component = self.queryset.filter(_rack__isnull=False, _location__isnull=False).first()
+        device, rack, location = component.device, component._rack, component._location
+        params = (('device', device.name), ('rack', rack.name), ('location', location.slug))
+        counts = {param: self.filterset({param: [value]}, self.queryset).qs.count() for param, value in params}
+
+        # Move the component to a same-named device, rack, and location in another site
         site = Site.objects.create(name='Site 99', slug='site-99')
-        Location.objects.create(site=site, name=location.name, slug=location.slug)
-        Rack.objects.create(site=site, name=rack.name)
-        Device.objects.create(site=site, name=device.name, device_type=device.device_type, role=device.role)
-        for param, value in (('location', location.slug), ('rack', rack.name), ('device', device.name)):
+        self.queryset.filter(pk=component.pk).update(
+            device=Device.objects.create(site=site, name=device.name, device_type=device.device_type, role=device.role),
+            _rack=Rack.objects.create(site=site, name=rack.name),
+            _location=Location.objects.create(site=site, name=location.name, slug=location.slug),
+        )
+        for param, value in params:
             filterset = self.filterset({param: [value]}, self.queryset)
-            self.assertTrue(filterset.is_valid())
+            self.assertEqual(filterset.qs.count(), counts[param])
             self.assertEqual(len(filterset.form.cleaned_data[param]), 1)
 
 
@@ -9134,15 +9142,17 @@ class MACAddressTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
 
     def test_interface_shared_name(self):
         # A name shared by several interfaces should resolve to a single filter value
-        Interface.objects.create(
+        interface = Interface.objects.create(
             device=Device.objects.get(name='Device 2'), name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED
         )
-        VMInterface.objects.create(
+        vm_interface = VMInterface.objects.create(
             virtual_machine=VirtualMachine.objects.get(name='Virtual Machine 2'), name='Interface 1'
         )
+        MACAddress.objects.create(mac_address='00-00-00-01-01-99', assigned_object=interface)
+        MACAddress.objects.create(mac_address='00-00-00-04-01-99', assigned_object=vm_interface)
         for param in ('interface', 'vminterface'):
             filterset = self.filterset({param: ['Interface 1']}, self.queryset)
-            self.assertEqual(filterset.qs.count(), 1)
+            self.assertEqual(filterset.qs.count(), 2)
             self.assertEqual(len(filterset.form.cleaned_data[param]), 1)
 
     def test_assigned(self):

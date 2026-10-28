@@ -4,7 +4,7 @@ from dcim.choices import InterfaceTypeChoices
 from dcim.models import Device, Interface, Site
 from ipam.models import VLAN, IPAddress, RouteTarget
 from utilities.testing import ChangeLoggedFilterSetTestMixin, create_test_device, create_test_virtualmachine
-from virtualization.models import VirtualMachine, VMInterface
+from virtualization.models import Cluster, VirtualMachine, VMInterface
 from vpn.choices import *
 from vpn.filtersets import *
 from vpn.models import *
@@ -991,3 +991,12 @@ class L2VPNTerminationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {'virtual_machine': ['Virtual Machine 1']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_virtual_machine_shared_name(self):
+        # A virtual machine name shared by several clusters should resolve to a single filter value
+        vm = VirtualMachine.objects.first()
+        cluster = Cluster.objects.create(name='Cluster 99', type=vm.cluster.type)
+        VirtualMachine.objects.create(cluster=cluster, name=vm.name)
+        filterset = self.filterset({'virtual_machine': [vm.name]}, self.queryset)
+        self.assertTrue(filterset.is_valid())
+        self.assertEqual(len(filterset.form.cleaned_data['virtual_machine']), 1)

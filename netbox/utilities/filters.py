@@ -182,9 +182,14 @@ class NonUniqueModelMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilte
     """
     A ModelMultipleChoiceFilter for a non-unique to_field_name, which resolves each value to a single object.
     """
+    def __init__(self, *args, **kwargs):
+        if not kwargs.get('to_field_name'):
+            raise ValueError(f"{self.__class__.__name__} requires to_field_name")
+        super().__init__(*args, **kwargs)
+
     def get_queryset(self, request):
         to_field_name = self.extra['to_field_name']
-        return super().get_queryset(request).order_by(to_field_name).distinct(to_field_name)
+        return super().get_queryset(request).order_by(to_field_name, 'pk').distinct(to_field_name)
 
 
 class NullableCharFieldFilter(django_filters.CharFilter):

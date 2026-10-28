@@ -351,7 +351,7 @@ class VMInterfaceFilterSet(CommonInterfaceFilterSet, OwnerFilterMixin, NetBoxMod
         distinct=False,
         label=_('Virtual machine (ID)'),
     )
-    virtual_machine = django_filters.ModelMultipleChoiceFilter(
+    virtual_machine = NonUniqueModelMultipleChoiceFilter(
         field_name='virtual_machine__name',
         queryset=VirtualMachine.objects.all(),
         distinct=False,
@@ -409,7 +409,7 @@ class VirtualDiskFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
         distinct=False,
         label=_('Virtual machine (ID)'),
     )
-    virtual_machine = django_filters.ModelMultipleChoiceFilter(
+    virtual_machine = NonUniqueModelMultipleChoiceFilter(
         field_name='virtual_machine__name',
         queryset=VirtualMachine.objects.all(),
         distinct=False,
