@@ -390,17 +390,25 @@ class DeleteAtomicityMixin:
     def delete_virtual_chassis(self, virtual_chassis):
         """
         Submit the deletion, aborting it from a pre_delete receiver (as a plugin's might) which fires
-        after core's handler has detached the member.
+        after core's handler has detached the member. A write ahead of VirtualChassis.delete() is
+        covered only by the view's atomic block, not the model's or the collector's.
         """
         def abort(sender, instance, **kwargs):
             raise AbortRequest("Aborted by receiver")
 
+        original_delete = VirtualChassis.delete
+
+        def delete(instance, *args, **kwargs):
+            instance.members.update(vc_priority=None)
+            return original_delete(instance, *args, **kwargs)
+
         pre_delete.connect(abort, sender=VirtualChassis)
         try:
-            return self.client.post(
-                get_action_url(VirtualChassis, action='delete', kwargs={'pk': virtual_chassis.pk}),
-                data={'confirm': True}
-            )
+            with patch.object(VirtualChassis, 'delete', delete):
+                return self.client.post(
+                    get_action_url(VirtualChassis, action='delete', kwargs={'pk': virtual_chassis.pk}),
+                    data={'confirm': True}
+                )
         finally:
             pre_delete.disconnect(abort, sender=VirtualChassis)
 
@@ -533,14 +541,10 @@ class RolledBackWriteEventQueueTestCase(DeleteAtomicityMixin, TestCase):
         self.assertTrue(Interface.objects.filter(pk=interface.pk).exists())
 
     def test_object_delete_view_rollback_is_atomic(self):
-        # An aborted delete must not leave behind writes performed earlier in the deletion (here,
-        # core's pre_delete handler detaching the member). Note what this detects: every test here
-        # runs inside the harness' transaction, so an escaped write is rolled back with the test
-        # regardless, and the assertions below cannot see it. Without an atomic block around the
-        # deletion (the view's, or the model's own), AbortRequest instead escapes the collector's
-        # atomic(savepoint=False) and marks the harness' transaction as needing rollback, so this
-        # test fails with TransactionManagementError. The committed symptom itself is covered by
-        # DeleteAtomicityTestCase below.
+        # An aborted delete must not leave behind writes performed earlier in the deletion. Without
+        # the view's atomic block, the write made ahead of VirtualChassis.delete() survives within
+        # the harness' transaction and the assertions below fail. The committed symptom itself is
+        # covered by DeleteAtomicityTestCase below.
         virtual_chassis, device = self.create_virtual_chassis()
         self.add_permissions('dcim.delete_virtualchassis', 'dcim.view_virtualchassis')
 
@@ -593,6 +597,6 @@ class DeleteAtomicityTestCase(DeleteAtomicityMixin, TransactionTestCase):
 
         self.delete_virtual_chassis(virtual_chassis)
 
-        # Without an atomic block around the deletion, the member device's cleared virtual_chassis
-        # commits here, leaving a change which dispatches no events
+        # Without the view's atomic block, the member device's cleared vc_priority commits here,
+        # leaving a change which dispatches no events
         self.assertDeleteRolledBack(virtual_chassis, device)
