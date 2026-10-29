@@ -44,8 +44,6 @@ class BaseTable(tables.Table):
         * User configuration (column preferences)
         * Automatic prefetching of related objects
         * BS5 styling
-
-    :param user: Personalize table display for the given user (optional). Has no effect if AnonymousUser is passed.
     """
     exempt_columns = ()
 
@@ -54,7 +52,6 @@ class BaseTable(tables.Table):
             'class': 'table table-hover object-list',
         }
 
-    # TODO: Remove user kwarg in NetBox v4.7
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
