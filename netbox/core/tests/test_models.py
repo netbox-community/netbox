@@ -275,6 +275,21 @@ class DataSourceTestCase(TestCase):
 
         self.assertEqual(dict(self.datasource.datafiles.values_list('path', 'data')), {'a.txt': b'new\n'})
 
+    def test_sync_keeps_paths_repeating_source_root(self):
+        """A file below a directory repeating the source root syncs under its full path."""
+        # Repeat the whole root string below it, as /scripts/scripts_old does for /scripts
+        nested_path = f'{self.root}_old/legacy.py'.lstrip('/')
+        (self.root / nested_path).parent.mkdir(parents=True)
+        (self.root / nested_path).write_text('nested\n')
+        (self.root / 'legacy.py').write_text('root\n')
+
+        self.datasource.sync()
+
+        self.assertEqual(
+            dict(self.datasource.datafiles.values_list('path', 'data')),
+            {'a.txt': b'new\n', 'b.txt': b'new\n', 'legacy.py': b'root\n', nested_path: b'nested\n'},
+        )
+
 
 class ObjectTypeTestCase(TestCase):
 
