@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
 from extras.models import ExportTemplate
-from netbox.exporters import TableExporter, get_exporters
+from netbox.exporters import get_exporters
 from utilities.querydict import prepare_cloned_fields
 from utilities.views import get_action_url
 
@@ -160,7 +160,7 @@ class BulkExport(ObjectAction):
         return {
             'object_type': object_type,
             'url_params': context['request'].GET.urlencode() if context['request'].GET else '',
-            'table_exporters': [exporter for exporter in exporters if isinstance(exporter, TableExporter)],
+            'table_exporters': [exporter for exporter in exporters if exporter.tabular],
             'exporters': exporters,
             'export_templates': export_templates,
         }

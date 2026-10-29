@@ -28,7 +28,7 @@ from core.signals import clear_events
 from extras.choices import CustomFieldUIEditableChoices
 from extras.models import CustomField, ExportTemplate
 from netbox.choices import ImportMethodChoices
-from netbox.exporters import TableExporter, get_exporter
+from netbox.exporters import get_exporter
 from netbox.forms.bulk_rename import NetBoxModelBulkRenameForm
 from netbox.models.features import ChangeLoggingMixin
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
@@ -261,14 +261,14 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             if slug := request.GET.get('export_format'):
                 exporter = get_exporter(slug)
                 if not exporter or not exporter.supports_model(model) or (
-                    current_view and not isinstance(exporter, TableExporter)
+                    current_view and not exporter.tabular
                 ):
                     raise Http404(_("Invalid export format: {format}").format(format=slug))
             elif not current_view and get_exporter('yaml').supports_model(model):
                 exporter = get_exporter('yaml')
             else:
                 exporter = get_exporter('csv')
-            if not isinstance(exporter, TableExporter):
+            if not exporter.tabular:
                 # TODO: Remove in NetBox v5.0 along with export_yaml()
                 if exporter.slug == 'yaml' and type(self).export_yaml is not ObjectListView.export_yaml:
                     return self.get_export_response(exporter, self.export_yaml())
@@ -284,7 +284,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
                 return self.export_table(table, columns, delimiter=delimiter)
 
             headers, rows = self.get_export_rows(table, columns)
-            data = exporter.export_rows(request=request, headers=headers, rows=rows)
+            data = exporter.export(request=request, queryset=self.queryset, headers=headers, rows=rows)
             return self.get_export_response(exporter, data)
 
         # Render the objects table

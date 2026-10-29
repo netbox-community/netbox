@@ -2,25 +2,26 @@
 
 !!! info "This feature was introduced in NetBox v4.8."
 
-The "Export" button on object list views offers a choice of export formats. NetBox provides CSV and (for certain object types) YAML exporters. Plugins can register their own exporters to add formats, such as XLSX or JSON, by subclassing NetBox's `TableExporter` or `Exporter` class.
+The "Export" button on object list views offers a choice of export formats. NetBox provides CSV and (for certain object types) YAML exporters. Plugins can register their own exporters to add formats, such as XLSX or JSON, by subclassing NetBox's `Exporter` class and implementing its `export()` method.
 
-A `TableExporter` exports the rows of the list view's table. NetBox resolves the table's columns and calls the exporter's `export_rows()` method (rather than `export()`) with a list of column headers and an iterator of cell values for each row. Table exporters are offered under both "Current View" (the user's selected columns) and "All Data" (all columns).
+An exporter with `tabular = True` exports the rows of the list view's table. NetBox resolves the table's columns and passes `export()` a list of column headers (`headers`) and an iterator of cell values for each row (`rows`). Tabular exporters are offered under both "Current View" (the user's selected columns) and "All Data" (all columns).
 
 ```python title="exporters.py"
 import io
 
 from openpyxl import Workbook
 
-from netbox.exporters import TableExporter, register_exporter
+from netbox.exporters import Exporter, register_exporter
 
 @register_exporter
-class XLSXExporter(TableExporter):
+class XLSXExporter(Exporter):
     slug = 'my_plugin.xlsx'
     label = 'Excel (XLSX)'
     content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     file_extension = 'xlsx'
+    tabular = True
 
-    def export_rows(self, *, request, headers, rows):
+    def export(self, *, request, queryset, headers=None, rows=None):
         workbook = Workbook(write_only=True)
         sheet = workbook.create_sheet()
         sheet.append(headers)
@@ -31,7 +32,7 @@ class XLSXExporter(TableExporter):
         return buffer.getvalue()
 ```
 
-An `Exporter` works on the queryset directly, and is offered under "All Data" only. Override `supports_model()` to limit any exporter to specific models.
+A non-tabular exporter works on the queryset directly, and is offered under "All Data" only. Override `supports_model()` to limit any exporter to specific models.
 
 ```python title="exporters.py"
 from netbox.exporters import Exporter, register_exporter
@@ -46,11 +47,11 @@ class VendorDeviceTypeExporter(Exporter):
     def supports_model(self, model):
         return model._meta.label == 'dcim.DeviceType'
 
-    def export(self, *, request, queryset):
+    def export(self, *, request, queryset, headers=None, rows=None):
         ...
 ```
 
-The queryset passed to an exporter has the user's filters applied, and is restricted to objects the user has permission to view. `export()` and `export_rows()` return the exported data as a string or bytes, or as an iterable of chunks. NetBox streams an iterable to the client if [`STREAMING_EXPORTS`](../../configuration/miscellaneous.md#streaming_exports) is enabled; otherwise, it collects the chunks before responding.
+The queryset passed to an exporter has the user's filters applied, and is restricted to objects the user has permission to view. `export()` returns the exported data as a string or bytes, or as an iterable of chunks. NetBox streams an iterable to the client if [`STREAMING_EXPORTS`](../../configuration/miscellaneous.md#streaming_exports) is enabled; otherwise, it collects the chunks before responding.
 
 The `register_exporter()` decorator registers an exporter with NetBox. Exporters can be defined anywhere within a plugin, but must be imported during plugin initialization, under the PluginConfig's `ready()` method:
 
@@ -102,5 +103,3 @@ The `export_format` query parameter selects an exporter by its slug:
 An unknown slug, or an exporter that doesn't support the model (or the current view), returns a 404 response. Exporters are available only in the web UI. The REST API supports [export templates](../../customization/export-templates.md) only.
 
 ::: netbox.exporters.Exporter
-
-::: netbox.exporters.TableExporter

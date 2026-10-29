@@ -11,7 +11,6 @@ from utilities.constants import CSV_DELIMITERS, SLUG_RE
 __all__ = (
     'CSVExporter',
     'Exporter',
-    'TableExporter',
     'YAMLExporter',
     'get_exporter',
     'get_exporters',
@@ -21,7 +20,7 @@ __all__ = (
 
 class Exporter:
     """
-    Base class for an export format offered on object list views. Exporters are listed under "All Data" only.
+    Base class for an export format offered on object list views.
 
     Registration instantiates the class once, and that instance serves every request, so implementations must be
     stateless.
@@ -32,11 +31,14 @@ class Exporter:
         label: The human-friendly name shown in the UI
         content_type: The Content-Type of the HTTP response (e.g. "text/csv; charset=utf-8")
         file_extension: The extension of the downloaded file, without a leading period (e.g. "csv")
+        tabular: If True, export() receives the rows of the list view's table, and the exporter is listed under both
+            "Current View" and "All Data". Otherwise, it is listed under "All Data" only.
     """
     slug = None
     label = None
     content_type = None
     file_extension = None
+    tabular = False
 
     def __repr__(self):
         return f'<{self.__class__.__name__}: {self.slug}>'
@@ -47,7 +49,7 @@ class Exporter:
         """
         return True
 
-    def export(self, *, request, queryset):
+    def export(self, *, request, queryset, headers=None, rows=None):
         """
         Return the exported data as str or bytes, or as an iterable of chunks (streamed if STREAMING_EXPORTS is
         enabled).
@@ -55,28 +57,10 @@ class Exporter:
         Args:
             request: The current request
             queryset: The filtered queryset of objects to export, restricted to those the user can view
+            headers: A list of the table's column headers (tabular exporters only)
+            rows: An iterator yielding a list of cell values for each table row (tabular exporters only)
         """
         raise NotImplementedError(f"{self.__class__.__name__} must implement export()")
-
-
-class TableExporter(Exporter):
-    """
-    An exporter which renders the rows of an object list table. Table exporters are listed under both "Current View"
-    and "All Data". Subclasses implement export_rows() rather than export().
-    """
-    def export(self, *, request, queryset):
-        raise NotImplementedError(f"{self.__class__.__name__} is a table exporter; call export_rows() instead")
-
-    def export_rows(self, *, request, headers, rows):
-        """
-        Return the exported data (as for export()) given a list of column headers and an iterator of row values.
-
-        Args:
-            request: The current request
-            headers: A list of column headers
-            rows: An iterator yielding a list of cell values for each row
-        """
-        raise NotImplementedError(f"{self.__class__.__name__} must implement export_rows()")
 
 
 class _EchoBuffer:
@@ -87,13 +71,14 @@ class _EchoBuffer:
         return value
 
 
-class CSVExporter(TableExporter):
+class CSVExporter(Exporter):
     slug = 'csv'
     label = 'CSV'
     content_type = 'text/csv; charset=utf-8'
     file_extension = 'csv'
+    tabular = True
 
-    def export_rows(self, *, request, headers, rows):
+    def export(self, *, request, queryset, headers=None, rows=None):
         delimiter = request.user.config.get('csv_delimiter') if request.user.is_authenticated else None
         return self.write_rows(headers, rows, delimiter=delimiter)
 
@@ -121,7 +106,7 @@ class YAMLExporter(Exporter):
     def supports_model(self, model):
         return hasattr(model, 'to_yaml')
 
-    def export(self, *, request, queryset):
+    def export(self, *, request, queryset, headers=None, rows=None):
         # Prefetch the relations named by the model, and batch any other foreign key lookups across all objects
         queryset = queryset.prefetch_related(*getattr(queryset.model, 'yaml_prefetch', ())).fetch_mode(FETCH_PEERS)
         return '---\n'.join(obj.to_yaml() for obj in queryset)

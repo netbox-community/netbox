@@ -109,10 +109,6 @@ class CSVExporterTestCase(SimpleTestCase):
         with self.assertRaises(ValueError):
             get_exporter('csv').write_rows(self.headers, iter(self.rows), delimiter='invalid')
 
-    def test_export(self):
-        with self.assertRaisesMessage(NotImplementedError, 'call export_rows() instead'):
-            get_exporter('csv').export(request=None, queryset=None)
-
 
 class YAMLExporterTestCase(TestCase):
 

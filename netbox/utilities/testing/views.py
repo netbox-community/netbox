@@ -11,7 +11,7 @@ from django.utils.translation import gettext as _
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
-from netbox.exporters import TableExporter, get_exporters
+from netbox.exporters import get_exporters
 from netbox.models.features import ChangeLoggingMixin, CustomFieldsMixin
 from users.models import ObjectPermission
 
@@ -520,7 +520,7 @@ class ViewTestCases:
 
             # Test each supported exporter for the current view (table exporters only) and for all data
             for exporter in get_exporters(self.model):
-                scopes = ('export=table', 'export') if isinstance(exporter, TableExporter) else ('export',)
+                scopes = ('export=table', 'export') if exporter.tabular else ('export',)
                 for scope in scopes:
                     with self.subTest(exporter=exporter.slug, scope=scope):
                         response = self.client.get(f'{url}?{scope}&export_format={exporter.slug}')
