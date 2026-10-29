@@ -79,8 +79,15 @@ class CSVExporter(Exporter):
     tabular = True
 
     def export(self, *, request, queryset, headers=None, rows=None):
-        delimiter = request.user.config.get('csv_delimiter') if request.user.is_authenticated else None
-        return self.write_rows(headers, rows, delimiter=delimiter)
+        return self.write_rows(headers, rows, delimiter=self.get_delimiter(request))
+
+    @staticmethod
+    def get_delimiter(request):
+        """
+        Return the name of the requesting user's preferred CSV delimiter, if any.
+        """
+        user = getattr(request, 'user', None)
+        return user.config.get('csv_delimiter') if user is not None and user.is_authenticated else None
 
     def write_rows(self, headers, rows, delimiter=None):
         """

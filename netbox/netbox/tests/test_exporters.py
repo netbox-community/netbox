@@ -109,6 +109,10 @@ class CSVExporterTestCase(SimpleTestCase):
         with self.assertRaises(ValueError):
             get_exporter('csv').write_rows(self.headers, iter(self.rows), delimiter='invalid')
 
+    def test_export_without_request(self):
+        data = get_exporter('csv').export(request=None, queryset=None, headers=self.headers, rows=iter(self.rows))
+        self.assertEqual(''.join(data), 'Name,Count\r\nSite 1,1\r\n"Site, 2",\r\n')
+
 
 class YAMLExporterTestCase(TestCase):
 
@@ -261,18 +265,20 @@ class ExportViewTestCase(TestCase):
 
     def test_export_table_override(self):
         """
-        Overriding the deprecated export_table() still applies to CSV exports.
+        Overriding the deprecated export_table() still applies to CSV exports, using the user's delimiter.
         """
         class CustomSiteListView(SiteListView):
             def export_table(self, table, columns=None, filename=None, delimiter=None):
                 return super().export_table(table, columns, filename='custom.csv', delimiter=delimiter)
 
+        self.user.config.set('csv_delimiter', 'semicolon', commit=True)
         for params in ({'export': 'table'}, {'export': ''}, {'export': 'table', 'export_format': 'csv'}):
             with self.subTest(params=params):
                 request = RequestFactory().get(self.url, params)
                 request.user = self.user
                 response = CustomSiteListView.as_view()(request)
                 self.assertEqual(response['Content-Disposition'], 'attachment; filename="custom.csv"')
+                self.assertTrue(response.getvalue().decode().startswith('Name;Status'))
 
     def test_export_yaml_override(self):
         """

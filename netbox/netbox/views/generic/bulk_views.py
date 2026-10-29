@@ -280,8 +280,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
             # TODO: Remove in NetBox v5.0 along with export_table()
             if exporter.slug == 'csv' and type(self).export_table is not ObjectListView.export_table:
-                delimiter = request.user.config.get('csv_delimiter') if request.user.is_authenticated else None
-                return self.export_table(table, columns, delimiter=delimiter)
+                return self.export_table(table, columns, delimiter=exporter.get_delimiter(request))
 
             headers, rows = self.get_export_rows(table, columns)
             data = exporter.export(request=request, queryset=self.queryset, headers=headers, rows=rows)
