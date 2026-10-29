@@ -4,6 +4,7 @@ from io import StringIO
 from unittest import skipIf
 from unittest.mock import patch
 
+import yaml
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import connection
@@ -171,6 +172,30 @@ class ExportViewTestCase(TestCase):
     def test_export_filtered(self):
         response = self.client.get(f'{self.url}?export=table&export_format=csv&q=Site 2')
         self.assertEqual(self.get_csv_rows(response)[1:], [['Site 2', 'Active']])
+
+    def test_export_table_ordering(self):
+        """
+        Table exports follow the table's sort order.
+        """
+        for streaming in (False, True):
+            for params in ('export=table', 'export'):
+                with self.subTest(streaming=streaming, params=params), override_settings(STREAMING_EXPORTS=streaming):
+                    response = self.client.get(f'{self.url}?{params}&sort=-name')
+                    rows = list(csv.reader(StringIO(response.getvalue().decode())))
+                    self.assertEqual([row[0] for row in rows[1:]], ['Site 3', 'Site 2', 'Site 1'])
+
+    def test_export_yaml_ordering(self):
+        """
+        YAML exports use the queryset's ordering, not the table's sort order.
+        """
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        for i in range(1, 4):
+            DeviceType.objects.create(manufacturer=manufacturer, model=f'Device Type {i}', slug=f'device-type-{i}')
+        self.add_permissions('dcim.view_devicetype')
+
+        response = self.client.get(f'{reverse("dcim:devicetype_list")}?export&sort=-model')
+        models = [data['model'] for data in yaml.safe_load_all(response.content)]
+        self.assertEqual(models, ['Device Type 1', 'Device Type 2', 'Device Type 3'])
 
     def test_export_chunked_only_if_streaming(self):
         """

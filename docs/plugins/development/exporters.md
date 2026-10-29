@@ -51,7 +51,7 @@ class VendorDeviceTypeExporter(Exporter):
         ...
 ```
 
-The queryset passed to an exporter has the user's filters applied, and is restricted to objects the user has permission to view. `export()` returns the exported data as a string or bytes, or as an iterable of chunks. NetBox streams an iterable to the client if [`STREAMING_EXPORTS`](../../configuration/miscellaneous.md#streaming_exports) is enabled; otherwise, it collects the chunks before responding.
+The queryset passed to an exporter has the user's filters applied, and is restricted to objects the user has permission to view. It isn't sorted to match the list view's table; only the rows passed to a tabular exporter follow the table's sort order. `export()` returns the exported data as a string or bytes, or as an iterable of chunks. NetBox streams an iterable to the client if [`STREAMING_EXPORTS`](../../configuration/miscellaneous.md#streaming_exports) is enabled; otherwise, it collects the chunks before responding.
 
 The `register_exporter()` decorator registers an exporter with NetBox. Exporters can be defined anywhere within a plugin, but must be imported during plugin initialization, under the PluginConfig's `ready()` method:
 
