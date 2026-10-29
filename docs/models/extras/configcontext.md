@@ -12,7 +12,7 @@ A unique human-friendly name.
 
 ### Weight
 
-A numeric value which influences the order in which context data is merged. Contexts with a lower weight are merged before those with a higher weight.
+A numeric value which influences the order in which context data is merged. Contexts with a lower weight are merged before those with a higher weight, and contexts with the same weight are merged in order of name. See [merging behavior](../../features/context-data.md#merging-behavior) for details.
 
 ### Profile
 
