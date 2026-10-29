@@ -82,8 +82,8 @@ Data from the higher-weight context overwrites conflicting data from the lower-w
 
 Config contexts are applied in order of increasing weight (contexts with the same weight are ordered by name), with each context deep-merged into the result of those before it:
 
-* Where both contexts define a key as a dictionary, the two dictionaries are merged recursively, applying these same rules at each level.
-* Any other value (a list, string, number, boolean, or `null`) in the higher-weight context replaces the lower-weight value entirely. Lists are not concatenated.
+* Where both contexts define a key as a dictionary, and the higher-weight dictionary is not empty, the two dictionaries are merged recursively, applying these same rules at each level.
+* Any other value (a list, string, number, boolean, `null`, or empty dictionary) in the higher-weight context replaces the lower-weight value entirely. Lists are not concatenated.
 
 For example, suppose a lower-weight context defines the following data:
 
@@ -117,7 +117,7 @@ Because both values of `snmp` are dictionaries, they are merged rather than repl
 }
 ```
 
-To replace a dictionary outright instead of merging into it, create a config context with an intermediate weight, assigned to the same objects as the higher-weight context, which sets the key to `null`. The `null` value replaces the lower-weight dictionary, and the higher-weight context's dictionary is then applied in full.
+To replace a dictionary outright instead of merging into it, create a config context with an intermediate weight, assigned to the same objects as the higher-weight context, which sets the key to `null` or to an empty dictionary (`{}`). Either value replaces the lower-weight dictionary, and the higher-weight context's dictionary is then applied in full.
 
 ## Local Context Data
 
