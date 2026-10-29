@@ -163,22 +163,6 @@ html[data-bs-theme='dark'] {
 [data-sticky-when='selection'] .bulk-action-buttons .btn.disabled {
   pointer-events: none;
 }
-
-// Legacy aliases — remove in v4.7.0
-.btn-float-group-right {
-  position: sticky;
-  bottom: 10px;
-  z-index: 4;
-  margin-left: auto;
-  width: fit-content;
-}
-
-.btn-float-group-left {
-  position: sticky;
-  bottom: 10px;
-  z-index: 4;
-  width: fit-content;
-}
 // ── /Sticky action bars ─────────────────────────────────────
 
 // ── Port mapping widget ─────────────────────────────────────
