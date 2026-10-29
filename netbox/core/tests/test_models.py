@@ -399,6 +399,107 @@ class JobTestCase(TestCase):
         mock_queue.fetch_job.assert_called_with(str(job.job_id))
         mock_rq_job.cancel.assert_called_once()
 
+    @patch('core.models.jobs.job_start')
+    def test_start_waiting_job(self, mock_job_start):
+        """A pending or scheduled Job is claimed and marked running."""
+        for status in (JobStatusChoices.STATUS_PENDING, JobStatusChoices.STATUS_SCHEDULED):
+            with self.subTest(status=status):
+                job = Job.objects.create(name='Test Job', job_id=uuid.uuid4(), status=status)
+
+                self.assertTrue(job.start())
+
+                started = job.started
+                self.assertIsNotNone(started)
+                self.assertEqual(job.status, JobStatusChoices.STATUS_RUNNING)
+                job.refresh_from_db()
+                self.assertEqual(job.status, JobStatusChoices.STATUS_RUNNING)
+                self.assertEqual(job.started, started)
+                mock_job_start.send.assert_called_once_with(job)
+                mock_job_start.reset_mock()
+
+    @patch('core.models.jobs.job_start')
+    def test_start_deleted_job(self, mock_job_start):
+        """A deleted Job is neither claimed nor re-created."""
+        job = Job.objects.create(name='Test Job', job_id=uuid.uuid4())
+        Job.objects.filter(pk=job.pk).delete()
+
+        self.assertFalse(job.start())
+
+        self.assertFalse(Job.objects.filter(pk=job.pk).exists())
+        self.assertIsNone(job.started)
+        mock_job_start.send.assert_not_called()
+
+    @patch('core.models.jobs.job_start')
+    def test_start_non_waiting_job(self, mock_job_start):
+        """A running or terminated Job is not claimed and keeps its status."""
+        for status in (JobStatusChoices.STATUS_RUNNING, *JobStatusChoices.TERMINAL_STATE_CHOICES):
+            with self.subTest(status=status):
+                job = Job.objects.create(name='Test Job', job_id=uuid.uuid4())
+                Job.objects.filter(pk=job.pk).update(status=status)
+
+                self.assertFalse(job.start())
+
+                job.refresh_from_db()
+                self.assertEqual(job.status, status)
+                self.assertIsNone(job.started)
+                mock_job_start.send.assert_not_called()
+
+    @patch('core.models.jobs.job_start')
+    def test_start_already_started_job(self, mock_job_start):
+        """A waiting Job that already has a start time is not claimed."""
+        job = Job.objects.create(name='Test Job', job_id=uuid.uuid4())
+        started = timezone.now()
+        Job.objects.filter(pk=job.pk).update(started=started)
+
+        self.assertFalse(job.start())
+
+        job.refresh_from_db()
+        self.assertEqual(job.started, started)
+        self.assertEqual(job.status, JobStatusChoices.STATUS_PENDING)
+        mock_job_start.send.assert_not_called()
+
+    @patch('core.models.jobs.job_start')
+    def test_start_once(self, mock_job_start):
+        """Two copies of one Job claim it only once."""
+        job = Job.objects.create(name='Test Job', job_id=uuid.uuid4())
+        stale_job = Job.objects.get(pk=job.pk)
+
+        self.assertTrue(job.start())
+        started = job.started
+        self.assertFalse(stale_job.start())
+        self.assertFalse(job.start())
+
+        job.refresh_from_db()
+        self.assertEqual(job.started, started)
+        mock_job_start.send.assert_called_once_with(job)
+
+    @patch('core.models.jobs.job_start')
+    def test_start_job_id_mismatch(self, mock_job_start):
+        """A stale copy cannot claim a Job whose task ID has changed."""
+        job = Job.objects.create(name='Test Job', job_id=uuid.uuid4())
+        stale_job = Job.objects.get(pk=job.pk)
+        Job.objects.filter(pk=job.pk).update(job_id=uuid.uuid4())
+
+        self.assertFalse(stale_job.start())
+
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_PENDING)
+        self.assertIsNone(job.started)
+        mock_job_start.send.assert_not_called()
+
+    @patch('core.models.jobs.job_start')
+    def test_start_preserves_other_fields(self, mock_job_start):
+        """Claiming a Job writes only its status and start time."""
+        job = Job.objects.create(name='Test Job', job_id=uuid.uuid4())
+        stale_job = Job.objects.get(pk=job.pk)
+        Job.objects.filter(pk=job.pk).update(name='Renamed')
+
+        self.assertTrue(stale_job.start())
+
+        job.refresh_from_db()
+        self.assertEqual(job.name, 'Renamed')
+        self.assertEqual(job.status, JobStatusChoices.STATUS_RUNNING)
+
     @patch('core.models.jobs.job_end')
     def test_terminate_notification_always(self, mock_job_end):
         """

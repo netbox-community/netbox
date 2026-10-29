@@ -115,9 +115,13 @@ class JobRunner(ABC):
         job's metadata and handle errors. For periodic jobs, a new job is automatically scheduled using its `interval`.
         """
         logger = logging.getLogger('netbox.jobs')
+        skipped = False
 
         try:
-            job.start()
+            if not job.start():
+                skipped = True
+                logger.warning(f"Skipping job {job} (PK: {job.pk}): it could not be claimed for execution")
+                return
             cls(job).run(*args, **kwargs)
             job.terminate()
 
@@ -139,7 +143,7 @@ class JobRunner(ABC):
 
         # If the executed job is a periodic job, schedule its next execution at the specified interval.
         finally:
-            if job.interval:
+            if job.interval and job.started and not skipped:
                 # Determine the new scheduled time. Cannot be earlier than one minute in the future.
                 new_scheduled_time = max(
                     (job.scheduled or job.started) + timedelta(minutes=job.interval),

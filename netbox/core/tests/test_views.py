@@ -2,23 +2,35 @@ import json
 import urllib.parse
 import uuid
 from datetime import UTC, datetime
+from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
+from django.db import connection, transaction
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 from django_rq import get_queue
 from django_rq.settings import get_queues_map
 from django_rq.workers import get_worker
+from rq.exceptions import InvalidJobOperation
+from rq.executions import Execution
 from rq.job import Job as RQ_Job
 from rq.job import JobStatus
 from rq.registry import DeferredJobRegistry, FailedJobRegistry, FinishedJobRegistry, StartedJobRegistry
 
-from core.choices import ObjectChangeActionChoices
+from core.choices import JobStatusChoices, ObjectChangeActionChoices
 from core.models import *
 from dcim.models import Site
+from netbox.jobs import JobRunner
 from users.models import ObjectPermission, User
 from utilities.testing import TestCase, ViewTestCases, create_tags, disable_logging
 from utilities.testing.mixins import RQQueueTestMixin
+
+
+class TestJobRunner(JobRunner):
+
+    def run(self, *args, **kwargs):
+        pass
 
 
 class DataSourceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -466,7 +478,8 @@ class BackgroundTaskTestCase(RQQueueTestMixin, TestCase):
         self.assertTrue(job.is_failed)
 
         # Re-enqueue the failed job and check that its status has been reset
-        response = self.client.get(reverse('core:background_task_requeue', args=[job.id]))
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.get(reverse('core:background_task_requeue', args=[job.id]))
         self.assertEqual(response.status_code, 302)
         self.assertFalse(job.is_failed)
 
@@ -485,13 +498,228 @@ class BackgroundTaskTestCase(RQQueueTestMixin, TestCase):
         self.assertIsNone(job.enqueued_at)
 
         # Force-enqueue the deferred job
-        response = self.client.get(reverse('core:background_task_enqueue', args=[job.id]))
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.get(reverse('core:background_task_enqueue', args=[job.id]))
         self.assertEqual(response.status_code, 302)
 
         # Check that job's status is updated correctly
         job = queue.fetch_job(job.id)
         self.assertEqual(job.get_status(), JobStatus.QUEUED)
         self.assertIsNotNone(job.enqueued_at)
+
+    def test_background_task_enqueue_reruns_ended_job(self):
+        """Enqueue runs the Job of a finished or stopped task again."""
+        queue = get_queue('default')
+        for rq_status in (JobStatus.FINISHED, JobStatus.STOPPED):
+            with self.subTest(rq_status=rq_status):
+                with self.captureOnCommitCallbacks(execute=True):
+                    job = TestJobRunner.enqueue()
+                rq_job = RQ_Job.fetch(str(job.job_id), connection=queue.connection)
+                if rq_status == JobStatus.FINISHED:
+                    # JobRunner records the exception as errored, while RQ marks the task finished
+                    with patch.object(TestJobRunner, 'run', side_effect=Exception('Simulated job error')):
+                        self.run_rq_jobs('default')
+                    self.assertEqual(Job.objects.get(pk=job.pk).status, JobStatusChoices.STATUS_ERRORED)
+                else:
+                    # Simulate a stopped RQ task whose NetBox Job is still marked running
+                    queue.remove(rq_job)
+                    rq_job.set_status(JobStatus.STOPPED)
+                    Job.objects.filter(pk=job.pk).update(
+                        status=JobStatusChoices.STATUS_RUNNING, started=timezone.now()
+                    )
+                self.assertEqual(rq_job.get_status(), rq_status)
+
+                with self.captureOnCommitCallbacks(execute=True):
+                    response = self.client.get(reverse('core:background_task_enqueue', args=[rq_job.id]))
+                self.assertEqual(response.status_code, 302)
+                with patch.object(TestJobRunner, 'run') as run:
+                    self.run_rq_jobs('default')
+
+                run.assert_called_once()
+                job.refresh_from_db()
+                self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
+
+    def test_background_task_requeue_reruns_job(self):
+        """Requeue runs a Job again after its worker died."""
+        queue = get_queue('default')
+        with self.captureOnCommitCallbacks(execute=True):
+            job = TestJobRunner.enqueue()
+        rq_job = RQ_Job.fetch(str(job.job_id), connection=queue.connection)
+        # A worker that dies mid-run leaves the Job running and its task failed
+        queue.remove(rq_job)
+        FailedJobRegistry(queue.name, queue.connection).add(rq_job)
+        rq_job.set_status(JobStatus.FAILED)
+        Job.objects.filter(pk=job.pk).update(status=JobStatusChoices.STATUS_RUNNING, started=timezone.now())
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.get(reverse('core:background_task_requeue', args=[rq_job.id]))
+        self.assertEqual(response.status_code, 302)
+        with patch.object(TestJobRunner, 'run') as run:
+            self.run_rq_jobs('default')
+
+        run.assert_called_once()
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
+
+    def test_background_task_enqueue_leaves_running_job(self):
+        """Enqueue of a task its worker still holds does not run the Job twice."""
+        queue = get_queue('default')
+        with self.captureOnCommitCallbacks(execute=True):
+            job = TestJobRunner.enqueue()
+        rq_job = RQ_Job.fetch(str(job.job_id), connection=queue.connection)
+        # The worker holding the task has claimed the Job
+        queue.remove(rq_job)
+        rq_job.set_status(JobStatus.STARTED)
+        started = timezone.now()
+        Job.objects.filter(pk=job.pk).update(status=JobStatusChoices.STATUS_RUNNING, started=started)
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.get(reverse('core:background_task_enqueue', args=[rq_job.id]))
+        self.assertEqual(response.status_code, 302)
+        with patch.object(TestJobRunner, 'run') as run, self.assertLogs('netbox.jobs', 'WARNING'):
+            self.run_rq_jobs('default')
+
+        run.assert_not_called()
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_RUNNING)
+        self.assertEqual(job.started, started)
+
+    def test_background_task_retry_keeps_claim_of_live_execution(self):
+        """Requeue and Enqueue do not reset a Job that a live execution still runs."""
+        queue = get_queue('default')
+        for action in ('background_task_enqueue', 'background_task_requeue'):
+            with self.subTest(action=action):
+                with self.captureOnCommitCallbacks(execute=True):
+                    job = TestJobRunner.enqueue()
+                rq_job = RQ_Job.fetch(str(job.job_id), connection=queue.connection)
+                # A worker still runs the task
+                queue.remove(rq_job)
+                with queue.connection.pipeline() as pipeline:
+                    Execution.create(rq_job, ttl=60, pipeline=pipeline)
+                    pipeline.execute()
+                if action == 'background_task_enqueue':
+                    # A refused second copy marks the shared task finished
+                    rq_job.set_status(JobStatus.FINISHED)
+                else:
+                    # An earlier Enqueue of the failed task left it in the failed registry
+                    FailedJobRegistry(queue.name, queue.connection).add(rq_job)
+                    rq_job.set_status(JobStatus.STARTED)
+                started = timezone.now()
+                Job.objects.filter(pk=job.pk).update(status=JobStatusChoices.STATUS_RUNNING, started=started)
+
+                with self.captureOnCommitCallbacks(execute=True):
+                    response = self.client.get(reverse(f'core:{action}', args=[rq_job.id]))
+                self.assertEqual(response.status_code, 302)
+                with patch.object(TestJobRunner, 'run') as run, self.assertLogs('netbox.jobs', 'WARNING'):
+                    self.run_rq_jobs('default')
+
+                run.assert_not_called()
+                job.refresh_from_db()
+                self.assertEqual(job.status, JobStatusChoices.STATUS_RUNNING)
+                self.assertEqual(job.started, started)
+
+    def test_background_task_retry_locks_job(self):
+        """Requeue and Enqueue lock the Job before checking the task, and keep it locked through the reset."""
+        queue = get_queue('default')
+        contains = StartedJobRegistry.__contains__
+        for action in ('background_task_enqueue', 'background_task_requeue'):
+            with self.subTest(action=action):
+                with self.captureOnCommitCallbacks(execute=True):
+                    job = TestJobRunner.enqueue()
+                rq_job = RQ_Job.fetch(str(job.job_id), connection=queue.connection)
+                queue.remove(rq_job)
+                if action == 'background_task_enqueue':
+                    rq_job.set_status(JobStatus.FINISHED)
+                else:
+                    FailedJobRegistry(queue.name, queue.connection).add(rq_job)
+                    rq_job.set_status(JobStatus.FAILED)
+                checks = []
+
+                def check(registry, item):
+                    checks.append(len(queries))
+                    return contains(registry, item)
+
+                with (
+                    CaptureQueriesContext(connection) as queries,
+                    patch.object(StartedJobRegistry, '__contains__', autospec=True, side_effect=check),
+                    self.captureOnCommitCallbacks(execute=True),
+                ):
+                    self.client.get(reverse(f'core:{action}', args=[rq_job.id]))
+                sql = [query['sql'] for query in queries.captured_queries]
+
+                locks = [i for i, s in enumerate(sql) if 'FROM "core_job"' in s and s.endswith('FOR UPDATE')]
+                resets = [i for i, s in enumerate(sql) if s.startswith('UPDATE "core_job"')]
+                self.assertEqual((len(locks), len(checks), len(resets)), (1, 1, 1))
+                # The task is checked after the lock and before the reset
+                self.assertLess(locks[0], checks[0])
+                self.assertLessEqual(checks[0], resets[0])
+                # The helper acquires the row lock and resets the Job within one savepoint
+                self.assertTrue(sql[locks[0] - 1].startswith('SAVEPOINT '))
+                self.assertIn(f'RELEASE {sql[locks[0] - 1]}', sql[resets[0] + 1:])
+
+    def test_background_task_retry_publishes_on_commit(self):
+        """Requeue and Enqueue push the task only once the Job's reset commits, and not after a rollback."""
+        queue = get_queue('default')
+        for action in ('background_task_enqueue', 'background_task_requeue'):
+            with self.subTest(action=action):
+                with self.captureOnCommitCallbacks(execute=True):
+                    job = TestJobRunner.enqueue()
+                rq_job = RQ_Job.fetch(str(job.job_id), connection=queue.connection)
+                queue.remove(rq_job)
+                if action == 'background_task_enqueue':
+                    rq_job.set_status(JobStatus.FINISHED)
+                else:
+                    FailedJobRegistry(queue.name, queue.connection).add(rq_job)
+                    rq_job.set_status(JobStatus.FAILED)
+                Job.objects.filter(pk=job.pk).update(status=JobStatusChoices.STATUS_ERRORED)
+                url = reverse(f'core:{action}', args=[rq_job.id])
+
+                # A retry inside an outer transaction that rolls back
+                with self.captureOnCommitCallbacks() as callbacks, transaction.atomic():
+                    self.client.get(url)
+                    transaction.set_rollback(True)
+                self.assertEqual(callbacks, [])
+                self.assertNotIn(rq_job.id, queue.job_ids)
+                self.assertEqual(Job.objects.get(pk=job.pk).status, JobStatusChoices.STATUS_ERRORED)
+
+                with self.captureOnCommitCallbacks() as callbacks:
+                    self.client.get(url)
+                self.assertEqual(Job.objects.get(pk=job.pk).status, JobStatusChoices.STATUS_PENDING)
+                self.assertNotIn(rq_job.id, queue.job_ids)
+                self.assertEqual(len(callbacks), 1)
+                callbacks[0]()
+                self.assertIn(rq_job.id, queue.job_ids)
+
+    def test_background_task_requeue_finished_task(self):
+        """Requeue of a task outside the failed registry raises and leaves its Job untouched."""
+        with self.captureOnCommitCallbacks(execute=True):
+            job = TestJobRunner.enqueue()
+        self.run_rq_jobs('default')
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
+
+        with disable_logging(), self.assertRaises(InvalidJobOperation), self.captureOnCommitCallbacks(execute=True):
+            self.client.get(reverse('core:background_task_requeue', args=[str(job.job_id)]))
+
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
+
+    def test_background_task_requeue_custom_task_id(self):
+        """Requeue accepts a task whose id is not a UUID, and pushes it only on commit."""
+        queue = get_queue('default')
+        job = queue.enqueue(self.dummy_job_failing, job_id='custom-task-id')
+        with disable_logging():
+            self.run_rq_jobs('default')
+        self.assertTrue(job.is_failed)
+
+        with self.captureOnCommitCallbacks() as callbacks:
+            response = self.client.get(reverse('core:background_task_requeue', args=[job.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertNotIn(job.id, queue.job_ids)
+        self.assertEqual(len(callbacks), 1)
+        callbacks[0]()
+        self.assertIn(job.id, queue.job_ids)
+        self.assertFalse(job.is_failed)
 
     def test_background_task_stop(self):
         queue = get_queue('default')
