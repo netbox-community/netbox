@@ -2,7 +2,7 @@
 
 !!! info "This feature was introduced in NetBox v4.8."
 
-The "Export" button on object list views offers a choice of export formats. NetBox provides CSV and (for device types and module types) YAML exporters. Plugins can register their own exporters to add formats, such as XLSX or JSON, by subclassing NetBox's `TableExporter` or `Exporter` class.
+The "Export" button on object list views offers a choice of export formats. NetBox provides CSV and (for certain object types) YAML exporters. Plugins can register their own exporters to add formats, such as XLSX or JSON, by subclassing NetBox's `TableExporter` or `Exporter` class.
 
 A `TableExporter` exports the rows of the list view's table. NetBox resolves the table's columns and calls the exporter's `export_rows()` method (rather than `export()`) with a list of column headers and an iterator of cell values for each row. Table exporters are offered under both "Current View" (the user's selected columns) and "All Data" (all columns).
 
