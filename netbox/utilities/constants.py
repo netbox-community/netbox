@@ -134,7 +134,4 @@ HTTP_PROXY_SUPPORTED_SCHEMAS = ['http', 'https', 'socks4', 'socks4a', 'socks4h',
 # Registered component slugs (e.g. event rule actions & exporters)
 #
 
-# An event rule action slug must sanitize (via enum_key()) into a valid GraphQL enum member name, which rules out a
-# leading digit or underscore. Hyphens are rejected outright rather than sanitized away, so that a slug always reads as
-# it was written.
 SLUG_RE = re.compile(r'^[a-z][a-z0-9_]*(\.[a-z0-9_]+)*$')
