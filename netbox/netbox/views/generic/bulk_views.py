@@ -1,5 +1,6 @@
 import logging
 import re
+import warnings
 from collections import Counter
 from contextlib import contextmanager
 from copy import deepcopy
@@ -101,6 +102,18 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
     filterset_form = None
     actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkRename, BulkDelete)
 
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        # TODO: Remove in NetBox v5.0
+        for method in ('export_table', 'export_yaml'):
+            if method in cls.__dict__:
+                warnings.warn(
+                    f"{cls.__name__} overrides ObjectListView.{method}(), which is deprecated and will be removed in "
+                    f"NetBox v5.0.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
 
@@ -108,17 +121,24 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
     # Export methods
     #
 
+    # TODO: Remove in NetBox v5.0
     def export_yaml(self):
         """
-        Export the queryset of objects as concatenated YAML documents.
+        Deprecated: Export the queryset of objects as concatenated YAML documents.
         """
+        warnings.warn(
+            "ObjectListView.export_yaml() is deprecated and will be removed in NetBox v5.0.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         yaml_data = [obj.to_yaml() for obj in self.queryset]
 
         return '---\n'.join(yaml_data)
 
+    # TODO: Remove in NetBox v5.0
     def export_table(self, table, columns=None, filename=None, delimiter=None):
         """
-        Export all table data in CSV format.
+        Deprecated: Export all table data in CSV format.
 
         Args:
             table: The Table instance to export
@@ -127,6 +147,11 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
                 from the queryset model name.
             delimiter: The character used to separate columns (a comma is used by default)
         """
+        warnings.warn(
+            "ObjectListView.export_table() is deprecated and will be removed in NetBox v5.0.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         exclude_columns = {'pk', 'actions'}
         all_columns = [col_name for col_name, _ in table.selected_columns + table.available_columns]
         if columns:
