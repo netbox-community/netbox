@@ -2,10 +2,12 @@ import csv
 from collections.abc import Iterator
 from io import StringIO
 from unittest import skipIf
+from unittest.mock import patch
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import connection
+from django.db.models import QuerySet
 from django.http import StreamingHttpResponse
 from django.test import RequestFactory, SimpleTestCase, override_settings
 from django.test.utils import CaptureQueriesContext
@@ -169,6 +171,24 @@ class ExportViewTestCase(TestCase):
     def test_export_filtered(self):
         response = self.client.get(f'{self.url}?export=table&export_format=csv&q=Site 2')
         self.assertEqual(self.get_csv_rows(response)[1:], [['Site 2', 'Active']])
+
+    def test_export_chunked_only_if_streaming(self):
+        """
+        Table exports fetch records in chunks (using a server-side cursor) only if STREAMING_EXPORTS is enabled.
+        """
+        for streaming in (False, True):
+            with self.subTest(streaming=streaming):
+                with (
+                    override_settings(STREAMING_EXPORTS=streaming),
+                    patch.object(QuerySet, 'iterator', autospec=True, side_effect=QuerySet.iterator) as iterator,
+                ):
+                    response = self.client.get(f'{self.url}?export=table')
+                    content = response.getvalue().decode()
+                self.assertEqual(iterator.called, streaming)
+                self.assertEqual(
+                    content.splitlines(),
+                    ['Name,Status', 'Site 1,Active', 'Site 2,Active', 'Site 3,Active'],
+                )
 
     def test_export_csv_delimiter(self):
         self.user.config.set('csv_delimiter', 'semicolon', commit=True)

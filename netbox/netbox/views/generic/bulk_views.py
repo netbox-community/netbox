@@ -139,7 +139,8 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
         headers = [force_str(column.header, strings_only=True) for column in export_columns]
 
         def iter_rows():
-            if isinstance(table.data, TableQuerysetData):
+            # Fetch records in chunks only when streaming, as this requires a server-side cursor
+            if settings.STREAMING_EXPORTS and isinstance(table.data, TableQuerysetData):
                 records = table.data.data.iterator(chunk_size=EXPORT_CHUNK_SIZE)
             else:
                 records = table.data
