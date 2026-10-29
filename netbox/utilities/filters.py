@@ -189,7 +189,7 @@ class NonUniqueModelMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilte
 
     def get_queryset(self, request):
         to_field_name = self.extra['to_field_name']
-        return super().get_queryset(request).order_by(to_field_name, 'pk').distinct(to_field_name)
+        return super().get_queryset(request).order_by(to_field_name).distinct(to_field_name)
 
 
 class NullableCharFieldFilter(django_filters.CharFilter):
