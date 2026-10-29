@@ -157,6 +157,9 @@ Below are the class definitions for NetBox's multi-object views. These views han
         - export_table
         - export_template
 
+!!! warning "Deprecation Warning"
+    The `export_table()` and `export_yaml()` methods of `ObjectListView` have been deprecated as of NetBox v4.8.0, and are scheduled for removal in NetBox v5.0.
+
 ::: netbox.views.generic.BulkImportView
     options:
       members:
