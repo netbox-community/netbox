@@ -18,6 +18,7 @@ __all__ = (
     'copy_safe_request',
     'get_client_ip',
     'get_safe_request_context',
+    'register_request_processor',
     'safe_for_redirect',
 )
 
@@ -130,6 +131,15 @@ def safe_for_redirect(url):
     Returns True if the given URL is safe to use as an HTTP redirect; otherwise returns False.
     """
     return url_has_allowed_host_and_scheme(url, allowed_hosts=None)
+
+
+def register_request_processor(func):
+    """
+    Decorator for registering a request processor.
+    """
+    registry['request_processors'].append(func)
+
+    return func
 
 
 @contextmanager

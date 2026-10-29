@@ -1,8 +1,13 @@
 from contextlib import contextmanager
 from urllib.parse import urlparse
 
+from netbox.registry import registry
+from utilities.choices import Choice
+
 __all__ = (
     'DataBackend',
+    'get_data_backend_choices',
+    'register_data_backend',
 )
 
 
@@ -51,3 +56,23 @@ class DataBackend:
         3. Performs any necessary cleanup
         """
         raise NotImplementedError()
+
+
+def get_data_backend_choices():
+    return [
+        (None, '---------'),
+        *[
+            Choice(name, cls.label) for name, cls in registry['data_backends'].items()
+        ]
+    ]
+
+
+def register_data_backend():
+    """
+    Decorator for registering a DataBackend class.
+    """
+    def _wrapper(cls):
+        registry['data_backends'][cls.name] = cls
+        return cls
+
+    return _wrapper

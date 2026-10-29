@@ -12,8 +12,8 @@ from account.models import UserToken
 from core.models import ObjectType
 from dcim.models import Manufacturer, Site
 from extras.models import CachedValue, Tag
+from netbox.models import allocate_pks, register_pk_allocator
 from netbox.registry import registry
-from netbox.utils import allocate_pks, register_pk_allocator
 from tenancy.models import Tenant
 from users.models import Token, User
 from utilities import pk_allocation

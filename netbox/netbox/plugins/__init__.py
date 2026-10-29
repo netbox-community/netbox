@@ -7,10 +7,10 @@ from django.utils.module_loading import import_string
 from packaging import version
 
 from core.exceptions import IncompatiblePluginError
+from netbox.data_backends import register_data_backend
 from netbox.event_rules import register_event_rule_action
 from netbox.registry import registry
 from netbox.search import register_search
-from netbox.utils import register_data_backend
 
 from .navigation import *
 from .registration import *

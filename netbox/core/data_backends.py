@@ -9,8 +9,7 @@ from django import forms
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext as _
 
-from netbox.data_backends import DataBackend
-from netbox.utils import register_data_backend
+from netbox.data_backends import DataBackend, register_data_backend
 from utilities.constants import HTTP_PROXY_SUPPORTED_SCHEMAS, HTTP_PROXY_SUPPORTED_SOCK_SCHEMAS
 from utilities.proxy import resolve_proxies
 from utilities.socks import ProxyPoolManager

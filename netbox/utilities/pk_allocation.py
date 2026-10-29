@@ -1,12 +1,13 @@
-from django.db import models
+from django.db import models, router
 from django.db.models.fields import AutoFieldMixin
 
 from netbox.registry import registry
-from netbox.utils import allocate_pks
 
 __all__ = (
+    'allocate_pks',
     'bulk_create_with_pk_allocation',
     'prepare_for_bulk_create_with_pk_allocation',
+    'register_pk_allocator',
     'save_table_with_pk_allocation',
 )
 
@@ -15,6 +16,56 @@ __all__ = (
 _bulk_create = models.QuerySet.bulk_create
 _prepare_for_bulk_create = models.QuerySet._prepare_for_bulk_create
 _save_table = models.Model._save_table
+
+
+def register_pk_allocator(func):
+    """
+    Decorator for registering a primary key allocator: a callable which may supply primary keys for new objects.
+
+    The callable must accept a model class, a count, and the alias of the database to which the new objects will be
+    written (`using`), and return either a list of exactly `count` primary keys for that model, or None to defer to the
+    next allocator (and ultimately to the database). Allocators are consulted in the order in which they were
+    registered. Registering an allocator which is already registered has no effect.
+
+        @register_pk_allocator
+        def my_allocator(model, count, using):
+            ...
+    """
+    if func not in registry['pk_allocators']:
+        registry['pk_allocators'].append(func)
+
+    return func
+
+
+def allocate_pks(model, count=1, using=None):
+    """
+    Return a list of `count` primary keys for new instances of `model` from the first registered allocator which
+    supplies them, or None if the database should assign them. `using` is the alias of the database to which the new
+    instances will be written; if omitted, the database router's choice for writing `model` is assumed. Code which
+    inserts rows outside the ORM (e.g. using raw SQL or COPY) can call this to obtain primary keys in the same manner
+    as Model.save() and QuerySet.bulk_create().
+    """
+    if using is None:
+        using = router.db_for_write(model)
+    # Allocators receive the model which owns the primary key column (the concrete parent, for a proxy or multi-table
+    # inheritance child), and only if it's an auto field
+    pk = model._meta.pk
+    while pk.remote_field and pk.remote_field.parent_link:
+        pk = pk.target_field
+    if not isinstance(pk, AutoFieldMixin):
+        return None
+    model = pk.model
+    for allocator in registry['pk_allocators']:
+        if (pks := allocator(model, count, using)) is not None:
+            pks = list(pks)
+            if len(pks) != count:
+                name = getattr(allocator, '__qualname__', allocator)
+                raise ValueError(
+                    f'Primary key allocator {name} returned {len(pks)} primary keys for {model._meta.label} '
+                    f'(expected {count}).'
+                )
+            return pks
+    return None
 
 
 def _can_allocate_pks(model):

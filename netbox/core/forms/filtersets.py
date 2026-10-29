@@ -3,9 +3,9 @@ from django.utils.translation import gettext_lazy as _
 
 from core.choices import *
 from core.models import *
+from netbox.data_backends import get_data_backend_choices
 from netbox.forms import NetBoxModelFilterSetForm, PrimaryModelFilterSetForm
 from netbox.forms.mixins import SavedFiltersMixin
-from netbox.utils import get_data_backend_choices
 from users.models import User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
 from utilities.forms.fields import (
