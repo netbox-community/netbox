@@ -2,7 +2,6 @@ from django.db import models
 from django.db.models.fields import AutoFieldMixin
 
 from netbox.registry import registry
-from netbox.utils import allocate_pks
 
 __all__ = (
     'bulk_create_with_pk_allocation',
@@ -40,6 +39,9 @@ def save_table_with_pk_allocation(
     Allocators receive the model which owns the primary key column (the concrete parent, for a proxy or multi-table
     inheritance child), and the alias of the database being written to.
     """
+    # This module is imported before the app registry is ready, when netbox.models cannot yet be imported
+    from netbox.models import allocate_pks
+
     pk = cls._meta.pk
     concrete_model = instance._meta.concrete_model
     # The values to restore if the save fails, carried over from the insertion of any multi-table inheritance parents
@@ -84,6 +86,9 @@ def prepare_for_bulk_create_with_pk_allocation(queryset, objs):
     The prior state of each object which receives one is recorded on the queryset, for bulk_create_with_pk_allocation()
     to restore.
     """
+    # This module is imported before the app registry is ready, when netbox.models cannot yet be imported
+    from netbox.models import allocate_pks
+
     objs_with_pk, objs_without_pk = _prepare_for_bulk_create(queryset, objs)
     pk = queryset.model._meta.pk
     # QuerySet.db resolves to the database being written to, since bulk_create() has already set _for_write
