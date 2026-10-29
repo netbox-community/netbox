@@ -187,6 +187,12 @@ class PrefixTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
         verbose_name=_('Status'),
         default=AVAILABLE_LABEL
     )
+    # django-tables2 calls get_FOO_display() unguarded for choice fields, which fails on unsaved available-space rows
+    classification = columns.ChoiceFieldColumn(
+        verbose_name=_('Classification'),
+        accessor='get_classification_display',
+        order_by=('classification',)
+    )
     vrf = tables.TemplateColumn(
         template_code=VRF_LINK,
         verbose_name=_('VRF')
@@ -236,9 +242,9 @@ class PrefixTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
     class Meta(PrimaryModelTable.Meta):
         model = Prefix
         fields = (
-            'pk', 'id', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'tenant_group',
-            'scope', 'scope_type', 'vlan_group', 'vlan', 'role', 'is_pool', 'mark_utilized', 'description', 'contacts',
-            'comments', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'prefix', 'prefix_flat', 'status', 'classification', 'children', 'vrf', 'utilization',
+            'tenant', 'tenant_group', 'scope', 'scope_type', 'vlan_group', 'vlan', 'role', 'is_pool', 'mark_utilized',
+            'description', 'contacts', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'prefix', 'status', 'children', 'vrf', 'utilization', 'tenant', 'scope', 'vlan', 'role',

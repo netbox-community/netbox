@@ -204,6 +204,19 @@ class RoleTableTestCase(TableTestCases.StandardTableTestCase):
 class PrefixTableTestCase(TableTestCases.StandardTableTestCase):
     table = PrefixTable
 
+    def test_classification_column(self):
+        """Saved rows show their classification and unsaved available-space rows the column default."""
+        saved = Prefix.objects.create(prefix=IPNetwork('10.0.0.0/24'))
+        available = Prefix(prefix=IPNetwork('10.0.1.0/24'), status=None)
+        table = PrefixTable([saved, available])
+        table.configure(self.get_request())
+        rows = list(table.rows)
+
+        self.assertHTMLEqual(rows[0].get_cell('classification'), '<span class="badge text-bg-green">Private</span>')
+        self.assertEqual(rows[1].get_cell('classification'), table.columns['classification'].default)
+        self.assertEqual(rows[0].get_cell_value('classification'), 'Private')
+        self.assertIsNone(rows[1].get_cell_value('classification'))
+
 
 class IPRangeTableTestCase(TableTestCases.StandardTableTestCase):
     table = IPRangeTable

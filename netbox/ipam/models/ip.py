@@ -16,6 +16,7 @@ from ipam.fields import IPAddressField, IPNetworkField
 from ipam.lookups import Host
 from ipam.managers import IPAddressManager
 from ipam.querysets import IPRangeQuerySet, PrefixQuerySet
+from ipam.utils import prefix_classification_expression
 from ipam.validators import DNSValidator
 from netbox.config import get_config
 from netbox.models import OrganizationalModel, PrimaryModel
@@ -223,6 +224,14 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         verbose_name=_('prefix'),
         help_text=_('IPv4 or IPv6 network with mask')
     )
+    classification = models.GeneratedField(
+        expression=prefix_classification_expression('prefix'),
+        output_field=models.CharField(max_length=50),
+        db_persist=True,
+        choices=PrefixClassificationChoices,
+        verbose_name=_('classification'),
+        help_text=_('Address space classification derived from the prefix'),
+    )
     vrf = models.ForeignKey(
         to='ipam.VRF',
         on_delete=models.PROTECT,
@@ -382,6 +391,9 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
 
     def get_status_color(self):
         return PrefixStatusChoices.colors.get(self.status)
+
+    def get_classification_color(self):
+        return PrefixClassificationChoices.colors.get(self.classification)
 
     @cached_property
     def aggregate(self):

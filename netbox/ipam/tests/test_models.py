@@ -7,7 +7,12 @@ from netaddr import IPNetwork, IPSet
 
 from dcim.models import Location, Region, Site, SiteGroup
 from ipam.choices import *
-from ipam.constants import SERVICE_PORT_MAX, SERVICE_PORT_MIN
+from ipam.constants import (
+    PREFIX_CLASSIFICATION_NETWORKS,
+    PREFIX_CLASSIFICATION_PUBLIC_EXCEPTIONS,
+    SERVICE_PORT_MAX,
+    SERVICE_PORT_MIN,
+)
 from ipam.models import *
 from ipam.utils import port_mapping_q, rebuild_prefixes
 from utilities.data import string_to_ranges
@@ -383,6 +388,79 @@ class PrefixTestCase(TestCase):
         self.assertEqual(prefix.mask_length, 8)
         prefix_v6 = Prefix(prefix='2001:db8::/32')
         self.assertEqual(prefix_v6.mask_length, 32)
+
+    def test_classification(self):
+        """Each prefix is classified by the address space it covers."""
+        expected = {
+            IPNetwork('8.8.8.0/24'): PrefixClassificationChoices.CLASSIFICATION_PUBLIC,
+            IPNetwork('10.0.0.0/8'): PrefixClassificationChoices.CLASSIFICATION_PRIVATE,
+            IPNetwork('10.0.0.0/7'): PrefixClassificationChoices.CLASSIFICATION_MIXED,
+            IPNetwork('0.0.0.0/7'): PrefixClassificationChoices.CLASSIFICATION_MIXED,
+            IPNetwork('100.64.0.0/10'): PrefixClassificationChoices.CLASSIFICATION_SHARED,
+            IPNetwork('100.64.1.0/24'): PrefixClassificationChoices.CLASSIFICATION_SHARED,
+            IPNetwork('127.0.0.0/8'): PrefixClassificationChoices.CLASSIFICATION_LOOPBACK,
+            IPNetwork('169.254.0.0/16'): PrefixClassificationChoices.CLASSIFICATION_LINK_LOCAL,
+            IPNetwork('192.0.0.0/24'): PrefixClassificationChoices.CLASSIFICATION_MIXED,
+            IPNetwork('192.0.0.8/31'): PrefixClassificationChoices.CLASSIFICATION_MIXED,
+            IPNetwork('192.0.0.8/32'): PrefixClassificationChoices.CLASSIFICATION_SPECIAL,
+            IPNetwork('192.0.0.9/32'): PrefixClassificationChoices.CLASSIFICATION_PUBLIC,
+            IPNetwork('192.0.2.0/24'): PrefixClassificationChoices.CLASSIFICATION_DOCUMENTATION,
+            IPNetwork('198.18.0.0/15'): PrefixClassificationChoices.CLASSIFICATION_BENCHMARKING,
+            IPNetwork('224.0.0.0/4'): PrefixClassificationChoices.CLASSIFICATION_MULTICAST,
+            IPNetwork('224.0.0.0/3'): PrefixClassificationChoices.CLASSIFICATION_MIXED,
+            IPNetwork('240.0.0.0/4'): PrefixClassificationChoices.CLASSIFICATION_SPECIAL,
+            IPNetwork('2001:4860::/32'): PrefixClassificationChoices.CLASSIFICATION_PUBLIC,
+            IPNetwork('2000::/3'): PrefixClassificationChoices.CLASSIFICATION_MIXED,
+            IPNetwork('fd00::/8'): PrefixClassificationChoices.CLASSIFICATION_PRIVATE,
+            IPNetwork('::1/128'): PrefixClassificationChoices.CLASSIFICATION_LOOPBACK,
+            IPNetwork('::ffff:10.0.0.0/104'): PrefixClassificationChoices.CLASSIFICATION_SPECIAL,
+            IPNetwork('fe80::/10'): PrefixClassificationChoices.CLASSIFICATION_LINK_LOCAL,
+            IPNetwork('2001:db8::/32'): PrefixClassificationChoices.CLASSIFICATION_DOCUMENTATION,
+            IPNetwork('3fff::/20'): PrefixClassificationChoices.CLASSIFICATION_DOCUMENTATION,
+            IPNetwork('ff00::/8'): PrefixClassificationChoices.CLASSIFICATION_MULTICAST,
+            IPNetwork('2001:2::/48'): PrefixClassificationChoices.CLASSIFICATION_BENCHMARKING,
+            IPNetwork('2001::/32'): PrefixClassificationChoices.CLASSIFICATION_SPECIAL,
+            IPNetwork('2001:1::3/128'): PrefixClassificationChoices.CLASSIFICATION_PUBLIC,
+            IPNetwork('2001:1::/126'): PrefixClassificationChoices.CLASSIFICATION_MIXED,
+            IPNetwork('2001:20::/27'): PrefixClassificationChoices.CLASSIFICATION_PUBLIC,
+            IPNetwork('64:ff9b::/96'): PrefixClassificationChoices.CLASSIFICATION_PUBLIC,
+            IPNetwork('64:ff9b::/95'): PrefixClassificationChoices.CLASSIFICATION_MIXED,
+            IPNetwork('fec0::/10'): PrefixClassificationChoices.CLASSIFICATION_SPECIAL,
+            IPNetwork('4000::/2'): PrefixClassificationChoices.CLASSIFICATION_SPECIAL,
+        }
+        Prefix.objects.bulk_create(Prefix(prefix=prefix) for prefix in expected)
+        self.assertEqual(dict(Prefix.objects.values_list('prefix', 'classification')), expected)
+
+    def test_classification_follows_prefix(self):
+        """The classification follows the prefix through ORM creates and updates."""
+        prefix = Prefix.objects.create(prefix=IPNetwork('10.1.0.0/16'))
+        self.assertEqual(prefix.classification, PrefixClassificationChoices.CLASSIFICATION_PRIVATE)
+        prefix.prefix = IPNetwork('8.8.0.0/16')
+        prefix.save()
+        self.assertEqual(prefix.classification, PrefixClassificationChoices.CLASSIFICATION_PUBLIC)
+        prefix.prefix = IPNetwork('100.64.0.0/16')
+        prefix.save(update_fields=['prefix'])
+        self.assertEqual(prefix.classification, PrefixClassificationChoices.CLASSIFICATION_SHARED)
+        Prefix.objects.filter(pk=prefix.pk).update(prefix=IPNetwork('192.0.2.0/24'))
+        prefix.refresh_from_db()
+        self.assertEqual(prefix.classification, PrefixClassificationChoices.CLASSIFICATION_DOCUMENTATION)
+        prefix.prefix = IPNetwork('fe80::/64')
+        Prefix.objects.bulk_update([prefix], ['prefix'])
+        prefix.refresh_from_db()
+        self.assertEqual(prefix.classification, PrefixClassificationChoices.CLASSIFICATION_LINK_LOCAL)
+
+    def test_classification_rules(self):
+        """The classification rules keep the invariants the generated expression relies on."""
+        rules = dict(PREFIX_CLASSIFICATION_NETWORKS)
+        special = IPSet(rules.pop(PrefixClassificationChoices.CLASSIFICATION_SPECIAL))
+        exceptions = IPSet(PREFIX_CLASSIFICATION_PUBLIC_EXCEPTIONS)
+        claimed = IPSet(exceptions)
+        for networks in rules.values():
+            self.assertFalse(claimed & IPSet(networks))
+            claimed |= IPSet(networks)
+        self.assertTrue(exceptions.issubset(special))
+        for network in special.iter_cidrs():
+            self.assertTrue(IPSet([network]) - exceptions, network)
 
     def test_get_duplicates(self):
         prefixes = Prefix.objects.bulk_create((

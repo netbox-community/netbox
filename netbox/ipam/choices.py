@@ -34,6 +34,83 @@ class PrefixStatusChoices(ChoiceSet):
     ]
 
 
+class PrefixClassificationChoices(ChoiceSet):
+
+    CLASSIFICATION_PUBLIC = 'public'
+    CLASSIFICATION_PRIVATE = 'private'
+    CLASSIFICATION_SHARED = 'shared'
+    CLASSIFICATION_LOOPBACK = 'loopback'
+    CLASSIFICATION_LINK_LOCAL = 'link-local'
+    CLASSIFICATION_DOCUMENTATION = 'documentation'
+    CLASSIFICATION_MULTICAST = 'multicast'
+    CLASSIFICATION_BENCHMARKING = 'benchmarking'
+    CLASSIFICATION_SPECIAL = 'special'
+    CLASSIFICATION_MIXED = 'mixed'
+
+    CHOICES = (
+        Choice(
+            CLASSIFICATION_PUBLIC,
+            _('Public'),
+            color='blue',
+            description=_('Address space outside the other classifications')
+        ),
+        Choice(
+            CLASSIFICATION_PRIVATE,
+            _('Private'),
+            color='green',
+            description=_('RFC 1918 and unique local address space')
+        ),
+        Choice(
+            CLASSIFICATION_SHARED,
+            _('Shared'),
+            color='teal',
+            description=_('Carrier-grade NAT address space')
+        ),
+        Choice(
+            CLASSIFICATION_LOOPBACK,
+            _('Loopback'),
+            color='gray',
+            description=_('Host loopback addresses')
+        ),
+        Choice(
+            CLASSIFICATION_LINK_LOCAL,
+            _('Link-local'),
+            color='cyan',
+            description=_('Valid only on a single network link')
+        ),
+        Choice(
+            CLASSIFICATION_DOCUMENTATION,
+            _('Documentation'),
+            color='purple',
+            description=_('Reserved for documentation and examples')
+        ),
+        Choice(
+            CLASSIFICATION_MULTICAST,
+            _('Multicast'),
+            color='indigo',
+            description=_('Multicast group addresses')
+        ),
+        Choice(
+            CLASSIFICATION_BENCHMARKING,
+            _('Benchmarking'),
+            color='pink',
+            description=_('Reserved for network benchmark tests')
+        ),
+        Choice(
+            CLASSIFICATION_SPECIAL,
+            _('Special-purpose'),
+            color='dark',
+            description=_('Other reserved or special-purpose space')
+        ),
+        Choice(
+            CLASSIFICATION_MIXED,
+            _('Mixed'),
+            color='orange',
+            description=_('Spans more than one classification')
+        ),
+    )
+
+
 #
 # IP Ranges
 #

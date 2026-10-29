@@ -9,6 +9,7 @@ __all__ = (
     'IPAddressRoleEnum',
     'IPAddressStatusEnum',
     'IPRangeStatusEnum',
+    'PrefixClassificationEnum',
     'PrefixStatusEnum',
     'ServiceProtocolEnum',
     'VLANQinQRoleEnum',
@@ -21,6 +22,7 @@ IPAddressFamilyEnum = strawberry.enum(IPAddressFamilyChoices.as_enum(prefix='fam
 IPAddressRoleEnum = strawberry.enum(IPAddressRoleChoices.as_enum(prefix='role'))
 IPAddressStatusEnum = strawberry.enum(IPAddressStatusChoices.as_enum(prefix='status'))
 IPRangeStatusEnum = strawberry.enum(IPRangeStatusChoices.as_enum(prefix='status'))
+PrefixClassificationEnum = strawberry.enum(PrefixClassificationChoices.as_enum(prefix='classification'))
 PrefixStatusEnum = strawberry.enum(PrefixStatusChoices.as_enum(prefix='status'))
 ServiceProtocolEnum = strawberry.enum(ServiceProtocolChoices.as_enum())
 VLANStatusEnum = strawberry.enum(VLANStatusChoices.as_enum(prefix='status'))
