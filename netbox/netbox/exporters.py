@@ -1,4 +1,5 @@
 import csv
+from collections.abc import Iterable
 from itertools import chain
 
 from django.core.exceptions import ImproperlyConfigured
@@ -115,7 +116,12 @@ class YAMLExporter(Exporter):
 
     def export(self, *, request, queryset, headers=None, rows=None):
         # Prefetch the relations named by the model, and batch any other foreign key lookups across all objects
-        queryset = queryset.prefetch_related(*getattr(queryset.model, 'yaml_prefetch', ())).fetch_mode(FETCH_PEERS)
+        prefetch = getattr(queryset.model, 'yaml_prefetch', ())
+        if isinstance(prefetch, str) or not isinstance(prefetch, Iterable):
+            raise ValueError(
+                f"{queryset.model.__name__}.yaml_prefetch must be an iterable of lookups, not {type(prefetch).__name__}"
+            )
+        queryset = queryset.prefetch_related(*prefetch).fetch_mode(FETCH_PEERS)
         return '---\n'.join(obj.to_yaml() for obj in queryset)
 
 
