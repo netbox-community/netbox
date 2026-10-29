@@ -5748,6 +5748,140 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertIsNone(member.virtual_chassis)
         self.assertIsNone(member.vc_position)
 
+    def _get_member_changes(self, device):
+        return ObjectChange.objects.filter(
+            changed_object_type=ContentType.objects.get_for_model(Device),
+            changed_object_id=device.pk,
+        ).order_by('pk')
+
+    @tag('regression')  # Ref: #23486
+    def test_edit_member_records_single_change_with_prechange_data(self):
+        self.add_permissions('dcim.change_virtualchassis')
+        vc = VirtualChassis.objects.get(name='VC1')
+        member1, member2, member3 = vc.members.order_by('vc_position')
+
+        data = {
+            'name': vc.name,
+            'domain': vc.domain,
+            'master': vc.master.pk,
+            'form-TOTAL_FORMS': 3,
+            'form-INITIAL_FORMS': 3,
+            'form-MIN_NUM_FORMS': 0,
+            'form-MAX_NUM_FORMS': 1000,
+            'form-0-id': member1.pk,
+            'form-0-vc_position': 1,
+            'form-0-vc_priority': 20,
+            'form-1-id': member2.pk,
+            'form-1-vc_position': 2,
+            'form-1-vc_priority': '',
+            'form-2-id': member3.pk,
+            'form-2-vc_position': 3,
+            'form-2-vc_priority': '',
+        }
+        response = self.client.post(self._get_url('edit', vc), data)
+        self.assertHttpStatus(response, 302)
+
+        member1.refresh_from_db()
+        self.assertEqual(member1.vc_position, 1)
+        self.assertEqual(member1.vc_priority, 20)
+
+        # Exactly one change is recorded, spanning the member's original and final state
+        changes = self._get_member_changes(member1)
+        self.assertEqual(changes.count(), 1)
+        change = changes.first()
+        self.assertEqual(change.action, ObjectChangeActionChoices.ACTION_UPDATE)
+        self.assertEqual(change.prechange_data['vc_position'], 1)
+        self.assertIsNone(change.prechange_data['vc_priority'])
+        self.assertEqual(change.postchange_data['vc_position'], 1)
+        self.assertEqual(change.postchange_data['vc_priority'], 20)
+
+        # Unchanged members produce no changelog entries
+        self.assertFalse(self._get_member_changes(member2).exists())
+        self.assertFalse(self._get_member_changes(member3).exists())
+
+    @tag('regression')  # Ref: #23486
+    def test_edit_member_swap_positions(self):
+        self.add_permissions('dcim.change_virtualchassis')
+        vc = VirtualChassis.objects.get(name='VC1')
+        member1, member2, member3 = vc.members.order_by('vc_position')
+
+        data = {
+            'name': vc.name,
+            'domain': vc.domain,
+            'master': vc.master.pk,
+            'form-TOTAL_FORMS': 3,
+            'form-INITIAL_FORMS': 3,
+            'form-MIN_NUM_FORMS': 0,
+            'form-MAX_NUM_FORMS': 1000,
+            'form-0-id': member1.pk,
+            'form-0-vc_position': 2,
+            'form-0-vc_priority': '',
+            'form-1-id': member2.pk,
+            'form-1-vc_position': 1,
+            'form-1-vc_priority': '',
+            'form-2-id': member3.pk,
+            'form-2-vc_position': 3,
+            'form-2-vc_priority': '',
+        }
+        response = self.client.post(self._get_url('edit', vc), data)
+        self.assertHttpStatus(response, 302)
+
+        member1.refresh_from_db()
+        member2.refresh_from_db()
+        self.assertEqual(member1.vc_position, 2)
+        self.assertEqual(member2.vc_position, 1)
+
+        for member, old_position, new_position in ((member1, 1, 2), (member2, 2, 1)):
+            changes = self._get_member_changes(member)
+            self.assertEqual(changes.count(), 1)
+            change = changes.first()
+            self.assertEqual(change.prechange_data['vc_position'], old_position)
+            self.assertEqual(change.postchange_data['vc_position'], new_position)
+            self.assertEqual(change.postchange_data['virtual_chassis'], vc.pk)
+
+    @tag('regression')  # Ref: #23486
+    def test_delete_records_valid_member_changes(self):
+        self.add_permissions('dcim.delete_virtualchassis')
+        vc = VirtualChassis.objects.get(name='VC1')
+        members = list(vc.members.order_by('vc_position'))
+        Device.objects.filter(pk=members[0].pk).update(vc_priority=10)
+
+        response = self.client.post(self._get_url('delete', vc), {'confirm': True})
+        self.assertHttpStatus(response, 302)
+        self.assertFalse(VirtualChassis.objects.filter(pk=vc.pk).exists())
+
+        for member in members:
+            member.refresh_from_db()
+            self.assertIsNone(member.virtual_chassis)
+            self.assertIsNone(member.vc_position)
+            self.assertIsNone(member.vc_priority)
+
+            # Each member is detached and then cleared in two changes, each with prechange data and valid on
+            # its own (a virtual chassis is never recorded without a position)
+            changes = list(self._get_member_changes(member))
+            self.assertEqual(len(changes), 2)
+            detach, clear = changes
+            self.assertEqual(detach.action, ObjectChangeActionChoices.ACTION_UPDATE)
+            self.assertEqual(detach.prechange_data['virtual_chassis'], vc.pk)
+            self.assertIsNotNone(detach.prechange_data['vc_position'])
+            self.assertIsNone(detach.postchange_data['virtual_chassis'])
+            self.assertEqual(detach.postchange_data['vc_position'], detach.prechange_data['vc_position'])
+            self.assertEqual(clear.action, ObjectChangeActionChoices.ACTION_UPDATE)
+            self.assertIsNone(clear.prechange_data['virtual_chassis'])
+            self.assertEqual(clear.prechange_data['vc_position'], detach.postchange_data['vc_position'])
+            self.assertIsNone(clear.postchange_data['vc_position'])
+            self.assertIsNone(clear.postchange_data['vc_priority'])
+        self.assertEqual(self._get_member_changes(members[0]).first().prechange_data['vc_priority'], 10)
+
+        # The VC deletion is recorded once, before its (former) master is detached
+        vc_change = ObjectChange.objects.get(
+            changed_object_type=ContentType.objects.get_for_model(VirtualChassis),
+            changed_object_id=vc.pk,
+        )
+        self.assertEqual(vc_change.action, ObjectChangeActionChoices.ACTION_DELETE)
+        self.assertEqual(vc_change.prechange_data['master'], members[0].pk)
+        self.assertLess(vc_change.pk, self._get_member_changes(members[0]).first().pk)
+
 
 class PowerPanelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = PowerPanel

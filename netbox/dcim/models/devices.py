@@ -1344,14 +1344,19 @@ class VirtualChassis(PrimaryModel):
                 set(interfaces),
             )
 
-        # Clear vc_position and vc_priority on member devices BEFORE calling super().delete()
-        # This must be done here because on_delete=SET_NULL executes before pre_delete signal
-        for device in self.members.all():
-            device.vc_position = None
-            device.vc_priority = None
-            device.save()
+        # Core's pre_delete handler detaches each member (clearing virtual_chassis) and records that change. Clear the
+        # now-meaningless position and priority afterwards, as a second change which is valid on its own.
+        using = kwargs.get('using') or router.db_for_write(self.__class__, instance=self)
+        member_ids = list(self.members.values_list('pk', flat=True))
+        with transaction.atomic(using=using):
+            ret = super().delete(*args, **kwargs)
+            for device in Device.objects.using(using).filter(pk__in=member_ids):
+                device.snapshot()
+                device.vc_position = None
+                device.vc_priority = None
+                device.save(using=using)
 
-        return super().delete(*args, **kwargs)
+        return ret
 
 
 class VirtualDeviceContext(PrimaryModel):

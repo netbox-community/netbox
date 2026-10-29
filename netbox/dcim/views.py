@@ -5236,6 +5236,11 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
         vc_form.fields['master'].queryset = members_queryset
         formset = VCMemberFormSet(request.POST, queryset=members_queryset)
 
+        # Snapshot each member before validation applies the submitted data to the instance
+        for form in formset.initial_forms:
+            if form.instance.pk:
+                form.instance.snapshot()
+
         if vc_form.is_valid() and formset.is_valid():
             virtual_chassis._changelog_message = vc_form.cleaned_data.pop('changelog_message', '')
 
@@ -5244,14 +5249,10 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
                 # Save the VirtualChassis
                 vc_form.save()
 
-                # Nullify the vc_position of each member first to allow reordering without raising an IntegrityError on
-                # duplicate positions. Then save each member instance.
+                # Nullify vc_position of each changed member first to allow reordering without an IntegrityError on
+                # duplicate positions. A queryset update keeps this transient state out of the changelog.
                 members = formset.save(commit=False)
-                devices = Device.objects.filter(pk__in=[m.pk for m in members])
-                for device in devices:
-                    device.snapshot()
-                    device.vc_position = None
-                    device.save()
+                Device.objects.filter(pk__in=[m.pk for m in members]).update(vc_position=None)
                 for member in members:
                     member.save()
 
