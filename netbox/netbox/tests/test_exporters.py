@@ -303,6 +303,5 @@ class ExportViewTestCase(TestCase):
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
         view = DeviceTypeListView()
-        view.request = RequestFactory().get('/')
         view.queryset = DeviceType.objects.all()
         self.assertIn('model: Device Type 1', view.export_yaml())

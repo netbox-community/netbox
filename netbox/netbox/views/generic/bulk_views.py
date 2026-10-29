@@ -176,7 +176,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
         """
         Deprecated: Export the queryset of objects as concatenated YAML documents.
         """
-        return get_exporter('yaml').export(request=self.request, queryset=self.queryset)
+        return get_exporter('yaml').export(request=getattr(self, 'request', None), queryset=self.queryset)
 
     # TODO: Remove in NetBox v5.0
     def export_table(self, table, columns=None, filename=None, delimiter=None):
