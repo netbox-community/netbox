@@ -1502,13 +1502,16 @@ console-ports:
         url = reverse('dcim:devicetype_list')
         self.add_permissions('dcim.view_devicetype')
 
-        # Test default YAML export
-        response = self.client.get(f'{url}?export')
-        self.assertEqual(response.status_code, 200)
-        data = list(yaml.load_all(response.content, Loader=yaml.SafeLoader))
-        self.assertEqual(len(data), 3)
-        self.assertEqual(data[0]['manufacturer'], 'Manufacturer 1')
-        self.assertEqual(data[0]['model'], 'Device Type 1')
+        # Test YAML export (the default, or requested explicitly)
+        for params in ('export', 'export&export_format=yaml'):
+            with self.subTest(params=params):
+                response = self.client.get(f'{url}?{params}')
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.get('Content-Type'), 'text/yaml')
+                data = list(yaml.load_all(response.content, Loader=yaml.SafeLoader))
+                self.assertEqual(len(data), 3)
+                self.assertEqual(data[0]['manufacturer'], 'Manufacturer 1')
+                self.assertEqual(data[0]['model'], 'Device Type 1')
 
         # Test table-based export (streams row-by-row)
         response = self.client.get(f'{url}?export=table')
@@ -2213,13 +2216,16 @@ interfaces:
         url = reverse('dcim:moduletype_list')
         self.add_permissions('dcim.view_moduletype')
 
-        # Test default YAML export
-        response = self.client.get(f'{url}?export')
-        self.assertEqual(response.status_code, 200)
-        data = list(yaml.load_all(response.content, Loader=yaml.SafeLoader))
-        self.assertEqual(len(data), 3)
-        self.assertEqual(data[0]['manufacturer'], 'Manufacturer 1')
-        self.assertEqual(data[0]['model'], 'Module Type 1')
+        # Test YAML export (the default, or requested explicitly)
+        for params in ('export', 'export&export_format=yaml'):
+            with self.subTest(params=params):
+                response = self.client.get(f'{url}?{params}')
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.get('Content-Type'), 'text/yaml')
+                data = list(yaml.load_all(response.content, Loader=yaml.SafeLoader))
+                self.assertEqual(len(data), 3)
+                self.assertEqual(data[0]['manufacturer'], 'Manufacturer 1')
+                self.assertEqual(data[0]['model'], 'Module Type 1')
 
         # Test table-based export (streams row-by-row)
         response = self.client.get(f'{url}?export=table')
