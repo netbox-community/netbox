@@ -65,6 +65,29 @@ def ready(self):
 !!! warning "Exporters must be stateless"
     Registration instantiates the class once, and that single instance serves every request. Don't store per-request data on `self`.
 
+## YAML Export
+
+NetBox's YAML exporter supports any model which defines a `to_yaml()` method, including plugin models. The method returns a YAML document representing the object, and the exporter joins the documents for all exported objects.
+
+To avoid a database query per object, set `yaml_prefetch` on the model to the related objects which `to_yaml()` accesses through reverse or many-to-many relations. The exporter passes these to the queryset's `prefetch_related()`. Related objects accessed through foreign keys are fetched in batches automatically.
+
+```python title="models.py"
+import yaml
+
+from netbox.models import NetBoxModel
+
+class Widget(NetBoxModel):
+    ...
+    yaml_prefetch = ('parts',)
+
+    def to_yaml(self):
+        data = {
+            'name': self.name,
+            'parts': [part.name for part in self.parts.all()],
+        }
+        return yaml.dump(data, sort_keys=False)
+```
+
 ## Export Formats
 
 The `export_format` query parameter selects an exporter by its slug:
@@ -74,7 +97,7 @@ The `export_format` query parameter selects an exporter by its slug:
 | `?export=table&export_format=<slug>` | Current view, in the given format                      |
 | `?export&export_format=<slug>`       | All data, in the given format                          |
 | `?export=table`                      | Current view, as CSV                                   |
-| `?export`                            | All data, as YAML if the model supports it, or as CSV  |
+| `?export`                            | All data, as [YAML](#yaml-export) if the model supports it, or as CSV |
 
 An unknown slug, or an exporter that doesn't support the model (or the current view), returns a 404 response. Exporters are available only in the web UI. The REST API supports [export templates](../../customization/export-templates.md) only.
 

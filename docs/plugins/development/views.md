@@ -154,8 +154,10 @@ Below are the class definitions for NetBox's multi-object views. These views han
     options:
       members:
         - get_table
-        - export_table
         - export_template
+
+!!! warning "Deprecation Warning"
+    The `export_table()` and `export_yaml()` methods of `ObjectListView` have been deprecated beginning in NetBox v4.8, and are scheduled for removal in NetBox v5.0. An overridden `export_table()` applies only to CSV exports, and an overridden `export_yaml()` only to YAML exports. To provide a customized export format, register an [exporter](./exporters.md) instead. To prefetch related objects for YAML exports, set [`yaml_prefetch`](./exporters.md#yaml-export) on the model.
 
 ::: netbox.views.generic.BulkImportView
     options:
