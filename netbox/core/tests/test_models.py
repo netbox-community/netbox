@@ -16,6 +16,7 @@ from django.utils import timezone
 
 from core.choices import DataSourceStatusChoices, JobNotificationChoices, JobStatusChoices, ObjectChangeActionChoices
 from core.data_backends import LocalBackend
+from core.events import JOB_COMPLETED, JOB_FAILED
 from core.exceptions import SyncError
 from core.models import AutoSyncRecord, DataFile, DataSource, Job, ObjectType
 from core.signals import post_sync
@@ -355,7 +356,7 @@ class ObjectTypeTestCase(TestCase):
 
 class JobTestCase(TestCase):
 
-    def _make_job(self, user, notifications):
+    def _make_job(self, user, notifications, **kwargs):
         """
         Create and return a persisted Job with the given user and notifications setting.
         """
@@ -365,6 +366,7 @@ class JobTestCase(TestCase):
             user=user,
             notifications=notifications,
             status=JobStatusChoices.STATUS_RUNNING,
+            **kwargs,
         )
 
     @patch('core.models.jobs.django_rq.get_queue')
@@ -470,6 +472,26 @@ class JobTestCase(TestCase):
                     0,
                     msg=f"Expected no notification for status={status} with notifications=never",
                 )
+
+    @patch('core.models.jobs.job_end')
+    def test_terminate_updates_existing_notification(self, mock_job_end):
+        """Terminating a Job re-issues its owner's existing notification as unread."""
+        user = User.objects.create_user(username='notification-existing')
+        datasource = DataSource.objects.create(name='Data Source 1', type='local')
+        job = self._make_job(user, JobNotificationChoices.NOTIFICATION_ALWAYS, object=datasource)
+        previous_time = timezone.now() - timedelta(days=1)
+        notification = Notification.objects.create(user=user, object=job, event_type=JOB_FAILED, read=previous_time)
+        Notification.objects.filter(pk=notification.pk).update(created=previous_time)
+
+        job.name = 'Renamed Job'
+        job.terminate()
+
+        notification.refresh_from_db()
+        self.assertEqual(notification.event_type, JOB_COMPLETED)
+        self.assertEqual(notification.object_repr, 'Renamed Job')
+        self.assertEqual(notification.created, job.completed)
+        self.assertIsNone(notification.read)
+        mock_job_end.send.assert_called_once_with(job)
 
     @patch('core.models.jobs.job_end')
     def test_execution_time_set_on_terminate(self, mock_job_end):

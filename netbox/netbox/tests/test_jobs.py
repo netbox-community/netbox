@@ -8,10 +8,12 @@ from django.utils import timezone
 from django_rq import get_queue
 
 from core.choices import JobStatusChoices
+from core.events import JOB_COMPLETED, JOB_FAILED
 from core.exceptions import JobFailed
 from core.models import DataSource, Job
 from dcim.models import Site
 from dcim.views import SiteBulkEditView
+from extras.models import Notification
 from users.models import User
 from utilities.request import copy_safe_request
 from utilities.testing import disable_warnings
@@ -85,6 +87,20 @@ class JobRunnerTestCase(BaseJobRunnerTestCase):
             job = TestJobRunner.enqueue(immediate=True, make_fail=True)
 
         self.assertEqual(job.status, JobStatusChoices.STATUS_FAILED)
+
+    def test_handle_existing_notification(self):
+        """A Job whose owner already has a notification for it completes."""
+        user = User.objects.create_user(username='job-existing-notification')
+        job = Job.objects.create(name=TestJobRunner.name, job_id=uuid.uuid4(), user=user)
+        notification = Notification.objects.create(user=user, object=job, event_type=JOB_FAILED)
+
+        TestJobRunner.handle(job)
+
+        job.refresh_from_db()
+        notification.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
+        self.assertEqual(job.error, '')
+        self.assertEqual(notification.event_type, JOB_COMPLETED)
 
     def test_handle_errored(self):
         class ErroredJobRunner(TestJobRunner):

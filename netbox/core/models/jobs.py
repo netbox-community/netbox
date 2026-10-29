@@ -270,11 +270,18 @@ class Job(models.Model):
                 self.notifications == JobNotificationChoices.NOTIFICATION_ALWAYS or
                 status != JobStatusChoices.STATUS_COMPLETED
             ):
-                Notification(
+                # A Job may be terminated more than once, so update any earlier notification in place
+                Notification.objects.update_or_create(
+                    object_type=ObjectType.objects.get_for_model(self),
+                    object_id=self.pk,
                     user=self.user,
-                    object=self,
-                    event_type=self.get_event_type(),
-                ).save()
+                    defaults={
+                        'event_type': self.get_event_type(),
+                        'object_repr': Notification.get_object_repr(self),
+                        'created': self.completed,
+                        'read': None,
+                    },
+                )
 
         # Send signal
         job_end.send(self)
