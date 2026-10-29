@@ -268,6 +268,9 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             else:
                 exporter = get_exporter('csv')
             if not isinstance(exporter, TableExporter):
+                # TODO: Remove in NetBox v5.0 along with export_yaml()
+                if exporter.slug == 'yaml' and type(self).export_yaml is not ObjectListView.export_yaml:
+                    return self.get_export_response(exporter, self.export_yaml())
                 data = exporter.export(request=request, queryset=self.queryset)
                 return self.get_export_response(exporter, data)
 

@@ -258,6 +258,24 @@ class ExportViewTestCase(TestCase):
                 response = CustomSiteListView.as_view()(request)
                 self.assertEqual(response['Content-Disposition'], 'attachment; filename="custom.csv"')
 
+    def test_export_yaml_override(self):
+        """
+        Overriding the deprecated export_yaml() still applies to YAML exports.
+        """
+        class CustomDeviceTypeListView(DeviceTypeListView):
+            def export_yaml(self):
+                return 'custom'
+
+        self.add_permissions('dcim.view_devicetype')
+        url = reverse('dcim:devicetype_list')
+        for params in ({'export': ''}, {'export': '', 'export_format': 'yaml'}):
+            with self.subTest(params=params):
+                request = RequestFactory().get(url, params)
+                request.user = self.user
+                response = CustomDeviceTypeListView.as_view()(request)
+                self.assertEqual(response['Content-Type'], 'text/yaml')
+                self.assertEqual(response.content, b'custom')
+
     def test_export_yaml(self):
         """
         The deprecated export_yaml() returns the YAML export of the view's queryset.
