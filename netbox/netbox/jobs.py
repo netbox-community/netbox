@@ -3,6 +3,7 @@ import logging
 import os
 import traceback
 from abc import ABC, abstractmethod
+from contextlib import ExitStack
 from datetime import timedelta
 from io import BytesIO
 from pathlib import Path
@@ -115,17 +116,21 @@ class JobRunner(ABC):
         job's metadata and handle errors. For periodic jobs, a new job is automatically scheduled using its `interval`.
         """
         logger = logging.getLogger('netbox.jobs')
+        status = None
+        error = None
 
         try:
             job.start()
             cls(job).run(*args, **kwargs)
-            job.terminate()
+            status = JobStatusChoices.STATUS_COMPLETED
 
         except JobFailed:
+            status = JobStatusChoices.STATUS_FAILED
             logger.warning(f"Job {job} failed")
-            job.terminate(status=JobStatusChoices.STATUS_FAILED)
 
         except Exception as e:
+            status = JobStatusChoices.STATUS_ERRORED
+            error = repr(e)
             tb_str = traceback.format_exc().replace(_INSTALL_ROOT, '')
             tb_record = logging.makeLogRecord({
                 'levelno': logging.ERROR,
@@ -133,71 +138,69 @@ class JobRunner(ABC):
                 'msg': tb_str,
             })
             job.log(tb_record)
-            job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=repr(e))
             if type(e) is JobTimeoutException:
                 logger.error(e)
 
-        # If the executed job is a periodic job, schedule its next execution at the specified interval.
+        # Keep the current job running until the rescheduling attempt finishes (see #23535)
         finally:
-            if job.interval:
-                # Determine the new scheduled time. Cannot be earlier than one minute in the future.
-                new_scheduled_time = max(
-                    (job.scheduled or job.started) + timedelta(minutes=job.interval),
-                    timezone.now() + timedelta(minutes=1)
-                )
-                if job.object and getattr(job.object, "python_class", None):
-                    kwargs["job_timeout"] = job.object.python_class.job_timeout
-
-                enqueue_kwargs = dict(
-                    instance=job.object,
-                    name=job.name,
-                    user=job.user,
-                    schedule_at=new_scheduled_time,
-                    interval=job.interval,
-                    notifications=job.notifications,
-                    **kwargs,
-                )
-
-                # Reschedule the next occurrence. If the object's configuration has become invalid since this run was
-                # scheduled (e.g. a script's Meta.job_timeout was edited to an invalid value, see #22872), the enqueue
-                # will raise a ValidationError. Record it on this job and decline to reschedule rather than allowing an
-                # unhandled exception to escape the worker's finally block.
+            with ExitStack() as stack:
                 try:
-                    if cls in registry['system_jobs']:
-                        # System jobs are also scheduled by `enqueue_once()` at worker startup,
-                        # which races with this finally block and can produce duplicate schedules
-                        # (see #22232). Acquire the same advisory lock used by `enqueue_once()`
-                        # and skip rescheduling if a successor is already enqueued.
-                        #
-                        # This branch is limited to system jobs because generic recurring jobs
-                        # (e.g. scheduled scripts) may have multiple legitimate schedules sharing
-                        # the same runner/object/interval but differing in their runtime kwargs.
-                        with advisory_lock(ADVISORY_LOCK_KEYS['job-schedules']):
-                            successor_exists = Job.objects.filter(
-                                name=cls.name,
-                                object_id__isnull=True,
-                                status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES,
-                                interval=job.interval,
-                            ).exclude(pk=job.pk).exists()
-                            if not successor_exists:
-                                cls.enqueue(**enqueue_kwargs)
-                    else:
-                        cls.enqueue(**enqueue_kwargs)
-                except ValidationError as e:
-                    # The successor could not be scheduled because the object's configuration is now invalid. Record
-                    # this against the (already-terminated) job without overwriting the outcome of the run that just
-                    # completed — re-running terminate() here would clobber a successful run's status and fire a
-                    # duplicate notification (see #22872).
-                    error = _("Recurring job not rescheduled due to invalid configuration: {error}").format(
-                        error='; '.join(e.messages)
-                    )
-                    logger.error(f"Job {job}: {error}")
-                    job.log(logging.makeLogRecord({
-                        'levelno': logging.ERROR,
-                        'levelname': 'ERROR',
-                        'msg': error,
-                    }))
-                    job.save()
+                    if job.interval:
+                        if cls in registry['system_jobs']:
+                            # Held through termination, so overlapping runs cannot both skip rescheduling
+                            stack.enter_context(advisory_lock(ADVISORY_LOCK_KEYS['job-schedules']))
+                        cls._reschedule(job, **kwargs)
+                finally:
+                    if status is not None:
+                        job.terminate(status=status, error=error)
+
+    @classmethod
+    def _reschedule(cls, job, **kwargs):
+        """
+        Schedule the next occurrence of a periodic job. For a system job, the caller must hold the schedule lock.
+        """
+        logger = logging.getLogger('netbox.jobs')
+
+        # Determine the new scheduled time. Cannot be earlier than one minute in the future.
+        new_scheduled_time = max(
+            (job.scheduled or job.started) + timedelta(minutes=job.interval),
+            timezone.now() + timedelta(minutes=1)
+        )
+        if job.object and getattr(job.object, 'python_class', None):
+            kwargs['job_timeout'] = job.object.python_class.job_timeout
+
+        try:
+            # Only system jobs are deduplicated, as scheduled scripts may run parallel schedules (see #22232)
+            if cls in registry['system_jobs']:
+                successor_exists = Job.objects.filter(
+                    name=cls.name,
+                    object_id__isnull=True,
+                    status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES,
+                    interval=job.interval,
+                ).exclude(pk=job.pk).exists()
+                if successor_exists:
+                    return
+            cls.enqueue(
+                instance=job.object,
+                name=job.name,
+                user=job.user,
+                schedule_at=new_scheduled_time,
+                interval=job.interval,
+                notifications=job.notifications,
+                **kwargs,
+            )
+        except ValidationError as e:
+            # Keep the run's outcome when invalid configuration blocks the reschedule (see #22872)
+            message = _("Recurring job not rescheduled due to invalid configuration: {error}").format(
+                error='; '.join(e.messages)
+            )
+            logger.error(f"Job {job}: {message}")
+            job.log(logging.makeLogRecord({
+                'levelno': logging.ERROR,
+                'levelname': 'ERROR',
+                'msg': message,
+            }))
+            job.save()
 
     @classmethod
     def get_jobs(cls, instance=None):
