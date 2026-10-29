@@ -111,12 +111,12 @@ intake policy](https://github.com/netbox-community/netbox/wiki/Issue-Intake-Poli
 
 * Some other tips to keep in mind:
   * If you'd like to volunteer for someone else's issue, please post a comment on that issue letting us know. (GitHub allows only people who have commented on an issue to be assigned as its owner.)
-  * Check out our [developer docs](https://docs.netbox.dev/en/stable/development/getting-started/) for tips on setting up your development environment.
+  * Check out our [developer docs](https://netboxlabs.com/docs/netbox/development/getting-started/) for tips on setting up your development environment.
   * All new functionality must include relevant tests where applicable.
 
 ## :jigsaw: Creating Plugins
 
-Do you have an idea for something you'd like to build in NetBox, but might not be right for the core project? NetBox includes a powerful and extensive [plugins framework](https://docs.netbox.dev/en/stable/plugins/) that enables users to develop their own custom data models and integrations.
+Do you have an idea for something you'd like to build in NetBox, but might not be right for the core project? NetBox includes a powerful and extensive [plugins framework](https://netboxlabs.com/docs/netbox/plugins/) that enables users to develop their own custom data models and integrations.
 
 Check out our [plugin development tutorial](https://github.com/netbox-community/netbox-plugin-tutorial) to get started!
 

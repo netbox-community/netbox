@@ -14,7 +14,7 @@
   </p>
 </div>
 
-NetBox exists to empower network engineers. Since its release in 2016, it has become the go-to solution for modeling and documenting network infrastructure for thousands of organizations worldwide. As a successor to legacy IPAM and DCIM applications, NetBox provides a cohesive, extensive, and accessible data model for all things networked. By providing a single robust user interface and programmable APIs for everything from cable maps to device configurations, NetBox serves as the central source of truth for the modern network.
+NetBox exists to empower network engineers. For over a decade, it has been the go-to solution for modeling and documenting network infrastructure for thousands of organizations worldwide. NetBox offers a cohesive, extensive, and accessible data model for all things networked. By providing a single robust user interface and programmable APIs for everything from cable maps to device configurations, NetBox serves as the central source of truth for the modern network. It also forms the heart of the [NetBox Labs](https://netboxlabs.com/) platform, alongside [network discovery](https://netboxlabs.com/products/netbox-discovery/), [assurance](https://netboxlabs.com/products/netbox-assurance/), and [observability](https://netboxlabs.com/products/netbox-observability/).
 
 <p align="center">
   <a href="#netboxs-role">NetBox's Role</a> |
@@ -43,11 +43,11 @@ The diagram above illustrates the recommended deployment architecture for an aut
 
 ### Comprehensive Data Model
 
-Racks, devices, cables, IP addresses, VLANs, circuits, power, VPNs, and lots more: NetBox is built for networks. Its comprehensive and thoroughly inter-linked data model provides for natural and highly structured modeling of myriad network primitives that just isn't possible using general-purpose tools. And there's no need to waste time contemplating how to build out a database: Everything is ready to go upon installation.
+Racks, devices, cables, IP addresses, VLANs, circuits, power, cooling, VPNs, and lots more: NetBox is built for networks. Its comprehensive and thoroughly inter-linked data model provides for natural and highly structured modeling of myriad network primitives that just isn't possible using general-purpose tools. And there's no need to waste time contemplating how to build out a database: Everything is ready to go upon installation.
 
 ### Focused Development
 
-NetBox strives to meet a singular goal: Provide the best available solution for making network infrastructure programmatically accessible. Unlike "all-in-one" tools which awkwardly bolt on half-baked features in an attempt to check every box, NetBox is committed to its core function. NetBox provides the best possible solution for modeling network infrastructure, and provides rich APIs for integrating with tools that excel in other areas of network automation.
+NetBox strives to meet a singular goal: Provide the best available solution for making network infrastructure programmatically accessible. Unlike "all-in-one" tools which awkwardly bolt on half-baked features in an attempt to check every box, NetBox is committed to its core function. It focuses on modeling network infrastructure, and provides rich APIs for integrating with tools that excel in other areas of network automation.
 
 ### Extensible and Customizable
 
@@ -63,7 +63,7 @@ The data you put into NetBox is crucial to network operations. In addition to it
 
 ### Device Configuration Rendering
 
-NetBox can render user-created Jinja2 templates to generate device configurations from its own data. Configuration templates can be uploaded individually or pulled automatically from an external source, such as a git repository. Rendered configurations can be retrieved via the REST API for application directly to network devices via a provisioning tool such as Ansible or Salt.
+NetBox can render user-created Jinja2 templates to generate device configurations from its own data. Configuration templates can be uploaded individually or pulled automatically from an external source, such as a Git repository. Rendered configurations can be retrieved via the REST API for application directly to network devices via a provisioning tool such as Ansible or Salt.
 
 ### Custom Scripts
 
@@ -78,27 +78,34 @@ Users can define event rules to automatically trigger a custom script or outboun
 NetBox automatically logs the creation, modification, and deletion of all managed objects, providing a thorough change history. Changes can be attributed to the executing user, and related changes are grouped automatically by request ID.
 
 > [!NOTE]
-> A complete list of NetBox's myriad features can be found in [the introductory documentation](https://docs.netbox.dev/en/stable/introduction/).
+> A complete list of NetBox's myriad features can be found in [the introductory documentation](https://netboxlabs.com/docs/netbox/introduction/).
 
 ## Getting Started
 
 * Just want to explore? Check out [our public demo](https://demo.netbox.dev/) right now!
-* The [official documentation](https://docs.netbox.dev) offers a comprehensive introduction.
-* Check out [our wiki](https://github.com/netbox-community/netbox/wiki/Community-Contributions) for even more projects to get the most out of NetBox!
+* Ready to dive in? Grab your own [NetBox Cloud Free Tier](https://signup.netboxlabs.com/) instance in just a few minutes.
+* The [installation guide](https://netboxlabs.com/docs/netbox/installation/) will help you get your own deployment up and running.
+* Or try the community [Docker image](https://github.com/netbox-community/netbox-docker) for a low-touch, containerized approach.
+* The [official documentation](https://netboxlabs.com/docs/netbox/) offers a comprehensive introduction.
 
 ## Plugins
 
-NetBox's functionality can be extended through plugins, which add new models, views, and integrations on top of the core application. A few of the most popular plugins include:
+NetBox's functionality can be extended through plugins, which add new models, views, and integrations on top of the core application. A few notable plugins include:
 
-* [NetBox Branching](https://github.com/netboxlabs/netbox-branching) — Work with isolated, mergeable branches of your NetBox data
-* [NetBox Custom Objects](https://github.com/netboxlabs/netbox-custom-objects) — Define entirely new object types directly in the UI
+* [NetBox Branching](https://netboxlabs.com/docs/branching/) — Work with isolated, mergeable branches of your NetBox data
+* [NetBox Change Management](https://netboxlabs.com/docs/changes/) — Enforce review and approval policies on changes proposed in branches (Cloud & Enterprise)
+* [NetBox Custom Objects](https://netboxlabs.com/docs/custom-objects/) — Dynamically create new object types to extend the NetBox schema
+* [NetBox Asset Lifecycle](https://netboxlabs.com/docs/asset-lifecycle/) — Track equipment procurement from bills of materials through purchase orders and shipments (Cloud & Enterprise)
+* [NetBox NDX](https://netboxlabs.com/docs/ndx/) — Automatically import devices, modules, and more from the [NetBox Data Exchange](https://netboxlabs.com/ndx/) (Cloud & Enterprise)
 * [NetBox DNS](https://github.com/sys4/netbox-plugin-dns) — Manage DNS zones and records as an authoritative source of truth
 * [NetBox BGP](https://github.com/netbox-community/netbox-bgp) — Document and manage BGP sessions and routing policies
+* [NetBox WDM](https://github.com/jsenecal/netbox-wdm) — Manage WDM wavelengths, ITU channel plans, and wavelength services
+* [NetBox Security](https://github.com/andy-shady-org/netbox-security/) — Model firewall, security, and NAT policies
 * [Browse all plugins](https://netboxlabs.com/plugins/) — Discover the full catalog of available plugins
 
 ## Get Involved
 
-* Follow [@NetBoxOfficial](https://twitter.com/NetBoxOfficial) on Twitter!
+* Follow [@NetBoxOfficial](https://x.com/NetBoxOfficial) on X!
 * Join the conversation on [the discussion forum](https://github.com/netbox-community/netbox/discussions) and [Slack](https://netdev.chat/)!
 * Already a power user? You can [suggest a feature](https://github.com/netbox-community/netbox/issues/new?assignees=&labels=type%3A+feature&template=feature_request.yaml) or [report a bug](https://github.com/netbox-community/netbox/issues/new?assignees=&labels=type%3A+bug&template=bug_report.yaml) on GitHub.
 * Contributions from the community are encouraged and appreciated! Check out our [contributing guide](CONTRIBUTING.md) to get started.

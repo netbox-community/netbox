@@ -68,7 +68,7 @@ You should see output similar to the following:
 ● netbox.service - NetBox WSGI Service
      Loaded: loaded (/etc/systemd/system/netbox.service; enabled; vendor preset: enabled)
      Active: active (running) since Mon 2021-08-30 04:02:36 UTC; 14h ago
-       Docs: https://docs.netbox.dev/
+       Docs: https://netboxlabs.com/docs/netbox/
    Main PID: 1140492 (uwsgi)
       Tasks: 19 (limit: 4683)
      Memory: 666.2M

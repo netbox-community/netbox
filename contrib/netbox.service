@@ -1,6 +1,6 @@
 [Unit]
 Description=NetBox WSGI Service
-Documentation=https://docs.netbox.dev/
+Documentation=https://netboxlabs.com/docs/netbox/
 After=network-online.target
 Wants=network-online.target
 
