@@ -80,6 +80,7 @@ class PythonModuleMixin:
         spec = importlib.util.spec_from_file_location(module_name, self.name)
         if spec is None:
             raise ModuleNotFoundError(f"Could not find module: {self.python_name}")
+        spec.origin = self.full_path
         loader = CustomStoragesLoader(self.name)
         module = importlib.util.module_from_spec(spec)
         sys.modules[module_name] = module
