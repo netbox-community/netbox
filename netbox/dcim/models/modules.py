@@ -227,8 +227,23 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     prerequisite_models = (
         'dcim.Manufacturer',
     )
-    # Avoid one module_bay_types query per module type when exporting to YAML
-    yaml_prefetch = ('module_bay_types',)
+    # Related objects read by to_yaml(). Prefetched objects don't inherit the export's fetch mode, so the
+    # foreign keys of component templates are listed too.
+    yaml_prefetch = (
+        'module_bay_types',
+        'consoleporttemplates',
+        'consoleserverporttemplates',
+        'powerporttemplates',
+        'poweroutlettemplates__power_port',
+        'coolingintaketemplates',
+        'coolingoutflowtemplates__cooling_intake',
+        'interfacetemplates__parent',
+        'interfacetemplates__bridge',
+        'frontporttemplates',
+        'rearporttemplates',
+        'port_mappings__front_port',
+        'port_mappings__rear_port',
+    )
 
     class Meta:
         ordering = ('profile', 'manufacturer', 'model')

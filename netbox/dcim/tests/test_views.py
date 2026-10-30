@@ -11,7 +11,6 @@ import yaml
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages import get_messages
 from django.db import connection
-from django.db.models import FETCH_PEERS
 from django.http import QueryDict, StreamingHttpResponse
 from django.test import override_settings, tag
 from django.test.utils import CaptureQueriesContext
@@ -801,6 +800,25 @@ class ManufacturerTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         }
 
 
+def create_yaml_export_templates(**parent):
+    """
+    Create one of each component template exported by to_yaml(), with its related templates, on a device or module type.
+    """
+    ConsolePortTemplate.objects.create(name='Console Port', **parent)
+    ConsoleServerPortTemplate.objects.create(name='Console Server Port', **parent)
+    power_port = PowerPortTemplate.objects.create(name='Power Port', **parent)
+    PowerOutletTemplate.objects.create(name='Power Outlet', power_port=power_port, **parent)
+    cooling_intake = CoolingIntakeTemplate.objects.create(name='Cooling Intake', **parent)
+    CoolingOutflowTemplate.objects.create(name='Cooling Outflow', cooling_intake=cooling_intake, **parent)
+    lag = InterfaceTemplate.objects.create(name='LAG', type=InterfaceTypeChoices.TYPE_LAG, **parent)
+    InterfaceTemplate.objects.create(
+        name='Interface', type=InterfaceTypeChoices.TYPE_1GE_FIXED, parent=lag, bridge=lag, **parent
+    )
+    front_port = FrontPortTemplate.objects.create(name='Front Port', type=PortTypeChoices.TYPE_8P8C, **parent)
+    rear_port = RearPortTemplate.objects.create(name='Rear Port', type=PortTypeChoices.TYPE_8P8C, **parent)
+    PortTemplateMapping.objects.create(front_port=front_port, rear_port=rear_port)
+
+
 # TODO: Change base class to PrimaryObjectViewTestCase
 # Blocked by absence of bulk import view for DeviceTypes
 class DeviceTypeTestCase(
@@ -1271,31 +1289,38 @@ inventory-items:
         ii1 = InventoryItemTemplate.objects.first()
         self.assertEqual(ii1.name, 'Inventory Item 1')
 
-    def test_bulk_yaml_export_module_bay_types_query_count_is_constant(self):
-        """Query count shouldn't scale with bay count -- module_bay_types is prefetched."""
+    def test_bulk_yaml_export_query_count_is_constant(self):
+        """Query count shouldn't scale with the number of device types or module bays."""
         manufacturer = Manufacturer.objects.create(name='Export Query Manufacturer', slug='export-query-mfr')
         bay_type = ModuleBayType.objects.create(name='Export Query SFP28', slug='export-query-sfp28')
 
-        def make_device_type(model_name, bay_count):
-            device_type = DeviceType.objects.create(
-                manufacturer=manufacturer, model=model_name, slug=model_name.lower().replace(' ', '-'),
-            )
-            for i in range(bay_count):
-                bay = ModuleBayTemplate.objects.create(device_type=device_type, name=f'Bay {i}')
-                bay.module_bay_types.set([bay_type])
-            return device_type
+        def make_device_types(count):
+            pks = []
+            for i in range(count):
+                device_type = DeviceType.objects.create(
+                    manufacturer=manufacturer,
+                    model=f'Export Query DT {count}-{i}',
+                    slug=f'export-query-dt-{count}-{i}',
+                )
+                create_yaml_export_templates(device_type=device_type)
+                DeviceBayTemplate.objects.create(device_type=device_type, name='Device Bay')
+                for j in range(count):
+                    bay = ModuleBayTemplate.objects.create(device_type=device_type, name=f'Bay {j}')
+                    bay.module_bay_types.set([bay_type])
+                pks.append(device_type.pk)
+            return DeviceType.objects.filter(pk__in=pks)
 
-        one_bay_device_type = make_device_type('Export Query DT One Bay', 1)
-        five_bay_device_type = make_device_type('Export Query DT Five Bays', 5)
+        one_device_type = make_device_types(1)
+        five_device_types = make_device_types(5)
 
         exporter = get_exporter('yaml')
-        with CaptureQueriesContext(connection) as one_bay_queries:
-            exporter.export(request=None, queryset=DeviceType.objects.filter(pk=one_bay_device_type.pk))
+        with CaptureQueriesContext(connection) as one_queries:
+            exporter.export(request=None, queryset=one_device_type)
 
-        with CaptureQueriesContext(connection) as five_bay_queries:
-            exporter.export(request=None, queryset=DeviceType.objects.filter(pk=five_bay_device_type.pk))
+        with CaptureQueriesContext(connection) as five_queries:
+            exporter.export(request=None, queryset=five_device_types)
 
-        self.assertEqual(len(one_bay_queries), len(five_bay_queries))
+        self.assertEqual(len(one_queries), len(five_queries))
 
     def test_import_channelized_interfaces(self):
         """
@@ -2186,30 +2211,31 @@ interfaces:
             self.assertEqual(channel.channel_id, i)
             self.assertEqual(channel.parent, imported_parent)
 
-    def test_bulk_yaml_export_prefetches_module_bay_types_on_the_module_type_itself(self):
-        """Compares an unprefetched to_yaml() call per instance (using the same fetch mode) against
-        a YAML export (which prefetches and issues no queries of its own beyond that), rather than
-        a row-count comparison, which other per-instance relations that legitimately scale with it
-        would swamp."""
+    def test_bulk_yaml_export_query_count_is_constant(self):
+        """Query count shouldn't scale with the number of module types."""
         manufacturer = Manufacturer.objects.create(name='Export Query MT Manufacturer', slug='export-query-mt-mfr')
         bay_type = ModuleBayType.objects.create(name='Export Query MT SFP28', slug='export-query-mt-sfp28')
 
-        module_types = []
-        for i in range(5):
-            module_type = ModuleType.objects.create(manufacturer=manufacturer, model=f'Export Query MT {i}')
-            module_type.module_bay_types.set([bay_type])
-            module_types.append(module_type)
-        pks = [mt.pk for mt in module_types]
+        def make_module_types(count):
+            pks = []
+            for i in range(count):
+                module_type = ModuleType.objects.create(manufacturer=manufacturer, model=f'Export Query MT {count}-{i}')
+                module_type.module_bay_types.set([bay_type])
+                create_yaml_export_templates(module_type=module_type)
+                pks.append(module_type.pk)
+            return ModuleType.objects.filter(pk__in=pks)
 
-        with CaptureQueriesContext(connection) as unprefetched:
-            [obj.to_yaml() for obj in ModuleType.objects.filter(pk__in=pks).fetch_mode(FETCH_PEERS)]
+        one_module_type = make_module_types(1)
+        five_module_types = make_module_types(5)
 
-        with CaptureQueriesContext(connection) as prefetched:
-            get_exporter('yaml').export(request=None, queryset=ModuleType.objects.filter(pk__in=pks))
+        exporter = get_exporter('yaml')
+        with CaptureQueriesContext(connection) as one_queries:
+            exporter.export(request=None, queryset=one_module_type)
 
-        # Without the prefetch, each of the 5 module types issues its own module_bay_types
-        # query; with it, exactly one query serves all 5.
-        self.assertEqual(len(unprefetched) - len(prefetched), 4)
+        with CaptureQueriesContext(connection) as five_queries:
+            exporter.export(request=None, queryset=five_module_types)
+
+        self.assertEqual(len(one_queries), len(five_queries))
 
     @override_settings(STREAMING_EXPORTS=True)
     def test_export_objects(self):

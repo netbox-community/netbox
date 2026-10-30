@@ -70,7 +70,7 @@ def ready(self):
 
 NetBox's YAML exporter supports any model which defines a `to_yaml()` method, including plugin models. The method returns a YAML document representing the object, and the exporter joins the documents for all exported objects.
 
-To avoid a database query per object, set `yaml_prefetch` on the model to the related objects which `to_yaml()` accesses through reverse or many-to-many relations. The exporter passes these to the queryset's `prefetch_related()`. Related objects accessed through foreign keys are fetched in batches automatically.
+To avoid a database query per object, set `yaml_prefetch` on the model to the related objects which `to_yaml()` accesses through reverse or many-to-many relations. The exporter passes these to the queryset's `prefetch_related()`. Related objects accessed through foreign keys are fetched in batches automatically. This doesn't extend to objects loaded by `yaml_prefetch`, so if `to_yaml()` reads a foreign key on them, include it in the lookup (e.g. `parts__supplier`).
 
 ```python title="models.py"
 import yaml
