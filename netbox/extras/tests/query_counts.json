@@ -3,7 +3,7 @@
   "bookmark:list_objects_with_permission": 16,
   "configcontext:api_list_objects": 22,
   "configcontext:list_objects_with_permission": 15,
-  "configcontextprofile:api_list_objects": 12,
+  "configcontextprofile:api_list_objects": 11,
   "configcontextprofile:list_objects_with_permission": 15,
   "configtemplate:api_list_objects": 10,
   "configtemplate:list_objects_with_permission": 16,

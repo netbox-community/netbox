@@ -1312,7 +1312,7 @@ class ServicePortMappingFilterMixin(django_filters.FilterSet):
         """
         queryset = super().filter_queryset(queryset)
 
-        cleaned_data = self.form.cleaned_data
+        cleaned_data = self.cleaned_data
         protocols = cleaned_data.get('protocol') or []
         port_tests = [
             (lookup, values)
@@ -1361,7 +1361,7 @@ class ServicePortMappingFilterMixin(django_filters.FilterSet):
         # ?protocol=tcp&port__n=80 excludes only services exposing tcp/80 (not those exposing udp/80).
         if not value:
             return queryset
-        protocols = self.form.cleaned_data.get('protocol') or []
+        protocols = self.cleaned_data.get('protocol') or []
         return queryset.exclude(port_mapping_q(protocols, [('exact', value)]))
 
 
