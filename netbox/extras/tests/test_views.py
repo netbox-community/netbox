@@ -1528,7 +1528,9 @@ class ScriptValidationErrorTestCase(TestCase):
 
     def setUp(self):
         super().setUp()
-        Script.python_class = property(lambda self: ScriptValidationErrorTestCase.TestScriptClass)
+        python_class_patch = patch.object(Script, 'python_class', new=self.TestScriptClass)
+        python_class_patch.start()
+        self.addCleanup(python_class_patch.stop)
 
     @tag('regression')
     def test_script_validation_error_displays_message(self):
@@ -1654,7 +1656,9 @@ class ScriptDefaultValuesTestCase(TestCase):
 
     def setUp(self):
         super().setUp()
-        Script.python_class = property(lambda self: ScriptDefaultValuesTestCase.TestScriptClass)
+        python_class_patch = patch.object(Script, 'python_class', new=self.TestScriptClass)
+        python_class_patch.start()
+        self.addCleanup(python_class_patch.stop)
 
     def test_default_values_are_used(self):
         url = reverse('extras:script', kwargs={'pk': self.script.pk})
