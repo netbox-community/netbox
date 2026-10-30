@@ -1,5 +1,6 @@
 import datetime
 import hashlib
+import io
 import logging
 import uuid
 from unittest.mock import PropertyMock, patch
@@ -1527,7 +1528,9 @@ class ScriptValidationErrorTestCase(TestCase):
 
     def setUp(self):
         super().setUp()
-        Script.python_class = property(lambda self: ScriptValidationErrorTestCase.TestScriptClass)
+        python_class_patch = patch.object(Script, 'python_class', new=self.TestScriptClass)
+        python_class_patch.start()
+        self.addCleanup(python_class_patch.stop)
 
     @tag('regression')
     def test_script_validation_error_displays_message(self):
@@ -1653,7 +1656,9 @@ class ScriptDefaultValuesTestCase(TestCase):
 
     def setUp(self):
         super().setUp()
-        Script.python_class = property(lambda self: ScriptDefaultValuesTestCase.TestScriptClass)
+        python_class_patch = patch.object(Script, 'python_class', new=self.TestScriptClass)
+        python_class_patch.start()
+        self.addCleanup(python_class_patch.stop)
 
     def test_default_values_are_used(self):
         url = reverse('extras:script', kwargs={'pk': self.script.pk})
@@ -1851,3 +1856,53 @@ class ScriptJobsRestrictionTestCase(TestCase):
     def test_without_view_job_permission(self):
         self._assert_script_views_show(set())
         self._assert_script_list_shows(None)
+
+
+class ScriptSourceViewTestCase(TestCase):
+    """
+    The Source tab must show the script's actual location in the scripts storage backend,
+    not a path derived from the current working directory (#23511).
+    """
+    user_permissions = ['extras.view_script']
+
+    SCRIPT_CONTENT = (
+        "from extras.scripts import Script\n\n\n"
+        "class TestScript(Script):\n    pass\n"
+    )
+
+    @classmethod
+    def setUpTestData(cls):
+        with patch.object(ScriptModule, 'sync_classes'):
+            cls.module = ScriptModule.objects.create(
+                file_root=ManagedFileRootPathChoices.SCRIPTS,
+                file_path='test_script.py',
+            )
+        cls.script = Script.objects.create(module=cls.module, name='TestScript', is_executable=True)
+
+    def setUp(self):
+        super().setUp()
+        content = self.SCRIPT_CONTENT.encode()
+
+        class _Storage:
+            def open(self, name, mode='rb'):
+                if 'b' in mode:
+                    return io.BytesIO(content)
+                return io.StringIO(content.decode())
+
+        self._module_storage_patch = patch('extras.models.mixins.storages')
+        self._script_storage_patch = patch('extras.scripts.storages')
+        module_storage = self._module_storage_patch.start()
+        script_storage = self._script_storage_patch.start()
+        module_storage.__getitem__.return_value = _Storage()
+        script_storage.backends = {'scripts': {}}
+        script_storage.create_storage.return_value = _Storage()
+        self.addCleanup(self._script_storage_patch.stop)
+        self.addCleanup(self._module_storage_patch.stop)
+
+    def test_source_view_shows_storage_location(self):
+        url = reverse('extras:script_source', kwargs={'pk': self.script.pk})
+        response = self.client.get(url)
+
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, self.module.full_path)
+        self.assertContains(response, 'class TestScript(Script):')
