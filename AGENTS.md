@@ -273,6 +273,7 @@ All contributions must comply with the project's [AI policy](AI_POLICY.md). In s
 - AI tools may be used to explore the codebase and to generate code.
 - The contributor must fully understand, and be able to explain, every change submitted.
 - Issues, pull request descriptions, and comments must be written in the contributor's own voice. Anything you draft for these is a starting point for the contributor to review and rewrite: keep it brief and plain, and say so when handing it over.
+- Never open a GitHub issue on the contributor's behalf (e.g. via `gh issue create` or the API). The contributor must submit it themselves using one of the [issue forms](https://github.com/netbox-community/netbox/issues/new/choose); issues opened any other way are closed automatically.
 
 ## Branch & PR Conventions
 
