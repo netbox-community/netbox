@@ -10,6 +10,9 @@ While major releases generally introduce some very substantial changes to the ap
 
 For patch releases (e.g. upgrading from v4.2.2 to v4.2.3), begin at the [patch releases](#patch-releases) heading below. For minor or major releases, complete the entire checklist.
 
+!!! tip "Claude Code skills"
+    Maintainers using Claude Code can automate most of the patch release process with the `prepare-release`, `draft-release-notes`, and `publish-release` skills in `.claude/skills/`. When changing this checklist, update those skills to match.
+
 ## Minor Version Releases
 
 ### Address Constrained Dependencies
