@@ -20,6 +20,10 @@ A dictionary mapping data backend types to their respective classes. These are u
 
 A dictionary mapping each model (identified by its app and label) to its filterset class, if one has been registered for it. Filtersets are registered using the `@register_filterset` decorator.
 
+### `job_result_urls`
+
+A dictionary mapping each model (identified by its app and label) and optional job name to a function which returns the URL of the results page for background jobs associated with objects of that model. These functions are registered using the `register_job_result_url()` decorator in `core.utils`. (See the [plugin development documentation](../plugins/development/background-jobs.md#result-urls) for details.)
+
 ### `model_features`
 
 A dictionary of model features (e.g. custom fields, tags, etc.) mapped to the functions used to qualify a model as supporting each feature. Model features are registered using the `register_model_feature()` function in `netbox.utils`.
