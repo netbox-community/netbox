@@ -12,6 +12,7 @@ from django.utils import timezone
 from core.models import DataFile, DataSource
 from dcim.choices import DeviceStatusChoices, InterfaceTypeChoices, SiteStatusChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site, VirtualChassis
+from dcim.tables import SiteTable
 from extras.events import enqueue_event
 from extras.models import ImageAttachment
 from extras.validators import CustomValidator
@@ -21,6 +22,7 @@ from ipam.views import VLANGroupVLANsView
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices, ImportMethodChoices
 from netbox.constants import EMPTY_TABLE_TEXT
 from netbox.search.backends import search_backend
+from netbox.views import generic
 from users.models import User
 from utilities.testing import TestCase
 from utilities.views import get_action_url
@@ -217,6 +219,38 @@ class BulkActionButtonsTestCase(TestCase):
         content = response.content.decode()
         self.assertIn('hx-swap-oob="outerHTML:.bulk-action-buttons"', content)
         self.assertIn('name="_edit"', content)
+
+
+# TODO: Remove in NetBox v5.0
+class ObjectListViewExportDeprecationTestCase(TestCase):
+    """
+    Verify that the deprecated export methods of ObjectListView raise deprecation warnings. (Ref: #23539)
+    """
+    def test_export_table(self):
+        view = generic.ObjectListView()
+        view.queryset = Site.objects.all()
+
+        with self.assertWarnsRegex(DeprecationWarning, r'export_table\(\)'):
+            view.export_table(SiteTable(Site.objects.all()))
+
+    def test_export_yaml(self):
+        view = generic.ObjectListView()
+        view.queryset = DeviceType.objects.all()
+
+        with self.assertWarnsRegex(DeprecationWarning, r'export_yaml\(\)'):
+            view.export_yaml()
+
+    def test_override_export_table(self):
+        with self.assertWarnsRegex(DeprecationWarning, r'export_table\(\)'):
+            class TestListView(generic.ObjectListView):
+                def export_table(self, table, columns=None, filename=None, delimiter=None):
+                    pass
+
+    def test_override_export_yaml(self):
+        with self.assertWarnsRegex(DeprecationWarning, r'export_yaml\(\)'):
+            class TestListView(generic.ObjectListView):
+                def export_yaml(self):
+                    pass
 
 
 class SearchViewTestCase(TestCase):

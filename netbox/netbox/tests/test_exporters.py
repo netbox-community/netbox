@@ -292,16 +292,18 @@ class ExportViewTestCase(TestCase):
         """
         Overriding the deprecated export_table() still applies to CSV exports, using the user's delimiter.
         """
-        class CustomSiteListView(SiteListView):
-            def export_table(self, table, columns=None, filename=None, delimiter=None):
-                return super().export_table(table, columns, filename='custom.csv', delimiter=delimiter)
+        with self.assertWarns(DeprecationWarning):
+            class CustomSiteListView(SiteListView):
+                def export_table(self, table, columns=None, filename=None, delimiter=None):
+                    return super().export_table(table, columns, filename='custom.csv', delimiter=delimiter)
 
         self.user.config.set('csv_delimiter', 'semicolon', commit=True)
         for params in ({'export': 'table'}, {'export': ''}, {'export': 'table', 'export_format': 'csv'}):
             with self.subTest(params=params):
                 request = RequestFactory().get(self.url, params)
                 request.user = self.user
-                response = CustomSiteListView.as_view()(request)
+                with self.assertWarns(DeprecationWarning):
+                    response = CustomSiteListView.as_view()(request)
                 self.assertEqual(response['Content-Disposition'], 'attachment; filename="custom.csv"')
                 self.assertTrue(response.getvalue().decode().startswith('Name;Status'))
 
@@ -309,9 +311,10 @@ class ExportViewTestCase(TestCase):
         """
         Overriding the deprecated export_yaml() still applies to YAML exports.
         """
-        class CustomDeviceTypeListView(DeviceTypeListView):
-            def export_yaml(self):
-                return 'custom'
+        with self.assertWarns(DeprecationWarning):
+            class CustomDeviceTypeListView(DeviceTypeListView):
+                def export_yaml(self):
+                    return 'custom'
 
         self.add_permissions('dcim.view_devicetype')
         url = reverse('dcim:devicetype_list')
@@ -331,4 +334,6 @@ class ExportViewTestCase(TestCase):
         DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
         view = DeviceTypeListView()
         view.queryset = DeviceType.objects.all()
-        self.assertIn('model: Device Type 1', view.export_yaml())
+        with self.assertWarns(DeprecationWarning):
+            data = view.export_yaml()
+        self.assertIn('model: Device Type 1', data)

@@ -1,5 +1,6 @@
 import logging
 import re
+import warnings
 from collections import Counter
 from contextlib import contextmanager
 from copy import deepcopy
@@ -106,6 +107,18 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
     filterset_form = None
     actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkRename, BulkDelete)
 
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        # TODO: Remove in NetBox v5.0
+        for method in ('export_table', 'export_yaml'):
+            if method in cls.__dict__:
+                warnings.warn(
+                    f"{cls.__name__} overrides ObjectListView.{method}(), which is deprecated and will be removed in "
+                    f"NetBox v5.0.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
 
@@ -176,6 +189,11 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
         """
         Deprecated: Export the queryset of objects as concatenated YAML documents.
         """
+        warnings.warn(
+            "ObjectListView.export_yaml() is deprecated and will be removed in NetBox v5.0.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return get_exporter('yaml').export(request=getattr(self, 'request', None), queryset=self.queryset)
 
     # TODO: Remove in NetBox v5.0
@@ -190,6 +208,11 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
                 from the queryset model name.
             delimiter: The character used to separate columns (a comma is used by default)
         """
+        warnings.warn(
+            "ObjectListView.export_table() is deprecated and will be removed in NetBox v5.0.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         exporter = get_exporter('csv')
         headers, rows = self.get_export_rows(table, columns)
         return self.get_export_response(exporter, exporter.write_rows(headers, rows, delimiter), filename)
