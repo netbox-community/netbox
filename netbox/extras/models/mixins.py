@@ -40,7 +40,7 @@ class CustomStoragesLoader(importlib.abc.Loader):
     def exec_module(self, module):
         with storages["scripts"].open(self.filename, 'rb') as f:
             code = f.read()
-        exec(code, module.__dict__)
+        exec(compile(code, module.__file__, 'exec'), module.__dict__)
 
 
 class PythonModuleMixin:

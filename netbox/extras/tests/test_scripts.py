@@ -2,6 +2,7 @@ import inspect
 import io
 import os
 import sys
+import traceback
 import uuid
 from datetime import UTC, date, datetime
 from decimal import Decimal
@@ -539,6 +540,40 @@ class ScriptModuleLoadingTestCase(TestCase):
             loaded = module.get_module()
 
         self.assertEqual(loaded.__file__, 'example.py')
+
+    def test_code_objects_named_after_storage_location(self):
+        """
+        Code objects of a loaded script must be named after the script's storage location,
+        so tracebacks identify the script instead of showing '<string>' (#23511).
+        """
+        script_content = (
+            b"from extras.scripts import Script\n\n\n"
+            b"class TestScript(Script):\n"
+            b"    def run(self):\n"
+            b"        raise ValueError('boom')\n"
+        )
+
+        class _Storage:
+            def open(self, name, mode='rb'):
+                return io.BytesIO(script_content)
+
+        module = ScriptModule(file_root='scripts', file_path='example.py')
+        namespaced_key = f'{SCRIPT_MODULE_NAME_PREFIX}example'
+        self.addCleanup(lambda: sys.modules.pop(namespaced_key, None))
+
+        with patch('extras.models.mixins.storages') as mock_storages:
+            mock_storages.__getitem__.return_value = _Storage()
+            loaded = module.get_module()
+
+        self.assertEqual(loaded.TestScript.run.__code__.co_filename, module.full_path)
+
+        # The storage location also appears in tracebacks from script code
+        try:
+            loaded.TestScript().run()
+            self.fail('expected ValueError from script code')
+        except ValueError:
+            formatted = traceback.format_exc()
+        self.assertIn(f'File "{module.full_path}"', formatted)
 
 
 class ScriptMetaValidationTestCase(TestCase):
