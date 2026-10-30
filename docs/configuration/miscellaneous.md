@@ -127,7 +127,7 @@ The maximum size (in bytes) of an incoming HTTP request (i.e. `GET` or `POST` da
 
 Default: `False`
 
-When set to `True`, CSV bulk exports are returned as a streaming HTTP response, emitting rows to the client as they are rendered rather than buffering the entire dataset in memory first. This can significantly reduce memory usage and time-to-first-byte for very large exports.
+When set to `True`, CSV bulk exports (and exports from any plugin exporters which return an iterable) are returned as a streaming HTTP response, emitting rows to the client as they are rendered rather than buffering the entire dataset in memory first. This can significantly reduce memory usage and time-to-first-byte for very large exports.
 
 Because streaming responses do not have a `Content-Length` header and defer errors until after the response has begun, this behavior is opt-in.
 

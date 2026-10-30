@@ -25,6 +25,7 @@ from netbox.plugins.utils import get_plugin_config
 from netbox.registry import registry
 from netbox.tests.dummy_plugin import config as dummy_config
 from netbox.tests.dummy_plugin.data_backends import DummyBackend
+from netbox.tests.dummy_plugin.exporters import DummySiteExporter, DummyTableExporter
 from netbox.tests.dummy_plugin.jobs import DummySystemJob
 from netbox.tests.dummy_plugin.models import DummyModel
 from netbox.tests.dummy_plugin.webhook_callbacks import set_context
@@ -155,6 +156,13 @@ class PluginTestCase(TestCase):
         """
         self.assertIn('dummy', registry['data_backends'])
         self.assertIs(registry['data_backends']['dummy'], DummyBackend)
+
+    def test_exporters(self):
+        """
+        Check registered exporters.
+        """
+        self.assertIsInstance(registry['exporters']['dummy_plugin.tsv'], DummyTableExporter)
+        self.assertIsInstance(registry['exporters']['dummy_plugin.site_names'], DummySiteExporter)
 
     def test_system_jobs(self):
         """

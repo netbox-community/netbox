@@ -176,6 +176,7 @@ svgwrite
 # Tabular dataset library (for table-based exports)
 # Current: https://github.com/jazzband/tablib/releases
 # Previous: https://github.com/jazzband/tablib/blob/master/HISTORY.md
+# TODO: Remove in NetBox v5.0 along with utilities.export
 tablib
 
 # Timezone data (required by django-timezone-field on Python 3.9+)

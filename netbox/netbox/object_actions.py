@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
 from extras.models import ExportTemplate
+from netbox.exporters import get_exporters
 from utilities.querydict import prepare_cloned_fields
 from utilities.views import get_action_url
 
@@ -151,9 +152,7 @@ class BulkExport(ObjectAction):
     def get_context(cls, context, model):
         object_type = ObjectType.objects.get_for_model(model)
         user = context['request'].user
-
-        # Determine if the "all data" export returns CSV or YAML
-        data_format = 'YAML' if hasattr(object_type.model_class(), 'to_yaml') else 'CSV'
+        exporters = get_exporters(model)
 
         # Retrieve all export templates for this model
         export_templates = ExportTemplate.objects.restrict(user, 'view').filter(object_types=object_type)
@@ -161,8 +160,9 @@ class BulkExport(ObjectAction):
         return {
             'object_type': object_type,
             'url_params': context['request'].GET.urlencode() if context['request'].GET else '',
+            'table_exporters': [exporter for exporter in exporters if exporter.tabular],
+            'exporters': exporters,
             'export_templates': export_templates,
-            'data_format': data_format,
         }
 
 

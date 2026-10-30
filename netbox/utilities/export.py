@@ -1,4 +1,6 @@
+# TODO: Remove this module in NetBox v5.0
 import csv
+import warnings
 
 from django.http import StreamingHttpResponse
 from django.utils.encoding import force_str
@@ -13,6 +15,13 @@ from utilities.constants import CSV_DELIMITERS
 __all__ = (
     'TableExport',
     'stream_table_csv_response',
+)
+
+warnings.warn(
+    "utilities.export is deprecated and will be removed in NetBox v5.0. Register an exporter using "
+    "netbox.exporters.register_exporter() instead.",
+    DeprecationWarning,
+    stacklevel=2,
 )
 
 EXPORT_CHUNK_SIZE = 1000
