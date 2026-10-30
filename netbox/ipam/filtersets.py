@@ -11,6 +11,7 @@ from circuits.models import Provider
 from dcim.base_filtersets import ScopedFilterSet
 from dcim.models import Device, Interface, Region, Site, SiteGroup
 from netbox.filtersets import (
+    BaseFilterSet,
     ChangeLoggedModelFilterSet,
     NetBoxModelFilterSet,
     OrganizationalModelFilterSet,
@@ -1242,7 +1243,7 @@ SERVICE_PORT_FILTERS = {
 }
 
 
-class ServicePortMappingFilterMixin(django_filters.FilterSet):
+class ServicePortMappingFilterMixin(BaseFilterSet):
     """
     Shared ``port_mappings``, ``protocol`` and ``port`` filtering for Service and ServiceTemplate, all
     operating on the ``port_mappings`` array. ``protocol`` and every active ``port`` lookup are
@@ -1312,7 +1313,7 @@ class ServicePortMappingFilterMixin(django_filters.FilterSet):
         """
         queryset = super().filter_queryset(queryset)
 
-        cleaned_data = self.form.cleaned_data
+        cleaned_data = self.cleaned_data
         protocols = cleaned_data.get('protocol') or []
         port_tests = [
             (lookup, values)
@@ -1361,7 +1362,7 @@ class ServicePortMappingFilterMixin(django_filters.FilterSet):
         # ?protocol=tcp&port__n=80 excludes only services exposing tcp/80 (not those exposing udp/80).
         if not value:
             return queryset
-        protocols = self.form.cleaned_data.get('protocol') or []
+        protocols = self.cleaned_data.get('protocol') or []
         return queryset.exclude(port_mapping_q(protocols, [('exact', value)]))
 
 

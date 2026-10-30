@@ -573,11 +573,8 @@ class ChildAvailabilityMixin:
     def _get_detection_filterset(self, request):
         """
         Return the bound FilterSet used to evaluate the request, or None if the view declares no
-        filterset. ObjectChildrenView.get() has already built one and validated its form while
-        resolving the child queryset, so reuse it rather than paying for a second FilterSet:
-        get_filters() regenerates every dynamic lookup variant and NetBoxModelFilterSet.__init__
-        queries the custom fields for the model. Build one only for direct calls where get() has
-        not run.
+        filterset. Reuse the one ObjectChildrenView.get() built while resolving the child queryset,
+        if any.
         """
         if self.filterset_instance is not None:
             return self.filterset_instance
@@ -600,7 +597,7 @@ class ChildAvailabilityMixin:
 
         self._active_child_filters = False
 
-        # An empty request cannot activate a filter, so skip validating a form for nothing.
+        # An empty request cannot activate a filter.
         if not request.GET:
             return False
 
@@ -610,9 +607,7 @@ class ChildAvailabilityMixin:
 
         # A non-empty cleaned value means the request activated a declared filter. Emptiness
         # follows each filter's own semantics, so absent multi-value fields stay inactive.
-        # This is a no-op for a reused FilterSet: .qs validated the form to build the queryset.
-        filterset.form.is_valid()
-        for name, value in filterset.form.cleaned_data.items():
+        for name, value in filterset.cleaned_data.items():
             if isinstance(filterset.filters[name], django_filters.MultipleChoiceFilter):
                 if value:  # mirrors MultipleChoiceFilter.filter()
                     self._active_child_filters = True

@@ -2,10 +2,15 @@ import json
 from copy import deepcopy
 
 import django_filters
+from django import forms
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
+from django.forms.utils import ErrorDict, ErrorList
+from django.http import QueryDict
+from django.utils.datastructures import MultiValueDict
 from django.utils.translation import gettext as _
 from django_filters.exceptions import FieldLookupError
 from django_filters.utils import get_model_field, resolve_field
@@ -15,6 +20,7 @@ from core.models import ObjectChange
 from extras.choices import CustomFieldFilterLogicChoices
 from extras.filters import TagFilter, TagIDFilter
 from extras.models import CustomField, SavedFilter
+from netbox.filtersets.utils import FilterDict, FilterIndex
 from users.filterset_mixins import OwnerFilterMixin
 from utilities import filters
 from utilities.constants import (
@@ -112,12 +118,10 @@ class BaseFilterSet(django_filters.FilterSet):
         },
     })
 
-    def __init__(self, data=None, *args, **kwargs):
-        # bit of a hack for #9231 - extras.lookup.Empty is registered in apps.ready
-        # however FilterSet Factory is setup before this which creates the
-        # initial filters.  This recreates the filters so Empty is picked up correctly.
-        self.base_filters = self.__class__.get_filters()
+    # Set to True to evaluate every filter on each request, as before NetBox v4.8 (to be revisited in v5.0)
+    legacy_evaluation = False
 
+    def __init__(self, data=None, queryset=None, *, request=None, prefix=None):
         # Apply any referenced SavedFilters
         if data and ('filter' in data or 'filter_id' in data):
             data = data.copy()  # Get a mutable copy
@@ -132,7 +136,6 @@ class BaseFilterSet(django_filters.FilterSet):
 
             # Only apply SavedFilters the requesting user is permitted to see (#22790). Fall back to
             # anonymous visibility (shared filters only) when no request is available.
-            request = kwargs.get('request')
             user = request.user if request else AnonymousUser()
             saved_filters = SavedFilter.objects.restrict_to_shared(user).filter(
                 Q(slug__in=data.pop('filter', [])) |
@@ -149,7 +152,128 @@ class BaseFilterSet(django_filters.FilterSet):
                     else:
                         data.setlist(key, value)
 
-        super().__init__(data, *args, **kwargs)
+        if (
+            self.legacy_evaluation or
+            prefix is not None or
+            self._has_custom_form() or
+            self._has_overrides_after_base()
+        ):
+            # bit of a hack for #9231 - extras.lookup.Empty is registered in apps.ready
+            # however FilterSet Factory is setup before this which creates the
+            # initial filters.  This recreates the filters so Empty is picked up correctly.
+            self.base_filters = self.__class__.get_filters()
+            super().__init__(data, queryset, request=request, prefix=prefix)
+            return
+
+        # Mirror FilterSet.__init__() without deep-copying every filter; FilterDict copies each one on first access
+        if queryset is None:
+            queryset = self._meta.model._default_manager.all()
+        self.is_bound = data is not None
+        self.data = data or QueryDict()
+        self.queryset = queryset
+        self.request = request
+        self.form_prefix = prefix
+        self.filters = FilterDict(self, self._get_filter_index())
+
+    @classmethod
+    def _get_filter_index(cls):
+        """
+        Return the class's filters, generated on first use (after Empty has been registered; see #9231). A class
+        which overrides get_filters() regenerates them on every call.
+        """
+        if cls.get_filters.__func__ is not BaseFilterSet.get_filters.__func__:
+            return FilterIndex(cls.get_filters())
+        if '_filter_index' not in cls.__dict__:
+            cls._filter_index = FilterIndex(cls.get_filters())
+        return cls._filter_index
+
+    @classmethod
+    def _has_custom_form(cls):
+        return cls._meta.form is not forms.Form or cls.get_form_class is not django_filters.FilterSet.get_form_class
+
+    @classmethod
+    def _has_overrides_after_base(cls):
+        """
+        Return True if a class which follows BaseFilterSet in the MRO overrides a method that lazy evaluation doesn't
+        delegate to via super().
+        """
+        mro = cls.__mro__
+        for klass in mro[mro.index(BaseFilterSet) + 1:]:
+            if klass is object or klass.__module__.startswith('django_filters'):
+                continue
+            if any(name in vars(klass) for name in ('__init__', 'errors', 'filter_queryset', 'is_valid')):
+                return True
+        return False
+
+    @property
+    def _lazy(self):
+        # False under legacy evaluation, or if the filters have been replaced
+        return isinstance(self.filters, FilterDict)
+
+    @property
+    def form(self):
+        form = super().form
+        if self._lazy and self.is_bound:
+            # Evaluation no longer validates the form, so validate it here for code which reads its cleaned_data
+            form.is_valid()
+        return form
+
+    @property
+    def errors(self):
+        if not self._lazy:
+            return super().errors
+        self._clean()
+        return self._errors
+
+    def is_valid(self):
+        if not self._lazy:
+            return super().is_valid()
+        return self.is_bound and not self.errors
+
+    @property
+    def cleaned_data(self):
+        """
+        The cleaned values of the filters for which the request supplies data. For internal use only.
+        """
+        if not self._lazy:
+            self.form.is_valid()
+            return getattr(self.form, 'cleaned_data', {})
+        self._clean()
+        return self._cleaned_data
+
+    def filter_queryset(self, queryset):
+        if not self._lazy:
+            return super().filter_queryset(queryset)
+        for name, value in self.cleaned_data.items():
+            queryset = self.filters[name].filter(queryset, value)
+            assert isinstance(queryset, models.QuerySet), (
+                f"Expected '{type(self).__name__}.{name}' to return a QuerySet, but got a "
+                f"{type(queryset).__name__} instead."
+            )
+        return queryset
+
+    def _clean(self):
+        """
+        Clean the request's value for each filter it supplies, in declaration order.
+        """
+        if hasattr(self, '_cleaned_data'):
+            return
+        self._cleaned_data = {}
+        self._errors = ErrorDict()
+        if not self.is_bound:
+            return
+        names = set()
+        for key in self.data.keys():
+            names.update(self.filters.get_names(key))
+        # After resolving keys, which may load lazy filters
+        names.update(self.filters.get_required())
+        files = MultiValueDict()
+        for name in sorted(names, key=self.filters.position):
+            field = self.filters[name].field
+            try:
+                self._cleaned_data[name] = field.clean(field.widget.value_from_datadict(self.data, files, name))
+            except ValidationError as e:
+                self._errors[name] = ErrorList(e.error_list)
 
     @staticmethod
     def _get_filter_lookup_dict(existing_filter):
@@ -351,6 +475,16 @@ class NetBoxModelFilterSet(ChangeLoggedModelFilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        if isinstance(self.filters, FilterDict):
+            # Build custom field filters only once one is needed
+            self.filters.add_lazy('cf_', self._get_custom_field_filters)
+        else:
+            self.filters.update(self._get_custom_field_filters())
+
+    def _get_custom_field_filters(self):
+        """
+        Return filters for the model's custom fields, including their additional lookups.
+        """
         custom_field_filters = {}
         for custom_field in CustomField.objects.get_for_model(self._meta.model):
             if custom_field.filter_logic == CustomFieldFilterLogicChoices.FILTER_DISABLED:
@@ -364,7 +498,7 @@ class NetBoxModelFilterSet(ChangeLoggedModelFilterSet):
                 additional_lookups = self.get_additional_lookups(filter_name, filter_instance)
                 custom_field_filters.update(additional_lookups)
 
-        self.filters.update(custom_field_filters)
+        return custom_field_filters
 
     def search(self, queryset, name, value):
         """
