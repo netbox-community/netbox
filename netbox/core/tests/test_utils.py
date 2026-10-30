@@ -79,6 +79,8 @@ class JobResultURLTestCase(TestCase):
             self.assertEqual(self.get_job(DataSource).get_absolute_url(), reverse('core:job', args=[123]))
 
     def test_unresolvable_model(self):
+        register_job_result_url(DataSource)(lambda job: '/foo/')
+
         # e.g. a model belonging to a plugin which has been uninstalled
         object_type = ContentType.objects.create(app_label='uninstalled_plugin', model='foo')
         job = Job(pk=123, name='Test Job', object_type=object_type, object_id=1)
