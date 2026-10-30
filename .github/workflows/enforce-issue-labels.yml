@@ -1,0 +1,30 @@
+name: Enforce issue templates
+
+on:
+  issues:
+    types:
+      - opened
+
+permissions:
+  issues: write
+
+jobs:
+  enforce-issue-labels:
+    name: Enforce Issue Labels
+    runs-on: ubuntu-slim
+    if: github.event.issue.labels[0] == null
+
+    steps:
+      - name: Close new issues without labels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
+          COMMENT: >
+            This issue is being closed automatically because it was not opened using one of the provided forms.
+            Please note that we do not permit the use of AI agents to submit issues on a user's behalf.
+            You can resubmit the issue using one of the [available issue forms](${{ github.server_url }}/${{ github.repository }}/issues/new/choose).
+            Thanks!
+        run: |
+          gh issue close "$NUMBER" --reason "not planned" --comment "$COMMENT"
+          gh issue lock "$NUMBER" --reason off_topic
