@@ -1,3 +1,4 @@
+import json
 import logging
 import uuid
 from datetime import timedelta
@@ -397,6 +398,170 @@ class ChangeLogViewTestCase(ModelViewTestCase):
             action=ObjectChangeActionChoices.ACTION_DELETE
         )
         self.assertEqual(objectchanges.count(), 2)
+
+    def _add_cf3_json_customfield(self):
+        # Create a json custom field on the Site model
+        site_type = ObjectType.objects.get_for_model(Site)
+        cf_json = CustomField(
+            type=CustomFieldTypeChoices.TYPE_JSON,
+            name='cf3',
+            required=False
+        )
+        cf_json.save()
+        cf_json.object_types.set([site_type])
+
+    def assert_change_diff(self, response, added, removed):
+        def _diff_block(css_class, data):
+            rendered = json.dumps(data, indent=4, sort_keys=True)
+            return f'<pre class="change-diff {css_class}">{rendered}</pre>'
+
+        self.assertEqual(response.context["diff_added"], added)
+        self.assertEqual(response.context["diff_removed"], removed)
+
+        self.assertContains(response, _diff_block('change-added', added), html=True)
+        self.assertContains(response, _diff_block('change-removed', removed), html=True)
+        self.assertNotContains(response, "No Changes")
+
+    def _update_site_and_get_changeview(self, site: Site, **form_data):
+        form_data = {
+            'name': site.name,
+            'slug': site.slug,
+            'status': SiteStatusChoices.STATUS_ACTIVE,
+            **form_data
+        }
+        request = {
+            'path': self._get_url('edit', instance=site),
+            'data': post_data(form_data),
+        }
+        self.add_permissions('dcim.change_site', 'extras.view_tag')
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 302)
+
+        site.refresh_from_db()
+        oc = ObjectChange.objects.filter(
+            changed_object_type=ContentType.objects.get_for_model(Site),
+            changed_object_id=site.pk
+        ).first()
+
+        self.add_permissions('core.view_objectchange')
+        response = self.client.get(reverse('core:objectchange', kwargs={'pk': oc.pk}))
+        self.assertHttpStatus(response, 200)
+
+        return oc, response
+
+    def test_change_object(self):
+        site = Site(name='Site 1', slug='site-1', status=SiteStatusChoices.STATUS_ACTIVE)
+        site.save()
+        tags = create_tags('Tag 1', 'Tag 2', 'Tag 3')
+        site.tags.set(['Tag 1', 'Tag 2'])
+        form_data = {
+            'tags': [tags[1].pk, tags[2].pk],
+        }
+
+        oc, response = self._update_site_and_get_changeview(site, **form_data)
+
+        self.assertEqual(oc.prechange_data["tags"], ['Tag 1', 'Tag 2'])
+        self.assertEqual(oc.postchange_data["tags"], ['Tag 2', 'Tag 3'])
+
+        self.assert_change_diff(
+            response,
+            added={"tags": ['Tag 3']},
+            removed={"tags": ['Tag 1']}
+        )
+
+    def test_change_list_added(self):
+        site = Site(name='Site 1', slug='site-1', status=SiteStatusChoices.STATUS_ACTIVE)
+        site.save()
+        tags = create_tags('Tag 1', 'Tag 2', 'Tag 3')
+        site.tags.set(['Tag 1', 'Tag 2'])
+        form_data = {
+            'tags': [tags[0].pk, tags[1].pk, tags[2].pk],
+        }
+
+        oc, response = self._update_site_and_get_changeview(site, **form_data)
+
+        self.assertEqual(oc.prechange_data["tags"], ['Tag 1', 'Tag 2'])
+        self.assertEqual(oc.postchange_data["tags"], ['Tag 1', 'Tag 2', 'Tag 3'])
+
+        self.assert_change_diff(
+            response,
+            added={"tags": ['Tag 3']},
+            removed={"tags": []}
+        )
+
+    def test_change_list_removed(self):
+        site = Site(name='Site 1', slug='site-1', status=SiteStatusChoices.STATUS_ACTIVE)
+        site.save()
+        tags = create_tags('Tag 1', 'Tag 2')
+        site.tags.set(['Tag 1', 'Tag 2'])
+        form_data = {
+            'tags': [tags[0].pk],
+        }
+
+        oc, response = self._update_site_and_get_changeview(site, **form_data)
+
+        self.assertEqual(oc.prechange_data["tags"], ['Tag 1', 'Tag 2'])
+        self.assertEqual(oc.postchange_data["tags"], ['Tag 1'])
+
+        self.assert_change_diff(
+            response,
+            added={"tags": []},
+            removed={"tags": ['Tag 2']}
+        )
+
+    def test_change_list_order(self):
+        pre = {"a": [1, 2, 3]}
+        post = {"a": [3, 1, 2]}
+        self._add_cf3_json_customfield()
+        site = Site.objects.create(
+            name='Site 1',
+            slug='site-1',
+            status=SiteStatusChoices.STATUS_ACTIVE,
+            custom_field_data={
+                'cf3': pre
+            }
+        )
+        form_data = {
+            'cf_cf3': json.dumps(post),
+        }
+
+        oc, response = self._update_site_and_get_changeview(site, **form_data)
+
+        self.assertEqual(oc.prechange_data["custom_fields"]["cf3"], pre)
+        self.assertEqual(oc.postchange_data["custom_fields"]["cf3"], post)
+
+        self.assert_change_diff(
+            response,
+            added={"custom_fields": {"cf3": {"a": [3]}}},
+            removed={"custom_fields": {"cf3": {"a": [3]}}}
+        )
+
+    def test_change_list_nested(self):
+        pre = {"a": {"b": [{"a": 1, "b": 2}, {"c": 3}, {"d": 4}]}}
+        post = {"a": {"b": [{"a": 1, "b": 3}, {"c": 3}]}}
+        self._add_cf3_json_customfield()
+        site = Site.objects.create(
+            name='Site 1',
+            slug='site-1',
+            status=SiteStatusChoices.STATUS_ACTIVE,
+            custom_field_data={
+                'cf3': pre
+            }
+        )
+        form_data = {
+            'cf_cf3': json.dumps(post),
+        }
+
+        oc, response = self._update_site_and_get_changeview(site, **form_data)
+
+        self.assertEqual(oc.prechange_data["custom_fields"]["cf3"], pre)
+        self.assertEqual(oc.postchange_data["custom_fields"]["cf3"], post)
+
+        self.assert_change_diff(
+            response,
+            added={"custom_fields": {"cf3": {"a": {"b": [{"a": 1, "b": 3}]}}}},
+            removed={"custom_fields": {"cf3": {"a": {"b": [{"a": 1, "b": 2}, {"d": 4}]}}}}
+        )
 
 
 class ChangeLogAPITestCase(APITestCase):

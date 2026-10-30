@@ -3,6 +3,8 @@ from itertools import count, groupby
 
 from django.db.backends.postgresql.psycopg_any import NumericRange
 
+from .constants import LIST_DIFF_MAX_LCS_CELLS
+
 __all__ = (
     'array_to_ranges',
     'array_to_string',
@@ -19,6 +21,7 @@ __all__ = (
     'ranges_to_string_list',
     'resolve_attr_path',
     'shallow_compare_dict',
+    'shallow_compare_list',
     'string_to_ranges',
 )
 
@@ -87,11 +90,79 @@ def shallow_compare_dict(source_dict, destination_dict, exclude=tuple()):
     return difference
 
 
+def shallow_compare_list(source_list, destination_list):
+    """
+    Return a two-tuple of lists (added, removed) representing the difference between source_list
+    and destination_list. Duplicate Elements are recognized, and moved (changed order) elements
+    appear on both sides as removed and added. Common prefixes and suffixes are trimmed before comparing.
+    If the lcs table of the trimmed lists would be larger than LIST_DIFF_MAX_LCS_CELLS, the trimmed
+    lists (the important parts with changes) are returned.
+    """
+    idx = 0
+    end_src = len(source_list)
+    end_dst = len(destination_list)
+
+    while idx < end_src and idx < end_dst and source_list[idx] == destination_list[idx]:
+        idx += 1
+    while end_src > idx and end_dst > idx and source_list[end_src - 1] == destination_list[end_dst - 1]:
+        end_src -= 1
+        end_dst -= 1
+
+    src = source_list[idx:end_src]
+    dst = destination_list[idx:end_dst]
+
+    m = len(src)
+    n = len(dst)
+
+    if not m or not n:
+        return dst, src
+
+    if n * m > LIST_DIFF_MAX_LCS_CELLS:
+        return dst, src
+
+    lcs_table = [[0] * (n + 1) for _ in range(m + 1)]
+
+    # bottom up longest common subsequence
+    for i in range(m - 1, -1, -1):
+        row = lcs_table[i]
+        next_row = lcs_table[i + 1]
+        src_elm = src[i]
+        for j in range(n - 1, -1, -1):
+            if src_elm == dst[j]:
+                row[j] = 1 + next_row[j + 1]
+            else:
+                row[j] = next_row[j] if next_row[j] >= row[j + 1] else row[j + 1]
+
+    removed = []
+    added = []
+    i = 0
+    j = 0
+    # reconstruct the added and removed elements
+    while i < m and j < n:
+        if src[i] == dst[j]:
+            i += 1
+            j += 1
+        elif lcs_table[i + 1][j] >= lcs_table[i][j + 1]:
+            removed.append(src[i])
+            i += 1
+        else:
+            added.append(dst[j])
+            j += 1
+
+    removed.extend(src[i:])
+    added.extend(dst[j:])
+
+    return added, removed
+
+
 def deep_compare_dict(source_dict, destination_dict, exclude=tuple()):
     """
     Return a two-tuple of dictionaries (added, removed) representing the differences between source_dict and
     destination_dict. For values which are themselves dicts, the comparison is performed recursively such that only
-    the changed keys within the nested dict are included. `exclude` is a list or tuple of keys to be ignored.
+    the changed keys within the nested dict are included. For values which are lists,
+    the comparison returns a shallow diff of elements that were added or removed.
+    If the list comparision is too computational complex it also returns unchanged elements.
+    `exclude` is a list or tuple of keys to be ignored.
     """
     added = {}
     removed = {}
@@ -109,6 +180,8 @@ def deep_compare_dict(source_dict, destination_dict, exclude=tuple()):
             if sub_added or sub_removed:
                 added[key] = sub_added
                 removed[key] = sub_removed
+        elif isinstance(src_val, list) and isinstance(dst_val, list):
+            added[key], removed[key] = shallow_compare_list(src_val, dst_val)
         else:
             added[key] = dst_val
             removed[key] = src_val
