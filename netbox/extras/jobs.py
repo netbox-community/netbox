@@ -4,10 +4,12 @@ from contextlib import ExitStack
 
 from django.apps import apps
 from django.db import DEFAULT_DB_ALIAS, router, transaction
+from django.urls import reverse
 from django.utils.translation import gettext as _
 from django_pg_utils import advisory_lock
 
 from core.signals import clear_events
+from core.utils import register_job_result_url
 from dcim.models import Device
 from extras.choices import CustomFieldStatusChoices
 from extras.constants import CUSTOMFIELD_JOB_TIMEOUT
@@ -258,6 +260,11 @@ class CustomFieldPurgeJob(CustomFieldDataJob):
 #
 # Scripts
 #
+
+
+@register_job_result_url(ScriptModel)
+def script_job_result_url(job):
+    return reverse('extras:script_result', kwargs={'job_pk': job.pk})
 
 
 class ScriptJob(JobRunner):

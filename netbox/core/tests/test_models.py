@@ -12,6 +12,7 @@ from django.core.management import call_command
 from django.db import IntegrityError, connection
 from django.test import TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
+from django.urls import reverse
 from django.utils import timezone
 
 from core.choices import DataSourceStatusChoices, JobNotificationChoices, JobStatusChoices, ObjectChangeActionChoices
@@ -20,7 +21,7 @@ from core.exceptions import SyncError
 from core.models import AutoSyncRecord, DataFile, DataSource, Job, ObjectType
 from core.signals import post_sync
 from dcim.models import Device, Location, Site
-from extras.models import ConfigTemplate, Notification
+from extras.models import ConfigTemplate, Notification, Script
 from netbox.constants import CENSOR_TOKEN, CENSOR_TOKEN_CHANGED
 from users.models import User
 from utilities.querysets import RestrictedQuerySet
@@ -505,3 +506,12 @@ class JobTestCase(TestCase):
         job.terminate(status=JobStatusChoices.STATUS_COMPLETED)
 
         self.assertIsNone(job.execution_time)
+
+    def test_get_absolute_url(self):
+        job = Job(pk=123, name='Test Job')
+        self.assertEqual(job.get_absolute_url(), reverse('core:job', args=[123]))
+
+        # Jobs for custom scripts link to the script result view
+        job.object_type = ObjectType.objects.get_for_model(Script)
+        job.object_id = 1
+        self.assertEqual(job.get_absolute_url(), reverse('extras:script_result', kwargs={'job_pk': 123}))
