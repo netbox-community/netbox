@@ -41,7 +41,7 @@ class IPAMRootView(APIRootView):
 #
 
 class ASNRangeViewSet(NetBoxModelViewSet):
-    queryset = ASNRange.objects.all()
+    queryset = ASNRange.objects.annotate_asn_counts()
     serializer_class = serializers.ASNRangeSerializer
     filterset_class = filtersets.ASNRangeFilterSet
 
