@@ -17,7 +17,16 @@ from rest_framework import status
 from rest_framework.test import APIRequestFactory
 
 from circuits.choices import VirtualCircuitTerminationRoleChoices
-from circuits.models import Provider, ProviderNetwork, VirtualCircuit, VirtualCircuitTermination, VirtualCircuitType
+from circuits.models import (
+    Circuit,
+    CircuitTermination,
+    CircuitType,
+    Provider,
+    ProviderNetwork,
+    VirtualCircuit,
+    VirtualCircuitTermination,
+    VirtualCircuitType,
+)
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
 from dcim.api.serializers import InterfaceSerializer
@@ -312,7 +321,7 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
 
         nested_site = Site.objects.get(slug='site-1')
         cls.nested_site_pk = nested_site.pk
-        Location.objects.create(
+        location = Location.objects.create(
             site=nested_site, name='Site1 Active A', slug='site1-active-a',
             status=LocationStatusChoices.STATUS_ACTIVE,
         )
@@ -324,6 +333,15 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
             site=nested_site, name='Site1 Planned', slug='site1-planned',
             status=LocationStatusChoices.STATUS_PLANNED,
         )
+
+        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
+        circuit_type = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
+        circuit = Circuit.objects.create(cid='Circuit 1', provider=provider, type=circuit_type)
+        circuit_terminations = (
+            CircuitTermination.objects.create(circuit=circuit, term_side='A', termination=nested_site),
+            CircuitTermination.objects.create(circuit=circuit, term_side='Z', termination=location),
+        )
+        cls.circuit_termination_ids = sorted(str(termination.pk) for termination in circuit_terminations)
 
         rir = RIR.objects.create(name='RFC 6996', is_private=True)
 
@@ -371,7 +389,33 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
                 assert_result=cls.assert_nested_locations_active,
                 permissions=('dcim.view_location',),
             ),
+            GraphQLQueryTest(
+                name='circuit_terminations_include_location_terminations',
+                query=(
+                    '{ site(id: ' + str(cls.nested_site_pk) + ') { circuit_terminations { id } } '
+                    'region(id: ' + str(regions[0].pk) + ') { circuit_terminations { id } } '
+                    'site_group(id: ' + str(groups[0].pk) + ') { circuit_terminations { id } } }'
+                ),
+                assert_result=cls.assert_cached_circuit_terminations,
+                permissions=('dcim.view_region', 'dcim.view_sitegroup', 'circuits.view_circuittermination'),
+            ),
         )
+
+    def assert_cached_circuit_terminations(self, data):
+        for field in ('site', 'region', 'site_group'):
+            ids = sorted(termination['id'] for termination in data[field]['circuit_terminations'])
+            self.assertEqual(ids, self.circuit_termination_ids, field)
+
+    @tag('regression')  # Issue #23185
+    def test_circuit_count_includes_location_terminations(self):
+        """Count circuit terminations at the site and at its locations."""
+        self.add_permissions('dcim.view_site')
+        site = Site.objects.get(pk=self.nested_site_pk)
+
+        response = self.client.get(self._get_detail_url(site), **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['circuit_count'], 2)
 
     def test_add_tags(self):
         """

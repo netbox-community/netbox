@@ -327,35 +327,31 @@ class CircuitTermination(
     _provider_network = models.ForeignKey(
         to='circuits.ProviderNetwork',
         on_delete=models.PROTECT,
-        related_name='circuit_terminations',
         blank=True,
         null=True
     )
     _location = models.ForeignKey(
         to='dcim.Location',
         on_delete=models.CASCADE,
-        related_name='circuit_terminations',
         blank=True,
         null=True
     )
     _site = models.ForeignKey(
         to='dcim.Site',
         on_delete=models.CASCADE,
-        related_name='circuit_terminations',
         blank=True,
         null=True
     )
+    # SET_NULL: may cache an ancestor. Terminations of a Region or SiteGroup cascade via its GenericRelation.
     _region = models.ForeignKey(
         to='dcim.Region',
-        on_delete=models.CASCADE,
-        related_name='circuit_terminations',
+        on_delete=models.SET_NULL,
         blank=True,
         null=True
     )
     _site_group = models.ForeignKey(
         to='dcim.SiteGroup',
-        on_delete=models.CASCADE,
-        related_name='circuit_terminations',
+        on_delete=models.SET_NULL,
         blank=True,
         null=True
     )

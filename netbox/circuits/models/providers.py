@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
@@ -108,6 +109,12 @@ class ProviderNetwork(PrimaryModel):
         max_length=100,
         blank=True,
         verbose_name=_('service ID')
+    )
+    circuit_terminations = GenericRelation(
+        to='circuits.CircuitTermination',
+        content_type_field='termination_type',
+        object_id_field='termination_id',
+        related_query_name='provider_network'
     )
 
     class Meta:

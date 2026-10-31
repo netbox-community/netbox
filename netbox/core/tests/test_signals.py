@@ -6,10 +6,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.signals import request_finished
 from django.db import IntegrityError, transaction
-from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
+from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings, tag
 from django.utils import timezone
 from rq.timeouts import JobTimeoutException
 
+from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
 from core import signals
 from core.choices import DataSourceStatusChoices, JobStatusChoices, ObjectChangeActionChoices
 from core.exceptions import SyncError
@@ -207,6 +208,24 @@ class HandleDeletedObjectSignalTestCase(TestCase):
         )
         self.assertEqual(oc.prechange_data['group'], group_pk)
         self.assertIsNone(oc.postchange_data['group'])
+
+    @tag('regression')  # Ref: #23185
+    def test_delete_skips_cached_fields_of_related_objects(self):
+        """Clearing a denormalized cache field on delete does not save the object holding it."""
+        group = SiteGroup.objects.create(name='Group', slug='group')
+        site = Site.objects.create(name='Site', slug='site', group=group)
+        provider = Provider.objects.create(name='Provider', slug='provider')
+        circuit_type = CircuitType.objects.create(name='Circuit Type', slug='circuit-type')
+        circuit = Circuit.objects.create(cid='Circuit', provider=provider, type=circuit_type)
+        termination = CircuitTermination.objects.create(circuit=circuit, term_side='A', termination=site)
+        last_updated = termination.last_updated
+
+        with event_tracking(_build_request(self.user)):
+            group.delete()
+
+        termination.refresh_from_db()
+        self.assertIsNone(termination._site_group_id)
+        self.assertEqual(termination.last_updated, last_updated)
 
     def test_cascade_delete_does_not_record_update_after_delete(self):
         # Regression test for #22270. Deleting a device cascades to all of its interfaces.
