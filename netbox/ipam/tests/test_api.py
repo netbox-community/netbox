@@ -84,6 +84,68 @@ class ASNRangeTestCase(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+    def test_asn_count_matches_registered_asns(self):
+        rir = RIR.objects.first()
+
+        asns = (
+            ASN(asn=110, rir=rir),
+            ASN(asn=120, rir=rir),
+            ASN(asn=250, rir=rir),
+            ASN(asn=65000, rir=rir),
+        )
+        ASN.objects.bulk_create(asns)
+
+        self.add_permissions('ipam.view_asnrange')
+
+        url = reverse('ipam-api:asnrange-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        counts = {
+            item['name']: item['asn_count']
+            for item in response.data['results']
+        }
+
+        self.assertEqual(counts['ASN Range 1'], 2)
+        self.assertEqual(counts['ASN Range 2'], 1)
+
+    def test_asn_count_in_list_response(self):
+        self.add_permissions('ipam.view_asnrange')
+
+        url = reverse('ipam-api:asnrange-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        results = response.data['results']
+
+        self.assertGreater(len(results), 0)
+
+        for asn_range in results:
+            self.assertIn('asn_count', asn_range)
+
+    def test_asn_count_in_detail_response(self):
+        asn_range = ASNRange.objects.get(slug='asn-range-1')
+
+        ASN.objects.bulk_create([
+            ASN(asn=110, rir=asn_range.rir),
+            ASN(asn=120, rir=asn_range.rir),
+        ])
+
+        self.add_permissions('ipam.view_asnrange')
+
+        url = reverse(
+            'ipam-api:asnrange-detail',
+            kwargs={'pk': asn_range.pk}
+        )
+
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIn('asn_count', response.data)
+        self.assertEqual(response.data['asn_count'], 2)
+
     def test_list_available_asns(self):
         """
         Test retrieval of all available ASNs within a parent range.
