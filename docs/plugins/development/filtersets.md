@@ -90,6 +90,17 @@ class MyFilterSet(NetBoxModelFilterSet):
 
 The `search` method is also used by the `q` filter in `NetBoxModelFilterSet` which in turn is used by the Search field in the filters tab.
 
+### Legacy Evaluation
+
+!!! info "This feature was introduced in NetBox v4.8."
+
+NetBox evaluates only the filters for which a request supplies a value; filters which receive no value are not called. A filter set which depends on every filter being evaluated for each request, as in earlier releases, can set `legacy_evaluation` to restore that behavior. This is intended as a temporary measure, and will be revisited in NetBox v5.0.
+
+```python
+class MyFilterSet(NetBoxModelFilterSet):
+    legacy_evaluation = True
+```
+
 ## Filter Classes
 
 ### TagFilter
