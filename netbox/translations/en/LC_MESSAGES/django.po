@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-30 05:01+0000\n"
+"POT-Creation-Date: 2026-10-31 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -10499,7 +10499,7 @@ msgstr ""
 
 #: netbox/extras/forms/bulk_edit.py:170 netbox/extras/forms/bulk_edit.py:400
 #: netbox/extras/forms/filtersets.py:223 netbox/extras/forms/filtersets.py:569
-#: netbox/extras/models/mixins.py:111 netbox/extras/ui/panels.py:241
+#: netbox/extras/models/mixins.py:112 netbox/extras/ui/panels.py:241
 #: netbox/extras/ui/panels.py:479
 msgid "MIME type"
 msgstr ""
@@ -11624,70 +11624,70 @@ msgstr ""
 msgid "dashboards"
 msgstr ""
 
-#: netbox/extras/models/mixins.py:96
+#: netbox/extras/models/mixins.py:97
 msgid "template code"
 msgstr ""
 
-#: netbox/extras/models/mixins.py:97
+#: netbox/extras/models/mixins.py:98
 msgid "Jinja template code."
 msgstr ""
 
-#: netbox/extras/models/mixins.py:100
+#: netbox/extras/models/mixins.py:101
 msgid "environment parameters"
 msgstr ""
 
-#: netbox/extras/models/mixins.py:105
+#: netbox/extras/models/mixins.py:106
 #, python-brace-format
 msgid ""
 "Any <a href=\"{url}\">additional parameters</a> to pass when constructing "
 "the Jinja environment"
 msgstr ""
 
-#: netbox/extras/models/mixins.py:112
+#: netbox/extras/models/mixins.py:113
 #, python-brace-format
 msgid "Defaults to <code>{default}</code>"
 msgstr ""
 
-#: netbox/extras/models/mixins.py:117
+#: netbox/extras/models/mixins.py:118
 msgid "Filename to give to the rendered export file"
 msgstr ""
 
-#: netbox/extras/models/mixins.py:120
+#: netbox/extras/models/mixins.py:121
 msgid "file extension"
 msgstr ""
 
-#: netbox/extras/models/mixins.py:123
+#: netbox/extras/models/mixins.py:124
 msgid "Extension to append to the rendered filename"
 msgstr ""
 
-#: netbox/extras/models/mixins.py:126
+#: netbox/extras/models/mixins.py:127
 msgid "as attachment"
 msgstr ""
 
-#: netbox/extras/models/mixins.py:128
+#: netbox/extras/models/mixins.py:129
 msgid "Download file as attachment"
 msgstr ""
 
-#: netbox/extras/models/mixins.py:168
+#: netbox/extras/models/mixins.py:169
 #, python-brace-format
 msgid ""
 "The \"{key}\" parameter is deprecated and may not be set on new or modified "
 "templates."
 msgstr ""
 
-#: netbox/extras/models/mixins.py:174
+#: netbox/extras/models/mixins.py:175
 #, python-brace-format
 msgid "\"{key}\" is not a permitted Jinja2 environment parameter."
 msgstr ""
 
-#: netbox/extras/models/mixins.py:182
+#: netbox/extras/models/mixins.py:183
 #, python-brace-format
 msgid ""
 "Invalid value \"{value}\" for parameter \"{key}\". Allowed values are: "
 "{allowed}"
 msgstr ""
 
-#: netbox/extras/models/mixins.py:245
+#: netbox/extras/models/mixins.py:246
 msgid ""
 "The template differs from the saved template. Reload the template and try "
 "again."
