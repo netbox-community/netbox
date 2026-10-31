@@ -33,6 +33,7 @@ from utilities.filters import (
     MultiValueMACAddressFilter,
     MultiValueTimeZoneFilter,
     MultiValueWWNFilter,
+    NonUniqueModelMultipleChoiceFilter,
     NumericArrayFilter,
     TreeNodeMultipleChoiceFilter,
 )
@@ -286,7 +287,7 @@ class LocationFilterSet(TenancyFilterSet, ContactModelFilterSet, NestedGroupMode
         distinct=False,
         label=_('Parent location (ID)'),
     )
-    parent = django_filters.ModelMultipleChoiceFilter(
+    parent = NonUniqueModelMultipleChoiceFilter(
         field_name='parent__slug',
         queryset=Location.objects.all(),
         distinct=False,
@@ -1846,7 +1847,7 @@ class ModuleFilterSet(PrimaryModelFilterSet):
         distinct=False,
         label=_('Location (ID)'),
     )
-    location = django_filters.ModelMultipleChoiceFilter(
+    location = NonUniqueModelMultipleChoiceFilter(
         field_name='device__location__slug',
         queryset=Location.objects.all(),
         distinct=False,
@@ -1859,7 +1860,7 @@ class ModuleFilterSet(PrimaryModelFilterSet):
         distinct=False,
         label=_('Rack (ID)'),
     )
-    rack = django_filters.ModelMultipleChoiceFilter(
+    rack = NonUniqueModelMultipleChoiceFilter(
         field_name='device__rack__name',
         queryset=Rack.objects.all(),
         distinct=False,
@@ -1871,7 +1872,7 @@ class ModuleFilterSet(PrimaryModelFilterSet):
         distinct=False,
         label=_('Device (ID)'),
     )
-    device = django_filters.ModelMultipleChoiceFilter(
+    device = NonUniqueModelMultipleChoiceFilter(
         field_name='device__name',
         queryset=Device.objects.all(),
         distinct=False,
@@ -1953,7 +1954,7 @@ class DeviceComponentFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
         distinct=False,
         label=_('Location (ID)'),
     )
-    location = django_filters.ModelMultipleChoiceFilter(
+    location = NonUniqueModelMultipleChoiceFilter(
         field_name='_location__slug',
         queryset=Location.objects.all(),
         distinct=False,
@@ -1966,7 +1967,7 @@ class DeviceComponentFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
         distinct=False,
         label=_('Rack (ID)'),
     )
-    rack = django_filters.ModelMultipleChoiceFilter(
+    rack = NonUniqueModelMultipleChoiceFilter(
         field_name='_rack__name',
         queryset=Rack.objects.all(),
         distinct=False,
@@ -1978,7 +1979,7 @@ class DeviceComponentFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
         distinct=False,
         label=_('Device (ID)'),
     )
-    device = django_filters.ModelMultipleChoiceFilter(
+    device = NonUniqueModelMultipleChoiceFilter(
         field_name='device__name',
         queryset=Device.objects.all(),
         distinct=False,
@@ -2255,7 +2256,7 @@ class MACAddressFilterSet(PrimaryModelFilterSet):
         field_name='pk',
         label=_('Virtual machine (ID)'),
     )
-    interface = django_filters.ModelMultipleChoiceFilter(
+    interface = NonUniqueModelMultipleChoiceFilter(
         field_name='interface__name',
         queryset=Interface.objects.all(),
         to_field_name='name',
@@ -2266,7 +2267,7 @@ class MACAddressFilterSet(PrimaryModelFilterSet):
         queryset=Interface.objects.all(),
         label=_('Interface (ID)'),
     )
-    vminterface = django_filters.ModelMultipleChoiceFilter(
+    vminterface = NonUniqueModelMultipleChoiceFilter(
         field_name='vminterface__name',
         queryset=VMInterface.objects.all(),
         to_field_name='name',
@@ -2516,13 +2517,13 @@ class InterfaceFilterSet(
         queryset=VirtualDeviceContext.objects.all(),
         label=_('Virtual Device Context')
     )
-    vdc_identifier = django_filters.ModelMultipleChoiceFilter(
+    vdc_identifier = NonUniqueModelMultipleChoiceFilter(
         field_name='vdcs__identifier',
         queryset=VirtualDeviceContext.objects.all(),
         to_field_name='identifier',
         label=_('Virtual Device Context (Identifier)')
     )
-    vdc = django_filters.ModelMultipleChoiceFilter(
+    vdc = NonUniqueModelMultipleChoiceFilter(
         field_name='vdcs__name',
         queryset=VirtualDeviceContext.objects.all(),
         to_field_name='name',
@@ -2674,7 +2675,7 @@ class DeviceBayFilterSet(DeviceComponentFilterSet):
         distinct=False,
         label=_('Installed device (ID)'),
     )
-    installed_device = django_filters.ModelMultipleChoiceFilter(
+    installed_device = NonUniqueModelMultipleChoiceFilter(
         field_name='installed_device__name',
         queryset=Device.objects.all(),
         distinct=False,
@@ -2761,7 +2762,7 @@ class VirtualChassisFilterSet(PrimaryModelFilterSet):
         distinct=False,
         label=_('Master (ID)'),
     )
-    master = django_filters.ModelMultipleChoiceFilter(
+    master = NonUniqueModelMultipleChoiceFilter(
         field_name='master__name',
         queryset=Device.objects.all(),
         distinct=False,

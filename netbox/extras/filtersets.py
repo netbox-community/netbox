@@ -15,6 +15,7 @@ from utilities.filters import (
     MultiValueCharFilter,
     MultiValueContentTypeFilter,
     MultiValueNumberFilter,
+    NonUniqueModelMultipleChoiceFilter,
 )
 from utilities.filtersets import register_filterset
 from virtualization.models import Cluster, ClusterGroup, ClusterType
@@ -760,7 +761,7 @@ class ConfigContextFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
         queryset=Location.objects.all(),
         label=_('Location'),
     )
-    location = django_filters.ModelMultipleChoiceFilter(
+    location = NonUniqueModelMultipleChoiceFilter(
         field_name='locations__slug',
         queryset=Location.objects.all(),
         to_field_name='slug',

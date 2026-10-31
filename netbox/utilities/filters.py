@@ -25,6 +25,7 @@ __all__ = (
     'MultiValueTimeFilter',
     'MultiValueTimeZoneFilter',
     'MultiValueWWNFilter',
+    'NonUniqueModelMultipleChoiceFilter',
     'NullableCharFieldFilter',
     'NumericArrayFilter',
     'TreeNodeMultipleChoiceFilter',
@@ -175,6 +176,20 @@ class TreeNodeMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilter):
     def filter(self, qs, value):
         value = [node.get_descendants(include_self=True) if not isinstance(node, str) else node for node in value]
         return super().filter(qs, value)
+
+
+class NonUniqueModelMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilter):
+    """
+    A ModelMultipleChoiceFilter for a non-unique to_field_name, which resolves each value to a single object.
+    """
+    def __init__(self, *args, **kwargs):
+        if not kwargs.get('to_field_name'):
+            raise ValueError(f"{self.__class__.__name__} requires to_field_name")
+        super().__init__(*args, **kwargs)
+
+    def get_queryset(self, request):
+        to_field_name = self.extra['to_field_name']
+        return super().get_queryset(request).order_by(to_field_name).distinct(to_field_name)
 
 
 class NullableCharFieldFilter(django_filters.CharFilter):

@@ -4,7 +4,7 @@ from dcim.choices import InterfaceTypeChoices
 from dcim.models import Device, Interface, Site
 from ipam.models import VLAN, IPAddress, RouteTarget
 from utilities.testing import ChangeLoggedFilterSetTestMixin, create_test_device, create_test_virtualmachine
-from virtualization.models import VirtualMachine, VMInterface
+from virtualization.models import Cluster, VirtualMachine, VMInterface
 from vpn.choices import *
 from vpn.filtersets import *
 from vpn.models import *
@@ -292,6 +292,19 @@ class TunnelTerminationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'vminterface': [vm_interfaces[0].name, vm_interfaces[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_interface_shared_name(self):
+        # A name shared by several interfaces should resolve to a single filter value
+        Interface.objects.create(
+            device=create_test_device('Device 2'), name='Interface 1', type=InterfaceTypeChoices.TYPE_VIRTUAL
+        )
+        VMInterface.objects.create(
+            virtual_machine=create_test_virtualmachine('Virtual Machine 2'), name='Interface 1'
+        )
+        for param in ('interface', 'vminterface'):
+            filterset = self.filterset({param: ['Interface 1']}, self.queryset)
+            self.assertEqual(filterset.qs.count(), 1)
+            self.assertEqual(len(filterset.form.cleaned_data[param]), 1)
 
     def test_outside_ip(self):
         ip_addresses = IPAddress.objects.all()[:2]
@@ -921,12 +934,33 @@ class L2VPNTerminationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'vminterface_id': [vminterfaces[0].pk, vminterfaces[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_interface_shared_name(self):
+        # A name shared by several interfaces should resolve to a single filter value
+        Interface.objects.create(
+            device=create_test_device('Device 2'), name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        VMInterface.objects.create(
+            virtual_machine=create_test_virtualmachine('Virtual Machine 2'), name='Interface 1'
+        )
+        for param in ('interface', 'vminterface'):
+            filterset = self.filterset({param: ['Interface 1']}, self.queryset)
+            self.assertEqual(filterset.qs.count(), 1)
+            self.assertEqual(len(filterset.form.cleaned_data[param]), 1)
+
     def test_vlan(self):
         vlans = VLAN.objects.all()[:2]
         params = {'vlan_id': [vlans[0].pk, vlans[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'vlan': ['VLAN 1', 'VLAN 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_vlan_shared_name(self):
+        # A VLAN name shared by several groups should resolve to a single filter value
+        vlan = VLAN.objects.first()
+        VLAN.objects.create(vid=vlan.vid, name=vlan.name)
+        filterset = self.filterset({'vlan': [vlan.name]}, self.queryset)
+        self.assertTrue(filterset.is_valid())
+        self.assertEqual(len(filterset.form.cleaned_data['vlan']), 1)
 
     def test_site(self):
         site = Site.objects.all().first()
@@ -942,9 +976,27 @@ class L2VPNTerminationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'device': ['Device 1']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
+    def test_device_shared_name(self):
+        # A device name shared by several sites should resolve to a single filter value
+        device = Device.objects.first()
+        site = Site.objects.create(name='Site 99', slug='site-99')
+        Device.objects.create(site=site, name=device.name, device_type=device.device_type, role=device.role)
+        filterset = self.filterset({'device': [device.name]}, self.queryset)
+        self.assertTrue(filterset.is_valid())
+        self.assertEqual(len(filterset.form.cleaned_data['device']), 1)
+
     def test_virtual_machine(self):
         virtual_machine = VirtualMachine.objects.all().first()
         params = {'virtual_machine_id': [virtual_machine.pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {'virtual_machine': ['Virtual Machine 1']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_virtual_machine_shared_name(self):
+        # A virtual machine name shared by several clusters should resolve to a single filter value
+        vm = VirtualMachine.objects.first()
+        cluster = Cluster.objects.create(name='Cluster 99', type=vm.cluster.type)
+        VirtualMachine.objects.create(cluster=cluster, name=vm.name)
+        filterset = self.filterset({'virtual_machine': [vm.name]}, self.queryset)
+        self.assertTrue(filterset.is_valid())
+        self.assertEqual(len(filterset.form.cleaned_data['virtual_machine']), 1)
