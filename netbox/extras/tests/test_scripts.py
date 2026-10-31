@@ -808,11 +808,10 @@ class ScriptJobEnqueueValidationTestCase(TestCase):
 
         script = self._make_script(RecurringScript)
 
-        # Create a completed, recurring job as if a scheduled occurrence had just finished successfully.
+        # Create a waiting recurring job, which handle() runs to completion before it reschedules.
         job = Job.objects.create(
             object=script,
             name='Recurring',
-            status=JobStatusChoices.STATUS_COMPLETED,
             user=self.user,
             interval=60,
             job_id=uuid.uuid4(),
