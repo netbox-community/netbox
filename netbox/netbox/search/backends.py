@@ -242,7 +242,7 @@ class CachedValueSearchBackend(SearchBackend):
             # Compile a list of all CachedValues referencing this object type, and prefetch
             # any related objects
             if prefetch_fields:
-                objects = [r for r in results if r.object_type == object_type]
+                objects = [r for r in results if r.object_type_id == object_type.pk]
                 prefetch_related_objects(objects, *prefetch_fields)
 
         # Omit any results pertaining to an object the user does not have permission to view

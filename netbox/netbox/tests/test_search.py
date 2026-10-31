@@ -17,6 +17,7 @@ from extras.models import CachedValue
 from netbox.search import deferred
 from netbox.search.backends import SearchBackend, search_backend
 from netbox.search.jobs import SearchCacheJob
+from tenancy.models import Tenant
 from utilities.testing.mixins import RQQueueTestMixin
 
 
@@ -191,6 +192,19 @@ class SearchBackendTestCase(TestCase):
         self.assertEqual(len(results), 1)
         results = search_backend.search('xxxxx')
         self.assertEqual(len(results), 0)
+
+    def test_search_prefetch_display_attrs(self):
+        """
+        Check that ForeignKey fields listed in an indexer's display_attrs are prefetched.
+        """
+        tenant = Tenant.objects.create(name='Tenant 1', slug='tenant-1')
+        Site.objects.update(tenant=tenant)
+        search_backend.cache(Site.objects.all())
+
+        results = search_backend.search('site')
+        self.assertEqual(len(results), 3)
+        for result in results:
+            self.assertTrue(Site.tenant.field.is_cached(result.object))
 
 
 class DeferredCachingTestCase(RQQueueTestMixin, TestCase):
