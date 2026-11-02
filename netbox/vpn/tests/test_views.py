@@ -1,6 +1,6 @@
 from dcim.choices import InterfaceTypeChoices
 from dcim.models import Interface
-from ipam.models import VLAN, RouteTarget
+from ipam.models import VLAN, IPAddress, RouteTarget
 from utilities.testing import ViewTestCases, create_tags, create_test_device
 from vpn.choices import *
 from vpn.models import *
@@ -664,11 +664,13 @@ class L2VPNTerminationTestCase(
             'interface': interface.pk,
         }
 
+        IPAddress.objects.create(address='192.0.2.1/32')
+
         cls.csv_data = (
-            "l2vpn,vlan",
-            "L2VPN 1,Vlan 4",
-            "L2VPN 1,Vlan 5",
-            "L2VPN 1,Vlan 6",
+            "l2vpn,vlan,ipaddress",
+            "L2VPN 1,Vlan 4,",
+            "L2VPN 1,Vlan 5,",
+            "L2VPN 1,,192.0.2.1/32",
         )
 
         cls.csv_update_data = (

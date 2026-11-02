@@ -312,10 +312,17 @@ class L2VPNTerminationImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Assigned VLAN')
     )
+    ipaddress = CSVModelChoiceField(
+        label=_('IP address'),
+        queryset=IPAddress.objects.all(),
+        required=False,
+        to_field_name='address',
+        help_text=_('Assigned IP address, with mask (e.g. the far-end PE of a pseudowire)')
+    )
 
     class Meta:
         model = L2VPNTermination
-        fields = ('l2vpn', 'device', 'virtual_machine', 'interface', 'vlan', 'tags')
+        fields = ('l2vpn', 'device', 'virtual_machine', 'interface', 'vlan', 'ipaddress', 'tags')
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
@@ -337,11 +344,18 @@ class L2VPNTerminationImportForm(NetBoxModelImportForm):
 
         if self.cleaned_data.get('device') and self.cleaned_data.get('virtual_machine'):
             raise ValidationError(_('Cannot import device and VM interface terminations simultaneously.'))
-        if not self.instance and not (self.cleaned_data.get('interface') or self.cleaned_data.get('vlan')):
-            raise ValidationError(_('Each termination must specify either an interface or a VLAN.'))
-        if self.cleaned_data.get('interface') and self.cleaned_data.get('vlan'):
-            raise ValidationError(_('Cannot assign both an interface and a VLAN.'))
+        assigned_objects = [
+            obj for obj in (
+                self.cleaned_data.get('interface'),
+                self.cleaned_data.get('vlan'),
+                self.cleaned_data.get('ipaddress'),
+            ) if obj
+        ]
+        if not self.instance and not assigned_objects:
+            raise ValidationError(_('Each termination must specify an interface, a VLAN, or an IP address.'))
+        if len(assigned_objects) > 1:
+            raise ValidationError(_('Cannot assign more than one of an interface, a VLAN, and an IP address.'))
 
-        # if this is an update we might not have interface or vlan in the form data
-        if self.cleaned_data.get('interface') or self.cleaned_data.get('vlan'):
-            self.instance.assigned_object = self.cleaned_data.get('interface') or self.cleaned_data.get('vlan')
+        # if this is an update we might not have an assigned object in the form data
+        if assigned_objects:
+            self.instance.assigned_object = assigned_objects[0]

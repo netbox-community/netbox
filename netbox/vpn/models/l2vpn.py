@@ -5,6 +5,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
+from ipam.models import IPAddress
 from netbox.models import NetBoxModel, PrimaryModel
 from netbox.models.features import ContactsMixin
 from vpn.choices import L2VPNStatusChoices, L2VPNTypeChoices
@@ -109,8 +110,8 @@ class L2VPNTermination(NetBoxModel):
         ordering = ('l2vpn',)
         constraints = (
             models.UniqueConstraint(
-                fields=('assigned_object_type', 'assigned_object_id'),
-                name='vpn_l2vpntermination_assigned_object'
+                fields=('l2vpn', 'assigned_object_type', 'assigned_object_id'),
+                name='vpn_l2vpntermination_l2vpn_assigned_object'
             ),
         )
         verbose_name = _('L2VPN termination')
@@ -122,8 +123,8 @@ class L2VPNTermination(NetBoxModel):
         return super().__str__()
 
     def clean(self):
-        # Only check is assigned_object is set.  Required otherwise we have an Integrity Error thrown.
-        if self.assigned_object:
+        # An IP address (e.g. a pseudowire's far-end PE) may terminate many L2VPNs, but other objects only one.
+        if self.assigned_object and not isinstance(self.assigned_object, IPAddress):
             obj_id = self.assigned_object.pk
             obj_type = ObjectType.objects.get_for_model(self.assigned_object)
             terminations = L2VPNTermination.objects.filter(assigned_object_id=obj_id, assigned_object_type=obj_type)
@@ -148,6 +149,10 @@ class L2VPNTermination(NetBoxModel):
     @property
     def assigned_object_parent(self):
         obj_type = ObjectType.objects.get_for_model(self.assigned_object)
+        if obj_type.model == 'ipaddress':
+            # The device or virtual machine whose interface the IP address is assigned to, if any
+            interface = self.assigned_object.assigned_object
+            return getattr(interface, 'parent_object', None)
         if obj_type.model == 'vminterface':
             return self.assigned_object.virtual_machine
         if obj_type.model == 'interface':
@@ -158,4 +163,6 @@ class L2VPNTermination(NetBoxModel):
 
     @property
     def assigned_object_site(self):
-        return self.assigned_object_parent.site
+        if parent := self.assigned_object_parent:
+            return parent.site
+        return None

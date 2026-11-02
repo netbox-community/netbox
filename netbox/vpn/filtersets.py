@@ -475,6 +475,17 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         queryset=VLAN.objects.all(),
         label=_('VLAN (ID)'),
     )
+    ipaddress = django_filters.ModelMultipleChoiceFilter(
+        field_name='ipaddress__address',
+        queryset=IPAddress.objects.all(),
+        to_field_name='address',
+        label=_('IP address'),
+    )
+    ipaddress_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='ipaddress',
+        queryset=IPAddress.objects.all(),
+        label=_('IP address (ID)'),
+    )
     assigned_object_type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ObjectType.objects.all(),
         distinct=False,

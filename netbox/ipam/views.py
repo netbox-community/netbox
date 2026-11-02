@@ -1153,6 +1153,12 @@ class IPAddressView(generic.ObjectView):
                 filters={'ip_address_id': lambda ctx: ctx['object'].pk},
                 title=_('Application services'),
             ),
+            ObjectsTablePanel(
+                'vpn.l2vpntermination',
+                filters={'ipaddress_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['assigned_object_type', 'assigned_object'],
+                title=_('L2VPN terminations'),
+            ),
         ],
     )
 

@@ -3,7 +3,7 @@ from rest_framework import status
 
 from dcim.choices import InterfaceTypeChoices
 from dcim.models import Interface
-from ipam.models import VLAN
+from ipam.models import VLAN, IPAddress
 from utilities.testing import APITestCase, APIViewTestCases, create_test_device
 from vpn.choices import *
 from vpn.models import *
@@ -676,10 +676,12 @@ class L2VPNTerminationTestCase(APIViewTestCases.APIViewTestCase):
         )
         L2VPN.objects.bulk_create(l2vpns)
 
+        ip_address = IPAddress.objects.create(address='192.0.2.1/32')
+
         l2vpnterminations = (
             L2VPNTermination(l2vpn=l2vpns[0], assigned_object=vlans[0]),
             L2VPNTermination(l2vpn=l2vpns[0], assigned_object=vlans[1]),
-            L2VPNTermination(l2vpn=l2vpns[0], assigned_object=vlans[2])
+            L2VPNTermination(l2vpn=l2vpns[0], assigned_object=ip_address)
         )
         L2VPNTermination.objects.bulk_create(l2vpnterminations)
 
@@ -695,9 +697,10 @@ class L2VPNTerminationTestCase(APIViewTestCases.APIViewTestCase):
                 'assigned_object_id': vlans[4].pk,
             },
             {
-                'l2vpn': l2vpns[0].pk,
-                'assigned_object_type': 'ipam.vlan',
-                'assigned_object_id': vlans[5].pk,
+                # The same IP address may terminate another L2VPN
+                'l2vpn': l2vpns[2].pk,
+                'assigned_object_type': 'ipam.ipaddress',
+                'assigned_object_id': ip_address.pk,
             },
         ]
 
