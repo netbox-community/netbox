@@ -41,6 +41,11 @@ class JobResultURLTestCase(TestCase):
         with self.assertRaises(ImproperlyConfigured):
             register_job_result_url('core.datasource', job_name='Sync')(lambda job: None)
 
+    def test_register_invalid_label(self):
+        for label in ('datasource', 'core.datasource.foo'):
+            with self.subTest(label=label), self.assertRaises(ImproperlyConfigured):
+                register_job_result_url(label)
+
     def test_no_object(self):
         register_job_result_url(DataSource)(lambda job: '/foo/')
 
@@ -83,9 +88,9 @@ class JobResultURLTestCase(TestCase):
     def test_unexpected_exception(self):
         @register_job_result_url(DataSource)
         def func(job):
-            raise ValueError
+            raise AttributeError
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(AttributeError):
             self.get_job(DataSource).get_absolute_url()
 
     def test_url_cached(self):

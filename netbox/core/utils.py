@@ -229,7 +229,12 @@ def register_job_result_url(model, job_name=None):
         def my_job_result_url(job):
             return reverse('plugins:myplugin:mymodel_results', args=[job.object_id])
     """
-    label = model.lower() if isinstance(model, str) else model._meta.label_lower
+    if isinstance(model, str):
+        if model.count('.') != 1:
+            raise ImproperlyConfigured(f"Invalid model label {model!r}: must be in the form <app_label>.<model_name>.")
+        label = model.lower()
+    else:
+        label = model._meta.label_lower
     key = (label, job_name)
 
     def _wrapper(func):
@@ -255,7 +260,7 @@ def get_job_result_url(job):
             try:
                 if url := func(job):
                     return url
-            except (NoReverseMatch, ObjectDoesNotExist, AttributeError) as e:
+            except (NoReverseMatch, ObjectDoesNotExist) as e:
                 # A failing function must not break the rendering of jobs lists or notifications.
                 logger.warning(
                     "Failed to resolve the result URL for job %s using %r: %s", job.pk, func, e,

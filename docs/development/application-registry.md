@@ -22,7 +22,7 @@ A dictionary mapping each model (identified by its app and label) to its filters
 
 ### `job_result_urls`
 
-A dictionary mapping each model (identified by its app and label) and optional job name to a function which returns the URL of the results page for background jobs associated with objects of that model. These functions are registered using the `register_job_result_url()` decorator in `core.utils`. (See the [plugin development documentation](../plugins/development/background-jobs.md#result-urls) for details.)
+A dictionary mapping `(<app_label>.<model_name>, <job_name>)` tuples to functions which return the URL of the results page for background jobs associated with objects of that model and, unless the job name is `None`, having that name. These functions are registered using the `register_job_result_url()` decorator in `core.utils`. (See the [plugin development documentation](../plugins/development/background-jobs.md#result-urls) for details.)
 
 ### `model_features`
 
