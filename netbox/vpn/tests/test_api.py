@@ -681,7 +681,7 @@ class L2VPNTerminationTestCase(APIViewTestCases.APIViewTestCase):
         l2vpnterminations = (
             L2VPNTermination(l2vpn=l2vpns[0], assigned_object=vlans[0]),
             L2VPNTermination(l2vpn=l2vpns[0], assigned_object=vlans[1]),
-            L2VPNTermination(l2vpn=l2vpns[0], assigned_object=ip_address)
+            L2VPNTermination(l2vpn=l2vpns[1], assigned_object=ip_address)
         )
         L2VPNTermination.objects.bulk_create(l2vpnterminations)
 
