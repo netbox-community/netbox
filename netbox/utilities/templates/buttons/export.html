@@ -4,8 +4,18 @@
     <i class="mdi mdi-download" aria-hidden="true"></i> {{ label }}
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><a id="export_current_view" class="dropdown-item" href="?{% if url_params %}{{ url_params }}&{% endif %}export=table">{% trans "Current View" %}</a></li>
-    <li><a class="dropdown-item" href="?{% if url_params %}{{ url_params }}&{% endif %}export">{% trans "All Data" %} ({{ data_format }})</a></li>
+    {% if table_exporters %}
+      <li><h6 class="dropdown-header">{% trans "Current View" %}</h6></li>
+      {% for exporter in table_exporters %}
+        <li><a class="dropdown-item export-current-view" href="?{% if url_params %}{{ url_params }}&{% endif %}export=table&export_format={{ exporter.slug }}">{{ exporter.label }}</a></li>
+      {% endfor %}
+    {% endif %}
+    {% if exporters %}
+      <li><h6 class="dropdown-header">{% trans "All Data" %}</h6></li>
+      {% for exporter in exporters %}
+        <li><a class="dropdown-item" href="?{% if url_params %}{{ url_params }}&{% endif %}export&export_format={{ exporter.slug }}">{{ exporter.label }}</a></li>
+      {% endfor %}
+    {% endif %}
     {% if export_templates %}
       <li>
         <hr class="dropdown-divider">

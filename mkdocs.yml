@@ -156,6 +156,7 @@ nav:
             - Search: 'plugins/development/search.md'
             - Event Types: 'plugins/development/event-types.md'
             - Event Rule Actions: 'plugins/development/event-rule-actions.md'
+            - Exporters: 'plugins/development/exporters.md'
             - Permissions: 'plugins/development/permissions.md'
             - Data Backends: 'plugins/development/data-backends.md'
             - Webhooks: 'plugins/development/webhooks.md'

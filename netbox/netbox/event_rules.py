@@ -1,11 +1,10 @@
-import re
-
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.utils.text import capfirst
 from django.utils.translation import gettext_lazy as _
 
 from netbox.registry import registry
 from utilities.choices import Choice
+from utilities.constants import SLUG_RE
 from utilities.string import enum_key
 
 __all__ = (
@@ -15,11 +14,6 @@ __all__ = (
     'get_event_rule_action_slugs',
     'register_event_rule_action',
 )
-
-# A slug must sanitize (via enum_key()) into a valid GraphQL enum member name, which rules out a
-# leading digit or underscore. Hyphens are rejected outright rather than sanitized away, so that a
-# slug always reads as it was written.
-SLUG_RE = re.compile(r'^[a-z][a-z0-9_]*(\.[a-z0-9_]+)*$')
 
 
 # This module must not import any concrete Django models: it's imported by netbox.plugins (itself

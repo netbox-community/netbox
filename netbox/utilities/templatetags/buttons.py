@@ -4,8 +4,7 @@ from django.urls import NoReverseMatch, reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
-from core.models import ObjectType
-from extras.models import Bookmark, ExportTemplate, Subscription
+from extras.models import Bookmark, Subscription
 from netbox.models.features import NotificationsMixin
 from utilities.querydict import prepare_cloned_fields
 from utilities.views import get_action_url
@@ -19,7 +18,6 @@ __all__ = (
     'clone_button',
     'delete_button',
     'edit_button',
-    'export_button',
     'import_button',
     'subscribe_button',
     'sync_button',
@@ -188,28 +186,6 @@ def import_button(model, action='bulk_import'):
     return {
         'url': url,
         'label': _('Import'),
-    }
-
-
-# TODO: Remove in NetBox v4.7
-@register.inclusion_tag('buttons/export.html', takes_context=True)
-def export_button(context, model):
-    object_type = ObjectType.objects.get_for_model(model)
-    user = context['request'].user
-
-    # Determine if the "all data" export returns CSV or YAML
-    data_format = 'YAML' if hasattr(object_type.model_class(), 'to_yaml') else 'CSV'
-
-    # Retrieve all export templates for this model
-    export_templates = ExportTemplate.objects.restrict(user, 'view').filter(object_types=object_type)
-
-    return {
-        'label': _('Export'),
-        'perms': context['perms'],
-        'object_type': object_type,
-        'url_params': context['request'].GET.urlencode() if context['request'].GET else '',
-        'export_templates': export_templates,
-        'data_format': data_format,
     }
 
 

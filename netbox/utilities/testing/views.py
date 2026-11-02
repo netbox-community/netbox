@@ -11,6 +11,7 @@ from django.utils.translation import gettext as _
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
+from netbox.exporters import get_exporters
 from netbox.models.features import ChangeLoggingMixin, CustomFieldsMixin
 from users.models import ObjectPermission
 
@@ -516,6 +517,17 @@ class ViewTestCases:
             response = self.client.get(f'{url}?export=table')
             self.assertHttpStatus(response, 200)
             self.assertEqual(response.get('Content-Type'), 'text/csv; charset=utf-8')
+
+            # Test each supported exporter for the current view (table exporters only) and for all data
+            for exporter in get_exporters(self.model):
+                scopes = ('export=table', 'export') if exporter.tabular else ('export',)
+                for scope in scopes:
+                    with self.subTest(exporter=exporter.slug, scope=scope):
+                        response = self.client.get(f'{url}?{scope}&export_format={exporter.slug}')
+                        self.assertHttpStatus(response, 200)
+                        self.assertEqual(response.get('Content-Type'), exporter.content_type)
+                        self.assertIn(f'.{exporter.file_extension}', response.get('Content-Disposition'))
+                        self.assertTrue(response.getvalue())
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], LOGIN_REQUIRED=False)
         def test_export_objects_anonymous(self):

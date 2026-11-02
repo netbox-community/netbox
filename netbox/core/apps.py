@@ -45,6 +45,7 @@ class CoreConfig(AppConfig):
             check_redis_version,
         )
         from netbox import context_managers  # noqa: F401
+        from netbox.exporters import CSVExporter, YAMLExporter, register_exporter
         from netbox.models.features import register_models
 
         # Importing netbox.search.jobs registers its system job(s) (e.g. the
@@ -67,6 +68,10 @@ class CoreConfig(AppConfig):
         EventType(JOB_COMPLETED, _('Job completed'), kind=EVENT_TYPE_KIND_SUCCESS).register()
         EventType(JOB_FAILED, _('Job failed'), kind=EVENT_TYPE_KIND_WARNING).register()
         EventType(JOB_ERRORED, _('Job errored'), kind=EVENT_TYPE_KIND_DANGER).register()
+
+        # Register core exporters
+        register_exporter(CSVExporter)
+        register_exporter(YAMLExporter)
 
         # Clear Redis cache on startup in development mode
         if settings.DEBUG:
