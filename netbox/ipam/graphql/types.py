@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     )
     from tenancy.graphql.types import TenantType
     from virtualization.graphql.types import ClusterGroupType, ClusterType, VirtualMachineType, VMInterfaceType
-    from vpn.graphql.types import L2VPNType, TunnelTerminationType
+    from vpn.graphql.types import L2VPNTerminationType, L2VPNType, TunnelTerminationType
     from wireless.graphql.types import WirelessLANType
 
 __all__ = (

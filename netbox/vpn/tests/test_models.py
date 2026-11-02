@@ -111,6 +111,13 @@ class L2VPNTerminationTestCase(TestCase):
         self.assertIsNone(termination.assigned_object_parent)
         self.assertIsNone(termination.assigned_object_site)
 
+    def test_vlan_termination_site(self):
+        site = Site.objects.first()
+        vlan = VLAN.objects.create(name='VLAN 8', vid=658, site=site)
+        termination = L2VPNTermination.objects.create(l2vpn=L2VPN.objects.first(), assigned_object=vlan)
+        self.assertIsNone(termination.assigned_object_parent)
+        self.assertEqual(termination.assigned_object_site, site)
+
     def test_delete_ipaddress_deletes_terminations(self):
         ip_address = IPAddress.objects.create(address='192.0.2.1/32')
         termination = L2VPNTermination.objects.create(l2vpn=L2VPN.objects.first(), assigned_object=ip_address)

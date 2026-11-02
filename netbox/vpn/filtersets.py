@@ -417,24 +417,24 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         label=_('Site (ID)'),
     )
     device = django_filters.ModelMultipleChoiceFilter(
-        field_name='interface__device__name',
+        method='filter_device',
         queryset=Device.objects.all(),
         to_field_name='name',
         label=_('Device (name)'),
     )
     device_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='interface__device',
+        method='filter_device',
         queryset=Device.objects.all(),
         label=_('Device (ID)'),
     )
     virtual_machine = django_filters.ModelMultipleChoiceFilter(
-        field_name='vminterface__virtual_machine__name',
+        method='filter_virtual_machine',
         queryset=VirtualMachine.objects.all(),
         to_field_name='name',
         label=_('Virtual machine (name)'),
     )
     virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='vminterface__virtual_machine',
+        method='filter_virtual_machine',
         queryset=VirtualMachine.objects.all(),
         label=_('Virtual machine (ID)'),
     )
@@ -514,17 +514,37 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
             Q(
                 Q(**{'vlan__site__{}__in'.format(name): value}) |
                 Q(**{'interface__device__site__{}__in'.format(name): value}) |
-                Q(**{'vminterface__virtual_machine__site__{}__in'.format(name): value})
+                Q(**{'vminterface__virtual_machine__site__{}__in'.format(name): value}) |
+                Q(**{'ipaddress__interface__device__site__{}__in'.format(name): value}) |
+                Q(**{'ipaddress__vminterface__virtual_machine__site__{}__in'.format(name): value})
             )
         )
         return qs
+
+    def filter_device(self, queryset, name, value):
+        if not value:
+            return queryset
+        return queryset.filter(
+            Q(interface__device__in=value) |
+            Q(ipaddress__interface__device__in=value)
+        )
+
+    def filter_virtual_machine(self, queryset, name, value):
+        if not value:
+            return queryset
+        return queryset.filter(
+            Q(vminterface__virtual_machine__in=value) |
+            Q(ipaddress__vminterface__virtual_machine__in=value)
+        )
 
     def filter_region(self, queryset, name, value):
         qs = queryset.filter(
             Q(
                 Q(**{'vlan__site__region__{}__in'.format(name): value}) |
                 Q(**{'interface__device__site__region__{}__in'.format(name): value}) |
-                Q(**{'vminterface__virtual_machine__site__region__{}__in'.format(name): value})
+                Q(**{'vminterface__virtual_machine__site__region__{}__in'.format(name): value}) |
+                Q(**{'ipaddress__interface__device__site__region__{}__in'.format(name): value}) |
+                Q(**{'ipaddress__vminterface__virtual_machine__site__region__{}__in'.format(name): value})
             )
         )
         return qs

@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from ipam.models import IPAddress
 from vpn.choices import L2VPNTypeChoices
-from vpn.forms import L2VPNTerminationForm
+from vpn.forms import L2VPNTerminationForm, L2VPNTerminationImportForm
 from vpn.models import L2VPN, L2VPNTermination
 
 
@@ -25,3 +25,15 @@ class L2VPNTerminationFormTestCase(TestCase):
         form = L2VPNTerminationForm(data={'l2vpn': self.l2vpns[0].pk, 'ipaddress': self.ip_address.pk})
         self.assertFalse(form.is_valid())
         self.assertIn('already terminates', str(form.errors))
+
+
+class L2VPNTerminationImportFormTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        L2VPN.objects.create(name='L2VPN 1', slug='l2vpn-1', type=L2VPNTypeChoices.TYPE_VPLS)
+
+    def test_missing_assigned_object(self):
+        form = L2VPNTerminationImportForm(data={'l2vpn': 'L2VPN 1'}, instance=L2VPNTermination())
+        self.assertFalse(form.is_valid())
+        self.assertIn('must specify an interface, a VLAN, or an IP address', str(form.errors))

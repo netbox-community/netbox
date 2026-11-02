@@ -888,8 +888,8 @@ class L2VPNTerminationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         L2VPN.objects.bulk_create(l2vpns)
 
         ip_addresses = (
-            IPAddress(address='192.0.2.1/32'),
-            IPAddress(address='192.0.2.2/32'),
+            IPAddress(address='192.0.2.1/32', assigned_object=interfaces[0]),
+            IPAddress(address='192.0.2.2/32', assigned_object=vminterfaces[0]),
             IPAddress(address='192.0.2.3/32'),
         )
         IPAddress.objects.bulk_create(ip_addresses)
@@ -947,20 +947,20 @@ class L2VPNTerminationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     def test_site(self):
         site = Site.objects.all().first()
         params = {'site_id': [site.pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'site': ['site-1']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_device(self):
         device = Device.objects.all().first()
         params = {'device_id': [device.pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'device': ['Device 1']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_virtual_machine(self):
         virtual_machine = VirtualMachine.objects.all().first()
         params = {'virtual_machine_id': [virtual_machine.pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'virtual_machine': ['Virtual Machine 1']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)

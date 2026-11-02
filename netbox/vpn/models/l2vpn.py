@@ -5,7 +5,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
-from ipam.models import IPAddress
+from ipam.models import VLAN, IPAddress
 from netbox.models import NetBoxModel, PrimaryModel
 from netbox.models.features import ContactsMixin
 from vpn.choices import L2VPNStatusChoices, L2VPNTypeChoices
@@ -168,12 +168,12 @@ class L2VPNTermination(NetBoxModel):
             return self.assigned_object.virtual_machine
         if obj_type.model == 'interface':
             return self.assigned_object.device
-        if obj_type.model == 'vminterface':
-            return self.assigned_object.virtual_machine
         return None
 
     @property
     def assigned_object_site(self):
+        if isinstance(self.assigned_object, VLAN):
+            return self.assigned_object.site
         if parent := self.assigned_object_parent:
             return parent.site
         return None

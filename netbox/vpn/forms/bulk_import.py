@@ -351,7 +351,7 @@ class L2VPNTerminationImportForm(NetBoxModelImportForm):
                 self.cleaned_data.get('ipaddress'),
             ) if obj
         ]
-        if not self.instance and not assigned_objects:
+        if not self.instance.pk and not assigned_objects:
             raise ValidationError(_('Each termination must specify an interface, a VLAN, or an IP address.'))
         if len(assigned_objects) > 1:
             raise ValidationError(_('Cannot assign more than one of an interface, a VLAN, and an IP address.'))
