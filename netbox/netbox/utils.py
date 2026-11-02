@@ -3,10 +3,6 @@ from importlib import import_module
 
 from netbox.registry import registry
 
-__all__ = (
-    'register_model_feature',
-)
-
 # Functions which have been relocated from this module, mapped to their new modules
 # TODO: Remove in NetBox v5.0
 RELOCATED_FUNCTIONS = {
@@ -14,6 +10,11 @@ RELOCATED_FUNCTIONS = {
     'register_data_backend': 'netbox.data_backends',
     'register_request_processor': 'utilities.request',
 }
+
+__all__ = (
+    'register_model_feature',
+    *RELOCATED_FUNCTIONS,  # TODO: Remove in NetBox v5.0
+)
 
 
 def __getattr__(name):
