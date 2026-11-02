@@ -35,7 +35,7 @@ This key lists all models which have been registered in NetBox which are not des
 
 ### `pk_allocators`
 
-A list of callables which may supply primary keys for new objects, consulted in order. Primary key allocators are registered using the `register_pk_allocator()` decorator in `netbox.utils`. (See the [plugin development documentation](../plugins/development/models.md#primary-key-allocators) for details.)
+A list of callables which may supply primary keys for new objects, consulted in order. Primary key allocators are registered using the `register_pk_allocator()` decorator in `netbox.models`. (See the [plugin development documentation](../plugins/development/models.md#primary-key-allocators) for details.)
 
 ### `plugins`
 
@@ -43,7 +43,7 @@ This store maintains all registered items for plugins, such as navigation menus,
 
 ### `request_processors`
 
-A list of context managers to invoke when processing a request e.g. in middleware or when executing a background job. Request processors can be registered with the `@register_request_processor` decorator.
+A list of context managers to invoke when processing a request e.g. in middleware or when executing a background job. Request processors can be registered with the `@register_request_processor` decorator in `utilities.request`.
 
 ### `search`
 

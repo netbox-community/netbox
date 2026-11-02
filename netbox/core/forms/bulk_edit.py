@@ -3,8 +3,8 @@ from django.utils.translation import gettext_lazy as _
 
 from core.choices import JobIntervalChoices
 from core.models import *
+from netbox.data_backends import get_data_backend_choices
 from netbox.forms import PrimaryModelBulkEditForm
-from netbox.utils import get_data_backend_choices
 from utilities.forms.fields import ChoiceField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import BulkEditNullBooleanSelect

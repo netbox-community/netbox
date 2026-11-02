@@ -11,6 +11,7 @@ from netbox.models.features import *
 from netbox.models.ltree import LtreeManager, LtreeModel, SortPathField
 from netbox.models.mixins import OwnerMixin
 from utilities.mptt import TreeManager
+from utilities.pk_allocation import allocate_pks, register_pk_allocator
 from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
@@ -22,6 +23,8 @@ __all__ = (
     'NetBoxModel',
     'OrganizationalModel',
     'PrimaryModel',
+    'allocate_pks',
+    'register_pk_allocator',
 )
 
 

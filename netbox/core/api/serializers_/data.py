@@ -2,7 +2,7 @@ from core.choices import *
 from core.models import DataFile, DataSource
 from netbox.api.fields import ChoiceField, RelatedObjectCountField
 from netbox.api.serializers import NetBoxModelSerializer, PrimaryModelSerializer
-from netbox.utils import get_data_backend_choices
+from netbox.data_backends import get_data_backend_choices
 
 __all__ = (
     'DataFileSerializer',

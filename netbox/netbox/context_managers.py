@@ -3,7 +3,7 @@ from contextlib import contextmanager
 
 from extras.events import flush_events
 from netbox.context import current_request, events_queue, query_cache
-from netbox.utils import register_request_processor
+from utilities.request import register_request_processor
 
 
 @register_request_processor
