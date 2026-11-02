@@ -14,7 +14,7 @@ from django.db import IntegrityError, router, transaction
 from django.db.models import ManyToManyField, ProtectedError, RestrictedError
 from django.db.models.fields.reverse_related import ManyToManyRel
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
-from django.http import Http404, HttpResponse, StreamingHttpResponse
+from django.http import Http404, HttpResponse, HttpResponseBadRequest, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.encoding import force_str
 from django.utils.http import content_disposition_header
@@ -272,6 +272,10 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
             # Render an ExportTemplate
             if request.GET['export'] not in ('', 'table'):
+                if request.GET.get('export_format'):
+                    return HttpResponseBadRequest(
+                        _("The export_format parameter cannot be used with an export template.")
+                    )
                 template = get_object_or_404(
                     ExportTemplate.objects.restrict(request.user, 'view'),
                     object_types=object_type,

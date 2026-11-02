@@ -100,6 +100,6 @@ The `export_format` query parameter selects an exporter by its slug:
 | `?export=table`                      | Current view, as CSV                                   |
 | `?export`                            | All data, as [YAML](#yaml-export) if the model supports it, or as CSV |
 
-An unknown slug, or an exporter that doesn't support the model (or the current view), returns a 404 response. Exporters are available only in the web UI. The REST API supports [export templates](../../customization/export-templates.md) only.
+An unknown slug, or an exporter that doesn't support the model (or the current view), returns a 404 response. Combining `export_format` with an export template (`?export=<name>`) returns a 400 response. Exporters are available only in the web UI. The REST API supports [export templates](../../customization/export-templates.md) only.
 
 ::: netbox.exporters.Exporter

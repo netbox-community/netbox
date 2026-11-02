@@ -14,8 +14,10 @@ from django.test import RequestFactory, SimpleTestCase, override_settings
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
+from core.models import ObjectType
 from dcim.models import DeviceType, Manufacturer, Site
 from dcim.views import DeviceTypeListView, SiteListView
+from extras.models import ExportTemplate
 from netbox.exporters import (
     CSVExporter,
     Exporter,
@@ -228,6 +230,21 @@ class ExportViewTestCase(TestCase):
         ):
             with self.subTest(params=params):
                 self.assertHttpStatus(self.client.get(f'{self.url}?{params}'), 404)
+
+    def test_export_template_with_format(self):
+        """
+        Combining export_format with an export template returns a 400 response.
+        """
+        export_template = ExportTemplate.objects.create(name='Template 1', template_code='{{ queryset|length }}')
+        export_template.object_types.set([ObjectType.objects.get_for_model(Site)])
+        self.add_permissions('extras.view_exporttemplate')
+
+        for params in ('export=Template 1', 'export=Template 1&export_format='):
+            with self.subTest(params=params):
+                self.assertHttpStatus(self.client.get(f'{self.url}?{params}'), 200)
+        for params in ('export=Template 1&export_format=csv', 'export=Template 1&export_format=invalid'):
+            with self.subTest(params=params):
+                self.assertHttpStatus(self.client.get(f'{self.url}?{params}'), 400)
 
     @skipIf('netbox.tests.dummy_plugin' not in settings.PLUGINS, 'dummy_plugin not in settings.PLUGINS')
     def test_export_plugin_table_exporter(self):
