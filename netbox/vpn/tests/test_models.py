@@ -95,7 +95,7 @@ class L2VPNTerminationTestCase(TestCase):
 
         L2VPNTermination.objects.create(l2vpn=l2vpn, assigned_object=ip_address)
         duplicate = L2VPNTermination(l2vpn=l2vpn, assigned_object=ip_address)
-        self.assertRaises(ValidationError, duplicate.full_clean)
+        self.assertRaises(ValidationError, duplicate.clean)
 
     def test_ipaddress_termination_parent(self):
         interface = Interface.objects.first()

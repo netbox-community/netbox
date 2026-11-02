@@ -123,12 +123,23 @@ class L2VPNTermination(NetBoxModel):
         return super().__str__()
 
     def clean(self):
-        # An IP address (e.g. a pseudowire's far-end PE) may terminate many L2VPNs, but other objects only one.
-        if self.assigned_object and not isinstance(self.assigned_object, IPAddress):
+        # Only check is assigned_object is set.  Required otherwise we have an Integrity Error thrown.
+        if self.assigned_object:
             obj_id = self.assigned_object.pk
             obj_type = ObjectType.objects.get_for_model(self.assigned_object)
-            terminations = L2VPNTermination.objects.filter(assigned_object_id=obj_id, assigned_object_type=obj_type)
-            if terminations.exclude(pk=self.pk).exists():
+            terminations = L2VPNTermination.objects.filter(
+                assigned_object_id=obj_id, assigned_object_type=obj_type
+            ).exclude(pk=self.pk)
+            # An IP address (e.g. a pseudowire's far-end PE) may terminate many L2VPNs, but each only once. Other
+            # objects may terminate only one L2VPN.
+            if isinstance(self.assigned_object, IPAddress):
+                if terminations.filter(l2vpn_id=self.l2vpn_id).exists():
+                    raise ValidationError(
+                        _('{assigned_object} already terminates {l2vpn}').format(
+                            assigned_object=self.assigned_object, l2vpn=self.l2vpn
+                        )
+                    )
+            elif terminations.exists():
                 raise ValidationError(
                     _('L2VPN Termination already assigned ({assigned_object})').format(
                         assigned_object=self.assigned_object
