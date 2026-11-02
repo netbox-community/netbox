@@ -465,6 +465,11 @@ class SearchTable(tables.Table):
         template_code=SEARCH_RESULT_ATTRS,
         verbose_name=_('Attributes')
     )
+    tags = columns.TemplateColumn(
+        template_code=SEARCH_RESULT_TAGS,
+        verbose_name=_('Tags'),
+        orderable=False
+    )
 
     trim_length = 30
 
