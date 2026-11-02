@@ -512,6 +512,5 @@ class JobTestCase(TestCase):
         self.assertEqual(job.get_absolute_url(), reverse('core:job', args=[123]))
 
         # Jobs for custom scripts link to the script result view
-        job.object_type = ObjectType.objects.get_for_model(Script)
-        job.object_id = 1
+        job = Job(pk=123, name='Test Job', object_type=ObjectType.objects.get_for_model(Script), object_id=1)
         self.assertEqual(job.get_absolute_url(), reverse('extras:script_result', kwargs={'job_pk': 123}))

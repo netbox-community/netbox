@@ -1,8 +1,9 @@
 import logging
 
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.db import DatabaseError, connection
 from django.http import Http404
+from django.urls import NoReverseMatch
 from django.utils.translation import gettext_lazy as _
 from django_rq.queues import get_queue, get_queue_by_index, get_redis_connection
 from django_rq.settings import get_queues_list, get_queues_map
@@ -32,6 +33,8 @@ __all__ = (
     'requeue_rq_job',
     'stop_rq_job',
 )
+
+logger = logging.getLogger('netbox.jobs')
 
 
 def get_rq_jobs():
@@ -215,7 +218,8 @@ def get_db_schema():
 def register_job_result_url(model, job_name=None):
     """
     Decorator for registering a function which returns the URL of the results page for background jobs associated
-    with objects of the given model (and optionally, having the given name).
+    with objects of the given model (and optionally, having the given name). The model may be passed as a class or as
+    a string in the form "<app_label>.<model_name>".
 
     The function must accept a Job instance and return either a URL, or None to defer to the next applicable function
     (and ultimately to the generic job view). A function registered for a specific job name takes precedence over one
@@ -225,13 +229,13 @@ def register_job_result_url(model, job_name=None):
         def my_job_result_url(job):
             return reverse('plugins:myplugin:mymodel_results', args=[job.object_id])
     """
-    key = (model._meta.label_lower, job_name)
+    label = model.lower() if isinstance(model, str) else model._meta.label_lower
+    key = (label, job_name)
 
     def _wrapper(func):
         if key in registry['job_result_urls']:
             raise ImproperlyConfigured(
-                f"A job result URL function is already registered for model {model._meta.label} and job name "
-                f"{job_name!r}."
+                f"A job result URL function is already registered for model {label} and job name {job_name!r}."
             )
         registry['job_result_urls'][key] = func
         return func
@@ -251,8 +255,10 @@ def get_job_result_url(job):
             try:
                 if url := func(job):
                     return url
-            except Exception:
+            except (NoReverseMatch, ObjectDoesNotExist, AttributeError) as e:
                 # A failing function must not break the rendering of jobs lists or notifications.
-                logger = logging.getLogger('netbox.jobs')
-                logger.exception("Failed to resolve the result URL for job %s using %r", job.pk, func)
+                logger.warning(
+                    "Failed to resolve the result URL for job %s using %r: %s", job.pk, func, e,
+                    exc_info=logger.isEnabledFor(logging.DEBUG)
+                )
     return None

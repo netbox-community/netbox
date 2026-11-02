@@ -1,7 +1,7 @@
 import logging
 import uuid
 from dataclasses import asdict
-from functools import partial
+from functools import cached_property, partial
 
 import django_rq
 from django.conf import settings
@@ -156,9 +156,12 @@ class Job(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        if url := get_job_result_url(self):
-            return url
-        return reverse('core:job', args=[self.pk])
+        return self._absolute_url
+
+    @cached_property
+    def _absolute_url(self):
+        # Cached because job tables link multiple columns, and a registered result URL function may query the database
+        return get_job_result_url(self) or reverse('core:job', args=[self.pk])
 
     def get_status_color(self):
         return JobStatusChoices.colors.get(self.status)

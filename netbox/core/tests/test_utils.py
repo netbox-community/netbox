@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
@@ -29,15 +29,17 @@ class JobResultURLTestCase(TestCase):
 
         self.assertIs(register_job_result_url(DataSource)(func), func)
         self.assertIs(register_job_result_url(DataSource, job_name='Sync')(func), func)
+        self.assertIs(register_job_result_url('dcim.Site')(func), func)
         self.assertEqual(registry['job_result_urls'], {
             ('core.datasource', None): func,
             ('core.datasource', 'Sync'): func,
+            ('dcim.site', None): func,
         })
 
     def test_register_duplicate(self):
         register_job_result_url(DataSource, job_name='Sync')(lambda job: None)
         with self.assertRaises(ImproperlyConfigured):
-            register_job_result_url(DataSource, job_name='Sync')(lambda job: None)
+            register_job_result_url('core.datasource', job_name='Sync')(lambda job: None)
 
     def test_no_object(self):
         register_job_result_url(DataSource)(lambda job: '/foo/')
@@ -75,8 +77,25 @@ class JobResultURLTestCase(TestCase):
         def func(job):
             return reverse('plugins:invalid')
 
-        with self.assertLogs('netbox.jobs', level='ERROR'):
+        with self.assertLogs('netbox.jobs', level='WARNING'):
             self.assertEqual(self.get_job(DataSource).get_absolute_url(), reverse('core:job', args=[123]))
+
+    def test_unexpected_exception(self):
+        @register_job_result_url(DataSource)
+        def func(job):
+            raise ValueError
+
+        with self.assertRaises(ValueError):
+            self.get_job(DataSource).get_absolute_url()
+
+    def test_url_cached(self):
+        func = Mock(return_value='/foo/')
+        register_job_result_url(DataSource)(func)
+        job = self.get_job(DataSource)
+
+        self.assertEqual(job.get_absolute_url(), '/foo/')
+        self.assertEqual(job.get_absolute_url(), '/foo/')
+        func.assert_called_once_with(job)
 
     def test_unresolvable_model(self):
         register_job_result_url(DataSource)(lambda job: '/foo/')
