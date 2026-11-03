@@ -1,8 +1,13 @@
-from django.test import TestCase
+import uuid
+
+from django.test import RequestFactory, TestCase
 
 from circuits.models import *
+from core.models import ObjectChange
 from dcim.models import *
 from dcim.utils import object_to_path_node
+from netbox.context_managers import event_tracking
+from utilities.testing.utils import create_test_user
 
 __all__ = (
     'BaseCablePathTestCase',
@@ -101,3 +106,22 @@ class BaseCablePathTestCase(TestCase):
         if msg is None:
             msg = f"Path #{origin._path_id} set as origin on {origin}; should be None!"
         self.assertIsNone(origin._path_id, msg=msg)
+
+    def update_dependent_objects(self, obj):
+        """
+        Call update_dependent_objects() on a fresh copy of obj twice under change tracking, asserting that neither
+        call records an ObjectChange and that the second call leaves the CablePaths unchanged.
+        """
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = create_test_user()
+
+        def get_paths():
+            return sorted((p.path, p.is_complete, p.is_active, p.is_split) for p in CablePath.objects.all())
+
+        with event_tracking(request):
+            type(obj).objects.get(pk=obj.pk).update_dependent_objects()
+            paths = get_paths()
+            type(obj).objects.get(pk=obj.pk).update_dependent_objects()
+        self.assertEqual(get_paths(), paths)
+        self.assertFalse(ObjectChange.objects.filter(request_id=request.id).exists())

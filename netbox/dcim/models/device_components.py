@@ -1425,6 +1425,16 @@ class Interface(
         if self.channels:
             self.clear_channel_cables()
 
+    def update_dependent_objects(self):
+        """
+        Mirror a channelized parent's cable onto this channel subinterface and recreate the cable's paths.
+        """
+        if self.channel_id and self.parent_id:
+            parent = Interface.objects.filter(pk=self.parent_id, cable__isnull=False).select_related('cable').first()
+            if parent and parent.channels:
+                parent.cable.update_dependent_objects()
+    update_dependent_objects.alters_data = True
+
     def propagate_channel_cables(self):
         """
         Mirror this channelized interface's cable attributes onto each of its channel subinterfaces, restricting each

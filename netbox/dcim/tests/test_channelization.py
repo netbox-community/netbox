@@ -850,6 +850,38 @@ class ChannelizedCablePathTestCase(BaseCablePathTestCase):
                 (peer, cable, channel), pk=peer_paths[peer.pk], is_complete=True, is_active=True
             )
 
+    def test_124_update_dependent_objects_mirrors_cable_onto_raw_channel(self):
+        """
+        A channel subinterface written raw must inherit its parent's cable and trace in both directions once
+        Interface.update_dependent_objects() is called. Refs: #23595
+        """
+        parent, channels = self._create_channelized_interface('et0', 4)
+        channels[3].delete()
+        far = [
+            Interface.objects.create(device=self.device, name=f'xe{i}', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS)
+            for i in range(4)
+        ]
+        cable = Cable(profile=CableProfileChoices.BREAKOUT_1C4P_4C1P, a_terminations=[parent], b_terminations=far)
+        cable.clean()
+        cable.save()
+
+        channel = Interface(
+            device=self.device, name='et0:4', type=InterfaceTypeChoices.TYPE_CHANNEL, parent=parent, channel_id=4
+        )
+        channel.save_base(raw=True)
+        channel.refresh_from_db()
+        self.assertIsNone(channel.cable_id)
+        self.assertPathIsNotSet(channel)
+
+        self.update_dependent_objects(channel)
+
+        channel.refresh_from_db()
+        self.assertEqual(channel.cable_id, cable.pk)
+        self.assertEqual(channel.cable_positions, [4])
+        self.assertCurrentPathExists((channel, cable, far[3]), is_complete=True, is_active=True)
+        self.assertCurrentPathExists((far[3], cable, channel), is_complete=True, is_active=True)
+        self.assertEqual(CablePath.objects.count(), 8)
+
 
 class ChannelizedInterfaceTestCase(TestCase):
     """

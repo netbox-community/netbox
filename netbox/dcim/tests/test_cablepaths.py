@@ -9,6 +9,7 @@ from dcim.svg import CableTraceSVG
 from dcim.tests.utils import BaseCablePathTestCase
 from dcim.utils import create_cablepaths, object_to_path_node
 from utilities.exceptions import AbortRequest
+from wireless.models import WirelessLink
 
 
 class LegacyCablePathTestCase(BaseCablePathTestCase):
@@ -3486,6 +3487,56 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
         interface2.refresh_from_db()
         self.assertIsNone(interface2.cable)
         self.assertPathIsNotSet(interface2)
+
+    def test_323_update_dependent_objects_extends_path_via_raw_circuit_termination(self):
+        """
+        [IF1] --C1-- [CT1] [CT2] --> [PN1], with CT2 written raw. Refs: #23595
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        providernetwork = ProviderNetwork.objects.create(name='Provider Network 1', provider=self.circuit.provider)
+        circuittermination1 = CircuitTermination.objects.create(
+            circuit=self.circuit,
+            termination=self.site,
+            term_side='A'
+        )
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[circuittermination1])
+        cable1.save()
+        self.assertCurrentPathExists((interface1, cable1, circuittermination1), is_complete=False)
+
+        circuittermination2 = CircuitTermination(circuit=self.circuit, termination=providernetwork, term_side='Z')
+        circuittermination2.cache_related_objects()
+        circuittermination2.save_base(raw=True)
+        self.assertCurrentPathExists((interface1, cable1, circuittermination1), is_complete=False)
+
+        self.update_dependent_objects(circuittermination2)
+
+        self.assertCurrentPathExists(
+            (interface1, cable1, circuittermination1, circuittermination2, providernetwork),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 1)
+
+    def test_324_update_dependent_objects_traces_raw_wireless_link(self):
+        """
+        [IF1] --WL1-- [IF2], with WL1 written raw. Refs: #23595
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1', type='ieee802.11ac')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2', type='ieee802.11ac')
+
+        wirelesslink1 = WirelessLink(interface_a=interface1, interface_b=interface2, ssid='Link 1')
+        wirelesslink1._interface_a_device = wirelesslink1._interface_b_device = self.device
+        wirelesslink1.save_base(raw=True)
+        self.assertEqual(CablePath.objects.count(), 0)
+
+        self.update_dependent_objects(wirelesslink1)
+
+        for interface in (interface1, interface2):
+            interface.refresh_from_db()
+            self.assertEqual(interface.wireless_link, wirelesslink1)
+        self.assertCurrentPathExists((interface1, wirelesslink1, interface2), is_complete=True, is_active=True)
+        self.assertCurrentPathExists((interface2, wirelesslink1, interface1), is_complete=True, is_active=True)
+        self.assertEqual(CablePath.objects.count(), 2)
 
     def test_401_exclude_midspan_devices(self):
         """
