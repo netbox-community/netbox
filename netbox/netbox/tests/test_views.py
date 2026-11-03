@@ -450,7 +450,7 @@ class RolledBackWriteEventQueueTestCase(DeleteAtomicityMixin, TestCase):
         # created events for the objects written before the abort.
         group = VLANGroup.objects.create(name='Test Group', slug='test-group')
         VLAN.objects.create(group=group, vid=101, name='VLAN-101')
-        self.add_permissions('ipam.add_vlan', 'ipam.view_vlan')
+        self.add_permissions('ipam.add_vlan', 'ipam.view_vlan', 'ipam.view_vlangroup')
 
         with self.assertNoEventsDispatched():
             response = self.client.post(reverse('ipam:vlan_bulk_add'), data={
