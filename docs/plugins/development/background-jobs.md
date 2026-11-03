@@ -93,6 +93,31 @@ class MyModel(JobsMixin, NetBoxModel):
 ```
 
 
+### Result URLs
+
+Use `core.utils.register_job_result_url()` to link jobs to your plugin's result page. Pass a model class or an `<app_label>.<model_name>` string, and optionally a `job_name`. The function receives a `Job` and returns a URL, or `None` to try the next fallback.
+
+NetBox tries the registration for the model and job name first, then the model alone, then the generic Job view. Each model/name pair can be registered only once.
+
+`NoReverseMatch` and `ObjectDoesNotExist` are logged as warnings; any other exception is logged as an error with its traceback. Either way, the function is treated as having returned `None`. If your function uses `job.object`, handle it being `None` after deletion.
+
+The URL is cached on each `Job` instance. Later changes to that instance do not update the cached URL.
+
+#### Example
+
+```python title="jobs.py"
+from django.urls import reverse
+from core.utils import register_job_result_url
+from .models import MyModel
+
+@register_job_result_url(MyModel, job_name='My Test Job')
+def my_test_job_result_url(job):
+    return reverse('plugins:my_plugin:mymodel_results', args=[job.object_id])
+```
+
+!!! note
+    As with [system jobs](#system-jobs), ensure that any such functions are imported on initialization. Otherwise, they won't be registered.
+
 ### System Jobs
 
 Some plugins may implement background jobs that are decoupled from the request/response cycle. Typical use cases would be housekeeping tasks or synchronization jobs. These can be registered as _system jobs_ using the `system_job()` decorator. The job interval must be passed as an integer (in minutes) when registering a system job. System jobs are scheduled automatically when the RQ worker (`manage.py rqworker`) is run.

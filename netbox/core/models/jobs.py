@@ -1,7 +1,7 @@
 import logging
 import uuid
 from dataclasses import asdict
-from functools import partial
+from functools import cached_property, partial
 
 import django_rq
 from django.conf import settings
@@ -21,6 +21,7 @@ from core.dataclasses import JobLogEntry
 from core.events import JOB_COMPLETED, JOB_ERRORED, JOB_FAILED
 from core.models import ObjectType
 from core.signals import job_end, job_start
+from core.utils import get_job_result_url
 from extras.models import Notification
 from netbox.models.features import has_feature
 from utilities.json import JobLogDecoder
@@ -155,13 +156,12 @@ class Job(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        # TODO: Employ dynamic registration
-        if self.object_type:
-            if self.object_type.model == 'reportmodule':
-                return reverse('extras:report_result', kwargs={'job_pk': self.pk})
-            if self.object_type.model == 'scriptmodule':
-                return reverse('extras:script_result', kwargs={'job_pk': self.pk})
-        return reverse('core:job', args=[self.pk])
+        return self._absolute_url
+
+    @cached_property
+    def _absolute_url(self):
+        # Cached because job tables link multiple columns, and a registered result URL function may query the database
+        return get_job_result_url(self) or reverse('core:job', args=[self.pk])
 
     def get_status_color(self):
         return JobStatusChoices.colors.get(self.status)
