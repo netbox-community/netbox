@@ -262,7 +262,7 @@ class CustomFieldPurgeJob(CustomFieldDataJob):
 #
 
 
-@register_job_result_url(ScriptModel)
+@register_job_result_url(ScriptModel, raise_exceptions=True)
 def script_job_result_url(job):
     return reverse('extras:script_result', kwargs={'job_pk': job.pk})
 

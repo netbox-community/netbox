@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
-from django.urls import reverse
+from django.urls import NoReverseMatch, reverse
 
 from core.models import DataSource, Job, ObjectType
 from core.utils import register_job_result_url
@@ -29,11 +29,11 @@ class JobResultURLTestCase(TestCase):
 
         self.assertIs(register_job_result_url(DataSource)(func), func)
         self.assertIs(register_job_result_url(DataSource, job_name='Sync')(func), func)
-        self.assertIs(register_job_result_url('dcim.Site')(func), func)
+        self.assertIs(register_job_result_url('dcim.Site', raise_exceptions=True)(func), func)
         self.assertEqual(registry['job_result_urls'], {
-            ('core.datasource', None): func,
-            ('core.datasource', 'Sync'): func,
-            ('dcim.site', None): func,
+            ('core.datasource', None): (func, False),
+            ('core.datasource', 'Sync'): (func, False),
+            ('dcim.site', None): (func, True),
         })
 
     def test_register_duplicate(self):
@@ -42,7 +42,7 @@ class JobResultURLTestCase(TestCase):
             register_job_result_url('core.datasource', job_name='Sync')(lambda job: None)
 
     def test_register_invalid_label(self):
-        for label in ('datasource', 'core.datasource.foo'):
+        for label in ('datasource', 'core.datasource.foo', 'core.', '.datasource', '.'):
             with self.subTest(label=label), self.assertRaises(ImproperlyConfigured):
                 register_job_result_url(label)
 
@@ -86,12 +86,26 @@ class JobResultURLTestCase(TestCase):
             self.assertEqual(self.get_job(DataSource).get_absolute_url(), reverse('core:job', args=[123]))
 
     def test_unexpected_exception(self):
-        @register_job_result_url(DataSource)
+        @register_job_result_url(DataSource, job_name='Sync')
         def func(job):
             raise AttributeError
 
-        with self.assertRaises(AttributeError):
-            self.get_job(DataSource).get_absolute_url()
+        with self.assertLogs('netbox.jobs', level='ERROR'):
+            self.assertEqual(self.get_job(DataSource, name='Sync').get_absolute_url(), reverse('core:job', args=[123]))
+
+        # A failing function defers to the function registered for the model alone
+        register_job_result_url(DataSource)(lambda job: '/foo/')
+        with self.assertLogs('netbox.jobs', level='ERROR'):
+            self.assertEqual(self.get_job(DataSource, name='Sync').get_absolute_url(), '/foo/')
+
+    def test_raise_exceptions(self):
+        func = Mock()
+        register_job_result_url(DataSource, raise_exceptions=True)(func)
+
+        for exception in (NoReverseMatch, AttributeError):
+            func.side_effect = exception
+            with self.subTest(exception=exception.__name__), self.assertRaises(exception):
+                self.get_job(DataSource).get_absolute_url()
 
     def test_url_cached(self):
         func = Mock(return_value='/foo/')

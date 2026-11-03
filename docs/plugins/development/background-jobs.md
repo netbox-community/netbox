@@ -95,9 +95,13 @@ class MyModel(JobsMixin, NetBoxModel):
 
 ### Result URLs
 
-By default, links to a job (such as those in the jobs list and in job completion notifications) lead to its generic view. A plugin which provides its own page for presenting the results of jobs associated with one of its models can register a function which returns the URL of that page, using the `register_job_result_url()` decorator from `core.utils`. The model may be passed as a class or as a string in the form `<app_label>.<model_name>`. The function accepts a Job instance and returns either a URL, or `None` to decline. If the function raises `NoReverseMatch` or `ObjectDoesNotExist`, a warning is logged and it is treated as having declined. Note that the object associated with a job may have been deleted, in which case `job.object` is `None`. The URL is computed once and cached on the Job instance, so it won't reflect later changes to the job (such as its status).
+Use `core.utils.register_job_result_url()` to link jobs to your plugin's result page. Pass a model class or an `<app_label>.<model_name>` string, and optionally a `job_name`. The function receives a `Job` and returns a URL, or `None` to try the next fallback.
 
-Optionally, a job name may be specified to restrict the function to jobs having that name. A function registered for a specific job name takes precedence over one registered for the model alone, which is consulted if the former returns `None`. The generic view is used if no function returns a URL. Only one function may be registered for each combination of model and job name.
+NetBox tries the registration for the model and job name first, then the model alone, then the generic Job view. Each model/name pair can be registered only once.
+
+`NoReverseMatch` and `ObjectDoesNotExist` are logged as warnings; any other exception is logged as an error with its traceback. Either way, the function is treated as having returned `None`. If your function uses `job.object`, handle it being `None` after deletion.
+
+The URL is cached on each `Job` instance. Later changes to that instance do not update the cached URL.
 
 #### Example
 

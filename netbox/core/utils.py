@@ -215,7 +215,7 @@ def get_db_schema():
     return db_schema
 
 
-def register_job_result_url(model, job_name=None):
+def register_job_result_url(model, job_name=None, *, raise_exceptions=False):
     """
     Decorator for registering a function which returns the URL of the results page for background jobs associated
     with objects of the given model (and optionally, having the given name). The model may be passed as a class or as
@@ -228,9 +228,12 @@ def register_job_result_url(model, job_name=None):
         @register_job_result_url(MyModel, job_name='My Job')
         def my_job_result_url(job):
             return reverse('plugins:myplugin:mymodel_results', args=[job.object_id])
+
+    If raise_exceptions is True, exceptions raised by the function propagate instead of being logged. NetBox's own
+    registrations set it, so that core bugs aren't masked.
     """
     if isinstance(model, str):
-        if model.count('.') != 1:
+        if len(parts := model.split('.')) != 2 or not all(parts):
             raise ImproperlyConfigured(f"Invalid model label {model!r}: must be in the form <app_label>.<model_name>.")
         label = model.lower()
     else:
@@ -242,7 +245,7 @@ def register_job_result_url(model, job_name=None):
             raise ImproperlyConfigured(
                 f"A job result URL function is already registered for model {label} and job name {job_name!r}."
             )
-        registry['job_result_urls'][key] = func
+        registry['job_result_urls'][key] = (func, raise_exceptions)
         return func
 
     return _wrapper
@@ -256,14 +259,21 @@ def get_job_result_url(job):
         return None
     model = f'{job.object_type.app_label}.{job.object_type.model}'
     for key in ((model, job.name), (model, None)):
-        if func := registry['job_result_urls'].get(key):
-            try:
-                if url := func(job):
-                    return url
-            except (NoReverseMatch, ObjectDoesNotExist) as e:
-                # A failing function must not break the rendering of jobs lists or notifications.
+        if not (registration := registry['job_result_urls'].get(key)):
+            continue
+        func, raise_exceptions = registration
+        try:
+            if url := func(job):
+                return url
+        except Exception as e:
+            # A failing function must not break the rendering of jobs lists or notifications.
+            if raise_exceptions:
+                raise
+            if isinstance(e, (NoReverseMatch, ObjectDoesNotExist)):
                 logger.warning(
                     "Failed to resolve the result URL for job %s using %r: %s", job.pk, func, e,
                     exc_info=logger.isEnabledFor(logging.DEBUG)
                 )
+            else:
+                logger.exception("Error resolving the result URL for job %s using %r", job.pk, func)
     return None
