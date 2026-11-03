@@ -917,23 +917,14 @@ class ModuleMovePlan:
         mappings = list(PortMapping.objects.filter(
             front_port_id__in=moved_front_port_pks,
             rear_port_id__in=moved_rear_port_pks,
-        ))
+        ).select_related('front_port', 'rear_port'))
         for mapping in mappings:
             mapping.snapshot()
             mapping.device_id = self.new_device_id
             mapping.last_updated = self._now
         fields = ['device', 'last_updated']
         PortMapping.objects.bulk_update(mappings, fields, batch_size=settings.BULK_UPDATE_CHUNK_SIZE)
-        using = router.db_for_write(PortMapping)
-        for mapping in mappings:
-            post_save.send(
-                sender=PortMapping,
-                instance=mapping,
-                created=False,
-                raw=False,
-                using=using,
-                update_fields=fields,
-            )
+        self._send_post_saves(PortMapping, mappings, fields)
 
     @staticmethod
     def device_counters_by_model(device_model):
@@ -988,7 +979,8 @@ class ModuleMovePlan:
         for instance in instances:
             # Clear tracked counter state so the incremental counter receiver no-ops;
             # counters are recomputed explicitly for cross-device moves.
-            instance.tracker.clear()
+            if hasattr(instance, 'tracker'):
+                instance.tracker.clear()
             post_save.send(
                 sender=model,
                 instance=instance,
