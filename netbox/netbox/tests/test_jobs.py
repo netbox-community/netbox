@@ -1,23 +1,28 @@
 import uuid
+from contextlib import contextmanager
 from datetime import timedelta
 from unittest.mock import patch
 
+from django.core.exceptions import ValidationError
 from django.db import DatabaseError
-from django.test import RequestFactory, TestCase
+from django.db.models.signals import post_save
+from django.test import RequestFactory, TestCase, tag
 from django.urls import reverse
 from django.utils import timezone
+from django_pg_utils import advisory_lock
 from django_rq import get_queue
 
 from core.choices import JobStatusChoices
 from core.events import JOB_COMPLETED, JOB_FAILED
 from core.exceptions import JobFailed
 from core.models import DataSource, Job
+from core.signals import job_end
 from dcim.models import Site
 from dcim.views import SiteBulkEditView
 from extras.models import Notification
 from users.models import User
 from utilities.request import copy_safe_request
-from utilities.testing import disable_warnings
+from utilities.testing import disable_logging, disable_warnings
 from utilities.testing.mixins import RQQueueTestMixin
 
 from ..jobs import *
@@ -239,6 +244,135 @@ class JobRunnerTestCase(BaseJobRunnerTestCase):
         job.refresh_from_db()
         self.assertEqual(job.status, JobStatusChoices.STATUS_ERRORED)
         self.assertEqual(job.error, repr(error))
+
+    @tag('regression')  # Ref: #23535
+    def test_handle_reschedules_before_terminating(self):
+        """A periodic job's successor exists when job_end is sent."""
+        outcomes = (
+            (None, JobStatusChoices.STATUS_COMPLETED),
+            (JobFailed(), JobStatusChoices.STATUS_FAILED),
+            (RuntimeError('Simulated run error'), JobStatusChoices.STATUS_ERRORED),
+        )
+        for run_error, status in outcomes:
+            with self.subTest(status=status):
+                instance = DataSource.objects.create(name=f'Source {status}', type='local')
+                job = TestJobRunner.enqueue(instance, interval=60, schedule_at=self.get_schedule_at())
+                observed = []
+
+                def record_end(sender, **kwargs):
+                    waiting = TestJobRunner.get_jobs(instance).filter(
+                        status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES,
+                    )
+                    observed.append((Job.objects.get(pk=sender.pk).status, list(waiting.values_list('pk', flat=True))))
+
+                job_end.connect(record_end, sender=job)
+                try:
+                    with patch.object(TestJobRunner, 'run', side_effect=run_error), disable_warnings('netbox.jobs'):
+                        TestJobRunner.handle(job)
+                finally:
+                    job_end.disconnect(record_end, sender=job)
+
+                successor = TestJobRunner.get_jobs(instance).exclude(pk=job.pk).get()
+                self.assertEqual(observed, [(status, [successor.pk])])
+                self.assertEqual((successor.status, successor.interval), (JobStatusChoices.STATUS_SCHEDULED, 60))
+
+    def test_handle_keeps_run_outcome_when_reschedule_is_invalid(self):
+        """A reschedule rejected as invalid keeps the run's outcome and ends the job once."""
+        user = User.objects.create_user(username='job-owner')
+        outcomes = (
+            (None, JobStatusChoices.STATUS_COMPLETED),
+            (JobFailed(), JobStatusChoices.STATUS_FAILED),
+            (RuntimeError('Simulated run error'), JobStatusChoices.STATUS_ERRORED),
+        )
+        for run_error, status in outcomes:
+            with self.subTest(status=status):
+                instance = DataSource.objects.create(name=f'Source {status}', type='local')
+                job = TestJobRunner.enqueue(instance, interval=60, user=user)
+
+                with (
+                    patch.object(TestJobRunner, 'run', side_effect=run_error),
+                    patch.object(TestJobRunner, 'enqueue', side_effect=ValidationError('Simulated validation error')),
+                    patch.object(job_end, 'send', wraps=job_end.send) as send_end,
+                    disable_logging(),
+                ):
+                    TestJobRunner.handle(job)
+
+                job.refresh_from_db()
+                self.assertEqual(job.status, status)
+                self.assertEqual(job.error, repr(run_error) if status == JobStatusChoices.STATUS_ERRORED else '')
+                self.assertEqual(job.log_entries[-1]['level'], 'error')
+                self.assertIn('Simulated validation error', job.log_entries[-1]['message'])
+                self.assertEqual(TestJobRunner.get_jobs(instance).count(), 1)
+                send_end.assert_called_once_with(job)
+                self.assertEqual(Notification.objects.filter(user=user, object_id=job.pk).count(), 1)
+
+    def test_handle_terminates_job_when_reschedule_fails(self):
+        """An unexpected reschedule failure still ends the job once, then propagates."""
+        user = User.objects.create_user(username='job-owner')
+        job = TestJobRunner.enqueue(interval=60, user=user)
+
+        with (
+            patch.object(TestJobRunner, 'run'),
+            patch.object(TestJobRunner, 'enqueue', side_effect=RuntimeError('Simulated queue error')),
+            patch.object(job_end, 'send', wraps=job_end.send) as send_end,
+            self.assertRaisesMessage(RuntimeError, 'Simulated queue error'),
+        ):
+            TestJobRunner.handle(job)
+
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
+        self.assertIsNotNone(job.completed)
+        send_end.assert_called_once_with(job)
+        self.assertEqual(Notification.objects.filter(user=user, object_id=job.pk).count(), 1)
+
+    def test_handle_terminates_job_once_when_end_receiver_fails(self):
+        """A failing job_end receiver after a successful run leaves the job completed and propagates."""
+        user = User.objects.create_user(username='job-owner')
+        job = TestJobRunner.enqueue(user=user)
+
+        with (
+            patch.object(TestJobRunner, 'run'),
+            patch.object(job_end, 'send', side_effect=RuntimeError('Simulated receiver error')) as send_end,
+            self.assertRaisesMessage(RuntimeError, 'Simulated receiver error'),
+        ):
+            TestJobRunner.handle(job)
+
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
+        send_end.assert_called_once_with(job)
+        self.assertEqual(Notification.objects.filter(user=user, object_id=job.pk).count(), 1)
+
+    def test_handle_propagates_interrupt_and_reschedules(self):
+        """An interrupted run propagates the interrupt, records no outcome and still schedules the successor."""
+        instance = DataSource.objects.create(name='Interrupted Source', type='local')
+        job = TestJobRunner.enqueue(instance, interval=60, schedule_at=self.get_schedule_at())
+
+        with patch.object(TestJobRunner, 'run', side_effect=SystemExit), self.assertRaises(SystemExit):
+            TestJobRunner.handle(job)
+
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_RUNNING)
+        self.assertIsNone(job.completed)
+        successor = TestJobRunner.get_jobs(instance).exclude(pk=job.pk).get()
+        self.assertEqual((successor.status, successor.interval), (JobStatusChoices.STATUS_SCHEDULED, 60))
+
+    def test_handle_terminal_save_error(self):
+        """A failed terminal save propagates and sends no notification or job_end."""
+        user = User.objects.create_user(username='job-owner')
+        job = TestJobRunner.enqueue(user=user)
+
+        with (
+            patch.object(TestJobRunner, 'run'),
+            patch.object(job, 'save', side_effect=DatabaseError('Simulated database error')),
+            patch.object(job_end, 'send', wraps=job_end.send) as send_end,
+            self.assertRaisesMessage(DatabaseError, 'Simulated database error'),
+        ):
+            TestJobRunner.handle(job)
+
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_RUNNING)
+        send_end.assert_not_called()
+        self.assertFalse(Notification.objects.filter(user=user, object_id=job.pk).exists())
 
 
 class EnqueueTestCase(BaseJobRunnerTestCase):
@@ -488,9 +622,7 @@ class SystemJobTestCase(BaseJobRunnerTestCase):
         """
         When `handle()` finishes a periodic system job, it must not create a duplicate
         scheduled job if a successor is already enqueued (issue #22232). This guards
-        against the race where a worker starts up between `job.terminate()` and the
-        finally block's reschedule, calling `enqueue_once()` which would create a parallel
-        job.
+        against a successor that another occurrence or `enqueue_once()` already created.
         """
         interval = 60
 
@@ -515,6 +647,34 @@ class SystemJobTestCase(BaseJobRunnerTestCase):
 
         # Only the original successor should remain enqueued — no duplicate should have
         # been created.
+        enqueued = Job.objects.filter(
+            name=TestSystemJobRunner.name,
+            status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES,
+            interval=interval,
+        )
+        self.assertEqual(enqueued.count(), 1)
+        self.assertEqual(enqueued.first().pk, successor.pk)
+
+    def test_handle_skips_reschedule_when_successor_is_running(self):
+        """A running occurrence of a periodic system job counts as its successor."""
+        interval = 60
+        successor = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_RUNNING,
+            interval=interval,
+            started=timezone.now(),
+            job_id=uuid.uuid4(),
+        )
+        job = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            interval=interval,
+            job_id=uuid.uuid4(),
+        )
+
+        TestSystemJobRunner.handle(job)
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
+
         enqueued = Job.objects.filter(
             name=TestSystemJobRunner.name,
             status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES,
@@ -601,6 +761,86 @@ class SystemJobTestCase(BaseJobRunnerTestCase):
             interval=interval,
         )
         self.assertEqual(enqueued.count(), 2)
+
+    def test_handle_keeps_one_successor_for_overlapping_jobs(self):
+        """Two occurrences of a system job ending back to back leave one successor."""
+        first = TestSystemJobRunner.enqueue(interval=60)
+        second = TestSystemJobRunner.enqueue(interval=60)
+        waiting_runs = [second]
+
+        @contextmanager
+        def end_second_after_unlock(*args, **kwargs):
+            with advisory_lock(*args, **kwargs):
+                yield
+            # Another worker ends the second occurrence as soon as the lock is free
+            while waiting_runs:
+                TestSystemJobRunner.handle(waiting_runs.pop())
+
+        with patch('netbox.jobs.advisory_lock', side_effect=end_second_after_unlock):
+            TestSystemJobRunner.handle(first)
+
+        first.refresh_from_db()
+        second.refresh_from_db()
+        self.assertEqual(first.status, JobStatusChoices.STATUS_COMPLETED)
+        self.assertEqual(second.status, JobStatusChoices.STATUS_COMPLETED)
+        waiting = TestSystemJobRunner.get_jobs().filter(status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES)
+        self.assertEqual(list(waiting.values_list('status', 'interval')), [(JobStatusChoices.STATUS_SCHEDULED, 60)])
+
+    def test_handle_sends_job_end_outside_schedule_lock(self):
+        """A system job is saved as ended under the schedule lock, then notifies and sends job_end outside it."""
+        user = User.objects.create_user(username='job-owner')
+        job = TestSystemJobRunner.enqueue(interval=60, user=user)
+        held = False
+        events = []
+
+        @contextmanager
+        def track_lock(*args, **kwargs):
+            nonlocal held
+            with advisory_lock(*args, **kwargs):
+                held = True
+                try:
+                    yield
+                finally:
+                    held = False
+
+        def record_job_save(sender, instance, **kwargs):
+            if instance.pk == job.pk and instance.status in JobStatusChoices.TERMINAL_STATE_CHOICES:
+                events.append(('saved', held))
+
+        def record_notification(sender, **kwargs):
+            events.append(('notified', held))
+
+        def record_end(sender, **kwargs):
+            events.append(('ended', held))
+
+        post_save.connect(record_job_save, sender=Job)
+        post_save.connect(record_notification, sender=Notification)
+        job_end.connect(record_end, sender=job)
+        try:
+            with patch('netbox.jobs.advisory_lock', side_effect=track_lock):
+                TestSystemJobRunner.handle(job)
+        finally:
+            post_save.disconnect(record_job_save, sender=Job)
+            post_save.disconnect(record_notification, sender=Notification)
+            job_end.disconnect(record_end, sender=job)
+
+        self.assertEqual(events, [('saved', True), ('notified', False), ('ended', False)])
+
+    def test_handle_terminates_job_when_schedule_lock_fails(self):
+        """A failure to take the schedule lock still ends the job and sends job_end, then propagates."""
+        job = TestSystemJobRunner.enqueue(interval=60)
+
+        with (
+            patch('netbox.jobs.advisory_lock') as lock,
+            patch.object(job_end, 'send', wraps=job_end.send) as send_end,
+            self.assertRaisesMessage(RuntimeError, 'Simulated lock error'),
+        ):
+            lock.return_value.__enter__.side_effect = RuntimeError('Simulated lock error')
+            TestSystemJobRunner.handle(job)
+
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
+        send_end.assert_called_once_with(job)
 
 
 class AsyncViewJobTestCase(TestCase):

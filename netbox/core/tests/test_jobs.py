@@ -4,12 +4,13 @@ from unittest.mock import MagicMock, patch
 
 import requests
 from django.conf import settings
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
-from core.choices import DataSourceStatusChoices
+from core.choices import DataSourceStatusChoices, JobStatusChoices
 from core.jobs import SyncDataSourceJob, SystemHousekeepingJob
 from core.models import DataFile, DataSource, Job
+from core.signals import job_end
 
 
 def _make_runner(cls, **job_attrs):
@@ -42,6 +43,28 @@ class SyncDataSourceJobTestCase(TestCase):
             type='local',
             source_url='/tmp/test',
         )
+
+    def handle_recurring_sync(self, **changes):
+        """Handle a recurring sync, saving its data source with `changes` as the job ends, and list waiting jobs."""
+        self.datasource.sync_interval = 60
+        self.datasource.save()
+        job = SyncDataSourceJob.get_jobs(self.datasource).get()
+
+        def save_datasource(sender, **kwargs):
+            datasource = DataSource.objects.get(pk=self.datasource.pk)
+            for name, value in changes.items():
+                setattr(datasource, name, value)
+            datasource.save()
+
+        job_end.connect(save_datasource, sender=job)
+        try:
+            with patch.object(SyncDataSourceJob, 'run'):
+                SyncDataSourceJob.handle(job)
+        finally:
+            job_end.disconnect(save_datasource, sender=job)
+
+        waiting = SyncDataSourceJob.get_jobs(self.datasource).filter(status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES)
+        return list(waiting.values_list('status', 'interval'))
 
     def test_enqueue_sets_datasource_status_to_queued(self):
         job = MagicMock()
@@ -125,6 +148,19 @@ class SyncDataSourceJobTestCase(TestCase):
 
         with self.assertRaises(DataSource.DoesNotExist):
             runner.run()
+
+    @tag('regression')  # Ref: #23535
+    def test_handle_keeps_one_schedule_when_saved_on_end(self):
+        """Saving the data source unchanged as its sync ends keeps one schedule."""
+        self.assertEqual(self.handle_recurring_sync(), [(JobStatusChoices.STATUS_SCHEDULED, 60)])
+
+    def test_handle_replaces_schedule_when_interval_changed_on_end(self):
+        """Changing the sync interval as the sync ends replaces the schedule."""
+        self.assertEqual(self.handle_recurring_sync(sync_interval=720), [(JobStatusChoices.STATUS_PENDING, 720)])
+
+    def test_handle_removes_schedule_when_disabled_on_end(self):
+        """Disabling the data source as its sync ends leaves no schedule."""
+        self.assertEqual(self.handle_recurring_sync(enabled=False), [])
 
 
 class SystemHousekeepingRunTestCase(HousekeepingRunnerMixin, TestCase):

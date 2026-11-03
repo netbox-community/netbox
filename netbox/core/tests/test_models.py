@@ -610,6 +610,26 @@ class JobTestCase(TestCase):
         mock_job_end.send.assert_called_once_with(job)
 
     @patch('core.models.jobs.job_end')
+    def test_terminate_without_dispatch(self, mock_job_end):
+        """Terminating without dispatch saves the outcome and leaves the notification and job_end for later."""
+        user = User.objects.create_user(username='notification-deferred')
+        job = self._make_job(user, JobNotificationChoices.NOTIFICATION_ON_FAILURE)
+
+        job.terminate(status=JobStatusChoices.STATUS_FAILED, dispatch=False)
+
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_FAILED)
+        self.assertIsNotNone(job.completed)
+        self.assertFalse(Notification.objects.filter(user=user, object_id=job.pk).exists())
+        mock_job_end.send.assert_not_called()
+
+        job._dispatch_termination()
+
+        notification = Notification.objects.get(user=user, object_id=job.pk)
+        self.assertEqual(notification.event_type, JOB_FAILED)
+        mock_job_end.send.assert_called_once_with(job)
+
+    @patch('core.models.jobs.job_end')
     def test_execution_time_set_on_terminate(self, mock_job_end):
         """
         terminate() should set execution_time to (completed - started) for a started job.
