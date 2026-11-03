@@ -557,7 +557,7 @@ class Module(TrackingModelMixin, PrimaryModel):
                 component.name: component
                 for component in getattr(self.device, component_attribute).db_manager(using).filter(
                     module__isnull=True
-                )
+                ).prefetch_related('tags')
             }
 
             # Get the template for the module type.
@@ -628,6 +628,17 @@ class Module(TrackingModelMixin, PrimaryModel):
             component_model.objects.using(using).bulk_update(
                 update_instances, update_fields, batch_size=settings.BULK_UPDATE_CHUNK_SIZE
             )
+            # The triggers rewrote path/sort_path; refresh them so changelog snapshots aren't stale
+            if component_model is ModuleBay and update_instances:
+                refreshed = {
+                    row['pk']: row
+                    for row in ModuleBay.objects.using(using).filter(
+                        pk__in=[bay.pk for bay in update_instances]
+                    ).values('pk', 'path', 'sort_path')
+                }
+                for bay in update_instances:
+                    bay.path = refreshed[bay.pk]['path']
+                    bay.sort_path = refreshed[bay.pk]['sort_path']
             # Emit the post_save signal for each updated object
             for component in update_instances:
                 post_save.send(

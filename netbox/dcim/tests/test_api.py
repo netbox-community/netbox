@@ -3687,6 +3687,46 @@ class ModuleTestCase(APIViewTestCases.APIViewTestCase):
             self.assertIsNone(objectchange.prechange_data['module'])
             self.assertEqual(objectchange.postchange_data['module'], module_pk)
             self.assertEqual(objectchange.diff()['pre'], expected_pre)
+            # Trigger-maintained ltree columns must reflect the post-adoption location
+            if isinstance(component, ModuleBay):
+                self.assertEqual(objectchange.postchange_data['path'], str(component.path))
+                self.assertEqual(objectchange.postchange_data['sort_path'], component.sort_path)
+
+    def test_install_module_interface_parent_bridge_changelog(self):
+        """
+        Interface parent/bridge assignments made during module installation must record prechange data.
+        """
+        self.add_permissions('dcim.add_module')
+        manufacturer = Manufacturer.objects.get(name='Generic')
+        device = create_test_device('Device for Interface Parent Changelog Test')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Parent Changelog Module Type')
+        eth0 = InterfaceTemplate.objects.create(module_type=module_type, name='eth0', type='1000base-t')
+        InterfaceTemplate.objects.create(module_type=module_type, name='eth0.100', type='virtual', parent=eth0)
+        InterfaceTemplate.objects.create(module_type=module_type, name='br0', type='bridge')
+        InterfaceTemplate.objects.create(
+            module_type=module_type, name='eth1', type='1000base-t', bridge=InterfaceTemplate.objects.get(name='br0')
+        )
+        module_bay = ModuleBay.objects.create(device=device, name='Parent Changelog Bay')
+
+        url = reverse('dcim-api:module-list')
+        data = {
+            'device': device.pk,
+            'module_bay': module_bay.pk,
+            'module_type': module_type.pk,
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+
+        for name, field in (('eth0.100', 'parent'), ('eth1', 'bridge')):
+            interface = Interface.objects.get(device=device, name=name)
+            objectchange = ObjectChange.objects.get(
+                changed_object_type=ObjectType.objects.get_for_model(Interface),
+                changed_object_id=interface.pk,
+                action=ObjectChangeActionChoices.ACTION_UPDATE,
+            )
+            self.assertIsNotNone(objectchange.prechange_data)
+            self.assertIsNone(objectchange.prechange_data[field])
+            self.assertEqual(objectchange.postchange_data[field], getattr(interface, f'{field}_id'))
 
     def test_replicate_components_conflict(self):
         """
