@@ -1294,6 +1294,15 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'location': [locations[0].slug, locations[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_location_shared_slug(self):
+        # A location slug shared by several sites should resolve to a single filter value
+        location = Location.objects.first()
+        site = Site.objects.create(name='Site 99', slug='site-99')
+        Location.objects.create(site=site, name=location.name, slug=location.slug)
+        filterset = self.filterset({'location': [location.slug]}, self.queryset)
+        self.assertTrue(filterset.is_valid())
+        self.assertEqual(len(filterset.form.cleaned_data['location']), 1)
+
     def test_device_type(self):
         device_types = DeviceType.objects.all()[:2]
         params = {'device_type_id': [device_types[0].pk, device_types[1].pk]}
