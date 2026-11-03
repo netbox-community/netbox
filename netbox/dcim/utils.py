@@ -5,6 +5,7 @@ from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.db import router, transaction
 from django.db.models import Q
+from django.db.models.signals import post_save
 from django.utils.translation import gettext as _
 
 from dcim.constants import MODULE_TOKEN
@@ -535,8 +536,18 @@ def create_port_mappings(device, device_or_module_type, module=None):
                 rear_port_position=template.rear_port_position,
             )
         )
-    # Bulk-created (no per-mapping ObjectChange) to match how every other component is instantiated.
-    PortMapping.objects.bulk_create(mappings)
+    # Emit post_save manually (as for instantiated components) so each mapping is change-logged
+    mappings = PortMapping.objects.bulk_create(mappings)
+    using = router.db_for_write(PortMapping)
+    for mapping in mappings:
+        post_save.send(
+            sender=PortMapping,
+            instance=mapping,
+            created=True,
+            raw=False,
+            using=using,
+            update_fields=None
+        )
 
 
 def reconcile_port_mappings(mapping_model, parent_field, parent, desired):

@@ -1495,6 +1495,20 @@ class ModuleCrossDeviceMoveTestCase(TestCase):
         mapping.refresh_from_db()
         self.assertEqual(mapping.device, self.device_b)
 
+    def test_cross_device_move_changelogs_port_mappings(self):
+        mapping = PortMapping.objects.get(front_port__module=self.line_card)
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = User.objects.create_user(username='mapping-mover')
+        with event_tracking(request):
+            self.line_card.snapshot()
+            self._move_to_device_b()
+        change = ObjectChange.objects.get(
+            changed_object_type=ContentType.objects.get_for_model(PortMapping), changed_object_id=mapping.pk
+        )
+        self.assertEqual(change.prechange_data['device'], self.device_a.pk)
+        self.assertEqual(change.postchange_data['device'], self.device_b.pk)
+
     def test_cross_device_move_keeps_intra_module_power_link(self):
         outlet = self.line_card.poweroutlets.get(name='Outlet 1')
         self._move_to_device_b()
