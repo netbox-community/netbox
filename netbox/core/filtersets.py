@@ -37,7 +37,6 @@ class DataSourceFilterSet(PrimaryModelFilterSet):
     sync_interval = django_filters.MultipleChoiceFilter(
         choices=JobIntervalChoices,
         distinct=False,
-        null_value=None
     )
 
     class Meta:
