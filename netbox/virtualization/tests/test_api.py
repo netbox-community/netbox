@@ -1151,7 +1151,14 @@ class VMInterfaceTestCase(APIViewTestCases.APIViewTestCase):
             FHRPGroupAssignment(group=groups[1], interface=interfaces['Interface 2'], priority=100),
             FHRPGroupAssignment(group=groups[0], interface=interfaces['Interface 3'], priority=100),
         ))
-        url = f'{self._get_list_url()}?ordering=-_count_fhrp_groups'
+        url = f'{self._get_list_url()}?ordering=-count_fhrp_groups'
+
+        # The count's source isn't a valid ordering field
+        response = self.client.get(f'{self._get_list_url()}?ordering=-_count_fhrp_groups', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(
+            [row['name'] for row in response.data['results']], ['Interface 1', 'Interface 2', 'Interface 3']
+        )
 
         # Responses without the count annotate it for the ordering alone
         for params in ('', '&brief=1', '&fields=id,name'):

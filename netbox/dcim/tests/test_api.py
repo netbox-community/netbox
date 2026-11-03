@@ -4361,7 +4361,14 @@ class InterfaceTestCase(Mixins.FieldPrefetchMixin, Mixins.ComponentTraceMixin, A
             name='Interfaces', template_code='{% for interface in queryset %}{{ interface.name }},{% endfor %}'
         )
         export_template.object_types.set([ObjectType.objects.get_for_model(Interface)])
-        url = f'{self._get_list_url()}?ordering=-_count_ipaddresses'
+        url = f'{self._get_list_url()}?ordering=-count_ipaddresses'
+
+        # The count's source isn't a valid ordering field
+        response = self.client.get(f'{self._get_list_url()}?ordering=-_count_ipaddresses', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(
+            [row['name'] for row in response.data['results']], ['Interface 1', 'Interface 2', 'Interface 3']
+        )
 
         # Responses without the count annotate it for the ordering alone
         for params in ('', '&fields=id,name,count_ipaddresses', '&brief=1', '&fields=id,name', '&export=Interfaces'):
