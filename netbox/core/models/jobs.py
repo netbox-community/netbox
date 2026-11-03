@@ -10,7 +10,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MinValueValidator
-from django.db import models, transaction
+from django.db import models, router, transaction
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -230,18 +230,25 @@ class Job(models.Model):
 
     def start(self):
         """
-        Record the job's start time and update its status to "running."
+        Claim a pending or scheduled job for execution. Return True if claimed, otherwise False.
         """
-        if self.started is not None:
-            return
+        using = router.db_for_write(self.__class__, instance=self)
+        started = timezone.now()
+        claimed = Job.objects.using(using).filter(
+            pk=self.pk,
+            job_id=self.job_id,
+            status__in=(JobStatusChoices.STATUS_PENDING, JobStatusChoices.STATUS_SCHEDULED),
+            started__isnull=True,
+        ).update(status=JobStatusChoices.STATUS_RUNNING, started=started)
+        if not claimed:
+            return False
 
-        # Start the job
-        self.started = timezone.now()
+        self.started = started
         self.status = JobStatusChoices.STATUS_RUNNING
-        self.save()
 
         # Send signal
         job_start.send(self)
+        return True
     start.alters_data = True
 
     def terminate(self, status=JobStatusChoices.STATUS_COMPLETED, error=None):

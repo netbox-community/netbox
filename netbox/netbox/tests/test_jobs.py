@@ -2,6 +2,7 @@ import uuid
 from datetime import timedelta
 from unittest.mock import patch
 
+from django.db import DatabaseError
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -103,6 +104,125 @@ class JobRunnerTestCase(BaseJobRunnerTestCase):
         self.assertIn('Traceback', tb_message)
         self.assertIn('Test error', tb_message)
         self.assertNotIn(_INSTALL_ROOT, tb_message)
+
+    def test_handle_deleted_job(self):
+        """A Job deleted after its task was queued neither runs nor reschedules."""
+        job = Job.objects.create(name=TestJobRunner.name, job_id=uuid.uuid4(), interval=60)
+        stale_job = Job.objects.get(pk=job.pk)
+        job.delete()
+
+        with (
+            patch.object(TestJobRunner, 'run') as run,
+            patch.object(TestJobRunner, 'enqueue') as enqueue,
+            patch('core.models.jobs.job_start') as job_start,
+            patch('core.models.jobs.job_end') as job_end,
+            self.assertLogs('netbox.jobs', 'WARNING'),
+        ):
+            TestJobRunner.handle(stale_job)
+
+        run.assert_not_called()
+        enqueue.assert_not_called()
+        job_start.send.assert_not_called()
+        job_end.send.assert_not_called()
+        self.assertFalse(Job.objects.filter(pk=stale_job.pk).exists())
+
+    def test_handle_non_waiting_job(self):
+        """A running or terminated Job neither runs nor reschedules and keeps its row."""
+        for status in (JobStatusChoices.STATUS_RUNNING, *JobStatusChoices.TERMINAL_STATE_CHOICES):
+            with self.subTest(status=status):
+                job = Job.objects.create(name=TestJobRunner.name, job_id=uuid.uuid4(), interval=60)
+                Job.objects.filter(pk=job.pk).update(status=status)
+                original = Job.objects.filter(pk=job.pk).values().get()
+
+                with (
+                    patch.object(TestJobRunner, 'run') as run,
+                    patch.object(TestJobRunner, 'enqueue') as enqueue,
+                    patch('core.models.jobs.job_start') as job_start,
+                    patch('core.models.jobs.job_end') as job_end,
+                    self.assertLogs('netbox.jobs', 'WARNING'),
+                ):
+                    TestJobRunner.handle(job)
+
+                run.assert_not_called()
+                enqueue.assert_not_called()
+                job_start.send.assert_not_called()
+                job_end.send.assert_not_called()
+                self.assertEqual(Job.objects.filter(pk=job.pk).values().get(), original)
+
+    def test_handle_finished_job(self):
+        """A finished Job handed to handle() again neither runs nor reschedules."""
+        job = Job.objects.create(
+            name=TestJobRunner.name,
+            job_id=uuid.uuid4(),
+            interval=60,
+            status=JobStatusChoices.STATUS_COMPLETED,
+            started=timezone.now(),
+            completed=timezone.now(),
+        )
+
+        with (
+            patch.object(TestJobRunner, 'run') as run,
+            patch.object(TestJobRunner, 'enqueue') as enqueue,
+            self.assertLogs('netbox.jobs', 'WARNING'),
+        ):
+            TestJobRunner.handle(job)
+
+        run.assert_not_called()
+        enqueue.assert_not_called()
+
+    def test_handle_same_job_twice(self):
+        """A second copy of a Job's task does not run it again."""
+        job = Job.objects.create(name=TestJobRunner.name, job_id=uuid.uuid4(), interval=60)
+        stale_job = Job.objects.get(pk=job.pk)
+
+        with (
+            patch.object(TestJobRunner, 'run') as run,
+            patch.object(TestJobRunner, 'enqueue') as enqueue,
+        ):
+            TestJobRunner.handle(job)
+            with self.assertLogs('netbox.jobs', 'WARNING'):
+                TestJobRunner.handle(stale_job)
+
+        run.assert_called_once_with()
+        enqueue.assert_called_once()
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
+
+    def test_handle_start_signal_error(self):
+        """A failing job_start receiver ends the Job errored and keeps its schedule."""
+        job = Job.objects.create(name=TestJobRunner.name, job_id=uuid.uuid4(), interval=60)
+        error = RuntimeError('Simulated receiver error')
+
+        with (
+            patch('core.models.jobs.job_start.send', side_effect=error),
+            patch.object(TestJobRunner, 'run') as run,
+            patch.object(TestJobRunner, 'enqueue') as enqueue,
+        ):
+            TestJobRunner.handle(job)
+
+        run.assert_not_called()
+        enqueue.assert_called_once()
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_ERRORED)
+        self.assertEqual(job.error, repr(error))
+
+    def test_handle_claim_error(self):
+        """A Job whose claim raises ends errored and schedules no successor."""
+        job = Job.objects.create(name=TestJobRunner.name, job_id=uuid.uuid4(), interval=60)
+        error = DatabaseError('Simulated database error')
+
+        with (
+            patch.object(Job, 'start', side_effect=error),
+            patch.object(TestJobRunner, 'run') as run,
+            patch.object(TestJobRunner, 'enqueue') as enqueue,
+        ):
+            TestJobRunner.handle(job)
+
+        run.assert_not_called()
+        enqueue.assert_not_called()
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_ERRORED)
+        self.assertEqual(job.error, repr(error))
 
 
 class EnqueueTestCase(BaseJobRunnerTestCase):
@@ -367,17 +487,15 @@ class SystemJobTestCase(BaseJobRunnerTestCase):
             job_id=uuid.uuid4(),
         )
 
-        # The just-finished job. `handle()` will run its finally block.
-        finished = Job.objects.create(
+        job = Job.objects.create(
             name=TestSystemJobRunner.name,
-            status=JobStatusChoices.STATUS_COMPLETED,
             interval=interval,
-            started=timezone.now(),
-            completed=timezone.now(),
             job_id=uuid.uuid4(),
         )
 
-        TestSystemJobRunner.handle(finished)
+        TestSystemJobRunner.handle(job)
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
 
         # Only the original successor should remain enqueued — no duplicate should have
         # been created.
@@ -408,17 +526,16 @@ class SystemJobTestCase(BaseJobRunnerTestCase):
             job_id=uuid.uuid4(),
         )
 
-        # Object-less finished system job.
-        finished = Job.objects.create(
+        # Object-less system job.
+        job = Job.objects.create(
             name=TestSystemJobRunner.name,
-            status=JobStatusChoices.STATUS_COMPLETED,
             interval=interval,
-            started=timezone.now(),
-            completed=timezone.now(),
             job_id=uuid.uuid4(),
         )
 
-        TestSystemJobRunner.handle(finished)
+        TestSystemJobRunner.handle(job)
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
 
         # A new object-less successor should have been scheduled.
         enqueued = Job.objects.filter(
@@ -449,18 +566,17 @@ class SystemJobTestCase(BaseJobRunnerTestCase):
             job_id=uuid.uuid4(),
         )
 
-        finished = Job.objects.create(
+        job = Job.objects.create(
             name=TestJobRunner.name,
             object=instance,
-            status=JobStatusChoices.STATUS_COMPLETED,
             interval=interval,
-            started=timezone.now(),
-            completed=timezone.now(),
             job_id=uuid.uuid4(),
         )
 
         with patch.object(TestJobRunner, 'run'):
-            TestJobRunner.handle(finished)
+            TestJobRunner.handle(job)
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
 
         # Both the unrelated schedule and the finished job's successor should be enqueued.
         enqueued = Job.objects.filter(
