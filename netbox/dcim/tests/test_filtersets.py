@@ -3009,6 +3009,10 @@ class PlatformTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'available_for_device_type': device_type.pk}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
+        # Reject invalid filter values
+        params = {'available_for_device_type': 'null'}
+        self.assertFalse(self.filterset(params, self.queryset).is_valid())
+
 
 class DeviceTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = Device.objects.all()

@@ -1353,6 +1353,7 @@ class PlatformFilterSet(NestedGroupModelFilterSet):
     )
     available_for_device_type = django_filters.ModelChoiceFilter(
         queryset=DeviceType.objects.all(),
+        null_label=None,
         method='get_for_device_type'
     )
     config_template_id = django_filters.ModelMultipleChoiceFilter(
