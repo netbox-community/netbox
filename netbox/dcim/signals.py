@@ -308,10 +308,13 @@ def retrace_cable_paths(instance, **kwargs):
 
 
 @receiver((post_delete, post_save), sender=PortMapping)
-def update_passthrough_port_paths(instance, **kwargs):
+def update_passthrough_port_paths(instance, update_fields=None, **kwargs):
     """
     When a PortMapping is created or deleted, retrace any CablePaths which traverse its front and/or rear ports.
     """
+    # Moving a module to another device changes only these fields; its connections are unchanged
+    if update_fields and set(update_fields) <= {'device', 'last_updated'}:
+        return
     for cablepath in CablePath.objects.filter(
         Q(_nodes__contains=instance.front_port) | Q(_nodes__contains=instance.rear_port)
     ):

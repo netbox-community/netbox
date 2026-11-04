@@ -536,7 +536,7 @@ def create_port_mappings(device, device_or_module_type, module=None):
                 rear_port_position=template.rear_port_position,
             )
         )
-    # Emit post_save manually (as for instantiated components) so each mapping is change-logged
+    # Send post_save for each mapping to record its creation
     mappings = PortMapping.objects.bulk_create(mappings)
     using = router.db_for_write(PortMapping)
     for mapping in mappings:

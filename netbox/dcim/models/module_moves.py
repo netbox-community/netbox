@@ -20,6 +20,7 @@ from dcim.utils import (
 from utilities.counters import update_counter
 from utilities.exceptions import AbortRequest
 from utilities.fields import CounterCacheField
+from utilities.querysets import chunked_update
 
 from .device_components import (
     CabledObjectModel,
@@ -907,24 +908,30 @@ class ModuleMovePlan:
             self._send_post_saves(model, updated, fields)
 
     def _apply_port_mappings(self):
-        # Mirrors PortMapping.save()'s device derivation
+        # Update each mapping's device after moving its ports
         if not self.cross_device:
             return
         moved_front_port_pks = [obj.pk for obj in self.components[FrontPort]]
         moved_rear_port_pks = [obj.pk for obj in self.components[RearPort]]
         if not (moved_front_port_pks and moved_rear_port_pks):
             return
-        mappings = list(PortMapping.objects.filter(
+        mappings = list(PortMapping.objects.using(router.db_for_write(PortMapping)).filter(
             front_port_id__in=moved_front_port_pks,
             rear_port_id__in=moved_rear_port_pks,
         ).select_related('front_port', 'rear_port'))
+        if not mappings:
+            return
         for mapping in mappings:
             mapping.snapshot()
+        chunked_update(
+            PortMapping.objects.filter(pk__in=[mapping.pk for mapping in mappings]),
+            device_id=self.new_device_id,
+            last_updated=self._now,
+        )
+        for mapping in mappings:
             mapping.device_id = self.new_device_id
             mapping.last_updated = self._now
-        fields = ['device', 'last_updated']
-        PortMapping.objects.bulk_update(mappings, fields, batch_size=settings.BULK_UPDATE_CHUNK_SIZE)
-        self._send_post_saves(PortMapping, mappings, fields)
+        self._send_post_saves(PortMapping, mappings, ['device', 'last_updated'])
 
     @staticmethod
     def device_counters_by_model(device_model):
