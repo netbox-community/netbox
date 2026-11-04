@@ -101,7 +101,7 @@ class MyFilterSet(NetBoxModelFilterSet):
     legacy_evaluation = True
 ```
 
-Legacy evaluation also applies automatically to a filter set which uses a form prefix, defines a custom form (via `Meta.form` or `get_form_class()`), or inherits from a mixin listed after the NetBox base class (e.g. `class MyFilterSet(NetBoxModelFilterSet, MyMixin)`) which overrides `__init__()`, `filter_queryset()`, `errors`, or `is_valid()`. To evaluate only the supplied filters, list such a mixin before the NetBox base class.
+Legacy evaluation also applies automatically to a filter set which uses a form prefix, customizes its form (via `Meta.form`, `get_form_class()`, or the `form` property), or inherits from a mixin listed after the NetBox base class (e.g. `class MyFilterSet(NetBoxModelFilterSet, MyMixin)`) which overrides `__init__()`, `filter_queryset()`, `errors`, or `is_valid()`. To evaluate only the supplied filters, list such a mixin before the NetBox base class.
 
 ## Filter Classes
 

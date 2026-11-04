@@ -189,19 +189,23 @@ class BaseFilterSet(django_filters.FilterSet):
 
     @classmethod
     def _has_custom_form(cls):
-        return cls._meta.form is not forms.Form or cls.get_form_class is not django_filters.FilterSet.get_form_class
+        return (
+            cls._meta.form is not forms.Form or
+            cls.get_form_class is not django_filters.FilterSet.get_form_class or
+            cls.form is not BaseFilterSet.form
+        )
 
     @classmethod
     def _has_overrides_after_base(cls):
         """
-        Return True if a class which follows BaseFilterSet in the MRO overrides a method that lazy evaluation doesn't
-        delegate to via super().
+        Return True if a class which follows BaseFilterSet in the MRO overrides a method or property which lazy
+        evaluation bypasses.
         """
         mro = cls.__mro__
         for klass in mro[mro.index(BaseFilterSet) + 1:]:
             if klass is object or klass.__module__.startswith('django_filters'):
                 continue
-            if any(name in vars(klass) for name in ('__init__', 'errors', 'filter_queryset', 'is_valid')):
+            if any(name in vars(klass) for name in ('__init__', 'errors', 'filter_queryset', 'form', 'is_valid')):
                 return True
         return False
 
@@ -266,7 +270,7 @@ class BaseFilterSet(django_filters.FilterSet):
         for key in self.data.keys():
             names.update(self.filters.get_names(key))
         # After resolving keys, which may load lazy filters
-        names.update(self.filters.get_required())
+        names.update(self.filters.get_unconditional())
         files = MultiValueDict()
         for name in sorted(names, key=self.filters.position):
             field = self.filters[name].field

@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.exceptions import EmptyResultSet
 from django.http import QueryDict
 from django.test import TestCase
+from django.utils.datastructures import MultiValueDict
 from django_filters import CharFilter, DateTimeFromToRangeFilter, FilterSet, MultipleChoiceFilter
 from django_filters.widgets import QueryArrayWidget
 
@@ -21,6 +22,15 @@ from netbox.registry import registry
 from utilities.filters import ContentTypeFilter, MultiValueCharFilter, MultiValueContentTypeFilter
 
 CORE_APPS = ('circuits', 'core', 'dcim', 'extras', 'ipam', 'tenancy', 'users', 'virtualization', 'vpn', 'wireless')
+
+
+def get_filterset_classes():
+    """
+    Return every registered FilterSet class, after importing the core FilterSets so that they're registered.
+    """
+    for app_label in CORE_APPS:
+        import_module(f'{app_label}.filtersets')
+    return list(registry['filtersets'].values())
 
 
 def get_sample_value(field):
@@ -73,6 +83,17 @@ def get_sample_data(filterset_class):
     return data
 
 
+def get_empty_data(filterset_class):
+    """
+    Return request data which supplies an empty value for every filter on the given FilterSet class.
+    """
+    data = QueryDict(mutable=True)
+    for name, filter_ in filterset_class.get_filters().items():
+        for key in get_data_keys(name, filter_):
+            data[key] = ''
+    return data
+
+
 def evaluate(filterset):
     """
     Return the errors and SQL resulting from evaluation of the given FilterSet.
@@ -84,6 +105,40 @@ def evaluate(filterset):
     except Exception as e:
         sql = repr(e)
     return list(filterset.errors), filterset.errors.get_json_data(), sql
+
+
+class RecordingQueryDict(QueryDict):
+    """
+    An empty QueryDict which records the keys read from it, and whether its keys were enumerated.
+    """
+    def __init__(self):
+        super().__init__()
+        self.keys_read = set()
+        self.enumerated = False
+
+    def __contains__(self, key):
+        self.keys_read.add(key)
+        return super().__contains__(key)
+
+    def __getitem__(self, key):
+        self.keys_read.add(key)
+        return super().__getitem__(key)
+
+    def _getlist(self, key, *args, **kwargs):
+        self.keys_read.add(key)
+        return super()._getlist(key, *args, **kwargs)
+
+    def __iter__(self):
+        self.enumerated = True
+        return super().__iter__()
+
+    def keys(self):
+        self.enumerated = True
+        return super().keys()
+
+    def lists(self):
+        self.enumerated = True
+        return super().lists()
 
 
 class FilterSetEvaluationTestCase(TestCase):
@@ -208,11 +263,41 @@ class FilterSetEvaluationTestCase(TestCase):
         self.assertTrue(filterset.initialized)
         self.assertEqual(filterset.qs.count(), 1)
 
+    def test_form_override(self):
+        class RequiredSearchMixin(FilterSet):
+            @property
+            def form(self):
+                form = super().form
+                form.fields['q'].required = True
+                return form
+
+        # Overriding the form forces legacy evaluation, which validates via the form, whether the override precedes
+        # or follows BaseFilterSet in the MRO
+        for bases in ((RequiredSearchMixin, SiteFilterSet), (SiteFilterSet, RequiredSearchMixin)):
+            with self.subTest(bases=[base.__name__ for base in bases]):
+                filterset_class = type('CustomSiteFilterSet', bases, {})
+                filterset = filterset_class({'status': ['active']}, Site.objects.all())
+                self.assertNotIsInstance(filterset.filters, FilterDict)
+                self.assertEqual(list(filterset.errors), ['q'])
+
     def test_query_array_widget(self):
         class ExtendedSiteFilterSet(SiteFilterSet):
             status_array = MultipleChoiceFilter(field_name='status', choices=SiteStatusChoices, widget=QueryArrayWidget)
 
         filterset = ExtendedSiteFilterSet(QueryDict('status_array[]=planned'), Site.objects.all())
+        self.assertEqual(filterset.qs.count(), 1)
+
+    def test_custom_widget(self):
+        class AliasWidget(forms.TextInput):
+            def value_from_datadict(self, data, files, name):
+                return data.get(f'{name}_alias')
+
+        class ExtendedSiteFilterSet(SiteFilterSet):
+            label = CharFilter(field_name='name', widget=AliasWidget)
+
+        # A filter whose widget reads unknown keys is cleaned on every request
+        filterset = ExtendedSiteFilterSet({'label_alias': 'Site 1'}, Site.objects.all())
+        self.assertIn('label', filterset.cleaned_data)
         self.assertEqual(filterset.qs.count(), 1)
 
     def test_get_filters_override(self):
@@ -258,19 +343,36 @@ class LegacyEvaluationParityTestCase(TestCase):
 
     def test_parity(self):
         """
-        Evaluate every registered FilterSet with all of its filters supplied, and check that the result matches
-        legacy evaluation.
+        Evaluate every registered FilterSet with all of its filters supplied, with all of them supplied but empty, and
+        with none of them supplied, and check that each result matches legacy evaluation.
         """
-        # Import every core FilterSet so that it's registered
-        for app_label in CORE_APPS:
-            import_module(f'{app_label}.filtersets')
+        for filterset_class in get_filterset_classes():
+            legacy_class = type(filterset_class.__name__, (filterset_class,), {'legacy_evaluation': True})
+            queryset = filterset_class._meta.model.objects.all()
+            datasets = {
+                'supplied': get_sample_data(filterset_class),
+                'empty': get_empty_data(filterset_class),
+                'absent': QueryDict(),
+            }
+            for dataset, data in datasets.items():
+                with self.subTest(filterset=filterset_class.__name__, data=dataset):
+                    self.assertEqual(
+                        evaluate(filterset_class(data, queryset)),
+                        evaluate(legacy_class(data, queryset))
+                    )
 
-        for filterset_class in registry['filtersets'].values():
-            with self.subTest(filterset=filterset_class.__name__):
-                legacy_class = type(filterset_class.__name__, (filterset_class,), {'legacy_evaluation': True})
-                data = get_sample_data(filterset_class)
-                queryset = filterset_class._meta.model.objects.all()
-                self.assertEqual(
-                    evaluate(filterset_class(data, queryset)),
-                    evaluate(legacy_class(data, queryset))
-                )
+    def test_data_keys(self):
+        """
+        Check that get_data_keys() includes every key of request data which each filter's widget reads.
+        """
+        for filterset_class in get_filterset_classes():
+            for name, filter_ in filterset_class.get_filters().items():
+                with self.subTest(filterset=filterset_class.__name__, filter=name):
+                    keys = get_data_keys(name, filter_)
+                    # Every core filter's widget should be recognized
+                    self.assertIsNotNone(keys)
+                    # Supply no data, so that widgets also read any keys they fall back to
+                    data = RecordingQueryDict()
+                    deepcopy(filter_).field.widget.value_from_datadict(data, MultiValueDict(), name)
+                    self.assertFalse(data.enumerated)
+                    self.assertEqual(data.keys_read - set(keys), set())
