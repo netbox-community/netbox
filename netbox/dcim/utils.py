@@ -475,6 +475,7 @@ def update_interface_parents(device, interface_templates, module=None):
 
     for interface_template in interface_templates.exclude(parent=None):
         interface = Interface.objects.get(device=device, name=interface_template.resolve_name(module=module))
+        interface.snapshot()
         interface.parent = Interface.objects.get(
             device=device,
             name=interface_template.parent.resolve_name(module=module)
@@ -497,6 +498,7 @@ def update_interface_bridges(device, interface_templates, module=None):
         )
 
         if interface_template.bridge:
+            interface.snapshot()
             interface.bridge = Interface.objects.get(
                 device=device,
                 name=interface_template.bridge.resolve_name(module=module, device=device)

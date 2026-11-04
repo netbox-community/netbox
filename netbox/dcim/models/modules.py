@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import OperationalError, models, router, transaction
 from django.db.models.signals import post_save
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from jsonschema.exceptions import ValidationError as JSONValidationError
 
@@ -533,6 +534,8 @@ class Module(TrackingModelMixin, PrimaryModel):
         if disable_replication and not adopt_components:
             return
 
+        now = timezone.now()
+
         # Iterate all component types
         for templates, component_attribute, component_model in [
             ("consoleporttemplates", "consoleports", ConsolePort),
@@ -554,7 +557,7 @@ class Module(TrackingModelMixin, PrimaryModel):
                 component.name: component
                 for component in getattr(self.device, component_attribute).db_manager(using).filter(
                     module__isnull=True
-                )
+                ).prefetch_related('tags')
             }
 
             # Get the template for the module type.
@@ -567,8 +570,10 @@ class Module(TrackingModelMixin, PrimaryModel):
 
                     # Check if there's a component with the same name already
                     if existing_item:
-                        # Assign it to the module
+                        # Snapshot for the changelog, then assign it to the module
+                        existing_item.snapshot()
                         existing_item.module = self
+                        existing_item.last_updated = now
                         update_instances.append(existing_item)
                         continue
 
@@ -609,7 +614,7 @@ class Module(TrackingModelMixin, PrimaryModel):
                     update_fields=None
                 )
 
-            update_fields = ['module']
+            update_fields = ['module', 'last_updated']
             # ModuleBay.parent is derived from .module in ModuleBay.save(), and the
             # path/sort_path trigger only fires on parent_id/name changes. A bare
             # bulk_update(['module']) bypasses both, leaving the adopted bay rooted
@@ -618,11 +623,22 @@ class Module(TrackingModelMixin, PrimaryModel):
             if component_model is ModuleBay:
                 for instance in update_instances:
                     instance.parent = self.module_bay
-                update_fields = ['module', 'parent']
+                update_fields = ['module', 'parent', 'last_updated']
 
             component_model.objects.using(using).bulk_update(
                 update_instances, update_fields, batch_size=settings.BULK_UPDATE_CHUNK_SIZE
             )
+            # The triggers rewrote path/sort_path; refresh them so changelog snapshots aren't stale
+            if component_model is ModuleBay and update_instances:
+                refreshed = {
+                    row['pk']: row
+                    for row in ModuleBay.objects.using(using).filter(
+                        pk__in=[bay.pk for bay in update_instances]
+                    ).values('pk', 'path', 'sort_path')
+                }
+                for bay in update_instances:
+                    bay.path = refreshed[bay.pk]['path']
+                    bay.sort_path = refreshed[bay.pk]['sort_path']
             # Emit the post_save signal for each updated object
             for component in update_instances:
                 post_save.send(
