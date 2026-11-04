@@ -26,11 +26,22 @@ SINGLE_KEY_WIDGETS = (
 )
 
 
+def get_field_attr(filter_, attr):
+    """
+    Return an attribute (e.g. "required") of the given filter's form field, without building the field if it hasn't
+    been already.
+    """
+    # Filter.field caches the field as _field once built, after which changes to the filter's extra don't apply
+    if (field := vars(filter_).get('_field')) is not None:
+        return getattr(field, attr)
+    return filter_.extra.get(attr)
+
+
 def get_data_keys(name, filter_):
     """
     Return the keys of request data from which the given filter reads its value, or None if they can't be determined.
     """
-    widget = filter_.extra.get('widget') or getattr(filter_.field_class, 'widget', None)
+    widget = get_field_attr(filter_, 'widget') or getattr(filter_.field_class, 'widget', None)
     widget_class = widget if isinstance(widget, type) else type(widget)
     # The keys read depend on which class implements value_from_datadict()
     reader = next((klass for klass in widget_class.__mro__ if 'value_from_datadict' in vars(klass)), None)
@@ -45,6 +56,14 @@ def get_data_keys(name, filter_):
     return None
 
 
+def is_unconditional(filter_, data_keys):
+    """
+    Return True if the given filter is cleaned even when absent from the request data: if it's required or disabled,
+    or if the keys it reads (data_keys) can't be determined.
+    """
+    return data_keys is None or bool(get_field_attr(filter_, 'required') or get_field_attr(filter_, 'disabled'))
+
+
 class FilterIndex:
     """
     The filters of a FilterSet class, indexed for resolving request data.
@@ -55,7 +74,7 @@ class FilterIndex:
         data_keys: Maps each request data key read by a filter of a different name (e.g. "created_after") to the
             names of the filters which read it
         unconditional: The names of filters which are cleaned even when absent from the request data: those which
-            are required, or whose data keys can't be determined
+            are required or disabled, or whose data keys can't be determined
     """
     def __init__(self, filters):
         self.filters = filters
@@ -64,7 +83,7 @@ class FilterIndex:
         self.unconditional = []
         for name, filter_ in filters.items():
             keys = get_data_keys(name, filter_)
-            if keys is None or filter_.extra.get('required'):
+            if is_unconditional(filter_, keys):
                 self.unconditional.append(name)
             for key in keys or ():
                 if key != name:
@@ -94,13 +113,10 @@ class FilterDict(MutableMapping):
     Attributes:
         filterset: The FilterSet instance to which the filters belong
         index: The FilterIndex of the FilterSet's class
-        filters: The filters copied from the index, added, or loaded for this instance, keyed by name
+        filters: The filters copied from the index, added, or loaded for this instance, keyed by name. Any of these may
+            have been changed since, so the request data each reads is determined only once the request is evaluated.
         removed: The names of class filters removed from this instance
         extra: The names of filters added to this instance, and its LazyFilters, in the order added
-        assigned: The names of filters added or loaded for this instance, including any which replace a class
-            filter; their data keys and unconditional status supersede the index's
-        extra_data_keys: Like FilterIndex.data_keys, for the assigned filters
-        extra_unconditional: Like FilterIndex.unconditional, for the assigned filters
     """
     def __init__(self, filterset, index):
         self.filterset = filterset
@@ -108,9 +124,6 @@ class FilterDict(MutableMapping):
         self.filters = {}
         self.removed = set()
         self.extra = []
-        self.assigned = set()
-        self.extra_data_keys = {}
-        self.extra_unconditional = set()
 
     def __getitem__(self, name):
         if name not in self.filters:
@@ -126,13 +139,12 @@ class FilterDict(MutableMapping):
     def __setitem__(self, name, filter_):
         if name not in self:
             self.extra.append(name)
-        self._assign(name, filter_)
+        self.filters[name] = filter_
 
     def __delitem__(self, name):
         if name not in self:
             raise KeyError(name)
         self.filters.pop(name, None)
-        self._unassign(name)
         if self._is_class_filter(name):
             self.removed.add(name)
         elif name in self.extra:
@@ -168,24 +180,22 @@ class FilterDict(MutableMapping):
         """
         self.extra.append(LazyFilters(prefix, loader))
 
-    def get_names(self, key):
+    def get_evaluated(self, keys):
         """
-        Return the names of the filters which read the given key of the request data.
+        Return the names of the filters to clean for request data with the given keys: those which read any of the
+        keys, and those which are cleaned even when absent from the request data.
         """
-        names = [key] if key in self else []
-        readers = [name for name in self.index.data_keys.get(key, ()) if name not in self.assigned]
-        readers.extend(self.extra_data_keys.get(key, ()))
-        names.extend(name for name in readers if name in self)
-        return names
-
-    def get_unconditional(self):
-        """
-        Return the names of the filters which are cleaned even when absent from the request data.
-        """
-        names = [
-            name for name in self.index.unconditional if self._is_class_filter(name) and name not in self.assigned
-        ]
-        names.extend(self.extra_unconditional)
+        keys = set(keys)
+        # Look up each key first, which loads any lazy filters it names
+        names = {key for key in keys if key in self}
+        for key in keys:
+            names.update(name for name in self.index.data_keys.get(key, ()) if self._is_indexed(name))
+        names.update(name for name in self.index.unconditional if self._is_indexed(name))
+        # The index doesn't reflect changes to the filters held by this instance, so examine each of them
+        for name, filter_ in self.filters.items():
+            data_keys = get_data_keys(name, filter_)
+            if is_unconditional(filter_, data_keys) or not keys.isdisjoint(data_keys):
+                names.add(name)
         return names
 
     def position(self, name):
@@ -199,6 +209,10 @@ class FilterDict(MutableMapping):
     def _is_class_filter(self, name):
         return name in self.index.filters and name not in self.removed
 
+    def _is_indexed(self, name):
+        # A class filter which this instance hasn't copied, replaced, or removed
+        return name not in self.filters and self._is_class_filter(name)
+
     def _extra_names(self):
         names = []
         for entry in self.extra:
@@ -207,30 +221,6 @@ class FilterDict(MutableMapping):
             else:
                 names.append(entry)
         return names
-
-    def _assign(self, name, filter_):
-        """
-        Store a filter added or loaded for this instance, and record its data keys and unconditional status.
-        """
-        self._unassign(name)
-        self.filters[name] = filter_
-        self.assigned.add(name)
-        keys = get_data_keys(name, filter_)
-        if keys is None or filter_.extra.get('required'):
-            self.extra_unconditional.add(name)
-        for key in keys or ():
-            if key != name:
-                self.extra_data_keys.setdefault(key, []).append(name)
-
-    def _unassign(self, name):
-        """
-        Discard the recorded data keys and unconditional status of an assigned filter.
-        """
-        self.assigned.discard(name)
-        self.extra_unconditional.discard(name)
-        for names in self.extra_data_keys.values():
-            if name in names:
-                names.remove(name)
 
     def _load(self, name=None):
         """
@@ -245,5 +235,5 @@ class FilterDict(MutableMapping):
             for filter_name, filter_ in entry.loader().items():
                 if filter_name not in self.filters and not self._is_class_filter(filter_name):
                     entry.names.append(filter_name)
-                self._assign(filter_name, filter_)
+                self.filters[filter_name] = filter_
         return name is not None and name in self.filters

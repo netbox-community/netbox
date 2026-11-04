@@ -94,17 +94,41 @@ def get_empty_data(filterset_class):
     return data
 
 
+def get_subset(data, keys):
+    """
+    Return a copy of the given request data with only the given keys.
+    """
+    subset = QueryDict(mutable=True)
+    for key in keys:
+        subset.setlist(key, data.getlist(key))
+    return subset
+
+
+def get_sql(filterset):
+    """
+    Return the SQL of the given FilterSet's queryset, or None if the queryset is empty.
+    """
+    try:
+        return str(filterset.qs.query)
+    except EmptyResultSet:
+        return None
+
+
+def get_emptying_keys(filterset_class, data):
+    """
+    Return the keys of the given request data which each empty the FilterSet's queryset when supplied alone.
+    """
+    queryset = filterset_class._meta.model.objects.all()
+    if get_sql(filterset_class(data, queryset)) is not None:
+        return []
+    return [key for key in data if get_sql(filterset_class(get_subset(data, [key]), queryset)) is None]
+
+
 def evaluate(filterset):
     """
     Return the errors and SQL resulting from evaluation of the given FilterSet.
     """
-    try:
-        sql = str(filterset.qs.query)
-    except EmptyResultSet:
-        sql = None
-    except Exception as e:
-        sql = repr(e)
-    return list(filterset.errors), filterset.errors.get_json_data(), sql
+    return list(filterset.errors), filterset.errors.get_json_data(), get_sql(filterset)
 
 
 class RecordingQueryDict(QueryDict):
@@ -220,6 +244,19 @@ class FilterSetEvaluationTestCase(TestCase):
         self.assertFalse(filterset.is_valid())
         self.assertEqual(list(filterset.errors), ['label'])
 
+    def test_changed_filters(self):
+        class ChangedSiteFilterSet(SiteFilterSet):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.filters['q'].extra['required'] = True
+                self.filters['created_by_request'].field.required = True
+                self.filters['status'].extra['widget'] = QueryArrayWidget
+
+        # Changes to the instance's filters, or to their fields, supersede the class's filters
+        filterset = ChangedSiteFilterSet(QueryDict('status[]=planned'), Site.objects.all())
+        self.assertEqual(set(filterset.errors), {'q', 'created_by_request'})
+        self.assertEqual(filterset.qs.count(), 1)
+
     def test_removed_filters(self):
         class ReducedSiteFilterSet(SiteFilterSet):
             def __init__(self, *args, **kwargs):
@@ -287,6 +324,22 @@ class FilterSetEvaluationTestCase(TestCase):
         filterset = ExtendedSiteFilterSet(QueryDict('status_array[]=planned'), Site.objects.all())
         self.assertEqual(filterset.qs.count(), 1)
 
+    def test_disabled_filters(self):
+        class DeclaredSiteFilterSet(SiteFilterSet):
+            label = CharFilter(field_name='name', lookup_expr='istartswith', disabled=True, initial='Site 2')
+
+        class AddedSiteFilterSet(SiteFilterSet):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.filters['label'] = CharFilter(field_name='name', disabled=True, initial='Site 2')
+
+        # A disabled filter takes its initial value, whether or not the request supplies one
+        for filterset_class in (DeclaredSiteFilterSet, AddedSiteFilterSet):
+            for data in ({'label': 'Site 1'}, {}):
+                with self.subTest(filterset=filterset_class.__name__, data=data):
+                    filterset = filterset_class(data, Site.objects.all())
+                    self.assertEqual(list(filterset.qs.values_list('name', flat=True)), ['Site 2'])
+
     def test_custom_widget(self):
         class AliasWidget(forms.TextInput):
             def value_from_datadict(self, data, files, name):
@@ -344,22 +397,27 @@ class LegacyEvaluationParityTestCase(TestCase):
     def test_parity(self):
         """
         Evaluate every registered FilterSet with all of its filters supplied, with all of them supplied but empty, and
-        with none of them supplied, and check that each result matches legacy evaluation.
+        with none of them supplied, and check that each result matches legacy evaluation. A supplied value which
+        empties the queryset is evaluated alone, so that it doesn't mask the SQL of the others.
         """
         for filterset_class in get_filterset_classes():
             legacy_class = type(filterset_class.__name__, (filterset_class,), {'legacy_evaluation': True})
             queryset = filterset_class._meta.model.objects.all()
+            sample_data = get_sample_data(filterset_class)
+            emptying_keys = get_emptying_keys(filterset_class, sample_data)
             datasets = {
-                'supplied': get_sample_data(filterset_class),
+                'supplied': get_subset(sample_data, [key for key in sample_data if key not in emptying_keys]),
+                **{f'{key} only': get_subset(sample_data, [key]) for key in emptying_keys},
                 'empty': get_empty_data(filterset_class),
                 'absent': QueryDict(),
             }
             for dataset, data in datasets.items():
                 with self.subTest(filterset=filterset_class.__name__, data=dataset):
-                    self.assertEqual(
-                        evaluate(filterset_class(data, queryset)),
-                        evaluate(legacy_class(data, queryset))
-                    )
+                    result = evaluate(filterset_class(data, queryset))
+                    self.assertEqual(result, evaluate(legacy_class(data, queryset)))
+                    if dataset == 'supplied':
+                        # The remaining values mustn't empty the queryset (leaving no SQL) in combination
+                        self.assertIsNotNone(result[2])
 
     def test_data_keys(self):
         """

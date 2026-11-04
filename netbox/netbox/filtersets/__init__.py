@@ -237,7 +237,8 @@ class BaseFilterSet(django_filters.FilterSet):
     @property
     def cleaned_data(self):
         """
-        The cleaned values of the filters for which the request supplies data. For internal use only.
+        The cleaned values of the filters which the request supplies, or which are cleaned even when absent (e.g.
+        required filters). For internal use only.
         """
         if not self._lazy:
             self.form.is_valid()
@@ -258,7 +259,8 @@ class BaseFilterSet(django_filters.FilterSet):
 
     def _clean(self):
         """
-        Clean the request's value for each filter it supplies, in declaration order.
+        Clean the value of each filter which the request supplies, or which is cleaned even when absent (e.g. a
+        required filter), in declaration order.
         """
         if hasattr(self, '_cleaned_data'):
             return
@@ -266,16 +268,16 @@ class BaseFilterSet(django_filters.FilterSet):
         self._errors = ErrorDict()
         if not self.is_bound:
             return
-        names = set()
-        for key in self.data.keys():
-            names.update(self.filters.get_names(key))
-        # After resolving keys, which may load lazy filters
-        names.update(self.filters.get_unconditional())
+        names = self.filters.get_evaluated(self.data.keys())
         files = MultiValueDict()
         for name in sorted(names, key=self.filters.position):
             field = self.filters[name].field
+            if field.disabled:
+                value = forms.Form().get_initial_for_field(field, name)
+            else:
+                value = field.widget.value_from_datadict(self.data, files, name)
             try:
-                self._cleaned_data[name] = field.clean(field.widget.value_from_datadict(self.data, files, name))
+                self._cleaned_data[name] = field.clean(value)
             except ValidationError as e:
                 self._errors[name] = ErrorList(e.error_list)
 
