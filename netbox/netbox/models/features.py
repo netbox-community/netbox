@@ -702,6 +702,8 @@ class SyncedDataMixin(models.Model):
 
         :param save: If true, save() will be called after data has been synchronized
         """
+        if save:
+            self.snapshot()
         self.sync_data()
         self.data_synced = timezone.now()
         if save:

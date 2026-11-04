@@ -1,15 +1,16 @@
 import hashlib
+import uuid
 from unittest import skipIf
 
 from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from django.utils.timezone import now
 from taggit.models import Tag
 
-from core.models import AutoSyncRecord, DataFile, DataSource
+from core.models import AutoSyncRecord, DataFile, DataSource, ObjectChange
 from dcim.models import Site
 from extras.models import (
     ConfigContext,
@@ -20,7 +21,9 @@ from extras.models import (
 )
 from ipam.models import Prefix
 from netbox.constants import CORE_APPS
+from netbox.context_managers import event_tracking
 from netbox.models.features import CloningMixin, get_model_features, has_feature, model_is_public
+from users.models import User
 
 
 class ModelFeaturesTestCase(TestCase):
@@ -148,6 +151,27 @@ class ModelFeaturesTestCase(TestCase):
                 obj.save()
                 obj.refresh_from_db()
                 self.assertEqual(getattr(obj, field_name), {})
+
+    def test_synceddatamixin_sync_records_prechange(self):
+        """Saving a sync records the object's state before the synchronized data was applied. Ref: #23617"""
+        datafile = self._create_data_file('template.j2', b'original\n')
+        obj = ConfigTemplate(name='Test', data_file=datafile)
+        obj.clean()
+        obj.save()
+        DataFile.objects.filter(pk=datafile.pk).update(data=b'updated\n')
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = User.objects.create_user(username='testuser')
+
+        with event_tracking(request):
+            ConfigTemplate.objects.get(pk=obj.pk).sync(save=True)
+
+        change = ObjectChange.objects.get(
+            changed_object_type=ContentType.objects.get_for_model(ConfigTemplate),
+            changed_object_id=obj.pk,
+        )
+        self.assertEqual(change.prechange_data['template_code'], 'original\n')
+        self.assertEqual(change.postchange_data['template_code'], 'updated\n')
 
     def test_synceddatamixin_accepts_plain_text_template(self):
         """Text which is not a YAML document is still valid template content."""

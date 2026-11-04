@@ -498,5 +498,6 @@ def update_mac_address_interface(instance, created, raw, **kwargs):
     assign the MACAddress to the interface.
     """
     if created and not raw and instance.primary_mac_address:
+        instance.primary_mac_address.snapshot()
         instance.primary_mac_address.assigned_object = instance
         instance.primary_mac_address.save()

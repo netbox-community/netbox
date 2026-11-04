@@ -27,10 +27,12 @@ def update_connected_interfaces(instance, created, raw=False, **kwargs):
 
     if instance.interface_a.wireless_link != instance:
         logger.debug(f"Updating interface A for wireless link {instance}")
+        instance.interface_a.snapshot()
         instance.interface_a.wireless_link = instance
         instance.interface_a.save()
     if instance.interface_b.wireless_link != instance:
         logger.debug(f"Updating interface B for wireless link {instance}")
+        instance.interface_b.snapshot()
         instance.interface_b.wireless_link = instance
         instance.interface_b.save()
 
