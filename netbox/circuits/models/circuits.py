@@ -346,16 +346,17 @@ class CircuitTermination(
         blank=True,
         null=True
     )
+    # SET_NULL, not CASCADE: may cache an ancestor. Direct terminations cascade via direct_circuit_terminations.
     _region = models.ForeignKey(
         to='dcim.Region',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name='circuit_terminations',
         blank=True,
         null=True
     )
     _site_group = models.ForeignKey(
         to='dcim.SiteGroup',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name='circuit_terminations',
         blank=True,
         null=True
