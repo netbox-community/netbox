@@ -1633,7 +1633,7 @@ class ChannelizedBulkCreateTestCase(ViewTestCase):
         parent = Interface.objects.create(
             device=self.device, name='et0', type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS, channels=4
         )
-        self.add_permissions('dcim.add_interface', 'dcim.view_interface')
+        self.add_permissions('dcim.add_interface', 'dcim.view_interface', 'dcim.view_device')
 
         request_data = {
             'device': self.device.pk,
@@ -1656,7 +1656,7 @@ class ChannelizedBulkCreateTestCase(ViewTestCase):
         parent = InterfaceTemplate.objects.create(
             device_type=self.device_type, name='et0', type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS, channels=4
         )
-        self.add_permissions('dcim.add_interfacetemplate', 'dcim.view_interfacetemplate')
+        self.add_permissions('dcim.add_interfacetemplate', 'dcim.view_interfacetemplate', 'dcim.view_devicetype')
 
         request_data = {
             'device_type': self.device_type.pk,

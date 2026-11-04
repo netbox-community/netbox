@@ -376,6 +376,7 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
             # Reinstantiate the model form each time to avoid overwriting the same instance. Use a mutable
             # copy of the POST QueryDict so that we can update the target field value.
             model_form = self.model_form(self.get_model_form_data(form, request, value))
+            restrict_form_fields(model_form, request.user)
 
             # Validate each new object independently.
             if model_form.is_valid():
@@ -416,6 +417,7 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
 
         form = self.form()
         model_form = self.model_form(initial=initial)
+        restrict_form_fields(model_form, request.user)
 
         # HTMX partial: only re-render the model form fields
         if htmx_partial(request):
@@ -430,6 +432,7 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
         model = self.queryset.model
         form = self.form(request.POST)
         model_form = self.model_form(request.POST)
+        restrict_form_fields(model_form, request.user)
 
         # HTMX partial: only re-render the model form fields
         if htmx_partial(request):

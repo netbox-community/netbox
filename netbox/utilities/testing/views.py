@@ -548,9 +548,11 @@ class ViewTestCases:
 
         :bulk_create_count: The number of objects expected to be created (default: 3).
         :bulk_create_data: A dictionary of data to be used for bulk object creation.
+        :bulk_create_permissions: View permissions for the related objects referenced by bulk_create_data.
         """
         bulk_create_count = 3
         bulk_create_data = {}
+        bulk_create_permissions = ()
         validation_excluded_fields = []
 
         def test_create_multiple_objects_without_permission(self):
@@ -578,6 +580,7 @@ class ViewTestCases:
             obj_perm.save()
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+            self.add_permissions(*self.bulk_create_permissions)
 
             # Bulk create objects
             response = self.client.post(**request)
@@ -602,6 +605,7 @@ class ViewTestCases:
             obj_perm.save()
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+            self.add_permissions(*self.bulk_create_permissions)
 
             # Attempt to make the request with unmet constraints
             self.assertHttpStatus(self.client.post(**request), 200)
@@ -635,6 +639,7 @@ class ViewTestCases:
             obj_perm.save()
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+            self.add_permissions(*self.bulk_create_permissions)
 
             response = self.client.post(
                 path=self._get_url('add'),
