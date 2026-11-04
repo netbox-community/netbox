@@ -15,9 +15,10 @@ from django.http import Http404, QueryDict
 from django.utils import timezone
 from django.utils.functional import classproperty
 from django.utils.module_loading import import_string
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 from django_pg_utils import advisory_lock
 from rest_framework.exceptions import APIException
+from rq.job import JobStatus as RQJobStatus
 from rq.timeouts import JobTimeoutException
 
 from core.choices import JobStatusChoices
@@ -32,6 +33,7 @@ __all__ = (
     'AsyncAPIJob',
     'AsyncViewJob',
     'JobRunner',
+    'recover_dead_jobs',
     'system_job',
 )
 
@@ -55,6 +57,53 @@ def system_job(interval):
         return cls
 
     return _wrapper
+
+
+# RQ states in which a job's work horse is gone without JobRunner.handle() having finished.
+_RQ_DEAD_STATUSES = (RQJobStatus.FAILED, RQJobStatus.STOPPED, RQJobStatus.CANCELED)
+
+
+def recover_dead_jobs():
+    """
+    Terminate any running `Job` whose RQ job has already died, e.g. because its worker was restarted or
+    OOM killed. Called by `NetBoxRQWorker` during its periodic maintenance tasks.
+    """
+    logger = logging.getLogger('netbox.jobs')
+
+    for job in Job.objects.filter(status=JobStatusChoices.STATUS_RUNNING):
+        try:
+            rq_job = job._get_rq_job()
+            # A missing RQ job may mean Redis was reset rather than that the job died, so leave it alone.
+            if rq_job is None:
+                continue
+            rq_status = rq_job.get_status()
+            if rq_status not in _RQ_DEAD_STATUSES:
+                continue
+
+            # Claim the job, so that it is handled only once if several workers sweep concurrently.
+            claimed = Job.objects.filter(pk=job.pk, status=JobStatusChoices.STATUS_RUNNING).update(
+                status=JobStatusChoices.STATUS_ERRORED
+            )
+            if not claimed:
+                continue
+
+            result = rq_job.latest_result()
+            error = (result.exc_string if result else None) or _(
+                "Job terminated unexpectedly (RQ status: {status})"
+            ).format(status=rq_status.value)
+            logger.warning(f"Job {job} (PK: {job.pk}) died while running: {error}")
+            job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=error)
+
+            if job.interval:
+                runner = rq_job.instance
+                if not (isinstance(runner, type) and issubclass(runner, JobRunner)):
+                    logger.warning(f"Not rescheduling job {job} (PK: {job.pk}): no JobRunner class found")
+                    continue
+                kwargs = {k: v for k, v in rq_job.kwargs.items() if k != 'job'}
+                runner._schedule_next(job, **kwargs)
+
+        except Exception:
+            logger.exception(f"Failed to recover dead job {job} (PK: {job.pk})")
 
 
 class JobLogHandler(logging.Handler):
@@ -144,64 +193,74 @@ class JobRunner(ABC):
         # If the executed job is a periodic job, schedule its next execution at the specified interval.
         finally:
             if job.interval and job.started and not skipped:
-                # Determine the new scheduled time. Cannot be earlier than one minute in the future.
-                new_scheduled_time = max(
-                    (job.scheduled or job.started) + timedelta(minutes=job.interval),
-                    timezone.now() + timedelta(minutes=1)
-                )
-                if job.object and getattr(job.object, "python_class", None):
-                    kwargs["job_timeout"] = job.object.python_class.job_timeout
+                cls._schedule_next(job, **kwargs)
 
-                enqueue_kwargs = dict(
-                    instance=job.object,
-                    name=job.name,
-                    user=job.user,
-                    schedule_at=new_scheduled_time,
-                    interval=job.interval,
-                    notifications=job.notifications,
-                    **kwargs,
-                )
+    @classmethod
+    def _schedule_next(cls, job, **kwargs):
+        """
+        Schedule the next execution of a periodic (already-terminated) `job` at its interval. `kwargs` are the
+        runtime arguments the job was originally enqueued with.
+        """
+        logger = logging.getLogger('netbox.jobs')
 
-                # Reschedule the next occurrence. If the object's configuration has become invalid since this run was
-                # scheduled (e.g. a script's Meta.job_timeout was edited to an invalid value, see #22872), the enqueue
-                # will raise a ValidationError. Record it on this job and decline to reschedule rather than allowing an
-                # unhandled exception to escape the worker's finally block.
-                try:
-                    if cls in registry['system_jobs']:
-                        # System jobs are also scheduled by `enqueue_once()` at worker startup,
-                        # which races with this finally block and can produce duplicate schedules
-                        # (see #22232). Acquire the same advisory lock used by `enqueue_once()`
-                        # and skip rescheduling if a successor is already enqueued.
-                        #
-                        # This branch is limited to system jobs because generic recurring jobs
-                        # (e.g. scheduled scripts) may have multiple legitimate schedules sharing
-                        # the same runner/object/interval but differing in their runtime kwargs.
-                        with advisory_lock(ADVISORY_LOCK_KEYS['job-schedules']):
-                            successor_exists = Job.objects.filter(
-                                name=cls.name,
-                                object_id__isnull=True,
-                                status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES,
-                                interval=job.interval,
-                            ).exclude(pk=job.pk).exists()
-                            if not successor_exists:
-                                cls.enqueue(**enqueue_kwargs)
-                    else:
+        # Determine the new scheduled time. Cannot be earlier than one minute in the future.
+        new_scheduled_time = max(
+            (job.scheduled or job.started) + timedelta(minutes=job.interval),
+            timezone.now() + timedelta(minutes=1)
+        )
+        if job.object and getattr(job.object, "python_class", None):
+            kwargs["job_timeout"] = job.object.python_class.job_timeout
+
+        enqueue_kwargs = dict(
+            instance=job.object,
+            name=job.name,
+            user=job.user,
+            schedule_at=new_scheduled_time,
+            interval=job.interval,
+            notifications=job.notifications,
+            **kwargs,
+        )
+
+        # Reschedule the next occurrence. If the object's configuration has become invalid since this run was
+        # scheduled (e.g. a script's Meta.job_timeout was edited to an invalid value, see #22872), the enqueue
+        # will raise a ValidationError. Record it on this job and decline to reschedule rather than allowing an
+        # unhandled exception to escape the worker's finally block.
+        try:
+            if cls in registry['system_jobs']:
+                # System jobs are also scheduled by `enqueue_once()` at worker startup,
+                # which races with this finally block and can produce duplicate schedules
+                # (see #22232). Acquire the same advisory lock used by `enqueue_once()`
+                # and skip rescheduling if a successor is already enqueued.
+                #
+                # This branch is limited to system jobs because generic recurring jobs
+                # (e.g. scheduled scripts) may have multiple legitimate schedules sharing
+                # the same runner/object/interval but differing in their runtime kwargs.
+                with advisory_lock(ADVISORY_LOCK_KEYS['job-schedules']):
+                    successor_exists = Job.objects.filter(
+                        name=cls.name,
+                        object_id__isnull=True,
+                        status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES,
+                        interval=job.interval,
+                    ).exclude(pk=job.pk).exists()
+                    if not successor_exists:
                         cls.enqueue(**enqueue_kwargs)
-                except ValidationError as e:
-                    # The successor could not be scheduled because the object's configuration is now invalid. Record
-                    # this against the (already-terminated) job without overwriting the outcome of the run that just
-                    # completed — re-running terminate() here would clobber a successful run's status and fire a
-                    # duplicate notification (see #22872).
-                    error = _("Recurring job not rescheduled due to invalid configuration: {error}").format(
-                        error='; '.join(e.messages)
-                    )
-                    logger.error(f"Job {job}: {error}")
-                    job.log(logging.makeLogRecord({
-                        'levelno': logging.ERROR,
-                        'levelname': 'ERROR',
-                        'msg': error,
-                    }))
-                    job.save()
+            else:
+                cls.enqueue(**enqueue_kwargs)
+        except ValidationError as e:
+            # The successor could not be scheduled because the object's configuration is now invalid. Record
+            # this against the (already-terminated) job without overwriting the outcome of the run that just
+            # completed — re-running terminate() here would clobber a successful run's status and fire a
+            # duplicate notification (see #22872).
+            error = _("Recurring job not rescheduled due to invalid configuration: {error}").format(
+                error='; '.join(e.messages)
+            )
+            logger.error(f"Job {job}: {error}")
+            job.log(logging.makeLogRecord({
+                'levelno': logging.ERROR,
+                'levelname': 'ERROR',
+                'msg': error,
+            }))
+            job.save()
 
     @classmethod
     def get_jobs(cls, instance=None):

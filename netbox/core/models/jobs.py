@@ -197,6 +197,14 @@ class Job(models.Model):
 
         return f"{int(minutes)} minutes, {seconds:.2f} seconds"
 
+    def _get_rq_job(self):
+        """
+        Return this job's RQ-side entry, or None if it no longer exists in Redis.
+        """
+        rq_queue_name = self.queue_name or get_queue_for_model(self.object_type.model if self.object_type else None)
+        queue = django_rq.get_queue(rq_queue_name)
+        return queue.fetch_job(str(self.job_id))
+
     def _is_rq_job_present(self):
         """
         Return True if this job's RQ-side entry still exists. A "scheduled" Job row whose RQ entry
@@ -206,9 +214,7 @@ class Job(models.Model):
         Only meaningful while the Job row is "scheduled": the RQ entry also lingers after a job has
         finished (briefly) or failed (up to a year), states a "scheduled" row never occupies.
         """
-        rq_queue_name = self.queue_name or get_queue_for_model(self.object_type.model if self.object_type else None)
-        queue = django_rq.get_queue(rq_queue_name)
-        return queue.fetch_job(str(self.job_id)) is not None
+        return self._get_rq_job() is not None
 
     def delete(self, *args, **kwargs):
         # Use the stored queue name, or fall back to get_queue_for_model for legacy jobs

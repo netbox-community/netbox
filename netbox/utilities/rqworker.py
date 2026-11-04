@@ -32,7 +32,22 @@ class NetBoxRQWorker(Worker):
 
     The URLconf (and with it the GraphQL schema) is loaded once on startup, so
     that forked work horses inherit it rather than each rebuilding it.
+
+    During its periodic maintenance tasks, the worker also terminates any
+    running NetBox Job whose work horse died.
     """
+
+    def run_maintenance_tasks(self, *args, **kwargs):
+        super().run_maintenance_tasks(*args, **kwargs)
+        # Imported here to avoid a circular import (netbox.jobs imports core.models, which imports this module).
+        from netbox.jobs import recover_dead_jobs
+        try:
+            recover_dead_jobs()
+        except Exception:
+            logger.exception("Failed to recover dead jobs.")
+        finally:
+            # Don't let forked work horses inherit a database connection opened by the sweep.
+            reset_db_connections()
 
     def bootstrap(self, *args, **kwargs):
         # Load the URLconf before registering the worker, so that a broken URLconf or GraphQL schema prevents the
