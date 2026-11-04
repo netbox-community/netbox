@@ -23,8 +23,8 @@ from core.models import Job, ObjectChange, ObjectType
 from dcim.choices import DeviceStatusChoices, InterfaceTypeChoices, SiteStatusChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
 from extras.choices import EventRuleActionChoices
-from extras.events import enqueue_event, flush_events, process_event_rules, serialize_for_event
-from extras.models import EventRule, Notification, Script, ScriptModule, Tag, Webhook
+from extras.events import EventContext, enqueue_event, flush_events, process_event_rules, serialize_for_event
+from extras.models import EventRule, Notification, NotificationGroup, Script, ScriptModule, Tag, Webhook
 from extras.scripts import Script as ScriptBase
 from extras.signals import process_job_end_event_rules
 from extras.webhooks import generate_signature, send_webhook
@@ -863,6 +863,84 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         self.assertEqual(job.kwargs['object_type'], script_type)
         self.assertNotIn('request', job.kwargs)
         self.assertNotIn('object_change_ids', job.kwargs)
+
+        def _notification_event_rule(self, object_type, event_type):
+        group = NotificationGroup.objects.create(name='Notification Group 1')
+        group.users.add(self.user)
+        event_rule = EventRule.objects.create(
+            name='Event Rule Notification',
+            event_types=[event_type],
+            action_type=EventRuleActionChoices.NOTIFICATION,
+            action_object_type=ObjectType.objects.get_for_model(NotificationGroup),
+            action_object_id=group.pk,
+        )
+        event_rule.object_types.set([object_type])
+        return event_rule
+
+    def test_job_completed_notification(self):
+        """
+        A notification for a job event identifies the job's object (e.g. a script), since the event payload is the
+        job's data rather than a serialized object.
+        """
+        with patch.object(ScriptModule, 'sync_classes'):
+            module = ScriptModule.objects.create(
+                file_root=ManagedFileRootPathChoices.SCRIPTS,
+                file_path='notification_script.py',
+            )
+        script = Script.objects.create(module=module, name='Notification Script', is_executable=True)
+        script_type = ObjectType.objects.get_for_model(Script)
+        self._notification_event_rule(script_type, JOB_COMPLETED)
+        job = Job.objects.create(
+            object_type=script_type,
+            object_id=script.pk,
+            name='Notification Script',
+            user=self.user,
+            job_id=uuid.uuid4(),
+            data={'log': [], 'output': 'Done'},
+        )
+
+        process_job_end_event_rules(job)
+
+        notification = Notification.objects.get(user=self.user)
+        self.assertEqual(notification.object_type, script_type)
+        self.assertEqual(notification.object_id, script.pk)
+        self.assertEqual(notification.object_repr, str(script))
+        self.assertEqual(notification.event_type, JOB_COMPLETED)
+
+    def test_job_completed_notification_without_object(self):
+        """
+        A notification is skipped, rather than raising, for a job event with no associated object.
+        """
+        script_type = ObjectType.objects.get_for_model(Script)
+        self._notification_event_rule(script_type, JOB_COMPLETED)
+        sender = Mock(object_type=script_type, object_id=None, object=None, data={}, user=self.user)
+
+        with self.assertLogs('netbox.events_processor', level='WARNING'):
+            process_job_end_event_rules(sender)
+
+        self.assertFalse(Notification.objects.exists())
+
+    def test_object_event_notification(self):
+        """
+        A notification for an object change event identifies the changed object.
+        """
+        site_type = ObjectType.objects.get_for_model(Site)
+        self._notification_event_rule(site_type, OBJECT_CREATED)
+        site = Site.objects.create(name='Notification Site', slug='notification-site')
+        event = EventContext(
+            object_type=site_type,
+            object_id=site.pk,
+            object=site,
+            event_type=OBJECT_CREATED,
+            user=self.user,
+        )
+
+        process_event_rules(EventRule.objects.all(), site_type, event)
+
+        notification = Notification.objects.get(user=self.user)
+        self.assertEqual(notification.object_id, site.pk)
+        self.assertEqual(notification.object_repr, site.name)
+        self.assertEqual(notification.event_type, OBJECT_CREATED)
 
     def _job_event_rule(self, conditions=None):
         webhook = Webhook.objects.get(name='Webhook 1')
