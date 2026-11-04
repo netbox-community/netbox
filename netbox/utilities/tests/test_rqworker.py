@@ -148,6 +148,37 @@ class NetBoxRQWorkerBootstrapTestCase(TestCase):
         super_bootstrap.assert_not_called()
 
 
+class NetBoxRQWorkerMaintenanceTestCase(TestCase):
+    """
+    run_maintenance_tasks() must run RQ's own maintenance first, then sweep for dead jobs, then
+    reset database connections. A failing sweep must not crash the worker.
+    """
+
+    def _run(self, recover_side_effect=None):
+        calls = []
+        worker = NetBoxRQWorker.__new__(NetBoxRQWorker)
+        with (
+            patch('rq.worker.Worker.run_maintenance_tasks', side_effect=lambda *a, **k: calls.append('super')),
+            patch(
+                'netbox.jobs.recover_dead_jobs',
+                side_effect=recover_side_effect or (lambda: calls.append('recover')),
+            ) as recover,
+            patch('utilities.rqworker.reset_db_connections', side_effect=lambda: calls.append('reset')),
+        ):
+            worker.run_maintenance_tasks()
+        return calls, recover
+
+    def test_order(self):
+        calls, _ = self._run()
+        self.assertEqual(calls, ['super', 'recover', 'reset'])
+
+    def test_sweep_failure_is_logged(self):
+        with self.assertLogs('netbox.rqworker', level='ERROR'):
+            calls, recover = self._run(recover_side_effect=RuntimeError('boom'))
+        recover.assert_called_once()
+        self.assertEqual(calls, ['super', 'reset'])
+
+
 class GetWorkersForQueueTestCase(TestCase):
     """
     get_workers_for_queue() must:
