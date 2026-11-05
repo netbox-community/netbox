@@ -5,8 +5,7 @@ import netaddr
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import DatabaseError, ProgrammingError, transaction
-from django.db.models import F, Q, Window, prefetch_related_objects
-from django.db.models.fields.related import ForeignKey
+from django.db.models import FETCH_PEERS, F, Q, Window
 from django.db.models.functions import window
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
@@ -15,7 +14,6 @@ from netaddr.core import AddrFormatError
 from core.models import ObjectType
 from extras.models import CachedValue, CustomField
 from netbox.registry import registry
-from utilities.object_types import object_type_identifier
 from utilities.querysets import RestrictedPrefetch
 from utilities.string import title
 
@@ -203,12 +201,6 @@ class CachedValueSearchBackend(SearchBackend):
             )
         )[:MAX_RESULTS]
 
-        # Gather all ObjectTypes present in the search results (used for prefetching related
-        # objects). This must be done before generating the final results list, which returns
-        # a RawQuerySet.
-        object_type_ids = set(queryset.values_list('object_type', flat=True))
-        object_types = ObjectType.objects.filter(pk__in=object_type_ids)
-
         # Construct a Prefetch to pre-fetch only those related objects for which the
         # user has permission to view.
         if user:
@@ -218,32 +210,12 @@ class CachedValueSearchBackend(SearchBackend):
 
         # Wrap the base query to return only the lowest-weight result for each object
         # Hat-tip to https://blog.oyam.dev/django-filter-by-window-function/ for the solution
+        # FETCH_PEERS passes to the prefetched objects, batching the relations read when rendering results
         sql, params = queryset.query.sql_with_params()
-        results = CachedValue.objects.prefetch_related(*prefetch).raw(
+        results = CachedValue.objects.fetch_mode(FETCH_PEERS).prefetch_related(*prefetch).raw(
             f"SELECT * FROM ({sql}) t WHERE row_number = 1",
             params
         )
-
-        # Iterate through each ObjectType represented in the search results and prefetch any
-        # related objects necessary to render the prescribed display attributes (display_attrs).
-        for object_type in object_types:
-            model = object_type.model_class()
-            indexer = registry['search'].get(object_type_identifier(object_type))
-            if not (display_attrs := getattr(indexer, 'display_attrs', None)):
-                continue
-
-            # Add ForeignKey fields to prefetch list
-            prefetch_fields = []
-            for attr in display_attrs:
-                field = model._meta.get_field(attr)
-                if type(field) is ForeignKey:
-                    prefetch_fields.append(f'object__{attr}')
-
-            # Compile a list of all CachedValues referencing this object type, and prefetch
-            # any related objects
-            if prefetch_fields:
-                objects = [r for r in results if r.object_type_id == object_type.pk]
-                prefetch_related_objects(objects, *prefetch_fields)
 
         # Omit any results pertaining to an object the user does not have permission to view
         ret = []
