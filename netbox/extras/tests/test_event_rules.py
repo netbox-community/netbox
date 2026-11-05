@@ -864,7 +864,7 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         self.assertNotIn('request', job.kwargs)
         self.assertNotIn('object_change_ids', job.kwargs)
 
-        def _notification_event_rule(self, object_type, event_type):
+    def _notification_event_rule(self, object_type, event_type):
         group = NotificationGroup.objects.create(name='Notification Group 1')
         group.users.add(self.user)
         event_rule = EventRule.objects.create(
