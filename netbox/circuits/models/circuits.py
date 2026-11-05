@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import *
 from dcim.models import CabledObjectModel
+from dcim.utils import rebuild_paths
 from netbox.models import ChangeLoggedModel, OrganizationalModel, PrimaryModel
 from netbox.models.features import (
     ContactsMixin,
@@ -499,3 +500,10 @@ class CircuitTermination(
             )
         except CircuitTermination.DoesNotExist:
             return None
+
+    def update_dependent_objects(self):
+        """
+        Rebuild the CablePaths which traverse this CircuitTermination or its peer.
+        """
+        rebuild_paths([t for t in (self, self.get_peer_termination()) if t])
+    update_dependent_objects.alters_data = True
