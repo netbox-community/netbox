@@ -406,5 +406,5 @@ Add the new field to the model's documentation page. Include:
 - Real example (adding a JSONField): `git show 5f802bb18` — adds `choice_colors` to CustomFieldChoiceSet across model, forms, filterset, serializer, GraphQL, and tests
 - Panel attrs reference: `netbox/netbox/ui/attrs.py`
 - Panel classes: `netbox/<app>/ui/panels.py`
-- Base filterset classes: `netbox/netbox/filtersets.py`
+- Base filterset classes: `netbox/netbox/filtersets/__init__.py`
 - Contributing guide: `docs/development/extending-models.md`
