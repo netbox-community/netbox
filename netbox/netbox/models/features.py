@@ -702,7 +702,8 @@ class SyncedDataMixin(models.Model):
 
         :param save: If true, save() will be called after data has been synchronized
         """
-        if save:
+        # ManagedFile is not change-logged and so has no snapshot()
+        if save and hasattr(self, 'snapshot'):
             self.snapshot()
         self.sync_data()
         self.data_synced = timezone.now()
