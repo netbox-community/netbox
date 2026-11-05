@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
-from ipam.models import VLAN
+from ipam.models import VLAN, IPAddress
 from vpn.models import *
 
 
@@ -77,3 +77,50 @@ class L2VPNTerminationTestCase(TestCase):
         L2VPNTermination.objects.create(l2vpn=l2vpn, assigned_object=vlan)
         duplicate = L2VPNTermination(l2vpn=l2vpn, assigned_object=vlan)
         self.assertRaises(ValidationError, duplicate.clean)
+
+    def test_ipaddress_terminates_multiple_l2vpns(self):
+        ip_address = IPAddress.objects.create(address='192.0.2.1/32')
+        l2vpns = L2VPN.objects.all()[:2]
+
+        L2VPNTermination.objects.create(l2vpn=l2vpns[0], assigned_object=ip_address)
+        termination = L2VPNTermination(l2vpn=l2vpns[1], assigned_object=ip_address)
+        termination.full_clean()
+        termination.save()
+
+        self.assertEqual(ip_address.l2vpn_terminations.count(), 2)
+
+    def test_duplicate_ipaddress_terminations(self):
+        ip_address = IPAddress.objects.create(address='192.0.2.1/32')
+        l2vpn = L2VPN.objects.first()
+
+        L2VPNTermination.objects.create(l2vpn=l2vpn, assigned_object=ip_address)
+        duplicate = L2VPNTermination(l2vpn=l2vpn, assigned_object=ip_address)
+        self.assertRaises(ValidationError, duplicate.clean)
+
+    def test_ipaddress_termination_parent(self):
+        interface = Interface.objects.first()
+        assigned_ip = IPAddress.objects.create(address='192.0.2.1/32', assigned_object=interface)
+        unassigned_ip = IPAddress.objects.create(address='192.0.2.2/32')
+        l2vpn = L2VPN.objects.first()
+
+        termination = L2VPNTermination.objects.create(l2vpn=l2vpn, assigned_object=assigned_ip)
+        self.assertEqual(termination.assigned_object_parent, interface.device)
+        self.assertEqual(termination.assigned_object_site, interface.device.site)
+
+        termination = L2VPNTermination.objects.create(l2vpn=l2vpn, assigned_object=unassigned_ip)
+        self.assertIsNone(termination.assigned_object_parent)
+        self.assertIsNone(termination.assigned_object_site)
+
+    def test_vlan_termination_site(self):
+        site = Site.objects.first()
+        vlan = VLAN.objects.create(name='VLAN 8', vid=658, site=site)
+        termination = L2VPNTermination.objects.create(l2vpn=L2VPN.objects.first(), assigned_object=vlan)
+        self.assertIsNone(termination.assigned_object_parent)
+        self.assertEqual(termination.assigned_object_site, site)
+
+    def test_delete_ipaddress_deletes_terminations(self):
+        ip_address = IPAddress.objects.create(address='192.0.2.1/32')
+        termination = L2VPNTermination.objects.create(l2vpn=L2VPN.objects.first(), assigned_object=ip_address)
+
+        ip_address.delete()
+        self.assertFalse(L2VPNTermination.objects.filter(pk=termination.pk).exists())

@@ -887,6 +887,13 @@ class L2VPNTerminationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         )
         L2VPN.objects.bulk_create(l2vpns)
 
+        ip_addresses = (
+            IPAddress(address='192.0.2.1/32', assigned_object=interfaces[0]),
+            IPAddress(address='192.0.2.2/32', assigned_object=vminterfaces[0]),
+            IPAddress(address='192.0.2.3/32'),
+        )
+        IPAddress.objects.bulk_create(ip_addresses)
+
         l2vpnterminations = (
             L2VPNTermination(l2vpn=l2vpns[0], assigned_object=vlans[0]),
             L2VPNTermination(l2vpn=l2vpns[1], assigned_object=vlans[1]),
@@ -897,6 +904,8 @@ class L2VPNTerminationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
             L2VPNTermination(l2vpn=l2vpns[0], assigned_object=vminterfaces[0]),
             L2VPNTermination(l2vpn=l2vpns[1], assigned_object=vminterfaces[1]),
             L2VPNTermination(l2vpn=l2vpns[2], assigned_object=vminterfaces[2]),
+            L2VPNTermination(l2vpn=l2vpns[2], assigned_object=ip_addresses[0]),
+            L2VPNTermination(l2vpn=l2vpns[2], assigned_object=ip_addresses[1]),
         )
         L2VPNTermination.objects.bulk_create(l2vpnterminations)
 
@@ -928,23 +937,30 @@ class L2VPNTerminationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'vlan': ['VLAN 1', 'VLAN 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_ipaddress(self):
+        ip_addresses = IPAddress.objects.all()[:2]
+        params = {'ipaddress_id': [ip_addresses[0].pk, ip_addresses[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'ipaddress': ['192.0.2.1/32', '192.0.2.2/32']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_site(self):
         site = Site.objects.all().first()
         params = {'site_id': [site.pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'site': ['site-1']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_device(self):
         device = Device.objects.all().first()
         params = {'device_id': [device.pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'device': ['Device 1']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_virtual_machine(self):
         virtual_machine = VirtualMachine.objects.all().first()
         params = {'virtual_machine_id': [virtual_machine.pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'virtual_machine': ['Virtual Machine 1']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)

@@ -5,6 +5,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
+from ipam.models import VLAN, IPAddress
 from netbox.models import NetBoxModel, PrimaryModel
 from netbox.models.features import ContactsMixin
 from vpn.choices import L2VPNStatusChoices, L2VPNTypeChoices
@@ -109,8 +110,8 @@ class L2VPNTermination(NetBoxModel):
         ordering = ('l2vpn',)
         constraints = (
             models.UniqueConstraint(
-                fields=('assigned_object_type', 'assigned_object_id'),
-                name='vpn_l2vpntermination_assigned_object'
+                fields=('l2vpn', 'assigned_object_type', 'assigned_object_id'),
+                name='vpn_l2vpntermination_l2vpn_assigned_object'
             ),
         )
         verbose_name = _('L2VPN termination')
@@ -126,8 +127,19 @@ class L2VPNTermination(NetBoxModel):
         if self.assigned_object:
             obj_id = self.assigned_object.pk
             obj_type = ObjectType.objects.get_for_model(self.assigned_object)
-            terminations = L2VPNTermination.objects.filter(assigned_object_id=obj_id, assigned_object_type=obj_type)
-            if terminations.exclude(pk=self.pk).exists():
+            terminations = L2VPNTermination.objects.filter(
+                assigned_object_id=obj_id, assigned_object_type=obj_type
+            ).exclude(pk=self.pk)
+            # An IP address (e.g. a pseudowire's far-end PE) may terminate many L2VPNs, but each only once. Other
+            # objects may terminate only one L2VPN.
+            if isinstance(self.assigned_object, IPAddress):
+                if terminations.filter(l2vpn_id=self.l2vpn_id).exists():
+                    raise ValidationError(
+                        _('{assigned_object} already terminates {l2vpn}').format(
+                            assigned_object=self.assigned_object, l2vpn=self.l2vpn
+                        )
+                    )
+            elif terminations.exists():
                 raise ValidationError(
                     _('L2VPN Termination already assigned ({assigned_object})').format(
                         assigned_object=self.assigned_object
@@ -148,14 +160,20 @@ class L2VPNTermination(NetBoxModel):
     @property
     def assigned_object_parent(self):
         obj_type = ObjectType.objects.get_for_model(self.assigned_object)
+        if obj_type.model == 'ipaddress':
+            # The device or virtual machine whose interface the IP address is assigned to, if any
+            interface = self.assigned_object.assigned_object
+            return getattr(interface, 'parent_object', None)
         if obj_type.model == 'vminterface':
             return self.assigned_object.virtual_machine
         if obj_type.model == 'interface':
             return self.assigned_object.device
-        if obj_type.model == 'vminterface':
-            return self.assigned_object.virtual_machine
         return None
 
     @property
     def assigned_object_site(self):
-        return self.assigned_object_parent.site
+        if isinstance(self.assigned_object, VLAN):
+            return self.assigned_object.site
+        if parent := self.assigned_object_parent:
+            return parent.site
+        return None
