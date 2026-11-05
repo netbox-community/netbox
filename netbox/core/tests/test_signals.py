@@ -78,6 +78,7 @@ class HandleChangedObjectSignalTestCase(TestCase):
         request = _build_request(self.user)
 
         with event_tracking(request):
+            site.snapshot()
             site.description = 'updated'
             site.save()
 
@@ -86,6 +87,14 @@ class HandleChangedObjectSignalTestCase(TestCase):
             changed_object_id=site.pk,
         ).order_by('-pk')
         self.assertEqual(ocs.first().action, ObjectChangeActionChoices.ACTION_UPDATE)
+
+    def test_update_without_snapshot_fails_under_test(self):
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        request = _build_request(self.user)
+
+        with event_tracking(request), self.assertRaisesMessage(AssertionError, 'without calling snapshot()'):
+            site.description = 'updated'
+            site.save()
 
     def test_no_request_skips_objectchange(self):
         # Saving outside a request context (no event_tracking) should not record any
@@ -600,6 +609,7 @@ class HandleChangedObjectDirectHandlerTestCase(SimpleTestCase):
         instance = SimpleNamespace(
             pk=123,
             _meta=SimpleNamespace(model_name='device'),
+            _prechange_snapshot={'name': 'Device 1'},
             refresh_from_db=MagicMock(),
         )
         instance.to_objectchange = MagicMock(return_value=objectchange)
