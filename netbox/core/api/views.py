@@ -39,6 +39,8 @@ class DataSourceViewSet(NetBoxModelViewSet):
     queryset = DataSource.objects.all()
     serializer_class = serializers.DataSourceSerializer
     filterset_class = filtersets.DataSourceFilterSet
+    # A data source's parameters and source URL may hold credentials, which must not be retained in a job record.
+    background_enabled = False
 
     def get_permissions(self):
         if self.action == 'sync':

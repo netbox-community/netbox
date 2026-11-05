@@ -60,6 +60,8 @@ class WebhookViewSet(NetBoxModelViewSet):
     queryset = Webhook.objects.all()
     serializer_class = serializers.WebhookSerializer
     filterset_class = filtersets.WebhookFilterSet
+    # A webhook's secret, headers, and URLs may hold credentials, which must not be retained in a job record.
+    background_enabled = False
 
 
 #

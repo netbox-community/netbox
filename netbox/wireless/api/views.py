@@ -31,9 +31,13 @@ class WirelessLANViewSet(NetBoxModelViewSet):
     queryset = WirelessLAN.objects.all()
     serializer_class = serializers.WirelessLANSerializer
     filterset_class = filtersets.WirelessLANFilterSet
+    # A wireless LAN's pre-shared key must not be retained in a job record.
+    background_enabled = False
 
 
 class WirelessLinkViewSet(NetBoxModelViewSet):
     queryset = WirelessLink.objects.all()
     serializer_class = serializers.WirelessLinkSerializer
     filterset_class = filtersets.WirelessLinkFilterSet
+    # A wireless link's pre-shared key must not be retained in a job record.
+    background_enabled = False

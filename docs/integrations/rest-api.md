@@ -801,10 +801,28 @@ Background processing applies only to bulk operations (a JSON list) on a model's
 
 Some endpoints do not support background processing at all, because their response carries a value that exists only once and cannot be delivered by an `HTTP 202` response. The API tokens endpoint (`/api/users/tokens/`) is one such endpoint: a created token's plaintext is returned only by the request that creates it. A bulk write to such an endpoint with `background=true` is rejected with an `HTTP 400` response and no job is enqueued.
 
+The following endpoints do not support background processing either, because their response includes a secret stored on each object, which would otherwise be retained in the job's result:
+
+| Endpoint                        | Secret                                                                                                            |
+|---------------------------------|-------------------------------------------------------------------------------------------------------------------|
+| `/api/core/data-sources/`       | `parameters` (backend credentials, such as a password or access key), and any credential embedded in `source_url` |
+| `/api/extras/webhooks/`         | `secret`, `additional_headers`, and any credential embedded in `payload_url` or `body_template`                   |
+| `/api/ipam/fhrp-groups/`        | `auth_key`                                                                                                        |
+| `/api/vpn/ike-policies/`        | `preshared_key`                                                                                                   |
+| `/api/wireless/wireless-lans/`  | `auth_psk`                                                                                                        |
+| `/api/wireless/wireless-links/` | `auth_psk`                                                                                                        |
+
+Clients writing many objects to these endpoints should split them into smaller requests to stay within proxy and application server timeouts.
+
 !!! warning "API Tokens Created by Background Bulk Requests"
     NetBox v4.7.0 and v4.7.1 accepted `background=true` on a bulk write to the tokens endpoint, and recorded each created token's plaintext in the job's result. Any user permitted to view those jobs could read it.
 
     Restricting the endpoint prevents further exposure. It does not remove the plaintexts already recorded, and it does not revoke the affected tokens. Treat a token created that way as potentially exposed: after upgrading and restarting the workers, revoke and replace it, then delete the job records which captured it. Deleting those records does not invalidate the tokens.
+
+!!! warning "Secrets Written by Background Bulk Requests"
+    NetBox v4.7.0 through v4.7.4 accepted `background=true` on a bulk write to the data source, webhook, FHRP group, IKE policy, wireless LAN, and wireless link endpoints listed above, and recorded the secrets of each object it created or updated in the job's result, including values the request did not change. Any user permitted to view those jobs could read them.
+
+    Restricting these endpoints prevents further exposure. It does not remove the values already recorded. Treat the secrets of an object created or updated that way, including any credential embedded in a data source's URL or a webhook's URL or body template, as potentially exposed: after upgrading and restarting the workers, replace them both in NetBox and wherever else they are used (the Git host or cloud account, the webhook's receiving service, or the devices sharing the key), then delete the job records which captured them.
 
 Two behaviors differ from a synchronous request and may change in a future release: field selection via [`fields`/`omit`](#specifying-fields) (and brief mode) is not applied to the stored result, and the authorization captured when the request is accepted is not re-checked if the token is later disabled or expires before the job runs.
 
