@@ -21,6 +21,7 @@ from strawberry_django.optimizer import DjangoOptimizerExtension
 from core.models import DataFile, DataSource, ObjectType
 from dcim.choices import LocationStatusChoices
 from dcim.models import (
+    Cable,
     Device,
     DeviceRole,
     DeviceType,
@@ -1039,6 +1040,71 @@ class GraphQLAPITestCase(APITestCase):
             msg=f'Expected batched MAC address lookup, got {mac_queries} MAC address queries for 5 devices',
         )
 
+    def test_graphql_deferred_fields_are_batched(self):
+        """
+        Deferred columns and relations read by a resolver the optimizer can't analyze (`link_peers` reads `cable`
+        and `wireless_link`) must load with one query for all objects returned, not one query per object.
+        """
+        self.add_permissions('dcim.view_interface')
+
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        devices = Device.objects.bulk_create([
+            Device(name=f'Device {index}', device_type=device_type, role=device_role, site=Site.objects.first())
+            for index in range(1, 4)
+        ])
+        interfaces = {
+            device.name: Interface.objects.bulk_create([
+                Interface(device=device, name=f'eth{index}', type='1000baset') for index in range(5)
+            ])
+            for device in devices
+        }
+        # Device 1's interfaces have no cable; device 2's are each cabled to the interface of the same name on device 3
+        for a_interface, b_interface in zip(interfaces['Device 2'], interfaces['Device 3']):
+            Cable(a_terminations=[a_interface], b_terminations=[b_interface]).save()
+
+        query = """
+        {
+            interface_list(filters: {device: {name: {exact: "%s"}}}, pagination: {limit: %d}) {
+                name
+                link_peers { ... on InterfaceType { name } }
+            }
+        }
+        """
+        url = reverse('graphql')
+
+        def get_link_peers(device_name, limit):
+            with CaptureQueriesContext(connection) as context:
+                response = self.client.post(
+                    url, data={'query': query % (device_name, limit)}, format='json', **self.header
+                )
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            data = json.loads(response.content)
+            self.assertNotIn('errors', data)
+            link_peers = {
+                interface['name']: [peer['name'] for peer in interface['link_peers']]
+                for interface in data['data']['interface_list']
+            }
+            self.assertEqual(len(link_peers), limit)
+            return link_peers, context.captured_queries
+
+        # Deferred columns (cable, wireless_link) are loaded once, however many interfaces are returned
+        interface_queries = {}
+        for limit in (1, 5):
+            link_peers, queries = get_link_peers('Device 1', limit)
+            self.assertEqual(link_peers, {f'eth{index}': [] for index in range(limit)})
+            interface_queries[limit] = count_primary_table_queries(queries, 'dcim_interface')
+        self.assertEqual(interface_queries[5], interface_queries[1])
+
+        # Cables are loaded once, however many interfaces are returned
+        cable_queries = {}
+        for limit in (1, 5):
+            link_peers, queries = get_link_peers('Device 2', limit)
+            self.assertEqual(link_peers, {f'eth{index}': [f'eth{index}'] for index in range(limit)})
+            cable_queries[limit] = count_primary_table_queries(queries, 'dcim_cable')
+        self.assertEqual(cable_queries[5], cable_queries[1])
+
     def test_offset_pagination(self):
         self.add_permissions('dcim.view_site')
         url = reverse('graphql')
@@ -1451,7 +1517,7 @@ class GraphQLDeferredColumnTestCase(APITestCase):
     A GraphQL field backed by a custom resolver is opaque to the query optimizer, which narrows column
     selection with .only() based on the fields named in the GraphQL document. Any column such a resolver
     reads must therefore be declared via an `only` hint; otherwise the column is deferred and reading it
-    reloads the row from the database once per object returned (see #22813).
+    costs an extra query (see #22813).
 
     Each test below asserts both that no single-row reload occurs and that the model's table is read
     exactly once per request, regardless of the number of objects returned.
