@@ -290,10 +290,28 @@ class AsyncAPIJob(JobRunner):
     The viewset's action method is re-invoked inside the worker against a reconstructed
     request, so the synchronous and background code paths are identical (validation,
     transaction semantics, object permissions, and change logging all behave the same).
-    The action's serialized Response is captured into the job's data.
+    The action's Response is captured into the job's data: the brief representation of each
+    object written on success, or the complete error response on failure.
     """
+    # Recorded for each object written when the serializer does not declare brief_fields
+    DEFAULT_BRIEF_FIELDS = ('id', 'url', 'display')
+
     class Meta:
         name = 'Async API Request'
+
+    @classmethod
+    def _get_brief_result(cls, serializer_class, data):
+        """
+        Reduce the serialized objects returned by a successful bulk write to their brief representation.
+        """
+        if not isinstance(data, list):
+            # e.g. a bulk delete, which returns no content
+            return None
+        brief_fields = getattr(serializer_class.Meta, 'brief_fields', None) or cls.DEFAULT_BRIEF_FIELDS
+        return [
+            {name: value for name, value in obj.items() if name in brief_fields}
+            for obj in data
+        ]
 
     @staticmethod
     def _build_request(request_copy, payload, scheme):
@@ -413,10 +431,17 @@ class AsyncAPIJob(JobRunner):
                     raise
 
         # Capture the action's result for the polling client, in the same shape for both
-        # success and failure.
+        # success and failure. On success, only the brief representation of each object is
+        # recorded: the job is readable by any user permitted to view it, who may not be permitted
+        # to view the objects written, and their full representation can include secrets (e.g. a
+        # webhook's secret). The client can retrieve each object in full from its URL. On failure,
+        # the complete error response is kept, as it reports which objects were rejected and why.
+        data = response.data
+        if response.status_code < 400:
+            data = self._get_brief_result(viewset.get_serializer_class(), data)
         self.job.data = {
             'status_code': response.status_code,
-            'data': response.data,
+            'data': data,
         }
 
         if response.status_code >= 400:

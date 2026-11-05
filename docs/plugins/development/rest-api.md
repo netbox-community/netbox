@@ -79,9 +79,9 @@ class MyModelViewSet(NetBoxModelViewSet):
 
 ### Background Processing
 
-Viewsets derived from `NetBoxModelViewSet` accept `?background=true` on bulk write requests, which defers the write to a background job and returns `HTTP 202 Accepted`. The job's result, including the serialized response body, is stored on the job record and is readable by any user permitted to view jobs.
+Viewsets derived from `NetBoxModelViewSet` accept `?background=true` on bulk write requests, which defers the write to a background job and returns `HTTP 202 Accepted`. The job's result is stored on the job record and is readable by any user permitted to view jobs: the brief representation of each object written on success, or the complete error response on failure. A serializer which does not declare `brief_fields` is recorded as its `id`, `url`, and `display` fields, so keep secrets out of `brief_fields` and `display`.
 
-If a viewset's response can contain a value that must not be retained, such as a secret returned only at creation time, disable background processing for that endpoint:
+If a viewset's response carries a value which a background job cannot deliver, such as a secret returned only at creation time, disable background processing for that endpoint:
 
 ```python
 class MyModelViewSet(NetBoxModelViewSet):
