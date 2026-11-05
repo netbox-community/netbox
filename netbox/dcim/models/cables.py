@@ -1108,19 +1108,17 @@ class CablePath(models.Model):
                         # channelized parent is never itself a path endpoint, so an unoccupied position yields no peer.
                         if new_pos is not None and getattr(peer, 'channels', None):
                             peer = peer.child_interfaces.filter(channel_id=new_pos).first()
+                        # Skip positions with no far-end termination (e.g. an unpopulated breakout leg) so that
+                        # a partially terminated cable still traces through to its connected peers. If no peers
+                        # remain, the path is recorded as incomplete.
+                        if peer is None:
+                            continue
                         # Deduplicate peer terminations by model type & PK.
-                        key = None if peer is None else (peer._meta.concrete_model, peer.pk)
+                        key = (peer._meta.concrete_model, peer.pk)
                         if key not in seen:
                             seen.add(key)
                             remote_terminations.append(peer)
                         new_positions.append(new_pos)
-
-                    # If all peers resolved to None (no far-end terminations exist),
-                    # treat as an empty result so the path is recorded as incomplete
-                    # rather than falling through to the endpoint check with a stale
-                    # None entry.
-                    if remote_terminations and all(peer is None for peer in remote_terminations):
-                        remote_terminations = []
 
                     position_stack.append(new_positions)
 
