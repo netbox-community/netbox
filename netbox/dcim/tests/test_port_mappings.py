@@ -15,6 +15,9 @@ from dcim.models import (
     FrontPort,
     FrontPortTemplate,
     Manufacturer,
+    Module,
+    ModuleBayTemplate,
+    ModuleType,
     PortMapping,
     PortTemplateMapping,
     RearPort,
@@ -256,6 +259,76 @@ class ReconcilePortTemplateMappingsTestCase(TestCase):
 
         self.assertEqual(self._mapping_changes().count(), 0)
         self.assertEqual(PortTemplateMapping.objects.get(front_port=self.front_port).pk, original_pk)
+
+
+class InstantiatedPortMappingChangeLoggingTestCase(TestCase):
+    """
+    Port mappings replicated from device/module type templates must be change-logged.
+    """
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user(username='testuser', password='pw')
+
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        cls.role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1', color='ff0000')
+        cls.site = Site.objects.create(name='Site 1', slug='site-1')
+
+        cls.device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
+        )
+        ModuleBayTemplate.objects.create(device_type=cls.device_type, name='Slot 1', position='1')
+        cls.module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
+        for type_kwargs in ({'device_type': cls.device_type}, {'module_type': cls.module_type}):
+            front_port = FrontPortTemplate.objects.create(
+                name='Front {module}' if 'module_type' in type_kwargs else 'Front',
+                type=PortTypeChoices.TYPE_8P8C, positions=2, **type_kwargs
+            )
+            rear_port = RearPortTemplate.objects.create(
+                name='Rear {module}' if 'module_type' in type_kwargs else 'Rear',
+                type=PortTypeChoices.TYPE_8P8C, positions=2, **type_kwargs
+            )
+            for position in (1, 2):
+                PortTemplateMapping.objects.create(
+                    front_port=front_port, front_port_position=position,
+                    rear_port=rear_port, rear_port_position=position,
+                    **type_kwargs
+                )
+
+    def _mapping_changes(self, request):
+        return ObjectChange.objects.filter(
+            request_id=request.id,
+            changed_object_type=ContentType.objects.get_for_model(PortMapping),
+            action=ObjectChangeActionChoices.ACTION_CREATE,
+        )
+
+    @tag('regression')  # Ref: #23597
+    def test_device_creation_records_mappings(self):
+        request = _build_request(self.user)
+        with event_tracking(request):
+            device = Device.objects.create(
+                device_type=self.device_type, role=self.role, name='Device 1', site=self.site
+            )
+
+        mapping_pks = set(device.port_mappings.values_list('pk', flat=True))
+        self.assertEqual(len(mapping_pks), 2)
+        self.assertEqual(
+            set(self._mapping_changes(request).values_list('changed_object_id', flat=True)), mapping_pks
+        )
+
+    @tag('regression')  # Ref: #23597
+    def test_module_installation_records_mappings(self):
+        device = Device.objects.create(device_type=self.device_type, role=self.role, name='Device 1', site=self.site)
+        request = _build_request(self.user)
+        with event_tracking(request):
+            module = Module.objects.create(
+                device=device, module_bay=device.modulebays.get(name='Slot 1'), module_type=self.module_type
+            )
+
+        mapping_pks = set(PortMapping.objects.filter(front_port__module=module).values_list('pk', flat=True))
+        self.assertEqual(len(mapping_pks), 2)
+        self.assertEqual(
+            set(self._mapping_changes(request).values_list('changed_object_id', flat=True)), mapping_pks
+        )
 
 
 class PortMappingAPITestCase(APITestCase):
