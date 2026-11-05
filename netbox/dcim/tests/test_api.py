@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.prefetch import GenericPrefetch
 from django.db import connection
+from django.db.models import FETCH_PEERS, prefetch_related_objects
 from django.test import override_settings, tag
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
@@ -22,7 +23,7 @@ from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
 from dcim.api.serializers import InterfaceSerializer
 from dcim.api.serializers_.nested import NestedDeviceBaySerializer, NestedDeviceSerializer
-from dcim.api.views import DeviceViewSet, InterfaceViewSet
+from dcim.api.views import CableTerminationsPrefetch, DeviceViewSet, InterfaceViewSet
 from dcim.choices import *
 from dcim.constants import *
 from dcim.graphql.types import _CABLE_TERMINATION_MODELS
@@ -63,6 +64,24 @@ class AppTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
+def assert_list_query_count_is_constant(test, url, get_params, objects, check_results):
+    """
+    Assert that listing the first of the given objects runs as many queries as listing all of them. `get_params`
+    returns the query parameters selecting the given objects, and `check_results` validates the results listed.
+    """
+    def get_query_count(objs):
+        with CaptureQueriesContext(connection) as queries:
+            response = test.client.get(url, get_params(objs), **test.header)
+        test.assertHttpStatus(response, status.HTTP_200_OK)
+        check_results(objs, response.data['results'])
+        # Token authentication refreshes last_used once a minute
+        return sum('"users_token"' not in query['sql'] for query in queries.captured_queries)
+
+    # Warm per-process caches (e.g. ContentType)
+    get_query_count(objects)
+    test.assertEqual(get_query_count(objects[:1]), get_query_count(objects))
+
+
 class Mixins:
 
     class ComponentTraceMixin(APITestCase):
@@ -98,6 +117,37 @@ class Mixins:
             self.assertEqual(segment1[0][0]['name'], obj.name)
             self.assertEqual(segment1[1]['label'], cable.label)
             self.assertEqual(segment1[2][0]['name'], peer_obj.name)
+
+    class LinkPeersMixin(APITestCase):
+        peer_termination_type = None
+
+        def test_list_objects_link_peers_query_count(self):
+            """
+            Listing cabled components loads their link peers, and the peers' devices and cables, with the same
+            number of queries however many components are listed.
+            """
+            if self.peer_termination_type is None:
+                raise NotImplementedError(_("Test case must set peer_termination_type"))
+            self.add_permissions(f'dcim.view_{self.model._meta.model_name}')
+            objects = list(self.model.objects.order_by('pk')[:3])
+            peer_device = create_test_device('Peer Device', site=Site.objects.first())
+            peer_names = {}
+            for index, obj in enumerate(objects):
+                peer = self.peer_termination_type.objects.create(device=peer_device, name=f'Peer {index}')
+                Cable(a_terminations=[obj], b_terminations=[peer]).save()
+                peer_names[obj.pk] = peer.name
+
+            def check_results(objs, results):
+                link_peers = {result['id']: [peer['name'] for peer in result['link_peers']] for result in results}
+                self.assertEqual(link_peers, {obj.pk: [peer_names[obj.pk]] for obj in objs})
+
+            assert_list_query_count_is_constant(
+                self,
+                self._get_list_url(),
+                lambda objs: {'id': [obj.pk for obj in objs], 'fields': 'id,link_peers'},
+                objects,
+                check_results,
+            )
 
     class FieldPrefetchMixin(APITestCase):
         viewset = None
@@ -4036,7 +4086,7 @@ class ModuleTestCase(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
 
-class ConsolePortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class ConsolePortTestCase(Mixins.ComponentTraceMixin, Mixins.LinkPeersMixin, APIViewTestCases.APIViewTestCase):
     model = ConsolePort
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -4082,7 +4132,7 @@ class ConsolePortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTe
         ]
 
 
-class ConsoleServerPortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class ConsoleServerPortTestCase(Mixins.ComponentTraceMixin, Mixins.LinkPeersMixin, APIViewTestCases.APIViewTestCase):
     model = ConsoleServerPort
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -4128,7 +4178,7 @@ class ConsoleServerPortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.API
         ]
 
 
-class PowerPortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class PowerPortTestCase(Mixins.ComponentTraceMixin, Mixins.LinkPeersMixin, APIViewTestCases.APIViewTestCase):
     model = PowerPort
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -4171,7 +4221,7 @@ class PowerPortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTest
         ]
 
 
-class PowerOutletTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class PowerOutletTestCase(Mixins.ComponentTraceMixin, Mixins.LinkPeersMixin, APIViewTestCases.APIViewTestCase):
     model = PowerOutlet
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -5180,7 +5230,7 @@ class InterfaceTestCase(Mixins.FieldPrefetchMixin, Mixins.ComponentTraceMixin, A
         self.assertNotIn('"ipam_fhrpgroupassignment"', count_sql)
 
 
-class FrontPortTestCase(APIViewTestCases.APIViewTestCase):
+class FrontPortTestCase(Mixins.LinkPeersMixin, APIViewTestCases.APIViewTestCase):
     model = FrontPort
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -5302,7 +5352,7 @@ class FrontPortTestCase(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
 
-class RearPortTestCase(APIViewTestCases.APIViewTestCase):
+class RearPortTestCase(Mixins.LinkPeersMixin, APIViewTestCases.APIViewTestCase):
     model = RearPort
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -5950,6 +6000,46 @@ class CableTestCase(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+    def test_list_objects_terminations_query_count(self):
+        """
+        Listing cables loads their terminating objects, and those objects' devices and cables, with the same number
+        of queries however many cables are listed.
+        """
+        self.add_permissions('dcim.view_cable')
+
+        def check_results(cables, results):
+            self.assertEqual(len(results), len(cables))
+            for result in results:
+                for termination in (*result['a_terminations'], *result['b_terminations']):
+                    self.assertEqual(termination['object']['cable']['id'], result['id'])
+                    self.assertIn(termination['object']['device']['name'], ('Device 1', 'Device 2'))
+
+        assert_list_query_count_is_constant(
+            self,
+            self._get_list_url(),
+            lambda cables: {'id': [cable.pk for cable in cables]},
+            list(Cable.objects.order_by('pk')[:3]),
+            check_results,
+        )
+
+    def test_terminations_prefetch_leaves_shared_queryset_unchanged(self):
+        """
+        CableTerminationsPrefetch, which is shared across requests, gives Django a new queryset to add routing hints
+        to, and the prefetched terminations use the FETCH_PEERS fetch mode.
+        """
+        cable_prefetch = CableTerminationsPrefetch('terminations')
+        cables = list(Cable.objects.all())
+        prefetch_related_objects(cables, cable_prefetch)
+        self.assertEqual(cable_prefetch.queryset._hints, {})
+        self.assertIs(cables[0].terminations.all()[0]._state.fetch_mode, FETCH_PEERS)
+
+        # The two-level lookup used by the port viewsets
+        port_prefetch = CableTerminationsPrefetch()
+        interfaces = list(Interface.objects.filter(cable__isnull=False))
+        prefetch_related_objects(interfaces, port_prefetch)
+        self.assertEqual(port_prefetch.queryset._hints, {})
+        self.assertIs(interfaces[0].cable.terminations.all()[0]._state.fetch_mode, FETCH_PEERS)
+
     def test_repeated_put_does_not_accumulate_paths(self):
         """
         Repeating an identical PUT must leave the cable with the two paths its terminations trace.
@@ -6324,6 +6414,27 @@ class CableTerminationTestCase(
         for cable in cables:
             cable.save()
 
+    def test_list_objects_query_count(self):
+        """
+        Listing cable terminations loads their terminating objects, and those objects' devices and cables, with the
+        same number of queries however many terminations are listed.
+        """
+        self.add_permissions('dcim.view_cabletermination')
+
+        def check_results(cables, results):
+            self.assertEqual(len(results), 2 * len(cables))
+            for result in results:
+                self.assertEqual(result['termination']['cable']['id'], result['cable'])
+                self.assertIn(result['termination']['device']['name'], ('Device 1', 'Device 2'))
+
+        assert_list_query_count_is_constant(
+            self,
+            self._get_list_url(),
+            lambda cables: {'cable_id': [cable.pk for cable in cables]},
+            list(Cable.objects.order_by('pk')[:3]),
+            check_results,
+        )
+
 
 class ConnectedDeviceTestCase(APITestCase):
 
@@ -6540,7 +6651,7 @@ class PowerPanelTestCase(APIViewTestCases.APIViewTestCase):
         }
 
 
-class PowerFeedTestCase(APIViewTestCases.APIViewTestCase):
+class PowerFeedTestCase(Mixins.LinkPeersMixin, APIViewTestCases.APIViewTestCase):
     model = PowerFeed
     brief_fields = ['_occupied', 'cable', 'description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -6549,6 +6660,7 @@ class PowerFeedTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_invalid_data = {
         'status': 'not-a-valid-status',
     }
+    peer_termination_type = PowerPort
     user_permissions = ('dcim.view_powerpanel', )
 
     @classmethod
