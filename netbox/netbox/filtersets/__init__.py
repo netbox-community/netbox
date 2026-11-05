@@ -218,7 +218,10 @@ class BaseFilterSet(django_filters.FilterSet):
     def form(self):
         form = super().form
         if self._lazy and self.is_bound:
-            # Evaluation no longer validates the form, so validate it here for code which reads its cleaned_data
+            # Evaluation no longer validates the form, so validate it here for code which reads its cleaned_data. Reuse
+            # the initial values of disabled filters, since a callable may return a different value on each call.
+            self._clean()
+            form.initial.update(self._initial)
             form.is_valid()
         return form
 
@@ -266,6 +269,7 @@ class BaseFilterSet(django_filters.FilterSet):
             return
         self._cleaned_data = {}
         self._errors = ErrorDict()
+        self._initial = {}
         if not self.is_bound:
             return
         names = self.filters.get_evaluated(self.data.keys())
@@ -273,7 +277,7 @@ class BaseFilterSet(django_filters.FilterSet):
         for name in sorted(names, key=self.filters.position):
             field = self.filters[name].field
             if field.disabled:
-                value = forms.Form().get_initial_for_field(field, name)
+                value = self._initial[name] = forms.Form().get_initial_for_field(field, name)
             else:
                 value = field.widget.value_from_datadict(self.data, files, name)
             try:

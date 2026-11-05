@@ -94,7 +94,7 @@ The `search` method is also used by the `q` filter in `NetBoxModelFilterSet` whi
 
 !!! info "This feature was introduced in NetBox v4.8."
 
-NetBox evaluates only the filters whose parameters are present in a request. A parameter supplied with an empty value (e.g. `?status=`) is still validated and passed to its filter. Required and disabled filters are always evaluated, as are filters with a custom widget which overrides `value_from_datadict()`. A filter set which depends on every filter being evaluated for each request, as in earlier releases, can set `legacy_evaluation` to restore that behavior. This is intended as a temporary measure, and will be revisited in NetBox v5.0.
+NetBox evaluates only the filters whose parameters are present in a request. A parameter supplied with an empty value (e.g. `?status=`) is still validated and passed to its filter. Required and disabled filters are always evaluated, as are filters with a custom widget (or subwidget) which overrides `value_from_datadict()`. A filter set which depends on every filter being evaluated for each request, as in earlier releases, can set `legacy_evaluation` to restore that behavior. This is intended as a temporary measure, and will be revisited in NetBox v5.0.
 
 ```python
 class MyFilterSet(NetBoxModelFilterSet):

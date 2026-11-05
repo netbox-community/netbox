@@ -42,18 +42,35 @@ def get_data_keys(name, filter_):
     Return the keys of request data from which the given filter reads its value, or None if they can't be determined.
     """
     widget = get_field_attr(filter_, 'widget') or getattr(filter_.field_class, 'widget', None)
+    if isinstance(widget, type) and issubclass(widget, forms.MultiWidget):
+        # Only an instance holds its subwidgets
+        widget = deepcopy(filter_).field.widget
+    return get_widget_keys(name, widget)
+
+
+def get_widget_keys(name, widget):
+    """
+    Return the keys of request data from which the given widget reads its value, or None if they can't be determined.
+    """
     widget_class = widget if isinstance(widget, type) else type(widget)
     # The keys read depend on which class implements value_from_datadict()
     reader = next((klass for klass in widget_class.__mro__ if 'value_from_datadict' in vars(klass)), None)
     if reader is QueryArrayWidget:
         return [name, f'{name}[]']
     if reader is SuffixedMultiWidget:
-        return [f'{name}_{suffix}' if suffix else name for suffix in widget.suffixes]
-    if reader is forms.MultiWidget:
-        return [f'{name}{suffix}' for suffix in deepcopy(filter_).field.widget.widgets_names]
-    if reader in SINGLE_KEY_WIDGETS:
+        subnames = [widget.suffixed(name, suffix) for suffix in widget.suffixes]
+    elif reader is forms.MultiWidget:
+        subnames = [f'{name}{suffix}' for suffix in widget.widgets_names]
+    elif reader in SINGLE_KEY_WIDGETS:
         return [name]
-    return None
+    else:
+        return None
+    keys = []
+    for subname, subwidget in zip(subnames, widget.widgets):
+        if (subkeys := get_widget_keys(subname, subwidget)) is None:
+            return None
+        keys.extend(subkeys)
+    return keys
 
 
 def is_unconditional(filter_, data_keys):

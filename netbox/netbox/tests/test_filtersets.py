@@ -7,8 +7,8 @@ from django.core.exceptions import EmptyResultSet
 from django.http import QueryDict
 from django.test import TestCase
 from django.utils.datastructures import MultiValueDict
-from django_filters import CharFilter, DateTimeFromToRangeFilter, FilterSet, MultipleChoiceFilter
-from django_filters.widgets import QueryArrayWidget
+from django_filters import CharFilter, DateTimeFromToRangeFilter, FilterSet, MultipleChoiceFilter, RangeFilter
+from django_filters.widgets import QueryArrayWidget, RangeWidget
 
 from core.filtersets import ObjectChangeFilterSet
 from core.models import ObjectChange, ObjectType
@@ -340,18 +340,39 @@ class FilterSetEvaluationTestCase(TestCase):
                     filterset = filterset_class(data, Site.objects.all())
                     self.assertEqual(list(filterset.qs.values_list('name', flat=True)), ['Site 2'])
 
+    def test_disabled_filter_callable_initial(self):
+        names = iter(['Site 2', 'Site 3'])
+
+        class DisabledSiteFilterSet(SiteFilterSet):
+            label = CharFilter(field_name='name', lookup_expr='istartswith', disabled=True, initial=lambda: next(names))
+
+        # The form reuses the value with which the filter was evaluated
+        filterset = DisabledSiteFilterSet({}, Site.objects.all())
+        self.assertEqual(list(filterset.qs.values_list('name', flat=True)), ['Site 2'])
+        self.assertEqual(filterset.form.cleaned_data['label'], 'Site 2')
+        self.assertEqual(filterset.form['label'].value(), 'Site 2')
+
     def test_custom_widget(self):
         class AliasWidget(forms.TextInput):
             def value_from_datadict(self, data, files, name):
                 return data.get(f'{name}_alias')
 
+        class AliasRangeWidget(RangeWidget):
+            def __init__(self, attrs=None):
+                super().__init__(attrs)
+                self.widgets[0] = AliasWidget()
+
         class ExtendedSiteFilterSet(SiteFilterSet):
             label = CharFilter(field_name='name', widget=AliasWidget)
+            span = RangeFilter(field_name='pk', widget=AliasRangeWidget)
 
-        # A filter whose widget reads unknown keys is cleaned on every request
-        filterset = ExtendedSiteFilterSet({'label_alias': 'Site 1'}, Site.objects.all())
-        self.assertIn('label', filterset.cleaned_data)
-        self.assertEqual(filterset.qs.count(), 1)
+        # A filter whose widget, or any of its subwidgets, reads unknown keys is cleaned on every request
+        last_pk = Site.objects.order_by('pk').last().pk
+        for name, data in (('label', {'label_alias': 'Site 1'}), ('span', {'span_min_alias': last_pk})):
+            with self.subTest(filter=name):
+                filterset = ExtendedSiteFilterSet(data, Site.objects.all())
+                self.assertIn(name, filterset.cleaned_data)
+                self.assertEqual(filterset.qs.count(), 1)
 
     def test_get_filters_override(self):
         calls = []
