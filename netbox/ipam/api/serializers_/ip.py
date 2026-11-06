@@ -49,6 +49,7 @@ class AggregateSerializer(PrimaryModelSerializer):
 
 class PrefixSerializer(PrimaryModelSerializer):
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
+    classification = ChoiceField(choices=PrefixClassificationChoices, read_only=True)
     vrf = VRFSerializer(nested=True, required=False, allow_null=True)
     scope_type = ContentTypeField(
         queryset=ContentType.objects.filter(
@@ -71,9 +72,9 @@ class PrefixSerializer(PrimaryModelSerializer):
     class Meta:
         model = Prefix
         fields = [
-            'id', 'url', 'display_url', 'display', 'family', 'prefix', 'vrf', 'scope_type', 'scope_id', 'scope',
-            'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description', 'owner', 'comments', 'tags',
-            'custom_fields', 'created', 'last_updated', 'children', '_depth',
+            'id', 'url', 'display_url', 'display', 'family', 'prefix', 'classification', 'vrf', 'scope_type',
+            'scope_id', 'scope', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description', 'owner',
+            'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'children', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'family', 'prefix', 'description', '_depth')
 

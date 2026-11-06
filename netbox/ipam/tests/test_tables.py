@@ -4,7 +4,7 @@ from netaddr import IPNetwork
 from dcim.models import Site
 from ipam.models import ASN, RIR, FHRPGroupAssignment, IPAddress, IPRange, Prefix
 from ipam.tables import *
-from ipam.utils import annotate_ip_space
+from ipam.utils import add_requested_prefixes, annotate_ip_space
 from utilities.testing import TableTestCases
 
 
@@ -203,6 +203,27 @@ class RoleTableTestCase(TableTestCases.StandardTableTestCase):
 
 class PrefixTableTestCase(TableTestCases.StandardTableTestCase):
     table = PrefixTable
+
+    def test_classification_column(self):
+        """Saved and available-space rows show the classification of their own prefix."""
+        saved = Prefix.objects.create(prefix=IPNetwork('8.8.8.0/24'))
+        available = Prefix(prefix=IPNetwork('10.0.1.0/24'), status=None)
+        table = PrefixTable([saved, available])
+        table.configure(self.get_request())
+        rows = list(table.rows)
+
+        self.assertHTMLEqual(rows[0].get_cell('classification'), '<span class="badge text-bg-blue">Public</span>')
+        self.assertHTMLEqual(rows[1].get_cell('classification'), '<span class="badge text-bg-green">Private</span>')
+        self.assertEqual(rows[0].get_cell_value('classification'), 'Public')
+        self.assertEqual(rows[1].get_cell_value('classification'), 'Private')
+
+    def test_classification_ordering(self):
+        """Available-space rows sort by the classification of their own prefix."""
+        parent = Prefix.objects.create(prefix=IPNetwork('10.0.0.0/7'))
+        Prefix.objects.create(prefix=IPNetwork('11.0.0.0/8'))
+        data = add_requested_prefixes(parent.prefix, parent.get_child_prefixes())
+        table = PrefixTable(data, order_by='-classification')
+        self.assertEqual([prefix.prefix for prefix in table.data], [IPNetwork('11.0.0.0/8'), IPNetwork('10.0.0.0/8')])
 
 
 class IPRangeTableTestCase(TableTestCases.StandardTableTestCase):
