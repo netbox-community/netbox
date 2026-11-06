@@ -97,7 +97,7 @@ class ObjectImageAttachmentsView(ConditionalLoginRequiredMixin, View):
 
     def get(self, request, model, **kwargs):
         obj = get_object_or_404(model.objects.restrict(request.user, 'view'), **kwargs)
-        image_attachments = ImageAttachment.objects.filter(
+        image_attachments = ImageAttachment.objects.restrict(request.user, 'view').filter(
             object_type=ContentType.objects.get_for_model(obj),
             object_id=obj.pk,
         )
