@@ -8,20 +8,25 @@ To run without a live RQ worker, setUp() (a) patches AsyncAPIJob.enqueue to run 
 inline (immediate=True) and (b) reports a worker as available for the worker-liveness guard.
 Individual tests that exercise those guards override this locally.
 """
+import json
 import uuid
 from contextlib import contextmanager
 from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
-from django.test import RequestFactory
+from django.test import RequestFactory, tag
 from rest_framework import status
 from rest_framework.test import APIRequestFactory
 
 from core.choices import JobStatusChoices
 from core.exceptions import JobFailed
 from core.models import Job, ObjectChange
+from dcim.api.serializers import RegionSerializer
 from dcim.api.views import RegionViewSet
 from dcim.models import DeviceType, Manufacturer, Region
+from ipam.api.views import FHRPGroupViewSet
+from ipam.choices import FHRPGroupAuthTypeChoices, FHRPGroupProtocolChoices
+from ipam.models import FHRPGroup
 from netbox.jobs import AsyncAPIJob
 from netbox.registry import registry
 from users.models import ObjectPermission
@@ -531,7 +536,7 @@ class BackgroundBulkWriteTests(RQQueueTestMixin, APITestCase):
     def test_background_result_honors_query_parameters(self):
         self.grant('change', 'view')
         response = self.client.patch(
-            '/api/dcim/regions/?background=true&omit=created',
+            '/api/dcim/regions/?background=true&omit=description',
             [{'id': self.regions[0].pk, 'description': 'omit'}],
             format='json', **self.header,
         )
@@ -539,8 +544,80 @@ class BackgroundBulkWriteTests(RQQueueTestMixin, APITestCase):
 
         job = Job.objects.get(pk=response.data['job']['id'])
         self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
-        self.assertIn('description', job.data['data'][0])
-        self.assertNotIn('created', job.data['data'][0])
+        self.assertIn('name', job.data['data'][0])
+        self.assertNotIn('description', job.data['data'][0])
+
+    # ------------------------------------------------------------------ job result
+
+    @tag('regression')  # Ref: #23399
+    def test_background_result_is_brief(self):
+        # Only the brief representation of each object written is recorded on the job.
+        self.grant('change', 'view')
+        payload = [{'id': r.pk, 'description': 'brief'} for r in self.regions]
+        response = self.client.patch(
+            '/api/dcim/regions/?background=true', payload, format='json', **self.header
+        )
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+
+        job = Job.objects.get(pk=response.data['job']['id'])
+        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
+        self.assertEqual(job.data['status_code'], status.HTTP_200_OK)
+        self.assertEqual(
+            [obj['id'] for obj in job.data['data']],
+            [r.pk for r in self.regions],
+        )
+        for obj in job.data['data']:
+            self.assertEqual(set(obj), set(RegionSerializer.Meta.brief_fields))
+            self.assertEqual(obj['description'], 'brief')
+
+    @tag('regression')  # Ref: #23399
+    @patch.object(FHRPGroupViewSet, 'background_enabled', True)
+    def test_background_result_excludes_secrets(self):
+        # A user permitted to view the job need not be permitted to view the objects written, so
+        # secrets returned in the objects' full representation must not be recorded. Background
+        # processing is enabled explicitly, as an endpoint which returns a secret may disallow it.
+        obj_perm = ObjectPermission.objects.create(name='Test permission', actions=['add', 'view'])
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ContentType.objects.get_for_model(FHRPGroup))
+        payload = [
+            {
+                'protocol': FHRPGroupProtocolChoices.PROTOCOL_VRRP2,
+                'group_id': i,
+                'auth_type': FHRPGroupAuthTypeChoices.AUTHENTICATION_PLAINTEXT,
+                'auth_key': f'secret-key-{i}',
+            }
+            for i in (1, 2)
+        ]
+        response = self.client.post(
+            '/api/ipam/fhrp-groups/?background=true', payload, format='json', **self.header
+        )
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+
+        job = Job.objects.get(pk=response.data['job']['id'])
+        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
+        self.assertEqual(job.data['status_code'], status.HTTP_201_CREATED)
+        self.assertEqual(len(job.data['data']), 2)
+        for obj in job.data['data']:
+            self.assertNotIn('auth_key', obj)
+        self.assertNotIn('secret-key-', json.dumps(job.data))
+
+    @tag('regression')  # Ref: #23399
+    def test_brief_result_without_brief_fields(self):
+        # A serializer which does not declare brief_fields (e.g. a plugin's) is recorded as its id, url, and display.
+        class Serializer:
+            class Meta:
+                pass
+
+        data = [{'id': 1, 'url': '/api/plugins/x/1/', 'display': 'X', 'secret': 'secret-key'}]
+        self.assertEqual(
+            AsyncAPIJob._get_brief_result(Serializer, data),
+            [{'id': 1, 'url': '/api/plugins/x/1/', 'display': 'X'}],
+        )
+
+    @tag('regression')  # Ref: #23399
+    def test_brief_result_not_list_not_recorded(self):
+        # A successful result other than a list (e.g. from a plugin's action) is not recorded.
+        self.assertIsNone(AsyncAPIJob._get_brief_result(RegionSerializer, {'secret': 'secret-key'}))
 
     # ------------------------------------------------------------------ change logging
 

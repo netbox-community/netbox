@@ -782,20 +782,20 @@ The response identifies the enqueued job:
 }
 ```
 
-Poll the job's URL to track its progress. When the job reaches a terminal status, its `data` field holds the result and its `error` field describes any failure. The `data` field mirrors the response the synchronous request would have returned, as an object with the HTTP `status_code` and the response `data`. For example, a completed bulk update records:
+Poll the job's URL to track its progress. When the job reaches a terminal status, its `data` field holds the result and its `error` field describes any failure. The `data` field is an object with the HTTP `status_code` the synchronous request would have returned, and a `data` field holding the result. For a successful request, the result holds only the brief representation of each object written; retrieve an object from its `url` to obtain its full representation. The [`fields` and `omit`](#specifying-fields) parameters can narrow it further. For example, a completed bulk update records:
 
 ```json
 {
     "status_code": 200,
     "data": [
-        {"id": 10, "url": "http://netbox/api/dcim/sites/10/", "status": {"value": "active"}, "...": "..."}
+        {"id": 10, "url": "http://netbox/api/dcim/sites/10/", "display": "Site 10", "name": "Site 10", "slug": "site-10", "description": ""}
     ]
 }
 ```
 
 A failed job records the equivalent error response, for instance `{"status_code": 400, "data": {"slug": ["This field may not be blank."]}}`, with a short summary also placed in the job's `error` field.
 
-A `202` response indicates that the request was accepted and queued, not that it succeeded: validation (including malformed or invalid payloads) and the database write all occur when the job runs. A rejected payload is therefore reported as a failed job rather than a synchronous error response. Always inspect the job's final status to confirm the outcome. Because the result is stored on the job, any user permitted to view jobs (`core.view_job`, subject to object permissions) can read the serialized objects it contains.
+A `202` response indicates that the request was accepted and queued, not that it succeeded: validation (including malformed or invalid payloads) and the database write all occur when the job runs. A rejected payload is therefore reported as a failed job rather than a synchronous error response. Always inspect the job's final status to confirm the outcome. Because the result is stored on the job, any user permitted to view jobs (`core.view_job`, subject to object permissions) can read it, including the error response of a failed job.
 
 Background processing applies only to bulk operations (a JSON list) on a model's list endpoint. For a single-object write the `background` parameter is ignored and the request is processed synchronously. It cannot be combined with an [`If-Match`](#if-match) precondition (which cannot be evaluated reliably once execution is deferred); such a request is rejected with an `HTTP 400` response. If no background worker is running to service the queue, the request is rejected with an `HTTP 503` response rather than enqueuing a job that would never run.
 
@@ -806,7 +806,7 @@ Some endpoints do not support background processing at all, because their respon
 
     Restricting the endpoint prevents further exposure. It does not remove the plaintexts already recorded, and it does not revoke the affected tokens. Treat a token created that way as potentially exposed: after upgrading and restarting the workers, revoke and replace it, then delete the job records which captured it. Deleting those records does not invalidate the tokens.
 
-Two behaviors differ from a synchronous request and may change in a future release: field selection via [`fields`/`omit`](#specifying-fields) (and brief mode) is not applied to the stored result, and the authorization captured when the request is accepted is not re-checked if the token is later disabled or expires before the job runs.
+One behavior differs from a synchronous request and may change in a future release: the authorization captured when the request is accepted is not re-checked if the token is later disabled or expires before the job runs.
 
 ## Changelog Messages
 
