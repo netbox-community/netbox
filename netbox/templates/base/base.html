@@ -24,7 +24,7 @@
     {# Page title #}
     <title>{% block title %}{% trans "Home" %}{% endblock %} | NetBox</title>
 
-    {# Initialize color mode #}
+    {# Initialize color mode and sidebar folding #}
     <script
       type="text/javascript"
       src="{% static_with_params 'setmode.js' v=settings.RELEASE.version %}"
@@ -35,6 +35,9 @@
         initMode()
       })();
       window.CSRF_TOKEN = "{{ csrf_token }}";
+    </script>
+    <script type="text/javascript">
+      initSidebar();
     </script>
 
     {# Static resources #}

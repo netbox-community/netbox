@@ -39,3 +39,16 @@ function initMode() {
     // Default to light mode
     return setMode("light", true);
 }
+
+/**
+ * Fold the sidebar before rendering if the user folded it.
+ */
+function initSidebar() {
+    try {
+        if (localStorage.getItem("netbox-sidebar") === "folded") {
+            document.documentElement.setAttribute("data-bs-sidebar", "folded-hover");
+        }
+    } catch {
+        // Blocked storage leaves the sidebar expanded
+    }
+}
