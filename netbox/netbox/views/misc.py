@@ -6,11 +6,15 @@ from collections import namedtuple
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.staticfiles import finders
 from django.core.cache import cache
 from django.db.models import Q
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render
+from django.templatetags.static import static
+from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.cache import never_cache
 from django.views.generic import View
 from django.views.static import serve
 from django_tables2 import RequestConfig
@@ -29,6 +33,7 @@ from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.views import ConditionalLoginRequiredMixin, TokenConditionalLoginRequiredMixin
 
 __all__ = (
+    'FontStylesheetView',
     'HomeView',
     'MediaView',
     'SearchView',
@@ -37,6 +42,9 @@ __all__ = (
 logger = logging.getLogger(f'netbox.{__name__}')
 
 Link = namedtuple('Link', ('label', 'viewname', 'permission', 'count'))
+
+# A relative URL in a compiled stylesheet, e.g. url("./Inter-Regular-373XMOLM.woff2?v=3.18")
+RELATIVE_URL = re.compile(r'url\("\./([^"?#]+)[^"]*"\)')
 
 
 class HomeView(ConditionalLoginRequiredMixin, View):
@@ -162,3 +170,16 @@ class MediaView(TokenConditionalLoginRequiredMixin, View):
         response['Content-Security-Policy'] = "sandbox; default-src 'none'"
         response['X-Content-Type-Options'] = "nosniff"
         return response
+
+
+@method_decorator(never_cache, name='dispatch')
+class FontStylesheetView(View):
+    """
+    Serve netbox-fonts.css with its relative font URLs replaced by static URLs, which may be signed.
+    """
+    def get(self, request):
+        if not (path := finders.find('netbox-fonts.css')):
+            raise Http404
+        with open(path, encoding='utf-8') as f:
+            css = RELATIVE_URL.sub(lambda m: f'url("{static(m[1])}")', f.read())
+        return HttpResponse(css, content_type='text/css')

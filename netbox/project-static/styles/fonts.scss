@@ -1,0 +1,7 @@
+// @font-face rules for the bundled fonts. NetBox rewrites their URLs when static files are served from signed URLs.
+$mdi-font-path: '../node_modules/@mdi/font/fonts';
+@import '@mdi/font/scss/variables';
+@import '@mdi/font/scss/path';
+
+@import url('../node_modules/typeface-inter/inter.css');
+@import url('../node_modules/typeface-roboto-mono/index.css');

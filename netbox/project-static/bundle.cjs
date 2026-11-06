@@ -109,6 +109,7 @@ async function bundleStyles() {
   try {
     const entryPoints = {
       'netbox-external': 'styles/external.scss',
+      'netbox-fonts': 'styles/fonts.scss',
       'netbox': 'styles/netbox.scss',
       rack_elevation: 'styles/svg/rack_elevation.scss',
       cable_trace: 'styles/svg/cable_trace.scss',

@@ -42,6 +42,18 @@
       href="{% static_with_params 'netbox-external.css' v=settings.RELEASE.version %}"
       onerror="window.location='{% url 'media_failure' %}?filename=netbox-external.css'"
     />
+    {# Fonts. If static URLs carry a query string (e.g. a signature), NetBox must rewrite the relative font URLs. #}
+    {% static 'netbox-fonts.css' as fonts_url %}
+    {% if '?' in fonts_url %}
+      {% url 'font_stylesheet' as fonts_url %}
+    {% else %}
+      {% static_with_params 'netbox-fonts.css' v=settings.RELEASE.version as fonts_url %}
+    {% endif %}
+    <link
+      rel="stylesheet"
+      href="{{ fonts_url }}"
+      onerror="window.location='{% url 'media_failure' %}?filename=netbox-fonts.css'"
+    />
     <link
       rel="stylesheet"
       href="{% static_with_params 'netbox.css' v=settings.RELEASE.version %}"

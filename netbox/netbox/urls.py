@@ -9,7 +9,7 @@ from netbox.api.views import APIRootView, AuthenticationCheckView, StatusView
 from netbox.graphql.schema import schema
 from netbox.graphql.views import NetBoxGraphQLView
 from netbox.plugins.urls import plugin_api_patterns, plugin_patterns
-from netbox.views import HomeView, MediaView, SearchView, StaticMediaFailureView, htmx
+from netbox.views import FontStylesheetView, HomeView, MediaView, SearchView, StaticMediaFailureView, htmx
 
 _patterns = [
 
@@ -73,6 +73,9 @@ _patterns = [
     # Serving static media in Django to pipe it through LoginRequiredMiddleware
     path('media/<path:path>', MediaView.as_view(), name='media'),
     path('media-failure/', StaticMediaFailureView.as_view(), name='media_failure'),
+
+    # Font stylesheet, for static files served from signed URLs
+    path('fonts.css', FontStylesheetView.as_view(), name='font_stylesheet'),
 
     # Plugins
     path('plugins/', include((plugin_patterns, 'plugins'))),

@@ -1,8 +1,10 @@
 // Entry for all 3rd party library imports that do not rely on Tabler or NetBox styles.
-@import '../node_modules/@mdi/font/css/materialdesignicons.min.css';
+// Fonts are bundled separately, in fonts.scss.
+@import '@mdi/font/scss/variables';
+@import '@mdi/font/scss/functions';
+@import '@mdi/font/scss/core';
+@import '@mdi/font/scss/icons';
+@import '@mdi/font/scss/extras';
+@import '@mdi/font/scss/animated';
 @import '../node_modules/flatpickr/dist/flatpickr.min.css';
 @import 'gridstack/dist/gridstack.min.css';
-
-// Fonts
-@import url("../node_modules/typeface-inter/inter.css");
-@import url("../node_modules/typeface-roboto-mono/index.css");

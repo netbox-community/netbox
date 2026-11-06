@@ -1,8 +1,11 @@
+import re
 import urllib.parse
 from contextlib import contextmanager
 from unittest.mock import patch
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.staticfiles.storage import StaticFilesStorage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models.signals import pre_delete
 from django.http import HttpResponse
@@ -359,6 +362,39 @@ class MediaViewTestCase(TestCase):
         url = reverse('media', kwargs={'path': traversal_path})
         response = self.client.get(url)
         self.assertHttpStatus(response, 404)
+
+
+class SignedStaticFilesStorage(StaticFilesStorage):
+    """
+    Emulate a storage backend which signs each static URL (e.g. S3 presigned URLs).
+    """
+    def url(self, name):
+        return f'{super().url(name)}?X-Amz-Signature={name}'
+
+
+class FontStylesheetTestCase(TestCase):
+
+    def test_unsigned_static_urls(self):
+        response = Client().get(reverse('login'))
+        self.assertContains(response, f'href="/static/netbox-fonts.css?v={settings.RELEASE.version}"')
+
+    @override_settings(STORAGES={
+        **settings.STORAGES,
+        'staticfiles': {'BACKEND': f'{__name__}.SignedStaticFilesStorage'},
+    })
+    def test_signed_static_urls(self):
+        response = Client().get(reverse('login'))
+        self.assertContains(response, f'href="{reverse("font_stylesheet")}"')
+
+        # Each font URL must carry its own signature
+        response = Client().get(reverse('font_stylesheet'))
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(response['Content-Type'], 'text/css')
+        self.assertIn('no-cache', response['Cache-Control'])
+        urls = re.findall(r'url\(([^)]*)\)', response.content.decode())
+        self.assertTrue(urls)
+        for url in urls:
+            self.assertRegex(url, r'^"/static/([^/"?]+)\?X-Amz-Signature=\1"$')
 
 
 class DeleteAtomicityMixin:
