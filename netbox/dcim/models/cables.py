@@ -395,6 +395,8 @@ class Cable(PrimaryModel):
             super().save(*args, force_insert=True, **save_kwargs)
             # Update the private PK used in __str__()
             self._pk = self.pk
+            # Record the pre-termination state for the update made by the save below
+            self.snapshot()
 
         if profile_written and self._orig_profile != self.profile:
             self.update_terminations(force=True)
