@@ -61,6 +61,8 @@ class IKEPolicyViewSet(NetBoxModelViewSet):
     queryset = IKEPolicy.objects.all()
     serializer_class = serializers.IKEPolicySerializer
     filterset_class = filtersets.IKEPolicyFilterSet
+    # An IKE policy's pre-shared key must not be retained in a job record.
+    background_enabled = False
 
 
 class IPSecProposalViewSet(NetBoxModelViewSet):

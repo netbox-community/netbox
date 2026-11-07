@@ -13,21 +13,26 @@ from contextlib import contextmanager
 from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
-from django.test import RequestFactory
+from django.test import RequestFactory, tag
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIRequestFactory
 
 from core.choices import JobStatusChoices
 from core.exceptions import JobFailed
-from core.models import Job, ObjectChange
+from core.models import DataSource, Job, ObjectChange
 from dcim.api.views import RegionViewSet
 from dcim.models import DeviceType, Manufacturer, Region
+from extras.models import Webhook
+from ipam.models import FHRPGroup
 from netbox.jobs import AsyncAPIJob
 from netbox.registry import registry
 from users.models import ObjectPermission
 from utilities.request import copy_safe_request
 from utilities.testing.api import APITestCase
 from utilities.testing.mixins import RQQueueTestMixin
+from vpn.models import IKEPolicy
+from wireless.models import WirelessLAN, WirelessLink
 
 
 class BackgroundBulkWriteTests(RQQueueTestMixin, APITestCase):
@@ -338,6 +343,36 @@ class BackgroundBulkWriteTests(RQQueueTestMixin, APITestCase):
         self.assertEqual(Region.objects.count(), len(self.regions))
         self.regions[0].refresh_from_db()
         self.assertEqual(self.regions[0].description, '')
+
+    @tag('regression')  # Ref: #23399
+    def test_secret_bearing_endpoints_reject_background(self):
+        # These endpoints return a secret (a key, a password or authentication headers), which would be retained in the
+        # job's data, readable by any user permitted to view the job. The opt-out covers every bulk write method (see
+        # test_background_disabled_rejected_before_worker_check), so creation alone is exercised here.
+        endpoints = (
+            ('core-api:datasource-list', DataSource),
+            ('extras-api:webhook-list', Webhook),
+            ('ipam-api:fhrpgroup-list', FHRPGroup),
+            ('vpn-api:ikepolicy-list', IKEPolicy),
+            ('wireless-api:wirelesslan-list', WirelessLAN),
+            ('wireless-api:wirelesslink-list', WirelessLink),
+        )
+        perm = ObjectPermission.objects.create(name='Test permission', actions=['add'])
+        perm.users.add(self.user)
+        perm.object_types.add(*[ContentType.objects.get_for_model(model) for _, model in endpoints])
+
+        for url_name, _ in endpoints:
+            with self.subTest(endpoint=url_name):
+                # Rejected before validation, so the payload's contents do not matter
+                response = self.client.post(
+                    f'{reverse(url_name)}?background=true', [{}], format='json', **self.header
+                )
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertEqual(
+                    response.data['detail'], 'Background processing is not supported for this endpoint.'
+                )
+
+        self.assertEqual(Job.objects.count(), 0)
 
     def test_get_with_background_is_ignored(self):
         self.grant('view')

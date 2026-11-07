@@ -313,7 +313,7 @@ class BackgroundOperationMixin:
     This mixin overrides no framework methods; the bulk action methods call its helpers.
     """
 
-    # False where the response carries a write-once secret: a 202 can only return it via the job record.
+    # False where the response carries a secret the job record must not retain: any user who can view jobs can read it.
     background_enabled = True
 
     def check_background_enabled(self):

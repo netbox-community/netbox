@@ -135,6 +135,8 @@ class FHRPGroupViewSet(NetBoxModelViewSet):
     queryset = FHRPGroup.objects.all()
     serializer_class = serializers.FHRPGroupSerializer
     filterset_class = filtersets.FHRPGroupFilterSet
+    # An FHRP group's authentication key must not be retained in a job record.
+    background_enabled = False
 
 
 class FHRPGroupAssignmentViewSet(NetBoxModelViewSet):
