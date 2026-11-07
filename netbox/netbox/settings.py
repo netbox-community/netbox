@@ -737,6 +737,7 @@ NETBOX_COPILOT_URL = 'https://static.copilot.netboxlabs.ai/load.js'
 SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.social_details',
     'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
     'social_core.pipeline.social_auth.social_user',
     'social_core.pipeline.user.get_username',
     'social_core.pipeline.user.create_user',
@@ -757,6 +758,13 @@ SOCIAL_AUTH_RAISE_EXCEPTIONS = DEBUG
 for param in dir(configuration):
     if param.startswith('SOCIAL_AUTH_'):
         globals()[param] = getattr(configuration, param)
+
+# Warn if a custom pipeline omits the step which enforces allowlists
+if 'social_core.pipeline.social_auth.auth_allowed' not in SOCIAL_AUTH_PIPELINE:
+    warnings.warn(
+        "SOCIAL_AUTH_PIPELINE does not include social_core.pipeline.social_auth.auth_allowed; allowlist settings "
+        "such as WHITELISTED_EMAILS and WHITELISTED_DOMAINS will not be enforced."
+    )
 
 # Force usage of PostgreSQL's JSONB field for extra data
 SOCIAL_AUTH_JSONFIELD_ENABLED = True

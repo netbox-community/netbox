@@ -14,7 +14,9 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.timezone import now
 from rest_framework.test import APIClient
+from social_core.backends.base import BaseAuth
 from social_core.exceptions import AuthFailed
+from social_django.models import UserSocialAuth
 
 from account.views import LoginView
 from core.choices import ManagedFileRootPathChoices
@@ -1275,3 +1277,71 @@ class SocialAuthExceptionMiddlewareTestCase(SimpleTestCase):
         self.assertEqual(response.url, settings.LOGIN_URL)
         messages = [str(m) for m in request._messages]
         self.assertEqual(messages, [self.GENERIC_MESSAGE])
+
+
+class AllowlistTestBackend(BaseAuth):
+    """
+    Stands in for an identity provider, confirming whichever email address the request names.
+    """
+    name = 'allowlist-test'
+    ID_KEY = 'email'
+
+    def auth_complete(self, *args, **kwargs):
+        kwargs.update(response={'email': self.data['email']}, backend=self)
+        return self.strategy.authenticate(*args, **kwargs)
+
+    def get_user_details(self, response):
+        return {'username': response['email'].split('@')[0], 'email': response['email']}
+
+
+@override_settings(
+    AUTHENTICATION_BACKENDS=[
+        'netbox.tests.test_authentication.AllowlistTestBackend',
+        'netbox.authentication.ObjectPermissionBackend',
+    ],
+    SOCIAL_AUTH_ALLOWLIST_TEST_WHITELISTED_DOMAINS=['example.com'],
+)
+class SocialAuthAllowlistTestCase(DjangoTestCase):
+    """
+    Verify that the SSO login pipeline enforces a backend's allowlist (see #23584).
+    """
+
+    def setUp(self):
+        # load_backends() caches the discovered backends in a module-level dict, so isolate the
+        # backend overridden above from the remainder of the test suite.
+        cache_patcher = patch.dict('social_core.backends.utils.BACKENDSCACHE', {}, clear=True)
+        cache_patcher.start()
+        self.addCleanup(cache_patcher.stop)
+
+        self.url = reverse('social:complete', args=['allowlist-test'])
+
+    def test_email_outside_allowlist_is_refused(self):
+        response = self.client.get(self.url, {'email': 'mallory@evil.test'})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, settings.LOGIN_URL)
+        self.assertNotIn('_auth_user_id', self.client.session)
+        self.assertFalse(User.objects.filter(username='mallory').exists())
+
+    def test_existing_user_outside_allowlist_is_refused(self):
+        user = User.objects.create_user(username='mallory', email='mallory@evil.test')
+        UserSocialAuth.objects.create(user=user, provider='allowlist-test', uid='mallory@evil.test')
+
+        response = self.client.get(self.url, {'email': 'mallory@evil.test'})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, settings.LOGIN_URL)
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+    def test_email_inside_allowlist_is_allowed(self):
+        self.client.get(self.url, {'email': 'alice@example.com'})
+
+        self.assertIn('_auth_user_id', self.client.session)
+        self.assertTrue(User.objects.filter(username='alice').exists())
+
+    @override_settings(SOCIAL_AUTH_ALLOWLIST_TEST_WHITELISTED_DOMAINS=[])
+    def test_no_allowlist_allows_any_email(self):
+        self.client.get(self.url, {'email': 'alice@evil.test'})
+
+        self.assertIn('_auth_user_id', self.client.session)
+        self.assertTrue(User.objects.filter(username='alice').exists())
