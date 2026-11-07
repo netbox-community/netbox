@@ -330,10 +330,13 @@ class RecoverDeadJobsTestCase(RQQueueTestMixin, TestCase):
         self.addCleanup(logger.setLevel, original_level)
 
     @staticmethod
-    def _recover():
-        NetBoxRQWorker.__new__(NetBoxRQWorker).recover_dead_jobs()
+    def _recover(queue_name='default'):
+        queue = get_queue(queue_name)
+        NetBoxRQWorker([queue], connection=queue.connection).recover_dead_jobs()
 
-    def _create_running_job(self, rq_status=RQJobStatus.FAILED, exc_string=None, interval=None, **kwargs):
+    def _create_running_job(
+        self, rq_status=RQJobStatus.FAILED, exc_string=None, interval=None, queue_name='default', **kwargs
+    ):
         """
         Create a running Job with a real RQ job, set to the given RQ status.
         """
@@ -343,9 +346,9 @@ class RecoverDeadJobsTestCase(RQQueueTestMixin, TestCase):
             started=timezone.now() - timedelta(minutes=5),
             interval=interval,
             job_id=uuid.uuid4(),
-            queue_name='default',
+            queue_name=queue_name,
         )
-        rq_job = get_queue('default').enqueue(DummyJobRunner.handle, job_id=str(job.job_id), job=job, **kwargs)
+        rq_job = get_queue(queue_name).enqueue(DummyJobRunner.handle, job_id=str(job.job_id), job=job, **kwargs)
         rq_job.set_status(rq_status)
         if exc_string:
             Result.create_failure(rq_job, ttl=60, exc_string=exc_string)

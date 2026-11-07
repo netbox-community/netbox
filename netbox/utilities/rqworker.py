@@ -64,7 +64,7 @@ class NetBoxRQWorker(Worker):
         """
         job_logger = logging.getLogger('netbox.jobs')
 
-        for job in Job.objects.filter(status=JobStatusChoices.STATUS_RUNNING):
+        for job in Job.objects.filter(status=JobStatusChoices.STATUS_RUNNING, queue_name__in=self.queue_names()):
             try:
                 rq_job = job._get_rq_job()
                 # A missing RQ job may mean Redis was reset rather than that the job died, so leave it alone.
