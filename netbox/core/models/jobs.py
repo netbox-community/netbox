@@ -259,6 +259,8 @@ class Job(models.Model):
 
         self.started = started
         self.status = JobStatusChoices.STATUS_RUNNING
+        # This instance may be stale (e.g. unpickled from its RQ task), and a retry may have cleared the interval.
+        self.refresh_from_db(using=using, fields=['interval'])
 
         # Send signal
         job_start.send(self)
