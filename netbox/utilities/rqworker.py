@@ -79,9 +79,8 @@ class NetBoxRQWorker(Worker):
                     pk=job.pk,
                     status=JobStatusChoices.STATUS_RUNNING,
                     started=job.started,
-                ).update(
-                    status=JobStatusChoices.STATUS_ERRORED
-                )
+                    job_id=job.job_id,
+                ).update(status=JobStatusChoices.STATUS_ERRORED)
                 if not claimed:
                     continue
 
