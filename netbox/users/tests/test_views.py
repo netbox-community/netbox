@@ -264,6 +264,62 @@ class TokenTestCase(
         }
 
 
+class TokenEditOwnerTestCase(TestCase):
+    user_permissions = ('users.add_token', 'users.change_token', 'users.view_token')
+
+    def test_creation_requires_user_field(self):
+        response = self.client.get(reverse('users:token_add'))
+        self.assertIn('user', response.context['form'].fields)
+        self.assertTrue(response.context['form'].fields['user'].required)
+
+        count = Token.objects.count()
+        response = self.client.post(reverse('users:token_add'), {
+            'version': 2,
+            'description': 'Token without owner',
+            'enabled': 'on',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response.context['form'], 'user', 'This field is required.')
+        self.assertEqual(Token.objects.count(), count)
+
+    def test_edit_own_token_without_view_user(self):
+        token = Token.objects.create(user=self.user)
+        url = reverse('users:token_edit', kwargs={'pk': token.pk})
+        response = self.client.get(url)
+        self.assertNotIn('user', response.context['form'].fields)
+        self.assertContains(response, self.user.username)
+
+        other = create_test_user('other_owner')
+        response = self.client.post(url, {
+            'user': other.pk, 'description': 'updated', 'enabled': 'on',
+        })
+        self.assertEqual(response.status_code, 302)
+        token.refresh_from_db()
+        self.assertEqual(token.user, self.user)
+        self.assertEqual(token.description, 'updated')
+
+    def test_other_owner_visibility_and_edit(self):
+        owner = create_test_user('token_owner_unique')
+        token = Token.objects.create(user=owner)
+        url = reverse('users:token_edit', kwargs={'pk': token.pk})
+        response = self.client.get(url)
+        self.assertNotContains(response, owner.username)
+        response = self.client.post(url, {'description': 'updated', 'enabled': 'on'})
+        self.assertEqual(response.status_code, 302)
+        token.refresh_from_db()
+        self.assertEqual(token.user, owner)
+        self.assertEqual(token.description, 'updated')
+
+        self.add_permissions('users.view_user')
+        response = self.client.get(url)
+        self.assertContains(response, owner.username)
+        permission = ObjectPermission.objects.get(name='users.view_user')
+        permission.constraints = {'pk': self.user.pk}
+        permission.save()
+        response = self.client.get(url)
+        self.assertNotContains(response, owner.username)
+
+
 class TokenOneTimeAuthStringTestCase(TestCase):
     """
     Verify that the plaintext value of a newly-created Token is surfaced exactly once via the detail view, and
