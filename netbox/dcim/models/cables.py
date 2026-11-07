@@ -166,7 +166,7 @@ class Cable(PrimaryModel):
         verbose_name=_('bundle'),
     )
 
-    clone_fields = ('tenant', 'type', 'profile', 'bundle')
+    clone_fields = ('tenant', 'type', 'profile', 'bundle', 'color', 'length', 'length_unit')
 
     objects = CableQuerySet.as_manager()
 
