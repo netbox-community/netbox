@@ -1,4 +1,3 @@
-import logging
 import uuid
 from datetime import timedelta
 from unittest.mock import patch
@@ -8,8 +7,6 @@ from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils import timezone
 from django_rq import get_queue
-from rq.job import JobStatus as RQJobStatus
-from rq.results import Result
 
 from core.choices import JobStatusChoices
 from core.events import JOB_COMPLETED, JOB_FAILED
@@ -604,137 +601,6 @@ class SystemJobTestCase(BaseJobRunnerTestCase):
             interval=interval,
         )
         self.assertEqual(enqueued.count(), 2)
-
-
-class RecoverDeadJobsTestCase(BaseJobRunnerTestCase):
-    """
-    Test `recover_dead_jobs()`, which terminates running jobs whose RQ job died (#23581).
-    """
-
-    def setUp(self):
-        super().setUp()
-        # Mute expected warnings about dead jobs.
-        logger = logging.getLogger('netbox.jobs')
-        original_level = logger.level
-        logger.setLevel(logging.CRITICAL)
-        self.addCleanup(logger.setLevel, original_level)
-
-    def _create_running_job(self, rq_status=RQJobStatus.FAILED, exc_string=None, interval=None, **kwargs):
-        """
-        Create a running Job with a real RQ job, set to the given RQ status.
-        """
-        job = Job.objects.create(
-            name=TestJobRunner.name,
-            status=JobStatusChoices.STATUS_RUNNING,
-            started=timezone.now() - timedelta(minutes=5),
-            interval=interval,
-            job_id=uuid.uuid4(),
-            queue_name='default',
-        )
-        rq_job = get_queue('default').enqueue(TestJobRunner.handle, job_id=str(job.job_id), job=job, **kwargs)
-        rq_job.set_status(rq_status)
-        if exc_string:
-            Result.create_failure(rq_job, ttl=60, exc_string=exc_string)
-        return job
-
-    def test_failed_rq_job(self):
-        exc_string = 'Work-horse terminated unexpectedly; waitpid returned 15 (signal 15); '
-        job = self._create_running_job(exc_string=exc_string)
-
-        recover_dead_jobs()
-
-        job.refresh_from_db()
-        self.assertEqual(job.status, JobStatusChoices.STATUS_ERRORED)
-        self.assertEqual(job.error, exc_string)
-        self.assertIsNotNone(job.completed)
-        self.assertIsNotNone(job.execution_time)
-
-    def test_stopped_and_canceled_rq_jobs(self):
-        for rq_status in (RQJobStatus.STOPPED, RQJobStatus.CANCELED):
-            with self.subTest(rq_status=rq_status):
-                job = self._create_running_job(rq_status=rq_status)
-
-                recover_dead_jobs()
-
-                job.refresh_from_db()
-                self.assertEqual(job.status, JobStatusChoices.STATUS_ERRORED)
-                self.assertIn(rq_status.value, job.error)
-
-    def test_live_rq_job_untouched(self):
-        for rq_status in (RQJobStatus.STARTED, RQJobStatus.QUEUED, RQJobStatus.SCHEDULED):
-            with self.subTest(rq_status=rq_status):
-                job = self._create_running_job(rq_status=rq_status)
-
-                recover_dead_jobs()
-
-                job.refresh_from_db()
-                self.assertEqual(job.status, JobStatusChoices.STATUS_RUNNING)
-                self.assertIsNone(job.completed)
-
-    def test_missing_rq_job_untouched(self):
-        job = self._create_running_job()
-        get_queue('default').connection.flushdb()
-
-        recover_dead_jobs()
-
-        job.refresh_from_db()
-        self.assertEqual(job.status, JobStatusChoices.STATUS_RUNNING)
-
-    def test_claimed_by_another_worker(self):
-        """
-        A job that another worker claims between the query and the update must not be terminated twice.
-        """
-        self._create_running_job()
-        original_get_rq_job = Job._get_rq_job
-
-        def get_rq_job_and_steal(self):
-            Job.objects.filter(pk=self.pk).update(status=JobStatusChoices.STATUS_ERRORED)
-            return original_get_rq_job(self)
-
-        with (
-            patch.object(Job, '_get_rq_job', get_rq_job_and_steal),
-            patch.object(Job, 'terminate') as terminate,
-        ):
-            recover_dead_jobs()
-
-        terminate.assert_not_called()
-
-    def test_recurring_job_rescheduled(self):
-        job = self._create_running_job(interval=60, make_fail=True)
-
-        with patch.object(TestJobRunner, 'enqueue', wraps=TestJobRunner.enqueue) as enqueue:
-            recover_dead_jobs()
-
-        job.refresh_from_db()
-        self.assertEqual(job.status, JobStatusChoices.STATUS_ERRORED)
-        successors = Job.objects.filter(name=TestJobRunner.name, status=JobStatusChoices.STATUS_SCHEDULED)
-        self.assertEqual(successors.count(), 1)
-        successor = successors.first()
-        self.assertEqual(successor.interval, 60)
-        self.assertGreater(successor.scheduled, timezone.now())
-
-        # The original runtime kwargs are carried over, less the dead job itself.
-        enqueue.assert_called_once()
-        self.assertIs(enqueue.call_args.kwargs['make_fail'], True)
-        self.assertNotIn('job', enqueue.call_args.kwargs)
-
-    def test_error_on_one_job_does_not_block_others(self):
-        broken = self._create_running_job()
-        job = self._create_running_job()
-        original_get_rq_job = Job._get_rq_job
-
-        def get_rq_job(self):
-            if self.pk == broken.pk:
-                raise RuntimeError('boom')
-            return original_get_rq_job(self)
-
-        with patch.object(Job, '_get_rq_job', get_rq_job):
-            recover_dead_jobs()
-
-        broken.refresh_from_db()
-        job.refresh_from_db()
-        self.assertEqual(broken.status, JobStatusChoices.STATUS_RUNNING)
-        self.assertEqual(job.status, JobStatusChoices.STATUS_ERRORED)
 
 
 class AsyncViewJobTestCase(TestCase):

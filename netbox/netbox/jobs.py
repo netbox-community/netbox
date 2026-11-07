@@ -18,7 +18,6 @@ from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 from django_pg_utils import advisory_lock
 from rest_framework.exceptions import APIException
-from rq.job import JobStatus as RQJobStatus
 from rq.timeouts import JobTimeoutException
 
 from core.choices import JobStatusChoices
@@ -33,7 +32,6 @@ __all__ = (
     'AsyncAPIJob',
     'AsyncViewJob',
     'JobRunner',
-    'recover_dead_jobs',
     'system_job',
 )
 
@@ -57,53 +55,6 @@ def system_job(interval):
         return cls
 
     return _wrapper
-
-
-# RQ states in which a job's work horse is gone without JobRunner.handle() having finished.
-_RQ_DEAD_STATUSES = (RQJobStatus.FAILED, RQJobStatus.STOPPED, RQJobStatus.CANCELED)
-
-
-def recover_dead_jobs():
-    """
-    Terminate any running `Job` whose RQ job has already died, e.g. because its worker was restarted or
-    OOM killed. Called by `NetBoxRQWorker` during its periodic maintenance tasks.
-    """
-    logger = logging.getLogger('netbox.jobs')
-
-    for job in Job.objects.filter(status=JobStatusChoices.STATUS_RUNNING):
-        try:
-            rq_job = job._get_rq_job()
-            # A missing RQ job may mean Redis was reset rather than that the job died, so leave it alone.
-            if rq_job is None:
-                continue
-            rq_status = rq_job.get_status()
-            if rq_status not in _RQ_DEAD_STATUSES:
-                continue
-
-            # Claim the job, so that it is handled only once if several workers sweep concurrently.
-            claimed = Job.objects.filter(pk=job.pk, status=JobStatusChoices.STATUS_RUNNING).update(
-                status=JobStatusChoices.STATUS_ERRORED
-            )
-            if not claimed:
-                continue
-
-            result = rq_job.latest_result()
-            error = (result.exc_string if result else None) or _(
-                "Job terminated unexpectedly (RQ status: {status})"
-            ).format(status=rq_status.value)
-            logger.warning(f"Job {job} (PK: {job.pk}) died while running: {error}")
-            job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=error)
-
-            if job.interval:
-                runner = rq_job.instance
-                if not (isinstance(runner, type) and issubclass(runner, JobRunner)):
-                    logger.warning(f"Not rescheduling job {job} (PK: {job.pk}): no JobRunner class found")
-                    continue
-                kwargs = {k: v for k, v in rq_job.kwargs.items() if k != 'job'}
-                runner._schedule_next(job, **kwargs)
-
-        except Exception:
-            logger.exception(f"Failed to recover dead job {job} (PK: {job.pk})")
 
 
 class JobLogHandler(logging.Handler):

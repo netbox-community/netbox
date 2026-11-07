@@ -22,14 +22,22 @@ from core.events import JOB_COMPLETED, JOB_ERRORED, JOB_FAILED
 from core.models import ObjectType
 from core.signals import job_end, job_start
 from extras.models import Notification
+from netbox.config import get_config
+from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.models.features import has_feature
 from utilities.json import JobLogDecoder
 from utilities.querysets import RestrictedQuerySet
-from utilities.rqworker import get_queue_for_model
 
 __all__ = (
     'Job',
 )
+
+
+def get_queue_for_model(model):
+    """
+    Return the configured queue name for jobs associated with the given model.
+    """
+    return get_config().QUEUE_MAPPINGS.get(model, RQ_QUEUE_DEFAULT)
 
 
 class Job(models.Model):

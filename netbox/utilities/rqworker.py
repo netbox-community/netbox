@@ -1,14 +1,20 @@
 import logging
 
 from django.urls import get_resolver
+from django.utils.translation import gettext as _
 from django_rq.queues import get_connection
 from django_rq.utils import reset_db_connections
 from rq import Retry, Worker
+from rq.job import JobStatus as RQJobStatus
 from rq.worker_registration import REDIS_WORKER_KEYS
 from rq.worker_registration import register as register_worker
 
+from core.choices import JobStatusChoices
+from core.models import Job
+from core.models.jobs import get_queue_for_model
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
+from netbox.jobs import JobRunner
 
 __all__ = (
     'NetBoxRQWorker',
@@ -20,6 +26,10 @@ __all__ = (
 )
 
 logger = logging.getLogger('netbox.rqworker')
+
+# RQ states in which a job's work horse is gone without JobRunner.handle() having finished. CANCELED is
+# deliberately excluded: Job.cancel() only updates RQ's bookkeeping and does not stop a running work horse.
+RQ_DEAD_STATUSES = (RQJobStatus.FAILED, RQJobStatus.STOPPED)
 
 
 class NetBoxRQWorker(Worker):
@@ -39,15 +49,55 @@ class NetBoxRQWorker(Worker):
 
     def run_maintenance_tasks(self, *args, **kwargs):
         super().run_maintenance_tasks(*args, **kwargs)
-        # Imported here to avoid a circular import (netbox.jobs imports core.models, which imports this module).
-        from netbox.jobs import recover_dead_jobs
         try:
-            recover_dead_jobs()
+            self.recover_dead_jobs()
         except Exception:
             logger.exception("Failed to recover dead jobs.")
         finally:
             # Don't let forked work horses inherit a database connection opened by the sweep.
             reset_db_connections()
+
+    def recover_dead_jobs(self):
+        """
+        Terminate and reschedule any running `Job` whose RQ job has already died, e.g. because its worker
+        was restarted or OOM killed.
+        """
+        job_logger = logging.getLogger('netbox.jobs')
+
+        for job in Job.objects.filter(status=JobStatusChoices.STATUS_RUNNING):
+            try:
+                rq_job = job._get_rq_job()
+                # A missing RQ job may mean Redis was reset rather than that the job died, so leave it alone.
+                if rq_job is None:
+                    continue
+                rq_status = rq_job.get_status()
+                if rq_status not in RQ_DEAD_STATUSES:
+                    continue
+
+                # Claim the job, so that it is handled only once if several workers sweep concurrently.
+                claimed = Job.objects.filter(pk=job.pk, status=JobStatusChoices.STATUS_RUNNING).update(
+                    status=JobStatusChoices.STATUS_ERRORED
+                )
+                if not claimed:
+                    continue
+
+                result = rq_job.latest_result()
+                error = (result.exc_string if result else None) or _(
+                    "Job terminated unexpectedly (RQ status: {status})"
+                ).format(status=rq_status.value)
+                job_logger.warning(f"Job {job} (PK: {job.pk}) died while running: {error}")
+                job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=error)
+
+                if job.interval:
+                    runner = rq_job.instance
+                    if not (isinstance(runner, type) and issubclass(runner, JobRunner)):
+                        job_logger.warning(f"Not rescheduling job {job} (PK: {job.pk}): no JobRunner class found")
+                        continue
+                    kwargs = {k: v for k, v in rq_job.kwargs.items() if k != 'job'}
+                    runner._schedule_next(job, **kwargs)
+
+            except Exception:
+                job_logger.exception(f"Failed to recover dead job {job} (PK: {job.pk})")
 
     def bootstrap(self, *args, **kwargs):
         # Load the URLconf before registering the worker, so that a broken URLconf or GraphQL schema prevents the
@@ -74,13 +124,6 @@ class NetBoxRQWorker(Worker):
         except Exception:
             logger.exception("Failed to verify worker registration.")
         super().heartbeat(*args, **kwargs)
-
-
-def get_queue_for_model(model):
-    """
-    Return the configured queue name for jobs associated with the given model.
-    """
-    return get_config().QUEUE_MAPPINGS.get(model, RQ_QUEUE_DEFAULT)
 
 
 def _is_live_worker(worker, queue_name):
