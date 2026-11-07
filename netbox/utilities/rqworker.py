@@ -1,7 +1,9 @@
 import logging
+from contextlib import ExitStack
 
 from django.urls import get_resolver
 from django.utils.translation import gettext as _
+from django_pg_utils import advisory_lock
 from django_rq.queues import get_connection
 from django_rq.utils import reset_db_connections
 from rq import Retry, Worker
@@ -13,8 +15,9 @@ from core.choices import JobStatusChoices
 from core.models import Job
 from core.models.jobs import get_queue_for_model
 from netbox.config import get_config
-from netbox.constants import RQ_QUEUE_DEFAULT
+from netbox.constants import ADVISORY_LOCK_KEYS, RQ_QUEUE_DEFAULT
 from netbox.jobs import JobRunner
+from netbox.registry import registry
 
 __all__ = (
     'NetBoxRQWorker',
@@ -89,15 +92,27 @@ class NetBoxRQWorker(Worker):
                     "Job terminated unexpectedly (RQ status: {status})"
                 ).format(status=rq_status.value)
                 job_logger.warning(f"Job {job} (PK: {job.pk}) died while running: {error}")
-                job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=error)
+                # Keep the in-memory status in step with the claim, as rescheduling may save the job
+                job.status = JobStatusChoices.STATUS_ERRORED
 
-                if job.interval:
-                    runner = rq_job.instance
-                    if not (isinstance(runner, type) and issubclass(runner, JobRunner)):
-                        job_logger.warning(f"Not rescheduling job {job} (PK: {job.pk}): no JobRunner class found")
-                        continue
-                    kwargs = {k: v for k, v in rq_job.kwargs.items() if k != 'job'}
-                    runner._schedule_next(job, **kwargs)
+                # As in JobRunner.handle(), reschedule before terminating, so that job_end receivers see the
+                # successor (see #23535)
+                with ExitStack() as stack:
+                    try:
+                        if job.interval:
+                            runner = rq_job.instance
+                            if not (isinstance(runner, type) and issubclass(runner, JobRunner)):
+                                job_logger.warning(
+                                    f"Not rescheduling job {job} (PK: {job.pk}): no JobRunner class found"
+                                )
+                            else:
+                                if runner in registry['system_jobs']:
+                                    stack.enter_context(advisory_lock(ADVISORY_LOCK_KEYS['job-schedules']))
+                                kwargs = {k: v for k, v in rq_job.kwargs.items() if k != 'job'}
+                                runner._reschedule(job, **kwargs)
+                    finally:
+                        job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=error, dispatch=False)
+                job._dispatch_termination()
 
             except Exception:
                 job_logger.exception(f"Failed to recover dead job {job} (PK: {job.pk})")

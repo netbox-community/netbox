@@ -608,6 +608,10 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
 class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = VMInterface
+    bulk_create_permissions = (
+        'extras.view_tag', 'ipam.view_vlan', 'ipam.view_vrf', 'virtualization.view_virtualmachine',
+        'virtualization.view_vminterface',
+    )
     validation_excluded_fields = ('name',)
 
     @classmethod
@@ -741,7 +745,10 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         Submitting the VMInterface form with a mac_address string creates a MACAddress
         and sets it as primary in one request.
         """
-        self.add_permissions('virtualization.add_vminterface', 'dcim.add_macaddress')
+        self.add_permissions(
+            'virtualization.add_vminterface', 'dcim.add_macaddress', 'extras.view_tag', 'ipam.view_vlan',
+            'ipam.view_vrf', 'virtualization.view_virtualmachine', 'virtualization.view_vminterface',
+        )
 
         data = {**self.form_data, 'mac_address': 'AA:BB:CC:DD:EE:FF', 'changelog_message': 'test'}
         response = self.client.post(self._get_url('add'), data=post_data(data))
@@ -792,6 +799,7 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
 class VirtualDiskTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = VirtualDisk
+    bulk_create_permissions = ('extras.view_tag', 'virtualization.view_virtualmachine')
     validation_excluded_fields = ('name',)
 
     @classmethod

@@ -908,19 +908,30 @@ class ModuleMovePlan:
             self._send_post_saves(model, updated, fields)
 
     def _apply_port_mappings(self):
-        # Private model, no changelog or last_updated field; mirrors PortMapping.save()'s device derivation.
+        # Update each mapping's device after moving its ports
         if not self.cross_device:
             return
         moved_front_port_pks = [obj.pk for obj in self.components[FrontPort]]
         moved_rear_port_pks = [obj.pk for obj in self.components[RearPort]]
-        if moved_front_port_pks and moved_rear_port_pks:
-            chunked_update(
-                PortMapping.objects.filter(
-                    front_port_id__in=moved_front_port_pks,
-                    rear_port_id__in=moved_rear_port_pks,
-                ),
-                device_id=self.new_device_id,
-            )
+        if not (moved_front_port_pks and moved_rear_port_pks):
+            return
+        mappings = list(PortMapping.objects.using(router.db_for_write(PortMapping)).filter(
+            front_port_id__in=moved_front_port_pks,
+            rear_port_id__in=moved_rear_port_pks,
+        ).select_related('front_port', 'rear_port'))
+        if not mappings:
+            return
+        for mapping in mappings:
+            mapping.snapshot()
+        chunked_update(
+            PortMapping.objects.filter(pk__in=[mapping.pk for mapping in mappings]),
+            device_id=self.new_device_id,
+            last_updated=self._now,
+        )
+        for mapping in mappings:
+            mapping.device_id = self.new_device_id
+            mapping.last_updated = self._now
+        self._send_post_saves(PortMapping, mappings, ['device', 'last_updated'])
 
     @staticmethod
     def device_counters_by_model(device_model):
@@ -975,7 +986,8 @@ class ModuleMovePlan:
         for instance in instances:
             # Clear tracked counter state so the incremental counter receiver no-ops;
             # counters are recomputed explicitly for cross-device moves.
-            instance.tracker.clear()
+            if hasattr(instance, 'tracker'):
+                instance.tracker.clear()
             post_save.send(
                 sender=model,
                 instance=instance,

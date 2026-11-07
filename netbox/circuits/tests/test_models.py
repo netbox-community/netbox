@@ -8,11 +8,12 @@ from circuits.models import Circuit, CircuitTermination, CircuitType, Provider, 
 from circuits.models.circuits import _set_circuit_terminations
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange
-from dcim.models import Location, Region, Site, SiteGroup
+from dcim.models import Cable, Interface, Location, Region, Site, SiteGroup
 from extras.choices import CustomFieldStatusChoices, CustomFieldTypeChoices
 from extras.models import CustomField
 from netbox.context_managers import event_tracking
 from users.models import User
+from utilities.testing import create_test_device
 
 
 class CircuitTerminationTestCase(TestCase):
@@ -197,6 +198,53 @@ class CircuitTerminationTestCase(TestCase):
         self.assertIn(NON_FIELD_ERRORS, errors)
         self.assertIn('Please select a Provider Network.', errors[NON_FIELD_ERRORS])
         self.assertNotIn('termination_id', errors)
+
+    @tag('regression')  # Ref: #23185
+    def test_deleting_site_group_keeps_terminations_of_its_sites(self):
+        """Deleting a SiteGroup deletes only the terminations attached to it directly."""
+        site_group = SiteGroup.objects.create(name='Site Group 1', slug='site-group-1')
+        site = Site.objects.create(name='Site 3', slug='site-3', group=site_group)
+        location = Location.objects.create(name='Location 1', slug='location-1', site=site)
+        direct = CircuitTermination.objects.create(circuit=self.circuits[0], term_side='A', termination=site_group)
+        kept = (
+            CircuitTermination.objects.create(circuit=self.circuits[0], term_side='Z', termination=site),
+            CircuitTermination.objects.create(circuit=self.circuits[1], term_side='A', termination=location),
+        )
+        interface = Interface.objects.create(device=create_test_device('Device 1'), name='Interface 1')
+        cable = Cable(a_terminations=[interface], b_terminations=[kept[0]])
+        cable.save()
+
+        site_group.delete()
+
+        self.assertFalse(CircuitTermination.objects.filter(pk=direct.pk).exists())
+        for termination in kept:
+            termination.refresh_from_db()
+            self.assertIsNone(termination._site_group_id)
+        self.assertEqual(kept[0].cable, cable)
+        self.assertTrue(kept[0].cable_terminations.exists())
+
+    @tag('regression')  # Ref: #23185
+    def test_deleting_region_keeps_terminations_of_its_sites(self):
+        """Deleting a Region and its child deletes only the terminations attached to them directly."""
+        parent = Region.objects.create(name='Region 1', slug='region-1')
+        region = Region.objects.create(name='Region 2', slug='region-2', parent=parent)
+        site = Site.objects.create(name='Site 3', slug='site-3', region=region)
+        location = Location.objects.create(name='Location 1', slug='location-1', site=site)
+        direct = (
+            CircuitTermination.objects.create(circuit=self.circuits[0], term_side='A', termination=parent),
+            CircuitTermination.objects.create(circuit=self.circuits[0], term_side='Z', termination=region),
+        )
+        kept = (
+            CircuitTermination.objects.create(circuit=self.circuits[1], term_side='A', termination=site),
+            CircuitTermination.objects.create(circuit=self.circuits[1], term_side='Z', termination=location),
+        )
+
+        parent.delete()
+
+        self.assertFalse(CircuitTermination.objects.filter(pk__in=[t.pk for t in direct]).exists())
+        for termination in kept:
+            termination.refresh_from_db()
+            self.assertIsNone(termination._region_id)
 
 
 class CircuitTerminationDenormalizationTriggerTestCase(TestCase):
@@ -566,6 +614,23 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
             termination_a_pk, ObjectChangeActionChoices.ACTION_DELETE
         )
         self.assertLess(changes[0].pk, termination_delete.pk)
+
+    @tag('regression')  # Ref: #23185
+    def test_site_group_deletion_keeps_terminations_of_its_sites(self):
+        """In a request, deleting a SiteGroup deletes and logs the termination attached to it and keeps the other."""
+        site_group = SiteGroup.objects.create(name='Site Group 1', slug='site-group-1')
+        site = Site.objects.create(name='Site 3', slug='site-3', group=site_group)
+        direct = CircuitTermination.objects.create(circuit=self.circuits[0], term_side='A', termination=site_group)
+        kept = CircuitTermination.objects.create(circuit=self.circuits[0], term_side='Z', termination=site)
+        interface = Interface.objects.create(device=create_test_device('Device 1'), name='Interface 1')
+        Cable(a_terminations=[interface], b_terminations=[kept]).save()
+
+        self._tracked(site_group.delete)
+
+        self._termination_change(direct.pk, ObjectChangeActionChoices.ACTION_DELETE)
+        kept.refresh_from_db()
+        self.assertIsNone(kept._site_group_id)
+        self.assertTrue(kept.cable_terminations.exists())
 
     def test_circuit_deletion_records_no_pointer_update(self):
         self._tracked(lambda: CircuitTermination.objects.create(

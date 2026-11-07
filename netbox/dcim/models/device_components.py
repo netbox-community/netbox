@@ -1,6 +1,7 @@
 from functools import cached_property
 
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -19,6 +20,7 @@ from dcim.models.mixins import (
     InterfaceValidationMixin,
     MaxFlowMixin,
 )
+from dcim.utils import rebuild_paths
 from netbox.choices import ColorChoices
 from netbox.models import NetBoxModel, OrganizationalModel
 from netbox.models.features import ChangeLoggingMixin
@@ -1424,6 +1426,35 @@ class Interface(
 
         if self.channels:
             self.clear_channel_cables()
+
+    def update_dependent_objects(self):
+        """
+        Reconcile a channel subinterface's mirrored cable attributes with its channelized parent, and retrace the
+        CablePaths which traverse this interface.
+        """
+        from dcim.models import CablePath, CableTermination
+
+        parent = None
+        if self.channel_id and self.parent_id:
+            parent = Interface.objects.filter(pk=self.parent_id, cable__isnull=False).select_related('cable').first()
+        if parent and parent.channels:
+            parent.cable.update_dependent_objects()
+        elif self.cable_id and not CableTermination.objects.filter(
+            termination_type=ContentType.objects.get_for_model(Interface), termination_id=self.pk
+        ).exists():
+            # A cable with no termination of this interface's own was mirrored from a former channelized parent
+            Interface.objects.filter(pk=self.pk).update(
+                cable=None, cable_end='', cable_connector=None, cable_positions=None
+            )
+            for cablepath in CablePath.objects.filter(_nodes__contains=self):
+                if self in cablepath.origins:
+                    cablepath.delete()
+        else:
+            return
+
+        # Retrace paths still traversing this interface from a former parent's cable
+        rebuild_paths([self])
+    update_dependent_objects.alters_data = True
 
     def propagate_channel_cables(self):
         """

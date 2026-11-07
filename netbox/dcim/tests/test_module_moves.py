@@ -1495,6 +1495,33 @@ class ModuleCrossDeviceMoveTestCase(TestCase):
         mapping.refresh_from_db()
         self.assertEqual(mapping.device, self.device_b)
 
+    @override_settings(BULK_UPDATE_CHUNK_SIZE=1)
+    def test_cross_device_move_changelogs_port_mappings(self):
+        front_port = FrontPort.objects.create(
+            device=self.device_a, module=self.line_card, name='Front 2', type=PortTypeChoices.TYPE_LC
+        )
+        rear_port = RearPort.objects.create(
+            device=self.device_a, module=self.line_card, name='Rear 2', type=PortTypeChoices.TYPE_LC, positions=1
+        )
+        PortMapping.objects.create(
+            front_port=front_port, front_port_position=1, rear_port=rear_port, rear_port_position=1
+        )
+        mappings = PortMapping.objects.filter(front_port__module=self.line_card)
+        self.assertEqual(mappings.count(), 2)
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = User.objects.create_user(username='mapping-mover')
+        with event_tracking(request):
+            self.line_card.snapshot()
+            self._move_to_device_b()
+        for mapping in mappings:
+            self.assertEqual(mapping.device, self.device_b)
+            change = ObjectChange.objects.get(
+                changed_object_type=ContentType.objects.get_for_model(PortMapping), changed_object_id=mapping.pk
+            )
+            self.assertEqual(change.prechange_data['device'], self.device_a.pk)
+            self.assertEqual(change.postchange_data['device'], self.device_b.pk)
+
     def test_cross_device_move_keeps_intra_module_power_link(self):
         outlet = self.line_card.poweroutlets.get(name='Outlet 1')
         self._move_to_device_b()

@@ -188,7 +188,7 @@ class BaseViewSet(GenericViewSet):
         """Return the names of the count fields annotated for reads only."""
         return frozenset(
             name for name, field in self.get_serializer_class()._declared_fields.items()
-            if type(field) is RelatedObjectCountField and field.fallback_source
+            if isinstance(field, RelatedObjectCountField) and field.fallback_source
         )
 
 

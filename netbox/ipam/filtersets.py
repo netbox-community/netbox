@@ -382,11 +382,13 @@ class PrefixFilterSet(PrimaryModelFilterSet, ScopedFilterSet, TenancyFilterSet, 
     )
     present_in_vrf_id = django_filters.ModelChoiceFilter(
         queryset=VRF.objects.all(),
+        null_label=None,
         method='filter_present_in_vrf_id',
         label=_('VRF')
     )
     present_in_vrf = django_filters.ModelChoiceFilter(
         queryset=VRF.objects.all(),
+        null_label=None,
         method='filter_present_in_vrf',
         to_field_name='rd',
         label=_('VRF (RD)'),
@@ -646,11 +648,13 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
     )
     present_in_vrf_id = django_filters.ModelChoiceFilter(
         queryset=VRF.objects.all(),
+        null_label=None,
         method='filter_present_in_vrf_id',
         label=_('VRF')
     )
     present_in_vrf = django_filters.ModelChoiceFilter(
         queryset=VRF.objects.all(),
+        null_label=None,
         method='filter_present_in_vrf',
         to_field_name='rd',
         label=_('VRF (RD)'),
@@ -844,6 +848,7 @@ class FHRPGroupFilterSet(PrimaryModelFilterSet):
     )
     related_ip = django_filters.ModelMultipleChoiceFilter(
         queryset=IPAddress.objects.all(),
+        null_label=None,
         method='filter_related_ip'
     )
 
@@ -1033,12 +1038,14 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     )
     related_to_site = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
+        null_label=None,
         method='filter_related_to_site',
         label=_('Related to site (ID)'),
     )
     # get_additional_lookups() skips filters with a method.
     related_to_site__n = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
+        null_label=None,
         method='filter_related_to_site_negated',
         label=_('Related to site (ID)'),
     )
@@ -1073,18 +1080,22 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     )
     available_at_site = django_filters.ModelChoiceFilter(
         queryset=Site.objects.all(),
+        null_label=None,
         method='get_for_site'
     )
     available_at_site_group = django_filters.ModelChoiceFilter(
         queryset=SiteGroup.objects.all(),
+        null_label=None,
         method='get_for_site_group'
     )
     available_on_device = django_filters.ModelChoiceFilter(
         queryset=Device.objects.select_related('cluster'),
+        null_label=None,
         method='get_for_device'
     )
     available_on_virtualmachine = django_filters.ModelChoiceFilter(
         queryset=VirtualMachine.objects.all(),
+        null_label=None,
         method='get_for_virtualmachine'
     )
     qinq_role = django_filters.MultipleChoiceFilter(
@@ -1113,11 +1124,13 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     )
     interface_id = django_filters.ModelChoiceFilter(
         queryset=Interface.objects.all(),
+        null_label=None,
         method='filter_interface_id',
         label=_('Assigned interface')
     )
     vminterface_id = django_filters.ModelChoiceFilter(
         queryset=VMInterface.objects.all(),
+        null_label=None,
         method='filter_vminterface_id',
         label=_('Assigned VM interface')
     )
