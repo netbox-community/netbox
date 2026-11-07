@@ -23,6 +23,7 @@ from extras.scripts import Script as PythonClass
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from users.models import Group, ObjectPermission, User
 from utilities.testing import TestCase, ViewTestCases
+from utilities.views import get_action_url
 
 
 class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -562,6 +563,37 @@ class ImageAttachmentTestCase(
             'class="object-edit object-edit--with-sticky-actions mt-5" data-disable-on-submit>',
             response.content.decode(),
         )
+
+    def test_object_image_attachments_view_with_constrained_permission(self):
+        """The image attachments tab of an object lists only the attachments the user may view."""
+        self.add_permissions('dcim.view_site')
+        obj_perm = ObjectPermission(
+            name='View one image attachment',
+            constraints={'name': 'Image Attachment 1'},
+            actions=['view'],
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(ImageAttachment))
+        site = Site.objects.get(slug='site-1')
+
+        response = self.client.get(get_action_url(site, 'image-attachments', kwargs={'pk': site.pk}))
+
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(
+            [image.name for image in response.context['image_attachments']],
+            ['Image Attachment 1'],
+        )
+
+    def test_object_image_attachments_view_without_permission(self):
+        """A user who can view the object but no image attachments sees an empty list."""
+        self.add_permissions('dcim.view_site')
+        site = Site.objects.get(slug='site-1')
+
+        response = self.client.get(get_action_url(site, 'image-attachments', kwargs={'pk': site.pk}))
+
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(list(response.context['image_attachments']), [])
 
 
 class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
