@@ -805,10 +805,7 @@ class BulkDestroyModelMixin:
                         e.protected_objects if isinstance(e, ProtectedError) else e.restricted_objects
                     )
                     # Report only the count, not names or PKs, to keep each per-object error
-                    # entry small in a batch response. Note: the single-object delete endpoint
-                    # (NetBoxModelViewSet.dispatch()) does include names and PKs of dependent
-                    # objects, so this is not a hard security boundary — just a narrower
-                    # response shape for the bulk case.
+                    # entry small in a batch response.
                     errors.append({
                         'id': pk,
                         'errors': {
