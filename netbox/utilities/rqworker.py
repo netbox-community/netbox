@@ -13,7 +13,6 @@ from rq.worker_registration import register as register_worker
 
 from core.choices import JobStatusChoices
 from core.models import Job
-from core.models.jobs import get_queue_for_model
 from netbox.config import get_config
 from netbox.constants import ADVISORY_LOCK_KEYS, RQ_QUEUE_DEFAULT
 from netbox.jobs import JobRunner
@@ -23,15 +22,13 @@ __all__ = (
     'NetBoxRQWorker',
     'any_workers_for_queue',
     'get_all_workers',
-    'get_queue_for_model',
     'get_rq_retry',
     'get_workers_for_queue',
 )
 
 logger = logging.getLogger('netbox.rqworker')
 
-# RQ states in which a job's work horse is gone without JobRunner.handle() having finished. CANCELED is
-# deliberately excluded: Job.cancel() only updates RQ's bookkeeping and does not stop a running work horse.
+# RQ states in which a job's work horse is gone without JobRunner.handle() having finished
 RQ_DEAD_STATUSES = (RQJobStatus.FAILED, RQJobStatus.STOPPED)
 
 
