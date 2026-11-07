@@ -75,7 +75,11 @@ class NetBoxRQWorker(Worker):
                     continue
 
                 # Claim the job, so that it is handled only once if several workers sweep concurrently.
-                claimed = Job.objects.filter(pk=job.pk, status=JobStatusChoices.STATUS_RUNNING).update(
+                claimed = Job.objects.filter(
+                    pk=job.pk,
+                    status=JobStatusChoices.STATUS_RUNNING,
+                    started=job.started,
+                ).update(
                     status=JobStatusChoices.STATUS_ERRORED
                 )
                 if not claimed:
