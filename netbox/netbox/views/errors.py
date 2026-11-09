@@ -31,11 +31,10 @@ class StaticMediaFailureView(View):
 
 def handler_404(request, exception):
     """
-    Wrap Django's default 404 handler to enable Sentry reporting.
+    Wrap Django's default 404 handler to enable Sentry reporting. The report is sent by CommonMiddleware
+    once the final response is known (it may be replaced with an APPEND_SLASH redirect).
     """
-    if settings.SENTRY_ENABLED:
-        from sentry_sdk import capture_message
-        capture_message("Page not found", level="error")
+    request._sentry_report_404 = True
 
     return page_not_found(request, exception)
 

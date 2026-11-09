@@ -1,4 +1,5 @@
 import json
+import sys
 from contextlib import contextmanager
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
@@ -156,3 +157,27 @@ class CoreMiddlewareTestCase(TestCase):
             response = self.process_internal_error(request, 'Simulated maintenance mode GraphQL error')
 
         self.assert_json_500_response(response)
+
+
+@override_settings(SENTRY_ENABLED=True)
+class SentryNotFoundReportingTestCase(TestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.sentry_sdk = Mock()
+        patcher = patch.dict(sys.modules, {'sentry_sdk': self.sentry_sdk})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def test_404_reported_to_sentry(self):
+        response = self.client.get('/nonexistent-path/')
+
+        self.assertEqual(response.status_code, 404)
+        self.sentry_sdk.capture_message.assert_called_once_with('Page not found', level='error')
+
+    def test_append_slash_redirect_not_reported_to_sentry(self):
+        response = self.client.get('/api/status')
+
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response.headers['Location'], '/api/status/')
+        self.sentry_sdk.capture_message.assert_not_called()

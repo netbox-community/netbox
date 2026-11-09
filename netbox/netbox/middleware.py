@@ -48,6 +48,16 @@ class CommonMiddleware(DjangoCommonMiddleware):
             return False
         return super().should_redirect_with_slash(request)
 
+    def process_response(self, request, response):
+        response = super().process_response(request, response)
+
+        # Report 404s to Sentry only if they weren't replaced with an APPEND_SLASH redirect
+        if settings.SENTRY_ENABLED and response.status_code == 404 and getattr(request, '_sentry_report_404', False):
+            from sentry_sdk import capture_message
+            capture_message("Page not found", level="error")
+
+        return response
+
 
 class CoreMiddleware:
 
