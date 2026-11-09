@@ -3,6 +3,9 @@
 !!! warning
     The instructions below detail the general process for removing a NetBox plugin. However, each plugin is different and may require additional tasks or modifications to the steps below. Always consult the documentation for a specific plugin **before** attempting to remove it.
 
+!!! note "Release archive and Git installations"
+    The `netbox` commands on this page apply to NetBox installed from the Python package. For a release archive or Git installation, run the equivalent `manage.py` command within NetBox's virtual environment instead (for example, `python3 /opt/netbox/netbox/manage.py reindex`).
+
 ## Disable the Plugin
 
 Disable the plugin by removing it from the `PLUGINS` list in `configuration.py`.
@@ -19,14 +22,12 @@ Delete the plugin's entry (if any) in the `PLUGINS_CONFIG` dictionary in `config
 Run the `reindex` management command to reindex the global search engine. This will remove any stale entries pertaining to objects provided by the plugin.
 
 ```no-highlight
-$ cd /opt/netbox/
-$ source /opt/netbox/venv/bin/activate
-(venv) $ python3 netbox/manage.py reindex
+$ sudo -u netbox /opt/netbox/venv/bin/netbox reindex
 ```
 
 ## Uninstall its Python Package
 
-If the plugin was installed by adding it to `/opt/netbox/local_requirements.txt`, remove its package entry from that file first. Otherwise, the package will be reinstalled the next time NetBox's upgrade script is run.
+If the plugin was installed by adding it to `/opt/netbox/local_requirements.txt`, remove its package entry from that file first. Otherwise, the package will be reinstalled the next time NetBox's local requirements are installed, such as during an upgrade.
 
 Use `pip` to remove the installed plugin from NetBox's virtual environment:
 
@@ -47,7 +48,7 @@ $ sudo systemctl restart netbox
 !!! note
     This step is necessary only for plugins which have created one or more database tables (generally through the introduction of new models). Check your plugin's documentation if unsure.
 
-Enter the PostgreSQL database shell (`manage.py dbshell`) to determine if the plugin has created any SQL tables. Substitute `pluginname` in the example below for the name of the plugin being removed. (You can also run the `\dt` command without a pattern to list _all_ tables.)
+Enter the PostgreSQL database shell (`netbox dbshell`) to determine if the plugin has created any SQL tables. Substitute `pluginname` in the example below for the name of the plugin being removed. (You can also run the `\dt` command without a pattern to list _all_ tables.)
 
 ```no-highlight
 netbox=> \dt pluginname_*
@@ -103,9 +104,7 @@ Typically, the Content Type's `app_label` matches the plugin’s name.
 
 
 ```no-highlight
-$ cd /opt/netbox/
-$ source /opt/netbox/venv/bin/activate
-(venv) $ python3 netbox/manage.py nbshell
+$ sudo -u netbox /opt/netbox/venv/bin/netbox nbshell
 ```
 
 Then, in the shell:

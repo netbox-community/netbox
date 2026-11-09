@@ -84,9 +84,89 @@ Alternatively, a database administrator can install the extension before upgradi
 CREATE EXTENSION IF NOT EXISTS ltree;
 ```
 
+## Upgrade a Python Package Installation
+
+This procedure applies to a deployment installed from the Python package per the [installation guide](3-netbox.md). A package installation does not use `upgrade.sh`; use the installed `netbox upgrade` command instead. For a release archive or Git installation, follow the [procedure below](#upgrade-a-release-archive-or-git-installation).
+
+Complete the preparation steps at the beginning of this page before proceeding.
+
+### 1. Stop the NetBox Services
+
+Stop the web application and background worker services before changing packages in the virtual environment:
+
+```no-highlight
+sudo systemctl stop netbox netbox-rq
+```
+
+### 2. Upgrade NetBox and Local Requirements
+
+Install the target NetBox version into the existing virtual environment. Replace `X.Y.Z` with the exact version being installed:
+
+```no-highlight
+sudo /opt/netbox/venv/bin/python -m pip install --upgrade "netbox==X.Y.Z"
+```
+
+If the deployment uses a package extra, include it in the upgrade command. For example, specify the `ldap` extra again when upgrading a deployment that uses LDAP authentication:
+
+```no-highlight
+sudo /opt/netbox/venv/bin/python -m pip install --upgrade \
+    "netbox[ldap]==X.Y.Z"
+```
+
+Install all plugins and other local Python requirements into the same virtual environment **before** running the NetBox upgrade tasks:
+
+```no-highlight
+sudo /opt/netbox/venv/bin/python -m pip install \
+    -r /opt/netbox/local_requirements.txt
+```
+
+!!! note "Changing the Python version"
+    A virtual environment cannot be moved to a different Python interpreter in place. If the target NetBox release requires another Python version, create a replacement virtual environment, install the target NetBox package and all local requirements into it, and update the service executable paths before restarting NetBox.
+
+### 3. Run the Upgrade Tasks
+
+Run the packaged upgrade command to apply database migrations, collect static files, and perform the remaining application upgrade tasks:
+
+```no-highlight
+sudo -u netbox /opt/netbox/venv/bin/netbox upgrade --no-input
+```
+
+For a non-default instance root or a virtual environment stored elsewhere, use the applicable paths and set `NETBOX_ROOT` explicitly:
+
+```no-highlight
+sudo -u netbox env NETBOX_ROOT=/srv/netbox \
+    /opt/netbox-venv/bin/netbox upgrade --no-input
+```
+
+Ensure that any environment variables referenced by the NetBox configuration are also available when running this command.
+
+### 4. Review the Deployment Configuration
+
+`netbox setup` is not part of a routine upgrade. It leaves existing configuration and deployment examples untouched. To compare the examples bundled with the new package against the local copies without modifying the instance root, scaffold them into a temporary directory:
+
+```no-highlight
+EXAMPLES_DIR=$(mktemp -d)
+/opt/netbox/venv/bin/netbox setup --target "$EXAMPLES_DIR"
+diff --recursive /opt/netbox/contrib "$EXAMPLES_DIR/contrib"
+rm -rf "$EXAMPLES_DIR"
+```
+
+The comparison will also show the package-layout changes made when the deployment examples were first adapted. Distinguish these local changes from updates introduced by the new release, and merge any relevant updates into the administrator-managed systemd, WSGI, and HTTP server configuration.
+
+### 5. Start the NetBox Services
+
+Start the services and verify that both the web application and background workers are operating normally:
+
+```no-highlight
+sudo systemctl start netbox netbox-rq
+```
+
 ## Upgrade a Release Archive or Git Installation
 
 The following procedure applies to NetBox installations created from a release archive or Git checkout. Complete the preparation steps above, then use the same installation method that was used for the existing deployment.
+
+!!! tip "Migrating to the Python package"
+    The Python package is the recommended installation method for production deployments. To move an existing release archive or Git installation to the package, follow the [migration procedure](3-netbox.md#migrate-an-existing-archive-or-git-installation) separately from any version upgrade.
 
 ### 1. Install the Latest Release
 
@@ -208,84 +288,4 @@ Finally, restart the gunicorn and RQ services:
 
 ```no-highlight
 sudo systemctl restart netbox netbox-rq
-```
-
-## Upgrade a Python Package Installation (Experimental)
-
-!!! warning "Experimental installation method"
-    Installing NetBox from the Python package is experimental in NetBox v4.7 and is **not recommended for production use**. Test the upgrade and rollback procedures in a non-production environment before relying on them.
-
-This procedure applies only to a deployment created using the [Python package installation method](3b-python-package.md). A package installation does not use `upgrade.sh`; use the installed `netbox upgrade` command instead. For a release archive or Git installation, follow the [procedure above](#upgrade-a-release-archive-or-git-installation).
-
-Complete the preparation steps at the beginning of this page before proceeding.
-
-### 1. Stop the NetBox Services
-
-Stop the web application and background worker services before changing packages in the virtual environment:
-
-```no-highlight
-sudo systemctl stop netbox netbox-rq
-```
-
-### 2. Upgrade NetBox and Local Requirements
-
-Install the target NetBox version into the existing virtual environment. Replace `X.Y.Z` with the exact version being installed:
-
-```no-highlight
-sudo /opt/netbox/venv/bin/python -m pip install --upgrade "netbox==X.Y.Z"
-```
-
-If the deployment uses a package extra, include it in the upgrade command. For example, specify the `ldap` extra again when upgrading a deployment that uses LDAP authentication:
-
-```no-highlight
-sudo /opt/netbox/venv/bin/python -m pip install --upgrade \
-    "netbox[ldap]==X.Y.Z"
-```
-
-Install all plugins and other local Python requirements into the same virtual environment **before** running the NetBox upgrade tasks:
-
-```no-highlight
-sudo /opt/netbox/venv/bin/python -m pip install \
-    -r /opt/netbox/local_requirements.txt
-```
-
-!!! note "Changing the Python version"
-    A virtual environment cannot be moved to a different Python interpreter in place. If the target NetBox release requires another Python version, create a replacement virtual environment, install the target NetBox package and all local requirements into it, and update the service executable paths before restarting NetBox.
-
-### 3. Run the Upgrade Tasks
-
-Run the packaged upgrade command to apply database migrations, collect static files, and perform the remaining application upgrade tasks:
-
-```no-highlight
-sudo -u netbox /opt/netbox/venv/bin/netbox upgrade --no-input
-```
-
-For a non-default instance root or a virtual environment stored elsewhere, use the applicable paths and set `NETBOX_ROOT` explicitly:
-
-```no-highlight
-sudo -u netbox env NETBOX_ROOT=/srv/netbox \
-    /opt/netbox-venv/bin/netbox upgrade --no-input
-```
-
-Ensure that any environment variables referenced by the NetBox configuration are also available when running this command.
-
-### 4. Review the Deployment Configuration
-
-`netbox setup` is not part of a routine upgrade. It leaves existing configuration and deployment examples untouched. To compare the examples bundled with the new package against the local copies without modifying the instance root, scaffold them into a temporary directory:
-
-```no-highlight
-EXAMPLES_DIR=$(mktemp -d)
-/opt/netbox/venv/bin/netbox setup --target "$EXAMPLES_DIR"
-diff --recursive /opt/netbox/contrib "$EXAMPLES_DIR/contrib"
-rm -rf "$EXAMPLES_DIR"
-```
-
-The comparison will also show the package-layout changes made when the deployment examples were first adapted. Distinguish these local changes from updates introduced by the new release, and merge any relevant updates into the administrator-managed systemd, WSGI, and HTTP server configuration.
-
-### 5. Start the NetBox Services
-
-Start the services and verify that both the web application and background workers are operating normally:
-
-```no-highlight
-sudo systemctl start netbox netbox-rq
 ```

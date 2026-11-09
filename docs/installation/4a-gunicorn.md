@@ -51,12 +51,12 @@ You should see output similar to the following:
      Memory: 556.1M (peak: 556.3M)
         CPU: 3.387s
      CGroup: /system.slice/netbox.service
-             ├─7283 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /var/tmp/netbox.pid --pythonpath /opt/netbox/netbox>
-             ├─7285 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /var/tmp/netbox.pid --pythonpath /opt/netbox/netbox>
-             ├─7286 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /var/tmp/netbox.pid --pythonpath /opt/netbox/netbox>
-             ├─7287 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /var/tmp/netbox.pid --pythonpath /opt/netbox/netbox>
-             ├─7288 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /var/tmp/netbox.pid --pythonpath /opt/netbox/netbox>
-             └─7289 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /var/tmp/netbox.pid --pythonpath /opt/netbox/netbox>
+             ├─7283 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /var/tmp/netbox.pid --config /opt/netbox/gunicorn.py>
+             ├─7285 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /var/tmp/netbox.pid --config /opt/netbox/gunicorn.py>
+             ├─7286 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /var/tmp/netbox.pid --config /opt/netbox/gunicorn.py>
+             ├─7287 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /var/tmp/netbox.pid --config /opt/netbox/gunicorn.py>
+             ├─7288 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /var/tmp/netbox.pid --config /opt/netbox/gunicorn.py>
+             └─7289 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /var/tmp/netbox.pid --config /opt/netbox/gunicorn.py>
 
 Jan 26 11:00:00 netbox systemd[1]: Started netbox.service - NetBox WSGI Service.
 ...

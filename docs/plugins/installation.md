@@ -7,12 +7,15 @@
 
 Download and install the plugin's Python package per its installation instructions. Plugins published via PyPI are typically installed using the [`pip`](https://packaging.python.org/en/latest/tutorials/installing-packages/) command line utility. Be sure to install the plugin within NetBox's virtual environment.
 
-For production installations, the recommended method is to add the package to `/opt/netbox/local_requirements.txt` and then run NetBox's upgrade script. This installs the plugin as part of the standard NetBox installation and upgrade process and ensures that it will be reinstalled if the virtual environment is rebuilt.
+The recommended method is to add the package to `/opt/netbox/local_requirements.txt` and then install that file into NetBox's virtual environment. This records the plugin alongside NetBox's other local requirements, so that it can be reinstalled when NetBox is upgraded or the virtual environment is rebuilt.
 
 ```no-highlight
 $ sudo sh -c "echo '<package>' >> /opt/netbox/local_requirements.txt"
-$ sudo /opt/netbox/upgrade.sh
+$ sudo /opt/netbox/venv/bin/python -m pip install -r /opt/netbox/local_requirements.txt
 ```
+
+!!! note "Release archive and Git installations"
+    For a NetBox installation created from a release archive or Git checkout, add the package to `/opt/netbox/local_requirements.txt`, enable and configure the plugin as described below, then run `sudo /opt/netbox/upgrade.sh` and [restart the services](#restart-wsgi-service). The upgrade script installs the package, applies database migrations, and collects static files.
 
 Installing packages into NetBox's virtual environment requires write permissions to that directory. For installations under `/opt/netbox`, a regular user typically does not have write permissions. Activating the virtual environment does not change file permissions, so a direct `pip install` command may result in a `Permission denied` error.
 
@@ -58,16 +61,12 @@ PLUGINS_CONFIG = {
 }
 ```
 
-!!! note
-    If you ran `/opt/netbox/upgrade.sh` after enabling and configuring the plugin, the script has already applied database migrations and collected static files. If you ran it only to install the package before enabling the plugin, continue with the migration and static file steps below.
-
 ## Run Database Migrations
 
 If the plugin introduces new database models, run the provided schema migrations:
 
 ```no-highlight
-(venv) $ cd /opt/netbox/
-(venv) $ python3 netbox/manage.py migrate
+$ sudo -u netbox /opt/netbox/venv/bin/netbox migrate
 ```
 
 !!! tip
@@ -78,9 +77,11 @@ If the plugin introduces new database models, run the provided schema migrations
 Plugins may package static resources like images or scripts to be served directly by the HTTP front end. Ensure that these are copied to the static root directory with the `collectstatic` management command:
 
 ```no-highlight
-(venv) $ cd /opt/netbox/
-(venv) $ python3 netbox/manage.py collectstatic
+$ sudo -u netbox /opt/netbox/venv/bin/netbox collectstatic --no-input
 ```
+
+!!! tip
+    The `netbox upgrade` command performs both of the steps above, along with NetBox's other routine maintenance tasks, and may be run instead.
 
 ## Restart WSGI Service
 

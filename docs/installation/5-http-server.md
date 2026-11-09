@@ -105,11 +105,13 @@ With NetBox up and running, you may want to extend its capabilities by installin
 * [**NetBox DNS**](https://github.com/sys4/netbox-plugin-dns) — Manage DNS zones, records, and related data as an authoritative source of truth.
 * [**NetBox BGP**](https://github.com/netbox-community/netbox-bgp) — Document and manage BGP sessions, communities, and routing policies.
 
-Installing a plugin generally involves adding its Python package to `/opt/netbox/local_requirements.txt`, enabling it in the `PLUGINS` list in `configuration.py`, and running NetBox's upgrade script:
+Installing a plugin generally involves adding its Python package to `/opt/netbox/local_requirements.txt` and installing it into NetBox's virtual environment, enabling it in the `PLUGINS` list in `configuration.py`, running `netbox upgrade`, and restarting the NetBox services:
 
 ```no-highlight
 $ sudo sh -c "echo '<package>' >> /opt/netbox/local_requirements.txt"
-$ sudo /opt/netbox/upgrade.sh
+$ sudo /opt/netbox/venv/bin/python -m pip install -r /opt/netbox/local_requirements.txt
+$ sudo -u netbox /opt/netbox/venv/bin/netbox upgrade --no-input
+$ sudo systemctl restart netbox netbox-rq
 ```
 
 Each plugin is different and may require additional configuration or setup steps, so always consult the plugin's own documentation as well as NetBox's [plugin installation guide](../plugins/installation.md) before getting started.

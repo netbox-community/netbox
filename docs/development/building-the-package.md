@@ -1,6 +1,6 @@
 # Building the Package
 
-NetBox package artifacts (a wheel and a source distribution) can be built and verified locally. Installing NetBox from the Python package is experimental in NetBox v4.7 and is not recommended for production use. This page is intended for maintainers and contributors working on the packaging itself. Routine development does not require building a package.
+NetBox package artifacts (a wheel and a source distribution) can be built and verified locally. This page is intended for maintainers and contributors working on the packaging itself. Routine development does not require building a package.
 
 Published artifacts are always built by CI from a clean checkout (see `.github/workflows/release.yml`). A local build is useful for testing packaging changes before they are merged.
 
@@ -99,7 +99,7 @@ Without configuration, a wheel-installed NetBox looks for `$NETBOX_ROOT/conf/con
 
 ## Packaging architecture
 
-This section is a developer-facing overview of how the package is assembled and how a pip-installed NetBox behaves at runtime. End-user installation steps live in [Install NetBox from the Python Package](../installation/3b-python-package.md).
+This section is a developer-facing overview of how the package is assembled and how a pip-installed NetBox behaves at runtime. End-user installation steps live in [Install NetBox](../installation/3-netbox.md).
 
 ### Dynamic metadata
 

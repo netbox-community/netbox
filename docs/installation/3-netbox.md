@@ -1,6 +1,29 @@
-# Install NetBox from a Release Archive or Git
+# Install NetBox
 
-This page covers the established release archive and Git installation methods. To install NetBox from the experimental Python package instead, follow the [separate package installation guide](3b-python-package.md).
+NetBox is published as a [Python package on PyPI](https://pypi.org/project/netbox/). This guide uses `pip` to install the NetBox application and its Python dependencies into a virtual environment. Configuration, uploaded media, custom scripts and reports, collected static files, and deployment configuration are kept outside the installed package.
+
+This step does **not** configure PostgreSQL, Redis, a WSGI server, an HTTP server, or system services. These are covered by the other steps of the installation guide.
+
+!!! info "Installing from source"
+    NetBox can also be run from a clone of its [Git repository](https://github.com/netbox-community/netbox) or from a release archive (tarball) downloaded from [GitHub](https://github.com/netbox-community/netbox/releases). These methods are intended for developers working on NetBox itself; see the [development guide](../development/getting-started.md) to set up a development environment. Existing deployments installed by these methods can be [migrated to the Python package](#migrate-an-existing-archive-or-git-installation).
+
+## Understand the Installation Layout
+
+A package installation separates the application code from the files that belong to a particular NetBox instance.
+
+| Component | Example Location | Purpose |
+|-----------|------------------|---------|
+| Application code | `<venv>/lib/pythonX.Y/site-packages/` | Installed and replaced by `pip`; do not modify it directly |
+| Python virtual environment | `/opt/netbox/venv/` | Contains NetBox, its dependencies, and any plugins |
+| Instance root | `/opt/netbox/` | Holds local configuration and mutable instance data |
+| Configuration | `/opt/netbox/conf/configuration.py` | Contains settings and credentials for this instance |
+| Mutable data | `/opt/netbox/{media,reports,scripts,static}/` | Persists independently of package upgrades |
+| Deployment examples | `/opt/netbox/contrib/` | Local copies to review and adapt before use |
+
+The instance root defaults to `/opt/netbox` and may be changed with the `NETBOX_ROOT` environment variable. The virtual environment does not need to be located below the instance root; `/opt/netbox/venv` is used throughout this guide only to keep the example straightforward.
+
+!!! note "Custom instance roots"
+    The `--target` option for `netbox setup` selects where the local files are created. It does not permanently set the instance root. When using a location other than `/opt/netbox`, set `NETBOX_ROOT` for all NetBox commands and services.
 
 ## Install System Packages
 
@@ -21,85 +44,84 @@ Before continuing, check that your installed Python version is at least 3.12:
 python3 -V
 ```
 
-## Download NetBox
+## Create the System User and Instance Root
 
-This documentation provides two options for installing NetBox: from a downloadable archive, or from the git repository. Installing from a package (option A below) requires manually fetching and extracting the archive for every future update, whereas installation via git (option B) allows for seamless upgrades by checking out the latest release tag.
-
-### Option A: Download a Release Archive
-
-Download the [latest stable release](https://github.com/netbox-community/netbox/releases) from GitHub as a tarball or ZIP archive and extract it to your desired path. In this example, we'll use `/opt/netbox` as the NetBox root.
+Create the `netbox` system account and the default instance root:
 
 ```no-highlight
-sudo wget https://github.com/netbox-community/netbox/archive/refs/tags/vX.Y.Z.tar.gz
-sudo tar -xzf vX.Y.Z.tar.gz -C /opt
-sudo ln -s /opt/netbox-X.Y.Z/ /opt/netbox
-```
-
-!!! note
-    It is recommended to install NetBox in a directory named for its version number. For example, NetBox v4.0.0 would be installed into `/opt/netbox-4.0.0`, and a symlink from `/opt/netbox/` would point to this location. (You can verify this configuration with the command `ls -l /opt | grep netbox`.) This allows for future releases to be installed in parallel without interrupting the current installation. When changing to the new release, only the symlink needs to be updated.
-
-### Option B: Clone the Git Repository
-
-Create the base directory for the NetBox installation. For this guide, we'll use `/opt/netbox`.
-
-```no-highlight
-sudo mkdir -p /opt/netbox/
-cd /opt/netbox/
-```
-
-If `git` is not already installed, install it:
-
-```no-highlight
-sudo apt install -y git
-```
-
-Next, clone the git repository:
-
-```no-highlight
-sudo git clone https://github.com/netbox-community/netbox.git .
-```
-
-This command should generate output similar to the following:
-
-```
-Cloning into '.'...
-remote: Enumerating objects: 148317, done.
-remote: Counting objects: 100% (183/183), done.
-remote: Compressing objects: 100% (115/115), done.
-remote: Total 148317 (delta 127), reused 68 (delta 68), pack-reused 148134 (from 3)
-Receiving objects: 100% (148317/148317), 165.12 MiB | 28.71 MiB/s, done.
-Resolving deltas: 100% (116428/116428), done.
-```
-
-Finally, check out the tag for the desired release. You can find these on our [releases page](https://github.com/netbox-community/netbox/releases). Replace `vX.Y.Z` with your selected release tag below.
-
-```
-sudo git checkout vX.Y.Z
-```
-
-Using this installation method enables easy upgrades in the future by simply checking out the latest release tag.
-
-## Create the NetBox System User
-
-Create a system user account named `netbox`. We'll configure the WSGI and HTTP services to run under this account. We'll also assign this user ownership of the media directory. This ensures that NetBox will be able to save uploaded files.
-
-```
 sudo adduser --system --group netbox
-sudo chown --recursive netbox /opt/netbox/netbox/media/
-sudo chown --recursive netbox /opt/netbox/netbox/reports/
-sudo chown --recursive netbox /opt/netbox/netbox/scripts/
+sudo mkdir -p /opt/netbox
+sudo chown root:netbox /opt/netbox
+sudo chmod 755 /opt/netbox
 ```
 
-## Configuration
+## Create the Virtual Environment
 
-Move into the NetBox configuration directory and make a copy of `configuration_example.py` named `configuration.py`. This file will hold all of your local configuration parameters.
+Create a Python virtual environment and update `pip`:
 
 ```no-highlight
-cd /opt/netbox/netbox/netbox/
-sudo cp configuration_example.py configuration.py
+sudo python3 -m venv /opt/netbox/venv
+sudo /opt/netbox/venv/bin/python -m pip install --upgrade pip
 ```
 
-Open `configuration.py` with your preferred editor to begin configuring NetBox. NetBox offers [many configuration parameters](../configuration/index.md), but only the following five are required for new installations:
+If the default `python3` executable is older than Python 3.12, create the virtual environment with a supported interpreter instead (for example, `sudo python3.12 -m venv /opt/netbox/venv`).
+
+Install the desired NetBox release. Replace `X.Y.Z` with the exact version to install. (Available releases are listed on [PyPI](https://pypi.org/project/netbox/#history).)
+
+```no-highlight
+sudo /opt/netbox/venv/bin/python -m pip install "netbox==X.Y.Z"
+```
+
+Pinning the version makes the installed release explicit and prevents an unintended upgrade when the command is repeated later.
+
+## Scaffold the Instance Root
+
+Run `netbox setup` to create the local configuration skeleton and copy the bundled deployment examples:
+
+```no-highlight
+sudo /opt/netbox/venv/bin/netbox setup --target /opt/netbox
+```
+
+The command creates the following files when they do not already exist:
+
+```no-highlight
+/opt/netbox/
+├── conf/
+│   ├── __init__.py
+│   └── configuration.py
+├── contrib/
+│   ├── apache.conf
+│   ├── gunicorn.py
+│   ├── netbox-rq.service
+│   ├── netbox.env
+│   ├── netbox.service
+│   ├── nginx.conf
+│   └── uwsgi.ini
+└── local_requirements.txt
+```
+
+`netbox setup` is intentionally non-destructive: existing files are left untouched. It does not install systemd units, configure an HTTP server, rewrite deployment examples for the local paths, or enable plugins.
+
+Create the directories used for mutable instance data and grant the NetBox service account ownership of them:
+
+```no-highlight
+sudo mkdir -p /opt/netbox/{media,reports,scripts,static}
+sudo chown --recursive netbox:netbox \
+    /opt/netbox/media \
+    /opt/netbox/reports \
+    /opt/netbox/scripts \
+    /opt/netbox/static
+```
+
+## Configure NetBox
+
+Open the scaffolded configuration file with your preferred editor:
+
+```no-highlight
+sudo ${EDITOR:-vi} /opt/netbox/conf/configuration.py
+```
+
+NetBox offers [many configuration parameters](../configuration/index.md), but only the following five are required for new installations:
 
 * `ALLOWED_HOSTS`
 * `API_TOKEN_PEPPERS`
@@ -133,9 +155,9 @@ API_TOKEN_PEPPERS = {
 ```
 
 !!! tip
-    As with [`SECRET_KEY`](#secret_key) below, you can use the `generate_secret_key.py` script to generate a random pepper:
+    As with [`SECRET_KEY`](#secret_key) below, you can use the `netbox secret-key` command to generate a random pepper. Run it separately for each value so that the pepper and `SECRET_KEY` are independent:
     ```no-highlight
-    python3 ../generate_secret_key.py
+    sudo /opt/netbox/venv/bin/netbox secret-key
     ```
 
 ### DATABASES
@@ -186,111 +208,111 @@ REDIS = {
 
 This parameter must be assigned a randomly-generated key employed as a salt for hashing and related cryptographic functions. (Note, however, that it is _never_ directly used in the encryption of secret data.) This key must be unique to this installation and is recommended to be at least 50 characters long. It should not be shared outside the local system.
 
-A simple Python script named `generate_secret_key.py` is provided in the parent directory to assist in generating a suitable key:
+Generate a suitable key with the installed `netbox secret-key` command:
 
 ```no-highlight
-python3 ../generate_secret_key.py
+sudo /opt/netbox/venv/bin/netbox secret-key
 ```
 
 !!! warning "SECRET_KEY values must match"
     In the case of a highly available installation with multiple web servers, `SECRET_KEY` must be identical among all servers in order to maintain a persistent user session state.
 
-When you have finished modifying the configuration, remember to save the file.
+### Restrict Access to the Configuration
 
-## Optional Requirements
-
-All Python packages required by NetBox are listed in `requirements.txt` and will be installed automatically. NetBox also supports some optional packages. If desired, these packages must be listed in `local_requirements.txt` within the NetBox root directory.
-
-### Remote File Storage
-
-By default, NetBox will use the local filesystem to store uploaded files. To use a remote filesystem, install the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) library and configure your [desired storage backend](../configuration/system.md#storages) in `configuration.py`.
+After saving the configuration, restrict access while allowing the NetBox service account to read it:
 
 ```no-highlight
-sudo sh -c "echo 'django-storages' >> /opt/netbox/local_requirements.txt"
+sudo chown --recursive root:netbox /opt/netbox/conf
+sudo chmod 750 /opt/netbox/conf
+sudo chmod 640 /opt/netbox/conf/configuration.py
 ```
 
-### Remote Data Sources
+!!! note "Environment-based configuration"
+    Ensure that any environment variables referenced by `configuration.py` are present when running `netbox upgrade`, `netbox createsuperuser`, and other management commands, and provide the same variables to both NetBox services. The copied `contrib/netbox.env` file is an example only and is not loaded automatically.
 
-NetBox supports integration with several remote data sources via configurable backends. Each of these requires the installation of one or more additional libraries.
+## Install Optional Packages and Plugins
 
-* Amazon S3: [`boto3`](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html)
-* Git: [`dulwich`](https://www.dulwich.io/)
+### Package Extras
 
-For example, to enable the Amazon S3 backend, add `boto3` to your local requirements file:
+NetBox provides optional package extras for several common integrations. Each extra installs the additional Python libraries required by an integration:
+
+| Extra | Installs | Purpose |
+|-------|----------|---------|
+| `ldap` | `django-auth-ldap` | [LDAP authentication](6-ldap.md) |
+| `saml2` | `python3-saml` | SAML single sign-on |
+| `remote-auth` | `django-auth-ldap`, `python3-saml` | LDAP authentication and SAML single sign-on |
+| `s3` | `boto3` | Amazon S3 [remote data sources](../features/synchronized-data.md) and [file storage](../configuration/system.md#storages) |
+| `git` | `dulwich` | Git [remote data sources](../features/synchronized-data.md) |
+| `swift` | `django-storage-swift` | OpenStack Swift [file storage](../configuration/system.md#storages) |
+| `sentry` | `sentry-sdk` | [Sentry error reporting](../administration/error-reporting.md) |
+
+To install one or more extras, install NetBox again with the same pinned version, listing the extras in brackets. For example, to install the LDAP and Amazon S3 dependencies:
 
 ```no-highlight
-sudo sh -c "echo 'boto3' >> /opt/netbox/local_requirements.txt"
+sudo /opt/netbox/venv/bin/python -m pip install "netbox[ldap,s3]==X.Y.Z"
 ```
 
-!!! info
-    These packages were previously required in NetBox v3.5 but now are optional.
-
-### Sentry Integration
-
-NetBox may be configured to send error reports to [Sentry](../administration/error-reporting.md) for analysis. This integration requires installation of the `sentry-sdk` Python library.
+Remember which extras are in use and specify them again when upgrading. For LDAP authentication, create `ldap_config.py` beside the active configuration file at `/opt/netbox/conf/ldap_config.py` when following the [LDAP configuration guide](6-ldap.md). Give it the same ownership and permissions as `configuration.py`:
 
 ```no-highlight
-sudo sh -c "echo 'sentry-sdk' >> /opt/netbox/local_requirements.txt"
+sudo chown root:netbox /opt/netbox/conf/ldap_config.py
+sudo chmod 640 /opt/netbox/conf/ldap_config.py
 ```
 
-!!! info
-    Sentry integration was previously included by default in NetBox v3.6 but is now optional.
+### Plugins and Other Python Packages
 
-## Run the Upgrade Script
-
-Once NetBox has been configured, we're ready to proceed with the actual installation. We'll run the packaged upgrade script (`upgrade.sh`) to perform the following actions:
-
-* Create a Python virtual environment
-* Installs all required Python packages
-* Run database schema migrations (skip with `--readonly`)
-* Builds the documentation locally (for offline use)
-* Aggregate static resource files on disk
-
-!!! warning
-    If you still have a Python virtual environment active from a previous installation step, disable it now by running the `deactivate` command. This will avoid errors on systems where `sudo` has been configured to preserve the user's current environment.
+Plugins and any other local Python requirements must be installed into the **same virtual environment** as NetBox before running the installation or upgrade tasks. Add each package to `/opt/netbox/local_requirements.txt`, then install the file:
 
 ```no-highlight
-sudo /opt/netbox/upgrade.sh
+sudo ${EDITOR:-vi} /opt/netbox/local_requirements.txt
+sudo /opt/netbox/venv/bin/python -m pip install \
+    -r /opt/netbox/local_requirements.txt
 ```
 
-Note that **Python 3.12 or later is required** for NetBox v4.5 and later releases. If the default Python installation on your server is set to a lesser version, pass the path to the supported installation as an environment variable named `PYTHON`. (Note that the environment variable must be passed _after_ the `sudo` command.)
+Installing a plugin does not enable it. Add the plugin to the `PLUGINS` list in `/opt/netbox/conf/configuration.py` and complete any plugin-specific configuration separately.
+
+## Run the Installation Tasks
+
+Run the `netbox upgrade` command to perform the application installation tasks:
 
 ```no-highlight
-sudo PYTHON=/usr/bin/python3.12 /opt/netbox/upgrade.sh
+sudo -u netbox /opt/netbox/venv/bin/netbox upgrade --no-input
+```
+
+The same command is used for both a fresh installation and future upgrades. It performs the following actions:
+
+* Applies database schema migrations
+* Traces any missing cable paths
+* Collects static files to be served by the HTTP server
+* Removes stale content types from the database
+* Rebuilds the search index
+* Clears expired user sessions from the database
+
+For a custom instance root, pass `NETBOX_ROOT` explicitly. The virtual environment may remain elsewhere:
+
+```no-highlight
+sudo -u netbox env NETBOX_ROOT=/srv/netbox \
+    /opt/netbox-venv/bin/netbox upgrade --no-input
 ```
 
 !!! note
-    Upon completion, the upgrade script may warn that no existing virtual environment was detected. As this is a new installation, this warning can be safely ignored.
+    To run the command on a node connected to a database in read-only mode, include the `--readonly` option. This skips all tasks that modify the database or filesystem.
 
-!!! note
-    To run the script on a node connected to a database in read-only mode, include the `--readonly` parameter. This will skip the application of any database migrations.
+## Create a Superuser
 
-## Create a Super User
-
-NetBox does not come with any predefined user accounts. You'll need to create a super user (administrative account) to be able to log into NetBox. First, enter the Python virtual environment created by the upgrade script:
+NetBox does not come with any predefined user accounts. Create a superuser (administrative account) to be able to log into NetBox. Specifying an email address for the user is not required, but be sure to use a very strong password.
 
 ```no-highlight
-source /opt/netbox/venv/bin/activate
-```
-
-Once the virtual environment has been activated, you should notice the string `(venv)` prepended to your console prompt.
-
-Next, we'll create a superuser account using the `createsuperuser` Django management command (via `manage.py`). Specifying an email address for the user is not required, but be sure to use a very strong password.
-
-```no-highlight
-cd /opt/netbox/netbox
-python3 manage.py createsuperuser
+sudo -u netbox /opt/netbox/venv/bin/netbox createsuperuser
 ```
 
 ## Test the Application
 
-At this point, we should be able to run NetBox's development server for testing. We can check by starting a development instance locally.
-
-!!! tip
-    Check that the Python virtual environment is still active before attempting to run the server.
+Start Django's development server temporarily to confirm that NetBox can load its configuration and connect to its dependencies:
 
 ```no-highlight
-python3 manage.py runserver 0.0.0.0:8000 --insecure
+sudo -u netbox /opt/netbox/venv/bin/netbox \
+    runserver 0.0.0.0:8000 --insecure
 ```
 
 If successful, you should see output similar to the following:
@@ -314,3 +336,155 @@ Next, connect to the name or IP of the server (as defined in `ALLOWED_HOSTS`) on
     If the test service does not run, or you cannot reach the NetBox home page, something has gone wrong. Do not proceed with the rest of this guide until the installation has been corrected.
 
 Type `Ctrl+c` to stop the development server.
+
+## Adapt the Deployment Examples
+
+The files copied to `/opt/netbox/contrib/` reference a source-tree layout and are not rewritten for the package layout. Adapt them before following the Gunicorn, uWSGI, and HTTP server instructions.
+
+For the default paths used in this guide, the following commands remove the source-tree references:
+
+```no-highlight
+sudo sed -i \
+    's| --pythonpath /opt/netbox/netbox||' \
+    /opt/netbox/contrib/netbox.service
+
+sudo sed -i \
+    's|/opt/netbox/venv/bin/python3 /opt/netbox/netbox/manage.py|/opt/netbox/venv/bin/netbox|' \
+    /opt/netbox/contrib/netbox-rq.service
+
+sudo sed -i \
+    's|chdir = netbox|chdir = /opt/netbox|' \
+    /opt/netbox/contrib/uwsgi.ini
+
+sudo sed -i \
+    's|/opt/netbox/netbox/static|/opt/netbox/static|g' \
+    /opt/netbox/contrib/nginx.conf \
+    /opt/netbox/contrib/apache.conf
+```
+
+These changes have the following effect:
+
+| File | Package Installation Change |
+|------|-----------------------------|
+| `netbox.service` | Imports `netbox.wsgi` from the virtual environment without a source-tree `--pythonpath` |
+| `netbox-rq.service` | Runs the RQ worker through the installed `netbox` command instead of `manage.py` |
+| `uwsgi.ini` | Uses the instance root rather than the absent `/opt/netbox/netbox/` source directory |
+| `nginx.conf` and `apache.conf` | Serve collected static files from `/opt/netbox/static/` |
+
+Review every file before installing it. When using a different instance root or virtual environment, update all `WorkingDirectory`, `ExecStart`, `chdir`, virtual environment, and static-file paths accordingly. Also add the following line to the `[Service]` section of both systemd units, replacing the path as needed:
+
+```ini
+Environment=NETBOX_ROOT=/srv/netbox
+```
+
+When using environment-based configuration, reference an appropriate environment file from both systemd units or define the required variables directly in each unit.
+
+## Continue the Installation
+
+With the deployment examples adapted, continue with either [Gunicorn](4a-gunicorn.md) or [uWSGI](4b-uwsgi.md). Then configure an [HTTP server](5-http-server.md) and, if needed, [LDAP authentication](6-ldap.md).
+
+The following pages copy files from `/opt/netbox/contrib/`, so make the package-specific changes above **before** copying those files into their final locations.
+
+## Migrate an Existing Archive or Git Installation
+
+!!! warning "Back up before migrating"
+    Migrating an existing deployment to the Python package changes its filesystem layout and upgrade procedure. Take a complete backup, document the current configuration, and verify a rollback procedure before proceeding.
+
+Deployments installed from a release archive or Git checkout can be migrated to the Python package. This is not an in-place conversion: the procedure below builds a new package-based deployment alongside the existing one, which is retained until the new deployment has been validated.
+
+Python package releases begin with NetBox v4.7. Before migrating an older deployment, first upgrade the existing archive or Git installation to a version that is available as a Python package.
+
+Migrate the layout separately from a NetBox version upgrade. Install the **same NetBox version** that is currently running, validate the package-based deployment, and only then upgrade to a newer release.
+
+The following example keeps the existing `/opt/netbox` installation in place during migration. It uses `/srv/netbox` as the new instance root and `/opt/netbox-venv` for the new virtual environment.
+
+1. Stop the existing NetBox services after completing a backup:
+
+    ```no-highlight
+    sudo systemctl stop netbox netbox-rq
+    ```
+
+2. Create the new virtual environment and install the same NetBox version as the existing deployment:
+
+    ```no-highlight
+    sudo python3 -m venv /opt/netbox-venv
+    sudo /opt/netbox-venv/bin/python -m pip install --upgrade pip
+    sudo /opt/netbox-venv/bin/python -m pip install "netbox==X.Y.Z"
+    ```
+
+3. Scaffold the new instance root and create its mutable directories:
+
+    ```no-highlight
+    sudo mkdir -p /srv/netbox
+    sudo chown root:netbox /srv/netbox
+    sudo chmod 755 /srv/netbox
+    sudo /opt/netbox-venv/bin/netbox setup --target /srv/netbox
+    sudo mkdir -p /srv/netbox/{media,reports,scripts,static}
+    sudo chown --recursive netbox:netbox \
+        /srv/netbox/media \
+        /srv/netbox/reports \
+        /srv/netbox/scripts \
+        /srv/netbox/static
+    ```
+
+4. Copy the active configuration from the existing installation. If `local_requirements.txt` exists, copy it over the empty file created by `netbox setup`:
+
+    ```no-highlight
+    sudo cp /opt/netbox/netbox/netbox/configuration.py \
+        /srv/netbox/conf/configuration.py
+
+    if [ -f /opt/netbox/local_requirements.txt ]; then
+        sudo cp /opt/netbox/local_requirements.txt \
+            /srv/netbox/local_requirements.txt
+    fi
+    ```
+
+    When the existing deployment uses `NETBOX_CONFIGURATION`, copy the active configuration module instead, together with any sibling modules or local files it imports. Review the copied configuration and update any filesystem paths that still reference the old source tree.
+
+    If LDAP is configured, also copy the active `ldap_config.py` to `/srv/netbox/conf/ldap_config.py`.
+
+5. Copy locally stored media, reports, and scripts. Do not copy collected static files; `netbox upgrade` will create them again.
+
+    ```no-highlight
+    sudo cp -a /opt/netbox/netbox/media/. /srv/netbox/media/
+    sudo cp -a /opt/netbox/netbox/reports/. /srv/netbox/reports/
+    sudo cp -a /opt/netbox/netbox/scripts/. /srv/netbox/scripts/
+    sudo chown --recursive netbox:netbox \
+        /srv/netbox/media \
+        /srv/netbox/reports \
+        /srv/netbox/scripts
+    ```
+
+    Use the paths configured by `MEDIA_ROOT`, `REPORTS_ROOT`, and `SCRIPTS_ROOT` instead when the existing deployment stores these files elsewhere.
+
+6. Install all plugins and local requirements into the new virtual environment **before** running the upgrade tasks:
+
+    ```no-highlight
+    sudo /opt/netbox-venv/bin/python -m pip install \
+        -r /srv/netbox/local_requirements.txt
+    ```
+
+    Repeat any [package extras](#package-extras) needed by the deployment, and verify that each plugin supports the installed NetBox version.
+
+7. Secure the configuration and run the package installation tasks against the existing database:
+
+    ```no-highlight
+    sudo chown --recursive root:netbox /srv/netbox/conf
+    sudo chmod 750 /srv/netbox/conf
+    sudo chmod 640 /srv/netbox/conf/configuration.py
+
+    sudo -u netbox env NETBOX_ROOT=/srv/netbox \
+        /opt/netbox-venv/bin/netbox upgrade --no-input
+    ```
+
+    If `ldap_config.py` was copied, also run `sudo chmod 640 /srv/netbox/conf/ldap_config.py`.
+
+8. Follow [Adapt the Deployment Examples](#adapt-the-deployment-examples), substituting `/srv/netbox` and `/opt/netbox-venv` for the example paths. Install the updated systemd and HTTP server configuration, switch the services to the package deployment, and ensure that both systemd units define `NETBOX_ROOT=/srv/netbox`.
+
+9. Start the services, test the web interface and background processing, and retain the previous installation until the new deployment has been validated:
+
+    ```no-highlight
+    sudo systemctl start netbox netbox-rq
+    ```
+
+After the migration is complete, use the [standard upgrade procedure](upgrading.md#upgrade-a-python-package-installation) for future releases.
