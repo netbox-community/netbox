@@ -126,9 +126,18 @@ class CSVModelForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # Modify the model form to accommodate any customized to_field_name properties
-        for field, to_field in self.headers.items():
+        for field_name, to_field in self.headers.items():
             if to_field is not None:
-                self.fields[field].to_field_name = to_field
+                field = self.fields[field_name]
+                field.to_field_name = to_field
+
+    def get_related_filter(self, path, field_name, value):
+        """
+        Return filter parameters matching objects related through `path` to the object identified by `value` in the
+        field `field_name`. Used to limit one field's queryset by the value of another.
+        """
+        field = self.fields[field_name]
+        return {f'{path}__{field.to_field_name}': value}
 
     def clean(self):
         # Flag any invalid CSV headers

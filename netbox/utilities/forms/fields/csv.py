@@ -69,7 +69,18 @@ class CSVTypedChoiceField(forms.TypedChoiceField):
     widget = CSVSelectWidget
 
 
-class CSVModelChoiceField(forms.ModelChoiceField):
+class CSVQuerysetMixin:
+    """
+    Provides lookup of objects in a CSV field's queryset by a single CSV value.
+    """
+    def filter_by_value(self, value):
+        """
+        Return the objects in the field's queryset matching a single CSV value.
+        """
+        return self.queryset.filter(**{self.to_field_name or 'pk': value})
+
+
+class CSVModelChoiceField(CSVQuerysetMixin, forms.ModelChoiceField):
     """
     Extends Django's `ModelChoiceField` to provide additional validation for CSV values.
     """
@@ -90,7 +101,7 @@ class CSVModelChoiceField(forms.ModelChoiceField):
             )
 
 
-class CSVModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+class CSVModelMultipleChoiceField(CSVQuerysetMixin, forms.ModelMultipleChoiceField):
     """
     Extends Django's `ModelMultipleChoiceField` to support comma-separated values.
     """

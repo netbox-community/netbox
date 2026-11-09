@@ -241,14 +241,10 @@ class PrefixImportForm(ScopedImportForm, PrimaryModelImportForm):
         query = Q()
 
         if vlan_site:
-            query |= Q(**{
-                f"site__{self.fields['vlan_site'].to_field_name}": vlan_site
-            })
+            query |= Q(**self.get_related_filter('site', 'vlan_site', vlan_site))
 
         if vlan_group:
-            query &= Q(**{
-                f"group__{self.fields['vlan_group'].to_field_name}": vlan_group
-            })
+            query &= Q(**self.get_related_filter('group', 'vlan_group', vlan_group))
 
         queryset = self.fields['vlan'].queryset.filter(query)
         self.fields['vlan'].queryset = queryset
@@ -370,13 +366,13 @@ class IPAddressImportForm(PrimaryModelImportForm):
             # Limit interface queryset by assigned device
             if data.get('device'):
                 self.fields['interface'].queryset = Interface.objects.filter(
-                    **{f"device__{self.fields['device'].to_field_name}": data['device']}
+                    **self.get_related_filter('device', 'device', data['device'])
                 )
 
             # Limit interface queryset by assigned VM
             elif data.get('virtual_machine'):
                 self.fields['interface'].queryset = VMInterface.objects.filter(
-                    **{f"virtual_machine__{self.fields['virtual_machine'].to_field_name}": data['virtual_machine']}
+                    **self.get_related_filter('virtual_machine', 'virtual_machine', data['virtual_machine'])
                 )
 
     def clean_is_primary(self):

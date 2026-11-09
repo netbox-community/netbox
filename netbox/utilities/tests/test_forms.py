@@ -12,7 +12,7 @@ from netbox.choices import ImportFormatChoices
 from utilities.choices import Choice, ChoiceSet
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.forms.fields import ChoiceField, MultipleChoiceField, TypedChoiceField
-from utilities.forms.fields.csv import CSVSelectWidget
+from utilities.forms.fields.csv import CSVModelChoiceField, CSVModelMultipleChoiceField, CSVSelectWidget
 from utilities.forms.fields.dynamic import (
     DynamicChoiceField,
     DynamicModelChoiceField,
@@ -20,7 +20,7 @@ from utilities.forms.fields.dynamic import (
     DynamicMultipleChoiceField,
 )
 from utilities.forms.fields.generic import GenericObjectChoiceField
-from utilities.forms.forms import BulkRenameForm
+from utilities.forms.forms import BulkRenameForm, CSVModelForm
 from utilities.forms.mixins import GenericObjectFormMixin
 from utilities.forms.rendering import FieldSet
 from utilities.forms.utils import (
@@ -565,6 +565,60 @@ class CSVSelectWidgetTestCase(TestCase):
         widget = CSVSelectWidget()
         data = {'test_field': 'valid_value'}
         self.assertFalse(widget.value_omitted_from_data(data, {}, 'test_field'))
+
+
+class CSVModelFieldFilterByValueTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        Site.objects.bulk_create((
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        ))
+
+    def test_filter_by_value_with_to_field_name(self):
+        site = Site.objects.get(slug='site-1')
+        for field_class in (CSVModelChoiceField, CSVModelMultipleChoiceField):
+            with self.subTest(field_class=field_class.__name__):
+                field = field_class(queryset=Site.objects.all(), to_field_name='slug')
+                self.assertQuerySetEqual(field.filter_by_value('site-1'), [site])
+
+    def test_filter_by_value_without_to_field_name(self):
+        site = Site.objects.get(slug='site-2')
+        for field_class in (CSVModelChoiceField, CSVModelMultipleChoiceField):
+            with self.subTest(field_class=field_class.__name__):
+                field = field_class(queryset=Site.objects.all())
+                self.assertQuerySetEqual(field.filter_by_value(site.pk), [site])
+
+    def test_filter_by_value_no_match(self):
+        field = CSVModelChoiceField(queryset=Site.objects.all(), to_field_name='name')
+        self.assertFalse(field.filter_by_value('Site 3').exists())
+
+
+class CSVModelFormGetRelatedFilterTestCase(TestCase):
+
+    class RackImportTestForm(CSVModelForm):
+        site = CSVModelChoiceField(queryset=Site.objects.all(), to_field_name='name')
+
+        class Meta:
+            model = Rack
+            fields = ('site',)
+
+    def test_get_related_filter(self):
+        form = self.RackImportTestForm()
+        self.assertEqual(form.get_related_filter('site', 'site', 'Site 1'), {'site__name': 'Site 1'})
+
+    def test_get_related_filter_nested_path(self):
+        form = self.RackImportTestForm()
+        self.assertEqual(
+            form.get_related_filter('rack__site', 'site', 'Site 1'),
+            {'rack__site__name': 'Site 1'}
+        )
+
+    def test_get_related_filter_with_csv_header(self):
+        # A CSV header such as "site.slug" overrides the field's to_field_name
+        form = self.RackImportTestForm(headers={'site': 'slug'})
+        self.assertEqual(form.get_related_filter('site', 'site', 'site-1'), {'site__slug': 'site-1'})
 
 
 class SelectMultipleWidgetTestCase(TestCase):
