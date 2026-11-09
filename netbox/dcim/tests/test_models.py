@@ -17,6 +17,7 @@ from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
 from dcim.choices import *
 from dcim.models import *
+from dcim.utils import resolve_module_placeholder
 from extras.events import serialize_for_event
 from extras.models import CustomField
 from ipam.models import IPAddress, Prefix
@@ -25,6 +26,7 @@ from netbox.context_managers import event_tracking
 from tenancy.models import Tenant
 from users.models import User
 from utilities.data import drange
+from utilities.exceptions import AbortRequest
 from utilities.testing import create_test_device, create_test_image
 from virtualization.models import Cluster, ClusterType
 
@@ -2156,6 +2158,41 @@ class ModuleBayTestCase(TestCase):
 
         interface = iface_module.interfaces.first()
         self.assertEqual(interface.name, 'Gi1/2')
+
+    @tag('regression')  # #23478
+    def test_module_token_depth_mismatch_in_label_raises_abort_request(self):
+        """An unresolvable {module} label aborts a direct module install with AbortRequest."""
+        device = Device.objects.first()
+        module_bay = ModuleBay.objects.create(device=device, name='Token Label Bay', position='1')
+        module_type = ModuleType.objects.create(manufacturer=Manufacturer.objects.first(), model='Token Label Type')
+        InterfaceTemplate.objects.create(
+            module_type=module_type, name='eth0', label='{module}/{module}', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        module = Module(device=device, module_bay=module_bay, module_type=module_type)
+        with self.assertRaises(AbortRequest) as cm:
+            module.save()
+        self.assertIn('2 placeholders given', cm.exception.message)
+
+    @tag('regression')  # #23478
+    def test_module_token_without_bay_position_raises_abort_request(self):
+        """A {module} name in a bay without a position aborts a direct module install with AbortRequest."""
+        device = Device.objects.first()
+        module_bay = ModuleBay.objects.create(device=device, name='Token Name Bay')
+        module_type = ModuleType.objects.create(manufacturer=Manufacturer.objects.first(), model='Token Name Type')
+        InterfaceTemplate.objects.create(
+            module_type=module_type, name='eth{module}', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        module = Module(device=device, module_bay=module_bay, module_type=module_type)
+        with self.assertRaises(AbortRequest) as cm:
+            module.save()
+        self.assertIn('no position defined', cm.exception.message)
+
+    @tag('regression')  # #23478
+    def test_module_token_without_positions_raises_value_error(self):
+        """A {module} token with no bay position to resolve against raises ValueError."""
+        with self.assertRaises(ValueError) as cm:
+            resolve_module_placeholder('eth{module}', [])
+        self.assertIn('no position defined', str(cm.exception))
 
     @tag('regression')  # #20912
     def test_module_bay_parent_cleared_when_module_removed(self):

@@ -7,7 +7,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from dcim.choices import *
-from dcim.constants import MACADDRESS_ASSIGNMENT_MODELS, MODULE_TOKEN
+from dcim.constants import MACADDRESS_ASSIGNMENT_MODELS
 from dcim.models import Device, DeviceBay, MACAddress, Module, VirtualDeviceContext
 from dcim.utils import get_module_bay_positions, resolve_module_placeholder
 from extras.api.serializers_.configtemplates import ConfigTemplateSerializer
@@ -274,16 +274,11 @@ class ModuleSerializer(PrimaryModelSerializer):
             }
 
             for template in getattr(module_type, templates_attr).all():
-                resolved_name = template.name
-                if MODULE_TOKEN in template.name:
-                    if not module_bay.position:
-                        raise serializers.ValidationError(
-                            _("Cannot install module with placeholder values in a module bay with no position defined.")
-                        )
-                    try:
-                        resolved_name = resolve_module_placeholder(template.name, positions)
-                    except ValueError as e:
-                        raise serializers.ValidationError(str(e))
+                try:
+                    resolved_name = resolve_module_placeholder(template.name, positions)
+                    resolve_module_placeholder(template.label, positions)
+                except ValueError as e:
+                    raise serializers.ValidationError(str(e)) from e
 
                 existing_item = installed_components.get(resolved_name)
 
@@ -302,6 +297,14 @@ class ModuleSerializer(PrimaryModelSerializer):
                             name=resolved_name
                         )
                     )
+
+        # Module bay names are unique per module, not per device, so only their placeholders are checked
+        for template in module_type.modulebaytemplates.all():
+            try:
+                for value in (template.name, template.label, template.position):
+                    resolve_module_placeholder(value, positions)
+            except ValueError as e:
+                raise serializers.ValidationError(str(e)) from e
 
         return data
 
