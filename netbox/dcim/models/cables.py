@@ -993,6 +993,9 @@ class CablePath(models.Model):
         is_complete = False
         is_active = True
         is_split = False
+        # Path length and active state where the trace fanned out across a multi-position front port
+        fanout = None
+        diverged = False
 
         logger.debug(f'Tracing cable path from {terminations}...')
 
@@ -1012,7 +1015,10 @@ class CablePath(models.Model):
                 not isinstance(terminations[0].parent_object, Circuit) and
                 not all(t.parent_object == terminations[0].parent_object for t in terminations[1:])
             ):
-                raise UnsupportedCablePath(_("All mid-span terminations must have the same parent object"))
+                if fanout is None:
+                    raise UnsupportedCablePath(_("All mid-span terminations must have the same parent object"))
+                diverged = True
+                break
 
             # Check for a split path (e.g. rear port fanning out to multiple front ports with
             # different cables attached)
@@ -1177,14 +1183,10 @@ class CablePath(models.Model):
                     for rt in remote_terminations:
                         q_filter |= Q(front_port=rt, front_port_position__in=positions)
                     port_mappings = PortMapping.objects.filter(q_filter)
-                elif remote_terminations[0].positions > 1:
-                    is_split = True
-                    logger.debug(
-                        'Encountered front port mapped to multiple rear ports but position stack is empty; aborting '
-                        'trace.'
-                    )
-                    break
                 else:
+                    # Without positional context, follow all mappings; branches must converge on one endpoint
+                    if remote_terminations[0].positions > 1 and fanout is None:
+                        fanout = (len(path), is_active)
                     port_mappings = PortMapping.objects.filter(front_port__in=remote_terminations)
                 if not port_mappings:
                     break
@@ -1257,7 +1259,9 @@ class CablePath(models.Model):
 
             else:
                 # Check for non-symmetric path
-                if all(isinstance(t, type(remote_terminations[0])) for t in remote_terminations[1:]):
+                if fanout is not None and len(remote_terminations) > 1:
+                    diverged = True
+                elif all(isinstance(t, type(remote_terminations[0])) for t in remote_terminations[1:]):
                     is_complete = True
                 elif len(remote_terminations) == 0:
                     is_complete = False
@@ -1267,6 +1271,14 @@ class CablePath(models.Model):
                     is_split = True
                     logger.warning('Encountered an unsupported topology; aborting trace.')
                 break
+
+        if diverged:
+            # Branches from a fanned-out front port reached different endpoints; truncate as a split path
+            logger.debug('Front port branches diverged; treating path as split.')
+            path = path[:fanout[0]]
+            is_active = fanout[1]
+            is_complete = False
+            is_split = True
 
         return cls(
             path=path,
