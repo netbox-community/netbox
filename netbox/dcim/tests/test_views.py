@@ -2038,6 +2038,31 @@ module-bays:
         self.assertEqual(mb1.position, '1')
         self.assertEqual(list(mb1.module_bay_types.values_list('name', flat=True)), ['SFP28'])
 
+    def test_import_objects_without_component_permissions(self):
+        """
+        Importing a module type requires only add_moduletype unless component templates are included.
+        """
+        self.add_permissions('dcim.view_manufacturer', 'dcim.add_moduletype')
+        url = reverse('dcim:moduletype_bulk_import')
+
+        self.assertHttpStatus(self.client.get(url), 200)
+
+        import_data = "manufacturer: Manufacturer 1\nmodel: TEST-2000\n"
+        response = self.client.post(url, data={'data': import_data, 'format': 'yaml'})
+        self.assertHttpStatus(response, 302)
+        self.assertTrue(ModuleType.objects.filter(model='TEST-2000').exists())
+
+        # Including component templates requires the corresponding add permission
+        import_data = (
+            "manufacturer: Manufacturer 1\nmodel: TEST-3000\n"
+            "interfaces:\n  - name: Interface 1\n    type: 1000base-t\n"
+        )
+        response = self.client.post(url, data={'data': import_data, 'format': 'yaml'})
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'dcim.add_interfacetemplate')
+        self.assertFalse(ModuleType.objects.filter(model='TEST-3000').exists())
+        self.assertFalse(InterfaceTemplate.objects.exists())
+
     def test_import_channelized_interfaces(self):
         """
         A channel subinterface template resolves its parent by name within the module type being imported.
