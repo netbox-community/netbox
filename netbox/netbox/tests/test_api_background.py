@@ -8,26 +8,38 @@ To run without a live RQ worker, setUp() (a) patches AsyncAPIJob.enqueue to run 
 inline (immediate=True) and (b) reports a worker as available for the worker-liveness guard.
 Individual tests that exercise those guards override this locally.
 """
+import json
 import uuid
 from contextlib import contextmanager
 from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
-from django.test import RequestFactory
+from django.test import RequestFactory, tag
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIRequestFactory
 
+from core.api.views import DataSourceViewSet
 from core.choices import JobStatusChoices
 from core.exceptions import JobFailed
-from core.models import Job, ObjectChange
+from core.models import DataSource, Job, ObjectChange
 from dcim.api.views import RegionViewSet
-from dcim.models import DeviceType, Manufacturer, Region
+from dcim.choices import InterfaceTypeChoices
+from dcim.models import DeviceType, Interface, Manufacturer, Region
+from extras.models import Webhook
+from ipam.choices import FHRPGroupAuthTypeChoices, FHRPGroupProtocolChoices
+from ipam.models import FHRPGroup
+from netbox.constants import CENSOR_TOKEN
 from netbox.jobs import AsyncAPIJob
 from netbox.registry import registry
 from users.models import ObjectPermission
 from utilities.request import copy_safe_request
+from utilities.testing import create_test_device
 from utilities.testing.api import APITestCase
 from utilities.testing.mixins import RQQueueTestMixin
+from vpn.models import IKEPolicy
+from wireless.api.views import WirelessLANViewSet
+from wireless.models import WirelessLAN, WirelessLink
 
 
 class BackgroundBulkWriteTests(RQQueueTestMixin, APITestCase):
@@ -338,6 +350,81 @@ class BackgroundBulkWriteTests(RQQueueTestMixin, APITestCase):
         self.assertEqual(Region.objects.count(), len(self.regions))
         self.regions[0].refresh_from_db()
         self.assertEqual(self.regions[0].description, '')
+
+    @tag('regression')  # Ref: #23399
+    def test_background_result_censors_sensitive_fields(self):
+        # These endpoints censor their secrets in the job's data. The request leaves the secrets unchanged, which the
+        # result would otherwise still carry.
+        secret = 'SYNTHETIC-SECRET'
+        device = create_test_device('Device 1')
+        interface_a, interface_b = Interface.objects.bulk_create([
+            Interface(device=device, name=name, type=InterfaceTypeChoices.TYPE_80211A) for name in ('wlan0', 'wlan1')
+        ])
+        objects = (
+            ('core-api:datasource-list', ('source_url',), DataSource.objects.create(
+                name='Data Source 1', type='git', source_url=f'https://user:{secret}@example.com/repo.git',
+                parameters={'username': 'user', 'password': secret},
+            )),
+            ('extras-api:webhook-list', ('secret', 'additional_headers', 'body_template', 'payload_url'),
+             Webhook.objects.create(
+                name='Webhook 1', payload_url=f'https://hooks.example.com/services/{secret}', secret=secret,
+                additional_headers=f'Authorization: Bearer {secret}', body_template=f'{{"token": "{secret}"}}',
+            )),
+            ('ipam-api:fhrpgroup-list', ('auth_key',), FHRPGroup.objects.create(
+                protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=1,
+                auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_PLAINTEXT, auth_key=secret,
+            )),
+            ('vpn-api:ikepolicy-list', ('preshared_key',), IKEPolicy.objects.create(
+                name='IKE Policy 1', preshared_key=secret,
+            )),
+            ('wireless-api:wirelesslan-list', ('auth_psk',), WirelessLAN.objects.create(
+                ssid='WLAN 1', auth_psk=secret,
+            )),
+            ('wireless-api:wirelesslink-list', ('auth_psk',), WirelessLink.objects.create(
+                interface_a=interface_a, interface_b=interface_b, auth_psk=secret,
+            )),
+        )
+        perm = ObjectPermission.objects.create(name='Test permission', actions=['change', 'view'])
+        perm.users.add(self.user)
+        perm.object_types.add(*[ContentType.objects.get_for_model(obj) for _, _, obj in objects])
+
+        for url_name, fields, obj in objects:
+            with self.subTest(endpoint=url_name):
+                response = self.client.patch(
+                    f'{reverse(url_name)}?background=true', [{'id': obj.pk, 'description': 'Updated'}],
+                    format='json', **self.header
+                )
+                self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+
+                job = Job.objects.get(pk=response.data['job']['id'])
+                self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
+                result = job.data['data'][0]
+                self.assertEqual(result['description'], 'Updated')
+                for field in fields:
+                    self.assertEqual(result[field], CENSOR_TOKEN)
+                if url_name == 'core-api:datasource-list':
+                    # Only the parameters which the backend marks as sensitive are censored
+                    self.assertEqual(result['parameters'], {'username': 'user', 'password': CENSOR_TOKEN})
+                self.assertNotIn(secret, json.dumps(job.data))
+
+    @tag('regression')  # Ref: #23399
+    def test_censor_background_result_leaves_unset_values(self):
+        # An unset secret is recorded as such, and a result other than a list (e.g. a bulk delete's) is unchanged.
+        viewset = WirelessLANViewSet()
+        self.assertEqual(
+            viewset.censor_background_result([{'id': 1, 'auth_psk': 'secret'}, {'id': 2, 'auth_psk': ''}]),
+            [{'id': 1, 'auth_psk': CENSOR_TOKEN}, {'id': 2, 'auth_psk': ''}]
+        )
+        self.assertIsNone(viewset.censor_background_result(None))
+
+    @tag('regression')  # Ref: #23399
+    def test_censor_background_result_unknown_data_backend(self):
+        # All of a data source's parameters are censored where its backend cannot be identified (e.g. type is omitted).
+        data = [{'id': 1, 'parameters': {'username': 'user', 'password': 'secret'}}]
+        self.assertEqual(
+            DataSourceViewSet().censor_background_result(data),
+            [{'id': 1, 'parameters': {'username': CENSOR_TOKEN, 'password': CENSOR_TOKEN}}]
+        )
 
     def test_get_with_background_is_ignored(self):
         self.grant('view')

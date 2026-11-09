@@ -22,6 +22,8 @@ from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired, TokenSy
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import LimitOffsetListPagination
 from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
+from netbox.constants import CENSOR_TOKEN
+from netbox.registry import registry
 from utilities.api import IsSuperuser
 
 from . import serializers
@@ -39,6 +41,23 @@ class DataSourceViewSet(NetBoxModelViewSet):
     queryset = DataSource.objects.all()
     serializer_class = serializers.DataSourceSerializer
     filterset_class = filtersets.DataSourceFilterSet
+    # A data source's source URL may hold a credential, which must not be retained in a job record.
+    background_sensitive_fields = ('source_url',)
+
+    def censor_background_result(self, data):
+        data = super().censor_background_result(data)
+        if not isinstance(data, list):
+            return data
+        for obj in data:
+            if isinstance(parameters := obj.get('parameters'), dict):
+                # Censor the backend parameters marked as sensitive, as is done for change logging. All are censored
+                # where the backend cannot be identified.
+                backend_class = registry['data_backends'].get((obj.get('type') or {}).get('value'))
+                sensitive = backend_class.sensitive_parameters if backend_class else parameters
+                obj['parameters'] = {
+                    name: CENSOR_TOKEN if name in sensitive and value else value for name, value in parameters.items()
+                }
+        return data
 
     def get_permissions(self):
         if self.action == 'sync':

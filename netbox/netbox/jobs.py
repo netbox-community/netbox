@@ -304,7 +304,7 @@ class AsyncAPIJob(JobRunner):
     The viewset's action method is re-invoked inside the worker against a reconstructed
     request, so the synchronous and background code paths are identical (validation,
     transaction semantics, object permissions, and change logging all behave the same).
-    The action's serialized Response is captured into the job's data.
+    The action's serialized Response is captured into the job's data, with any secrets censored.
     """
     class Meta:
         name = 'Async API Request'
@@ -427,10 +427,13 @@ class AsyncAPIJob(JobRunner):
                     raise
 
         # Capture the action's result for the polling client, in the same shape for both
-        # success and failure.
+        # success and failure. Any user permitted to view the job can read it, so secrets are censored.
+        data = response.data
+        if response.status_code < 400 and (censor := getattr(viewset, 'censor_background_result', None)):
+            data = censor(data)
         self.job.data = {
             'status_code': response.status_code,
-            'data': response.data,
+            'data': data,
         }
 
         if response.status_code >= 400:
