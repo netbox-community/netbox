@@ -1678,21 +1678,6 @@ class DeviceTypeInventoryItemsView(DeviceTypeComponentsView):
 
 @register_model_view(DeviceType, 'bulk_import', path='import', detail=False)
 class DeviceTypeImportView(generic.BulkImportView):
-    additional_permissions = [
-        'dcim.add_devicetype',
-        'dcim.add_consoleporttemplate',
-        'dcim.add_consoleserverporttemplate',
-        'dcim.add_powerporttemplate',
-        'dcim.add_poweroutlettemplate',
-        'dcim.add_coolingintaketemplate',
-        'dcim.add_coolingoutflowtemplate',
-        'dcim.add_interfacetemplate',
-        'dcim.add_frontporttemplate',
-        'dcim.add_rearporttemplate',
-        'dcim.add_modulebaytemplate',
-        'dcim.add_devicebaytemplate',
-        'dcim.add_inventoryitemtemplate',
-    ]
     queryset = DeviceType.objects.all()
     model_form = forms.DeviceTypeImportForm
     related_object_forms = {
@@ -2146,19 +2131,6 @@ class ModuleTypeModuleBaysView(ModuleTypeComponentsView):
 
 @register_model_view(ModuleType, 'bulk_import', path='import', detail=False)
 class ModuleTypeImportView(generic.BulkImportView):
-    additional_permissions = [
-        'dcim.add_moduletype',
-        'dcim.add_consoleporttemplate',
-        'dcim.add_consoleserverporttemplate',
-        'dcim.add_powerporttemplate',
-        'dcim.add_poweroutlettemplate',
-        'dcim.add_coolingintaketemplate',
-        'dcim.add_coolingoutflowtemplate',
-        'dcim.add_interfacetemplate',
-        'dcim.add_frontporttemplate',
-        'dcim.add_rearporttemplate',
-        'dcim.add_modulebaytemplate',
-    ]
     queryset = ModuleType.objects.all()
     model_form = forms.ModuleTypeImportForm
     related_object_forms = {

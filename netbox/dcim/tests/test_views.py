@@ -1270,6 +1270,58 @@ inventory-items:
         ii1 = InventoryItemTemplate.objects.first()
         self.assertEqual(ii1.name, 'Inventory Item 1')
 
+    def test_import_objects_without_component_permissions(self):
+        """
+        Importing a device type requires only add_devicetype unless component templates are included.
+        """
+        Manufacturer.objects.create(name='Generic', slug='generic')
+        self.add_permissions('dcim.view_manufacturer', 'dcim.add_devicetype')
+        url = reverse('dcim:devicetype_bulk_import')
+
+        self.assertHttpStatus(self.client.get(url), 200)
+
+        import_data = "manufacturer: Generic\nmodel: TEST-2000\nslug: test-2000\nu_height: 1\n"
+        response = self.client.post(url, data={'data': import_data, 'format': 'yaml'})
+        self.assertHttpStatus(response, 302)
+        self.assertTrue(DeviceType.objects.filter(model='TEST-2000').exists())
+
+        # Including component templates requires the corresponding add permission
+        import_data = (
+            "manufacturer: Generic\nmodel: TEST-3000\nslug: test-3000\nu_height: 1\n"
+            "console-ports:\n  - name: Console Port 1\n    type: de-9\n"
+        )
+        response = self.client.post(url, data={'data': import_data, 'format': 'yaml'})
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'dcim.add_consoleporttemplate')
+        self.assertFalse(DeviceType.objects.filter(model='TEST-3000').exists())
+        self.assertFalse(ConsolePortTemplate.objects.exists())
+
+    def test_import_objects_component_object_permissions(self):
+        """
+        Object-level constraints on component template permissions are enforced during import.
+        """
+        Manufacturer.objects.create(name='Generic', slug='generic')
+        self.add_permissions('dcim.view_manufacturer', 'dcim.add_devicetype')
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'], constraints={'name': 'Console Port 1'})
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(ConsolePortTemplate))
+        url = reverse('dcim:devicetype_bulk_import')
+
+        import_data = (
+            "manufacturer: Generic\nmodel: TEST-2000\nslug: test-2000\nu_height: 1\n"
+            "console-ports:\n  - name: Console Port 2\n    type: de-9\n"
+        )
+        response = self.client.post(url, data={'data': import_data, 'format': 'yaml'})
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'permissions violation')
+        self.assertFalse(DeviceType.objects.filter(model='TEST-2000').exists())
+
+        import_data = import_data.replace('Console Port 2', 'Console Port 1')
+        response = self.client.post(url, data={'data': import_data, 'format': 'yaml'})
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(DeviceType.objects.get(model='TEST-2000').consoleporttemplates.count(), 1)
+
     def test_bulk_yaml_export_module_bay_types_query_count_is_constant(self):
         """Query count shouldn't scale with bay count -- module_bay_types is prefetched."""
         manufacturer = Manufacturer.objects.create(name='Export Query Manufacturer', slug='export-query-mfr')

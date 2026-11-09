@@ -8,7 +8,7 @@ from types import SimpleNamespace
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRel
-from django.core.exceptions import FieldDoesNotExist, ImproperlyConfigured, ObjectDoesNotExist, ValidationError
+from django.core.exceptions import FieldDoesNotExist, ImproperlyConfigured, ValidationError
 from django.db import IntegrityError, router, transaction
 from django.db.models import ManyToManyField, ProtectedError, RestrictedError
 from django.db.models.fields.reverse_related import ManyToManyRel
@@ -38,6 +38,7 @@ from utilities.jobs import is_background_request, process_request_as_job
 from utilities.permissions import get_permission_for_model
 from utilities.query import reapply_model_ordering
 from utilities.querydict import normalize_querydict
+from utilities.querysets import RestrictedQuerySet
 from utilities.request import safe_for_redirect
 from utilities.string import title
 from utilities.tables import get_table_configs
@@ -540,6 +541,18 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     )
                 )
 
+            # Require permission to create each type of related object being imported
+            model = related_object_form.Meta.model
+            restricted = isinstance(model.objects.all(), RestrictedQuerySet)
+            permission = get_permission_for_model(model, 'add')
+            if related_objects and restricted and not request.user.has_perm(permission):
+                raise ValidationError(
+                    self._compile_form_errors(
+                        {field_name: [_("Permission {permission} is required.").format(permission=permission)]},
+                        index=parent_idx
+                    )
+                )
+
             related_obj_pks = []
             for i, rel_obj_data in enumerate(related_objects, start=1):
                 if not isinstance(rel_obj_data, dict):
@@ -567,9 +580,10 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     )
 
             # Enforce object-level permissions on related objects
-            model = related_object_form.Meta.model
-            if model.objects.filter(pk__in=related_obj_pks).count() != len(related_obj_pks):
-                raise ObjectDoesNotExist
+            if restricted and related_obj_pks:
+                permitted = model.objects.restrict(request.user, 'add').filter(pk__in=related_obj_pks)
+                if permitted.count() != len(related_obj_pks):
+                    raise PermissionsViolation()
 
         if is_background_request(request):
             request.job.logger.info(f'{_action} {obj}')
