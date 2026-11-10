@@ -1017,6 +1017,7 @@ class CablePath(models.Model):
             ):
                 if fanout is None:
                     raise UnsupportedCablePath(_("All mid-span terminations must have the same parent object"))
+                # Fanned-out branches crossing different devices are not followed, even if they reconverge later
                 diverged = True
                 break
 
