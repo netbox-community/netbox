@@ -675,6 +675,7 @@ MAINTENANCE_EXEMPT_PATHS = (
     LOGIN_URL,
     f'/{BASE_PATH}logout/',
     f'/{BASE_PATH}oauth/',  # Single sign-on
+    f'/{BASE_PATH}api/users/tokens/provision/',  # Allow provisioning API tokens
 )
 
 

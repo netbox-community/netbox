@@ -7,13 +7,15 @@ from django.contrib.messages import get_messages
 from django.core.cache import cache
 from django.core.signals import got_request_exception
 from django.db import connection
-from django.db.utils import InternalError
+from django.db.utils import InterfaceError, InternalError
 from django.test import RequestFactory, TransactionTestCase, override_settings
 from django.urls import reverse
 from rest_framework import status
 
-from core.models import ConfigRevision
+from core.events import OBJECT_CREATED
+from core.models import ConfigRevision, ObjectType
 from dcim.models import Site
+from extras.models import ConfigContext, Dashboard, Notification, TableConfig
 from netbox.config import clear_config
 from netbox.middleware import CoreMiddleware, MaintenanceModeMiddleware
 from users.constants import TOKEN_PREFIX
@@ -148,6 +150,28 @@ class CoreMiddlewareTestCase(TestCase):
 
         self.assert_json_500_response(response)
 
+    def test_maintenance_mode_handles_ui_post_request(self):
+        request = self.factory.post('/dcim/sites/add/')
+        request._messages = Mock()
+
+        with patch('netbox.middleware.get_config', return_value=SimpleNamespace(MAINTENANCE_MODE=True)):
+            response = self.process_internal_error(request, 'Simulated maintenance mode UI error')
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/dcim/sites/add/')
+
+    def test_maintenance_mode_handles_ui_get_request(self):
+        """
+        A failed write during a GET request must not redirect back to the same URL, which would fail again.
+        """
+        request = self.factory.get('/')
+
+        with patch('netbox.middleware.get_config', return_value=SimpleNamespace(MAINTENANCE_MODE=True)):
+            response = self.process_internal_error(request, 'Simulated maintenance mode UI error')
+
+        self.assertEqual(response.status_code, 500)
+        self.assertIn('maintenance mode', response.content.decode())
+
     def test_maintenance_mode_handles_graphql_json_request(self):
         request = self.factory.post(
             reverse('graphql'),
@@ -207,6 +231,7 @@ class MaintenanceModeTestCase(TransactionTestCase):
             reverse('social:complete', kwargs={'backend': 'github'}),
             reverse('core:configrevision_list'),
             reverse('core:configrevision_add'),
+            reverse('users-api:token_provision'),
         )
         for path in exempt_paths:
             with self.subTest(path=path):
@@ -326,3 +351,82 @@ class MaintenanceModeTestCase(TransactionTestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertTrue(ConfigRevision.objects.filter(comment='Disable maintenance mode').exists())
+
+    def test_connection_closed_if_restore_fails(self):
+        middleware = MaintenanceModeMiddleware(lambda request: None)
+
+        # Simulate losing the connection before read/write access is restored
+        with (
+            patch.object(MaintenanceModeMiddleware, '_set_session_type', side_effect=[None, InterfaceError]),
+            patch('netbox.middleware.connection') as mock_connection,
+        ):
+            middleware(RequestFactory().get(reverse('home')))
+
+        mock_connection.close.assert_called_once()
+
+    def test_table_ordering_not_saved(self):
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse('dcim:site_list'), {'sort': 'name'})
+
+        self.assertEqual(response.status_code, 200)
+        self.user.config.refresh_from_db()
+        self.assertIsNone(self.user.config.get('tables.SiteTable.ordering'))
+
+    def test_table_config_not_saved(self):
+        tableconfig = TableConfig.objects.create(
+            name='Table Config 1',
+            object_type=ObjectType.objects.get_for_model(Site),
+            table='SiteTable',
+            user=self.user,
+            columns=['name', 'status'],
+            ordering=['name'],
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse('dcim:site_list'), {'tableconfig_id': tableconfig.pk})
+
+        self.assertEqual(response.status_code, 200)
+        self.user.config.refresh_from_db()
+        self.assertIsNone(self.user.config.get('tables.SiteTable.columns'))
+
+    def test_data_format_not_saved(self):
+        configcontext = ConfigContext.objects.create(name='Config Context 1', data={'foo': 'bar'})
+        self.client.force_login(self.user)
+
+        response = self.client.get(configcontext.get_absolute_url(), {'format': 'yaml'})
+
+        self.assertEqual(response.status_code, 200)
+        self.user.config.refresh_from_db()
+        self.assertIsNone(self.user.config.get('data_format'))
+
+    def test_default_dashboard_not_saved(self):
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse('home'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(list(get_messages(response.wsgi_request)), [])
+        self.assertFalse(Dashboard.objects.filter(user=self.user).exists())
+
+    def test_notification_not_marked_read(self):
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        notification = Notification.objects.create(user=self.user, object=site, event_type=OBJECT_CREATED)
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse('extras:notification_read', kwargs={'pk': notification.pk}))
+
+        self.assertRedirects(response, site.get_absolute_url(), fetch_redirect_response=False)
+        notification.refresh_from_db()
+        self.assertIsNone(notification.read)
+
+    @override_settings(REMOTE_AUTH_BACKEND=['netbox.authentication.LDAPBackend'])
+    def test_api_ldap_user_not_updated(self):
+        token = Token.objects.create(user=self.user)
+        header = {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{token.key}.{token.token}'}
+
+        with patch('netbox.authentication.LDAPBackend') as mock_backend:
+            response = self.client.get(reverse('dcim-api:site-list'), **header)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        mock_backend.return_value.populate_user.assert_not_called()

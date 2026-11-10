@@ -6,7 +6,7 @@ from django.contrib import auth, messages
 from django.contrib.auth.middleware import RemoteUserMiddleware as RemoteUserMiddleware_
 from django.core.exceptions import ImproperlyConfigured
 from django.core.signals import got_request_exception
-from django.db import DatabaseError, ProgrammingError, connection
+from django.db import Error, ProgrammingError, connection
 from django.db.utils import InternalError
 from django.http import Http404, HttpResponseRedirect
 from django.middleware.common import CommonMiddleware as DjangoCommonMiddleware
@@ -267,7 +267,7 @@ class MaintenanceModeMiddleware:
         finally:
             try:
                 self._set_session_type(allow_write=True)
-            except DatabaseError:
+            except Error:
                 # Never leave a read-only connection to be reused by a later request
                 connection.close()
 
@@ -293,6 +293,10 @@ class MaintenanceModeMiddleware:
 
             if is_api_request(request) or is_graphql_request(request):
                 return handle_rest_api_exception(request, error=error_message)
+
+            # Redirecting a read-only request (e.g. GET) back to the same URL would fail the same way again
+            if request.method in ('GET', 'HEAD', 'OPTIONS'):
+                return handler_500(request, template_name='exceptions/maintenance_mode.html')
 
             messages.error(request, error_message)
             return HttpResponseRedirect(request.path_info)

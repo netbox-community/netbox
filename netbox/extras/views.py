@@ -26,6 +26,7 @@ from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
 from extras.scripts import prepare_script_form
 from extras.utils import SharedObjectViewMixin
+from netbox.config import get_config
 from netbox.object_actions import *
 from netbox.ui import layout
 from netbox.ui.panels import (
@@ -649,8 +650,9 @@ class NotificationReadView(LoginRequiredMixin, View):
     def get(self, request, pk):
         # Mark the Notification as read
         notification = get_object_or_404(request.user.notifications, pk=pk)
-        notification.read = timezone.now()
-        notification.save()
+        if not get_config().MAINTENANCE_MODE:
+            notification.read = timezone.now()
+            notification.save()
 
         # Redirect to the object if it has a URL (deleted objects will not)
         if hasattr(notification.object, 'get_absolute_url'):
@@ -1112,7 +1114,7 @@ class ConfigContextView(generic.ObjectView):
         if request.GET.get('format') in ['json', 'yaml']:
             format = request.GET.get('format')
             if request.user.is_authenticated:
-                request.user.config.set('data_format', format, commit=True)
+                request.user.config.set('data_format', format, commit=not get_config().MAINTENANCE_MODE)
         elif request.user.is_authenticated:
             format = request.user.config.get('data_format', 'json')
         else:
@@ -1174,7 +1176,7 @@ class ObjectConfigContextView(generic.ObjectView):
         if request.GET.get('format') in ['json', 'yaml']:
             format = request.GET.get('format')
             if request.user.is_authenticated:
-                request.user.config.set('data_format', format, commit=True)
+                request.user.config.set('data_format', format, commit=not get_config().MAINTENANCE_MODE)
         elif request.user.is_authenticated:
             format = request.user.config.get('data_format', 'json')
         else:
