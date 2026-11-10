@@ -131,6 +131,7 @@ nav:
         - Custom Scripts: 'customization/custom-scripts.md'
     - Best Practices:
         - Modeling Pluggable Transceivers: 'best-practices/modeling-pluggable-transceivers.md'
+        - Modeling Servers: 'best-practices/modeling-servers.md'
         - Performance Handbook: 'best-practices/performance-handbook.md'
     - Integrations:
         - REST API: 'integrations/rest-api.md'
