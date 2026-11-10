@@ -664,6 +664,139 @@ class ModuleFormTestCase(TestCase):
         intake.refresh_from_db()
         self.assertEqual(intake.module, module)
 
+    def test_module_form_rejects_module_token_without_bay_position(self):
+        """Replication and adoption reject a {module} token in any resolved field when the bay has no position."""
+        interface_type = InterfaceTypeChoices.TYPE_1GE_FIXED
+        templates = (
+            (InterfaceTemplate, {'name': 'eth{module}', 'type': interface_type}),
+            (InterfaceTemplate, {'name': 'eth0', 'label': 'Port {module}', 'type': interface_type}),
+            (ModuleBayTemplate, {'name': 'Bay {module}'}),
+            (ModuleBayTemplate, {'name': 'Bay', 'label': 'Bay {module}'}),
+            (ModuleBayTemplate, {'name': 'Bay', 'position': '{module}'}),
+        )
+        for i, (template_model, attrs) in enumerate(templates, start=1):
+            module_type = ModuleType.objects.create(
+                manufacturer=self.module_type.manufacturer, model=f'Token No-Position Form Type {i}'
+            )
+            template_model.objects.create(module_type=module_type, **attrs)
+            for flags in ({'replicate_components': True}, {'adopt_components': True}):
+                with self.subTest(template=template_model.__name__, attrs=attrs, flags=flags):
+                    form = ModuleForm(data={
+                        'device': self.device.pk,
+                        'module_bay': self.bay_b.pk,
+                        'module_type': module_type.pk,
+                        'status': 'active',
+                        **flags,
+                    })
+                    self.assertFalse(form.is_valid())
+                    self.assertIn('no position defined', str(form.errors))
+
+    def test_module_form_rejects_module_token_depth_mismatch(self):
+        """Replication and adoption reject more {module} tokens in a resolved field than the bay depth."""
+        module_bay = ModuleBay.objects.create(device=self.device, name='Bay D', position='1')
+        interface_type = InterfaceTypeChoices.TYPE_1GE_FIXED
+        tokens = '{module}/{module}'
+        templates = (
+            (InterfaceTemplate, {'name': f'eth{tokens}', 'type': interface_type}),
+            (InterfaceTemplate, {'name': 'eth0', 'label': tokens, 'type': interface_type}),
+            (ModuleBayTemplate, {'name': tokens}),
+            (ModuleBayTemplate, {'name': 'Bay', 'label': tokens}),
+            (ModuleBayTemplate, {'name': 'Bay', 'position': tokens}),
+        )
+        for i, (template_model, attrs) in enumerate(templates, start=1):
+            module_type = ModuleType.objects.create(
+                manufacturer=self.module_type.manufacturer, model=f'Token Depth Form Type {i}'
+            )
+            template_model.objects.create(module_type=module_type, **attrs)
+            for flags in ({'replicate_components': True}, {'adopt_components': True}):
+                with self.subTest(template=template_model.__name__, attrs=attrs, flags=flags):
+                    form = ModuleForm(data={
+                        'device': self.device.pk,
+                        'module_bay': module_bay.pk,
+                        'module_type': module_type.pk,
+                        'status': 'active',
+                        **flags,
+                    })
+                    self.assertFalse(form.is_valid())
+                    self.assertIn('2 placeholders given', str(form.errors))
+
+    def test_module_form_adopt_only_creates_no_components(self):
+        """Adoption without replication adopts matching components and creates no others."""
+        adopt_type = ModuleType.objects.create(
+            manufacturer=self.module_type.manufacturer, model='Adopt Only Form Type'
+        )
+        InterfaceTemplate.objects.create(module_type=adopt_type, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+        InterfaceTemplate.objects.create(module_type=adopt_type, name='eth1', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+        interface = Interface.objects.create(
+            device=self.device, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        form = ModuleForm(data={
+            'device': self.device.pk,
+            'module_bay': self.bay_b.pk,
+            'module_type': adopt_type.pk,
+            'status': 'active',
+            'adopt_components': True,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        module = form.save()
+        interface.refresh_from_db()
+        self.assertEqual(interface.module, module)
+        self.assertFalse(self.device.interfaces.filter(name='eth1').exists())
+
+    def test_module_form_adopt_only_rejects_component_of_another_module(self):
+        """Adoption without replication refuses a component that already belongs to another module."""
+        adopt_type = ModuleType.objects.create(
+            manufacturer=self.module_type.manufacturer, model='Owned Adopt Form Type'
+        )
+        InterfaceTemplate.objects.create(module_type=adopt_type, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+        Interface.objects.create(
+            device=self.device, module=self.module, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        form = ModuleForm(data={
+            'device': self.device.pk,
+            'module_bay': self.bay_b.pk,
+            'module_type': adopt_type.pk,
+            'status': 'active',
+            'adopt_components': True,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('already belongs to a module', str(form.errors))
+
+    def test_module_form_skips_template_checks_without_component_operations(self):
+        """Without replication or adoption, templates are neither checked nor instantiated."""
+        token_type = ModuleType.objects.create(
+            manufacturer=self.module_type.manufacturer, model='No Operations Form Type'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=token_type, name='eth0', label='Port {module}', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        form = ModuleForm(data={
+            'device': self.device.pk,
+            'module_bay': self.bay_b.pk,
+            'module_type': token_type.pk,
+            'status': 'active',
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        module = form.save()
+        self.assertFalse(module.interfaces.exists())
+
+    def test_module_import_form_rejects_module_token_without_bay_position(self):
+        """Bulk import applies the module form's placeholder checks."""
+        token_type = ModuleType.objects.create(
+            manufacturer=self.module_type.manufacturer, model='Token Import Type'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=token_type, name='eth0', label='Port {module}', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        form = ModuleImportForm(data={
+            'device': self.device.name,
+            'module_bay': self.bay_b.name,
+            'module_type': token_type.model,
+            'status': 'active',
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('no position defined', str(form.errors))
+
 
 class VCPositionTokenFormTestCase(TestCase):
 
