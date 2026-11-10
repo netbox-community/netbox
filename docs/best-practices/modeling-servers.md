@@ -190,11 +190,11 @@ The front PERC storage controller plugs into the drive backplane, so the backpla
 | Dell         | 1400W Platinum PSU                 | Power supply   | PSU Bay        | Power port `{module}`                  |
 | Dell         | HPR Gold Fan                       | Fan            | Dell Fan Bay   | None                                   |
 
-The backplane's drive bays (names and positions `Drive0` to `Drive23`) take the `U.2 Drive Bay` bay type. The BOSS-N1 boot module holds two M.2 drives, each replaceable on its own, in bays with names and positions `M.2-1` and `M.2-2`. The LOM card installed in bay `LOM` creates interfaces named `LOM-1` and `LOM-2`, and the power supply in bay `PSU1` creates a power port named `PSU1`.
+The backplane's drive bays (names and positions `Drive0` to `Drive23`) take the `U.2 Drive Bay` bay type. The BOSS-N1 boot module holds two M.2 drives, each replaceable on its own, in bays with names and positions `M.2-1` and `M.2-2` and bay type `M.2 Slot`. The LOM card installed in bay `LOM` creates interfaces named `LOM-1` and `LOM-2`, and the power supply in bay `PSU1` creates a power port named `PSU1`.
 
 ### Installing the Modules
 
-The drive bays exist only once the backplane has been installed, and the M.2 bays only once the boot module has, so install those first. With bulk import, import the modules in two passes:
+The drive bays exist only once the backplane has been installed, and the M.2 bays only once the boot module has, so install those first. With bulk import, list them ahead of the modules installed in them, or import in two passes as shown here:
 
 ```no-highlight
 device,module_bay,module_type,status,serial
@@ -246,7 +246,7 @@ The Grand Teton device type has a module bay for each tray:
 
 ### Tray Module Types
 
-Each tray is a module type with its own module bay templates. When a tray is installed in the chassis, its bays (and their bay types) are created on the device automatically. Bay names are unique across all three trays, as described in [step 6](#6-add-module-bays-to-the-device-type).
+Each tray is a module type with its own module bay templates, and each takes the `GT Tray Slot` bay type so that it fits the chassis bays. When a tray is installed in the chassis, its bays (and their bay types) are created on the device automatically. Bay names are unique across all three trays, as described in [step 6](#6-add-module-bays-to-the-device-type).
 
 | Module Type         | Bay Names and Positions  | Bay Type        |
 |---------------------|--------------------------|-----------------|
@@ -274,7 +274,7 @@ The default GPU profile's interface attribute lists only PCIe options, so it is 
 
 ### Installing the Modules
 
-A tray's bays exist only once the tray has been installed, so install the trays first. With bulk import, import the trays and the components separately:
+A tray's bays exist only once the tray has been installed, so install the trays first. With bulk import, list the trays ahead of their components, or import them separately as shown here:
 
 ```no-highlight
 device,module_bay,module_type,status,serial
