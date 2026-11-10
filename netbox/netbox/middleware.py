@@ -6,7 +6,7 @@ from django.contrib import auth, messages
 from django.contrib.auth.middleware import RemoteUserMiddleware as RemoteUserMiddleware_
 from django.core.exceptions import ImproperlyConfigured
 from django.core.signals import got_request_exception
-from django.db import ProgrammingError, connection
+from django.db import DatabaseError, ProgrammingError, connection
 from django.db.utils import InternalError
 from django.http import Http404, HttpResponseRedirect
 from django.middleware.common import CommonMiddleware as DjangoCommonMiddleware
@@ -256,12 +256,20 @@ class MaintenanceModeMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if get_config().MAINTENANCE_MODE:
-            self._set_session_type(
-                allow_write=request.path_info.startswith(settings.MAINTENANCE_EXEMPT_PATHS)
-            )
+        if not get_config().MAINTENANCE_MODE or request.path_info.startswith(settings.MAINTENANCE_EXEMPT_PATHS):
+            return self.get_response(request)
 
-        return self.get_response(request)
+        # The read-only setting persists on the connection, so restore read/write access once the request has been
+        # handled. This also lets outer middleware (e.g. saving the session) write to the database.
+        self._set_session_type(allow_write=False)
+        try:
+            return self.get_response(request)
+        finally:
+            try:
+                self._set_session_type(allow_write=True)
+            except DatabaseError:
+                # Never leave a read-only connection to be reused by a later request
+                connection.close()
 
     @staticmethod
     def _set_session_type(allow_write):

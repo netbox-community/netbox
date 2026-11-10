@@ -3,13 +3,21 @@ from contextlib import contextmanager
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
+from django.contrib.messages import get_messages
+from django.core.cache import cache
 from django.core.signals import got_request_exception
+from django.db import connection
 from django.db.utils import InternalError
-from django.test import RequestFactory, override_settings
+from django.test import RequestFactory, TransactionTestCase, override_settings
 from django.urls import reverse
 from rest_framework import status
 
+from core.models import ConfigRevision
+from dcim.models import Site
+from netbox.config import clear_config
 from netbox.middleware import CoreMiddleware, MaintenanceModeMiddleware
+from users.constants import TOKEN_PREFIX
+from users.models import Token, User
 from utilities.testing import TestCase
 
 
@@ -156,3 +164,165 @@ class CoreMiddlewareTestCase(TestCase):
             response = self.process_internal_error(request, 'Simulated maintenance mode GraphQL error')
 
         self.assert_json_500_response(response)
+
+
+def is_read_only():
+    with connection.cursor() as cursor:
+        cursor.execute('SHOW transaction_read_only')
+        return cursor.fetchone()[0] == 'on'
+
+
+@override_settings(MAINTENANCE_MODE=True)
+class MaintenanceModeTestCase(TransactionTestCase):
+    """
+    Maintenance mode is enforced on the database session, which has no effect on writes within the transaction that
+    wraps each TestCase test, so these tests run against a real connection.
+    """
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='testpassword', is_superuser=True)
+
+    def tearDown(self):
+        # Don't leave a read-only connection behind for other tests
+        with connection.cursor() as cursor:
+            cursor.execute('SET SESSION CHARACTERISTICS AS TRANSACTION READ WRITE')
+
+    def get_read_only_during_request(self, path):
+        """
+        Return whether the database connection was read-only while handling a request for the given path.
+        """
+        read_only = []
+
+        def get_response(request):
+            read_only.append(is_read_only())
+
+        MaintenanceModeMiddleware(get_response)(RequestFactory().get(path))
+        return read_only[0]
+
+    def test_exempt_paths(self):
+        exempt_paths = (
+            reverse('login'),
+            reverse('logout'),
+            reverse('social:begin', kwargs={'backend': 'github'}),
+            reverse('social:complete', kwargs={'backend': 'github'}),
+            reverse('core:configrevision_list'),
+            reverse('core:configrevision_add'),
+        )
+        for path in exempt_paths:
+            with self.subTest(path=path):
+                self.assertFalse(self.get_read_only_during_request(path))
+                self.assertFalse(is_read_only())
+
+    def test_restricted_paths(self):
+        restricted_paths = (
+            reverse('home'),
+            reverse('dcim:site_add'),
+            reverse('account:preferences'),
+            reverse('api-root'),
+            reverse('graphql'),
+        )
+        for path in restricted_paths:
+            with self.subTest(path=path):
+                self.assertTrue(self.get_read_only_during_request(path))
+                self.assertFalse(is_read_only(), "Connection was left read-only after the request")
+
+    def test_maintenance_mode_disabled(self):
+        with override_settings(MAINTENANCE_MODE=False):
+            self.assertFalse(self.get_read_only_during_request(reverse('dcim:site_add')))
+
+    def test_ui_write_refused(self):
+        self.client.force_login(self.user)
+        url = reverse('dcim:site_add')
+
+        response = self.client.post(url, {'name': 'Site 1', 'slug': 'site-1', 'status': 'active'})
+
+        self.assertRedirects(response, url, fetch_redirect_response=False)
+        self.assertIn('maintenance mode', str(list(get_messages(response.wsgi_request))[0]))
+        self.assertFalse(Site.objects.exists())
+
+    def test_api_write_refused(self):
+        token = Token.objects.create(user=self.user)
+        header = {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{token.key}.{token.token}'}
+
+        response = self.client.post(
+            reverse('dcim-api:site-list'),
+            {'name': 'Site 1', 'slug': 'site-1', 'status': 'active'},
+            content_type='application/json',
+            **header,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertIn('maintenance mode', response.json()['error'])
+        self.assertFalse(Site.objects.exists())
+
+    def test_writes_resume_when_maintenance_mode_disabled(self):
+        self.client.force_login(self.user)
+        data = {'name': 'Site 1', 'slug': 'site-1', 'status': 'active'}
+        self.client.post(reverse('dcim:site_add'), data)
+
+        with override_settings(MAINTENANCE_MODE=False):
+            response = self.client.post(reverse('dcim:site_add'), data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Site.objects.filter(slug='site-1').exists())
+
+    @override_settings(SESSION_SAVE_EVERY_REQUEST=True)
+    def test_session_saved_on_every_request(self):
+        """
+        LOGIN_PERSISTENCE saves the session on every request.
+        """
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse('dcim:site_list'))
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_login_and_logout(self):
+        response = self.client.post(reverse('login'), {'username': 'testuser', 'password': 'testpassword'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(int(self.client.session['_auth_user_id']), self.user.pk)
+
+        # The login time isn't recorded in maintenance mode
+        self.user.refresh_from_db()
+        self.assertIsNone(self.user.last_login)
+
+        response = self.client.get(reverse('logout'))
+        self.assertEqual(response.status_code, 302)
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+        # The login time is recorded once maintenance mode is disabled
+        with override_settings(MAINTENANCE_MODE=False):
+            self.client.post(reverse('login'), {'username': 'testuser', 'password': 'testpassword'})
+        self.user.refresh_from_db()
+        self.assertIsNotNone(self.user.last_login)
+
+    @override_settings(REMOTE_AUTH_ENABLED=True, LOGIN_REQUIRED=True)
+    def test_remote_auth_login(self):
+        User.objects.create(username='remoteuser1')
+
+        # A refused write must not leave the connection read-only for the next request
+        self.client.force_login(self.user)
+        self.client.post(reverse('dcim:site_add'), {'name': 'Site 1', 'slug': 'site-1', 'status': 'active'})
+        self.client.logout()
+
+        response = self.client.get(reverse('home'), follow=True, HTTP_REMOTE_USER='remoteuser1')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.client.session['_auth_user_id'], str(User.objects.get(username='remoteuser1').pk))
+
+    # Use a per-process cache, so that activating the new revision doesn't affect other tests
+    @override_settings(CACHES={
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'netbox-maintenance-mode-tests',
+        },
+    })
+    def test_modify_configuration(self):
+        self.addCleanup(cache.clear)
+        self.addCleanup(clear_config)
+        self.client.force_login(self.user)
+
+        response = self.client.post(reverse('core:configrevision_add'), {'comment': 'Disable maintenance mode'})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(ConfigRevision.objects.filter(comment='Disable maintenance mode').exists())
