@@ -2,10 +2,12 @@ import platform
 import sys
 
 from django.conf import settings
+from django.contrib.auth.decorators import login_not_required
 from django.http import HttpResponseServerError
 from django.shortcuts import render
 from django.template import loader
 from django.template.exceptions import TemplateDoesNotExist
+from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.defaults import ERROR_500_TEMPLATE_NAME, page_not_found
 from django.views.generic import View
@@ -19,6 +21,7 @@ __all__ = (
 )
 
 
+@method_decorator(login_not_required, name='dispatch')
 class StaticMediaFailureView(View):
     """
     Display a user-friendly error message with troubleshooting tips when a static media file fails to load.

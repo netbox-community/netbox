@@ -41,7 +41,6 @@ from utilities.query import count_related
 from utilities.query_functions import CollateAsChar
 from utilities.request import safe_for_redirect
 from utilities.views import (
-    ConditionalLoginRequiredMixin,
     GetRelatedModelsMixin,
     GetReturnURLMixin,
     ObjectPermissionRequiredMixin,
@@ -5888,7 +5887,7 @@ class MACAddressDeleteView(generic.ObjectDeleteView):
 
 
 @register_model_view(MACAddress, 'set_primary')
-class MACAddressSetPrimaryView(ConditionalLoginRequiredMixin, GetReturnURLMixin, View):
+class MACAddressSetPrimaryView(GetReturnURLMixin, View):
     queryset = MACAddress.objects.all()
 
     def get(self, request, pk):

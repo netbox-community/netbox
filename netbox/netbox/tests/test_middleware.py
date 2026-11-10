@@ -1,15 +1,20 @@
 import json
 from contextlib import contextmanager
 from types import SimpleNamespace
+from unittest import skipIf
 from unittest.mock import Mock, patch
 
+from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
 from django.core.signals import got_request_exception
 from django.db.utils import InternalError
-from django.test import RequestFactory, override_settings
-from django.urls import reverse
+from django.test import Client, RequestFactory, override_settings
+from django.urls import ResolverMatch, reverse
+from django.views.generic import View
 from rest_framework import status
+from rest_framework.views import APIView
 
-from netbox.middleware import CoreMiddleware, MaintenanceModeMiddleware
+from netbox.middleware import CoreMiddleware, LoginRequiredMiddleware, MaintenanceModeMiddleware
 from utilities.testing import TestCase
 
 
@@ -156,3 +161,91 @@ class CoreMiddlewareTestCase(TestCase):
             response = self.process_internal_error(request, 'Simulated maintenance mode GraphQL error')
 
         self.assert_json_500_response(response)
+
+
+class LoginRequiredMiddlewareTestCase(TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.anonymous_client = Client()
+
+    @override_settings(LOGIN_REQUIRED=True)
+    def test_anonymous_request_redirected_to_login(self):
+        for url in (reverse('home'), reverse('dcim:site_list')):
+            with self.subTest(url=url):
+                response = self.anonymous_client.get(url)
+                self.assertHttpStatus(response, 302)
+                self.assertEqual(response['Location'], f"{reverse('login')}?next={url}")
+
+    @override_settings(LOGIN_REQUIRED=False)
+    def test_anonymous_request_permitted_when_login_not_required(self):
+        response = self.anonymous_client.get(reverse('home'))
+        self.assertHttpStatus(response, 200)
+
+    @override_settings(LOGIN_REQUIRED=True)
+    def test_exempt_views(self):
+        """
+        Views which must be reachable without a session respond themselves rather than redirecting to the login page.
+        """
+        login_url = reverse('login')
+        requests = (
+            ('get', reverse('login'), 200),
+            ('get', reverse('logout'), 302),
+            ('post', reverse('social_auth_begin', args=['invalid']), 404),
+            ('get', reverse('social:complete', args=['invalid']), 404),
+            ('get', reverse('media_failure'), 200),
+            ('get', reverse('api-root'), 403),
+        )
+        for method, url, status_code in requests:
+            with self.subTest(url=url):
+                response = getattr(self.anonymous_client, method)(url)
+                self.assertHttpStatus(response, status_code)
+                self.assertFalse(response.get('Location', '').startswith(login_url))
+
+        # The GraphQL API enforces LOGIN_REQUIRED itself
+        response = self.anonymous_client.post(
+            reverse('graphql'),
+            data='{"query": "{ __typename }"}',
+            content_type='application/json',
+            HTTP_ACCEPT='application/json',
+        )
+        self.assertHttpStatus(response, 403)
+        self.assertEqual(response.content, b'No credentials provided.')
+
+    @override_settings(LOGIN_REQUIRED=True)
+    def test_process_view_exemptions(self):
+        """
+        DRF views and exempt URL names do not require login. Any other view does, even under the REST API path.
+        """
+        middleware = LoginRequiredMiddleware(lambda request: None)
+        view = View.as_view()
+        request = RequestFactory().get(f"{reverse('api-root')}non-drf-view/")
+        request.user = AnonymousUser()
+
+        self.assertIsNone(middleware.process_view(request, APIView.as_view(), (), {}))
+        self.assertHttpStatus(middleware.process_view(request, view, (), {}), 302)
+
+        request.resolver_match = ResolverMatch(view, (), {}, url_name='prometheus-django-metrics')
+        self.assertIsNone(middleware.process_view(request, view, (), {}))
+
+    @skipIf('netbox.tests.dummy_plugin' not in settings.PLUGINS, "dummy_plugin not in settings.PLUGINS")
+    @override_settings(LOGIN_REQUIRED=True)
+    def test_plugin_views(self):
+        """
+        Plugin views which do not enforce authentication themselves require login. Plugin REST API views do not.
+        """
+        url = reverse('plugins:dummy_plugin:dummy_model_list')
+        response = self.anonymous_client.get(url)
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], f"{reverse('login')}?next={url}")
+        self.assertHttpStatus(self.client.get(url), 200)
+
+        response = self.anonymous_client.get(reverse('plugins-api:dummy_plugin-api:dummymodel-list'))
+        self.assertHttpStatus(response, 403)
+
+    @skipIf('netbox.tests.dummy_plugin' not in settings.PLUGINS, "dummy_plugin not in settings.PLUGINS")
+    @override_settings(LOGIN_REQUIRED=False)
+    def test_plugin_views_login_not_required(self):
+        response = self.anonymous_client.get(reverse('plugins:dummy_plugin:dummy_model_list'))
+        self.assertHttpStatus(response, 200)

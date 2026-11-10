@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.decorators import login_not_required
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import update_last_login
@@ -44,6 +45,7 @@ from utilities.views import register_model_view
 #
 
 
+@method_decorator(login_not_required, name='dispatch')
 class LoginView(View):
     """
     Perform user authentication via the web UI.
@@ -169,6 +171,7 @@ class LoginView(View):
         return HttpResponseRedirect(redirect_url)
 
 
+@method_decorator(login_not_required, name='dispatch')
 class LogoutView(View):
     """
     Deauthenticate a web user.
@@ -191,6 +194,7 @@ class LogoutView(View):
         return response
 
 
+@method_decorator(login_not_required, name='dispatch')
 class SocialAuthBeginView(View):
     """
     Initiate authentication against a social auth (SSO) backend.

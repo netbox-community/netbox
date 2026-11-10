@@ -5,11 +5,13 @@ from collections import namedtuple
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_not_required
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.db.models import Q
 from django.http import Http404
-from django.shortcuts import redirect, render
+from django.shortcuts import render
+from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 from django.views.static import serve
@@ -26,7 +28,7 @@ from netbox.search.backends import search_backend
 from netbox.tables import SearchTable
 from utilities.htmx import htmx_partial
 from utilities.paginator import EnhancedPaginator, get_paginate_count
-from utilities.views import ConditionalLoginRequiredMixin, TokenConditionalLoginRequiredMixin
+from utilities.views import TokenConditionalLoginRequiredMixin
 
 __all__ = (
     'HomeView',
@@ -39,13 +41,10 @@ logger = logging.getLogger(f'netbox.{__name__}')
 Link = namedtuple('Link', ('label', 'viewname', 'permission', 'count'))
 
 
-class HomeView(ConditionalLoginRequiredMixin, View):
+class HomeView(View):
     template_name = 'home.html'
 
     def get(self, request):
-        if settings.LOGIN_REQUIRED and not request.user.is_authenticated:
-            return redirect('login')
-
         # Construct the user's custom dashboard layout
         try:
             dashboard = get_dashboard(request.user).get_layout()
@@ -80,7 +79,7 @@ class HomeView(ConditionalLoginRequiredMixin, View):
         })
 
 
-class SearchView(ConditionalLoginRequiredMixin, View):
+class SearchView(View):
 
     def get(self, request):
         results = []
@@ -134,6 +133,8 @@ class SearchView(ConditionalLoginRequiredMixin, View):
         })
 
 
+# Exempt from LoginRequiredMiddleware, as token authentication is performed within the view
+@method_decorator(login_not_required, name='dispatch')
 class MediaView(TokenConditionalLoginRequiredMixin, View):
     """
     Serve uploaded media files, enforcing authentication and view permission on the associated object.
