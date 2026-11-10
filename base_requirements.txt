@@ -146,8 +146,9 @@ redis
 requests
 
 # rq
+# Pinned below v3.0, whose new Worker.monitor_work_horse() signature breaks NetBox's tests
 # https://github.com/rq/rq/blob/master/CHANGES.md
-rq
+rq<3.0
 
 # Django app for social-auth-core
 # https://github.com/python-social-auth/social-app-django/blob/master/CHANGELOG.md
