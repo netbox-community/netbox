@@ -1314,7 +1314,7 @@ inventory-items:
         )
         response = self.client.post(url, data={'data': import_data, 'format': 'yaml'})
         self.assertHttpStatus(response, 200)
-        self.assertContains(response, 'permissions violation')
+        self.assertContains(response, 'Record 1 console-ports: Operation failed due to object-level permissions')
         self.assertFalse(DeviceType.objects.filter(model='TEST-2000').exists())
 
         import_data = import_data.replace('Console Port 2', 'Console Port 1')
@@ -1639,56 +1639,8 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             f"{module_types[0].id},test model",
         )
 
-    def test_bulk_update_objects_with_permission(self):
-        self.add_permissions(
-            'dcim.add_consoleporttemplate',
-            'dcim.add_consoleserverporttemplate',
-            'dcim.add_powerporttemplate',
-            'dcim.add_poweroutlettemplate',
-            'dcim.add_coolingintaketemplate',
-            'dcim.add_coolingoutflowtemplate',
-            'dcim.add_interfacetemplate',
-            'dcim.add_frontporttemplate',
-            'dcim.add_rearporttemplate',
-            'dcim.add_modulebaytemplate',
-        )
-
-        # run base test
-        super().test_bulk_update_objects_with_permission()
-
-    def test_bulk_update_objects_without_change_permission(self):
-        # ModuleTypeImportView declares these as additional_permissions, so they're required to reach the view
-        self.add_permissions(
-            'dcim.add_consoleporttemplate',
-            'dcim.add_consoleserverporttemplate',
-            'dcim.add_powerporttemplate',
-            'dcim.add_poweroutlettemplate',
-            'dcim.add_coolingintaketemplate',
-            'dcim.add_coolingoutflowtemplate',
-            'dcim.add_interfacetemplate',
-            'dcim.add_frontporttemplate',
-            'dcim.add_rearporttemplate',
-            'dcim.add_modulebaytemplate',
-        )
-
-        # run base test
-        super().test_bulk_update_objects_without_change_permission()
-
     @tag('regression')
     def test_bulk_import_objects_with_permission(self):
-        self.add_permissions(
-            'dcim.add_consoleporttemplate',
-            'dcim.add_consoleserverporttemplate',
-            'dcim.add_powerporttemplate',
-            'dcim.add_poweroutlettemplate',
-            'dcim.add_coolingintaketemplate',
-            'dcim.add_coolingoutflowtemplate',
-            'dcim.add_interfacetemplate',
-            'dcim.add_frontporttemplate',
-            'dcim.add_rearporttemplate',
-            'dcim.add_modulebaytemplate',
-        )
-
         def verify_module_type_profile(scenario_name):
             # TODO: remove extra regression asserts once parent test supports testing all import fields
             module_type = ModuleType.objects.get(part_number='module-type-4')
@@ -1696,22 +1648,6 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         # run base test
         super().test_bulk_import_objects_with_permission(post_import_callback=verify_module_type_profile)
-
-    def test_bulk_import_objects_with_constrained_permission(self):
-        self.add_permissions(
-            'dcim.add_consoleporttemplate',
-            'dcim.add_consoleserverporttemplate',
-            'dcim.add_powerporttemplate',
-            'dcim.add_poweroutlettemplate',
-            'dcim.add_coolingintaketemplate',
-            'dcim.add_coolingoutflowtemplate',
-            'dcim.add_interfacetemplate',
-            'dcim.add_frontporttemplate',
-            'dcim.add_rearporttemplate',
-            'dcim.add_modulebaytemplate',
-        )
-
-        super().test_bulk_import_objects_with_constrained_permission()
 
     @tag('regression')
     def test_get_object_renders_profile_attribute_lists(self):

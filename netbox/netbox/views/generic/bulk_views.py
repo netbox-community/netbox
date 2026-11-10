@@ -26,7 +26,7 @@ from extras.choices import CustomFieldUIEditableChoices
 from extras.models import CustomField, ExportTemplate
 from netbox.choices import ImportMethodChoices
 from netbox.forms.bulk_rename import NetBoxModelBulkRenameForm
-from netbox.models.features import ChangeLoggingMixin
+from netbox.models.features import ChangeLoggingMixin, model_is_public
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
@@ -38,7 +38,6 @@ from utilities.jobs import is_background_request, process_request_as_job
 from utilities.permissions import get_permission_for_model
 from utilities.query import reapply_model_ordering
 from utilities.querydict import normalize_querydict
-from utilities.querysets import RestrictedQuerySet
 from utilities.request import safe_for_redirect
 from utilities.string import title
 from utilities.tables import get_table_configs
@@ -541,11 +540,12 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     )
                 )
 
-            # Require permission to create each type of related object being imported
+            # Require permission to create each type of related object being imported. Private models
+            # (e.g. PortTemplateMapping) can't be assigned permissions, so they're exempt.
             model = related_object_form.Meta.model
-            restricted = isinstance(model.objects.all(), RestrictedQuerySet)
+            enforce_permissions = model_is_public(model)
             permission = get_permission_for_model(model, 'add')
-            if related_objects and restricted and not request.user.has_perm(permission):
+            if related_objects and enforce_permissions and not request.user.has_perm(permission):
                 raise ValidationError(
                     self._compile_form_errors(
                         {field_name: [_("Permission {permission} is required.").format(permission=permission)]},
@@ -580,10 +580,15 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     )
 
             # Enforce object-level permissions on related objects
-            if restricted and related_obj_pks:
+            if enforce_permissions and related_obj_pks and hasattr(model.objects, 'restrict'):
                 permitted = model.objects.restrict(request.user, 'add').filter(pk__in=related_obj_pks)
                 if permitted.count() != len(related_obj_pks):
-                    raise PermissionsViolation()
+                    raise ValidationError(
+                        self._compile_form_errors(
+                            {field_name: [PermissionsViolation.message]},
+                            index=parent_idx
+                        )
+                    )
 
         if is_background_request(request):
             request.job.logger.info(f'{_action} {obj}')
