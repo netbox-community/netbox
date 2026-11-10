@@ -48,6 +48,8 @@ class SiteGroupSerializer(NestedGroupModelSerializer):
 
 
 class SiteSerializer(PrimaryModelSerializer):
+    mercator_x = serializers.FloatField(read_only=True, allow_null=True)
+    mercator_y = serializers.FloatField(read_only=True, allow_null=True)
     status = ChoiceField(choices=SiteStatusChoices, required=False)
     region = RegionSerializer(nested=True, required=False, allow_null=True)
     group = SiteGroupSerializer(nested=True, required=False, allow_null=True)
@@ -73,9 +75,9 @@ class SiteSerializer(PrimaryModelSerializer):
         model = Site
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'status', 'region', 'group', 'tenant', 'facility',
-            'time_zone', 'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'owner',
-            'comments', 'asns', 'tags', 'custom_fields', 'created', 'last_updated', 'circuit_count', 'device_count',
-            'prefix_count', 'rack_count', 'virtualmachine_count', 'vlan_count',
+            'time_zone', 'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'mercator_x',
+            'mercator_y', 'owner', 'comments', 'asns', 'tags', 'custom_fields', 'created', 'last_updated',
+            'circuit_count', 'device_count', 'prefix_count', 'rack_count', 'virtualmachine_count', 'vlan_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description', 'slug')
 

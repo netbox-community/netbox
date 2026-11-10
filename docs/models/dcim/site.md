@@ -48,4 +48,20 @@ The address to use for deliveries destined for the site.
 
 ### Latitude & Longitude
 
-GPS coordinates of the site for geolocation.
+GPS coordinates of the site for geolocation. These are assumed to use the WGS84 datum (as reported by GPS).
+
+### Web Mercator X & Y
+
+!!! info "This field was introduced in NetBox v4.8."
+
+The site's coordinates in the [Web Mercator](https://epsg.io/3857) (EPSG:3857) projection, in meters. These read-only values are calculated from the latitude and longitude (they are not stored in the database), and are useful for integrating with mapping tools that expect projected X/Y coordinates rather than latitude and longitude. They are calculated as:
+
+```
+X = longitude × (π / 180) × 6378137
+Y = ln(tan(π / 4 + latitude × π / 360)) × 6378137
+```
+
+where `ln` is the natural logarithm. Because Web Mercator is undefined at the poles, latitudes beyond ±85.051129° are clamped to that bound.
+
+!!! note
+    Web Mercator (EPSG:3857) differs from the ellipsoidal World Mercator projection (EPSG:3395). Ensure the target system expects EPSG:3857 coordinates.

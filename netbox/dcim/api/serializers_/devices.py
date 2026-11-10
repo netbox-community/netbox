@@ -108,15 +108,18 @@ class DeviceSerializer(PrimaryModelSerializer):
     device_bay_count = serializers.IntegerField(read_only=True)
     module_bay_count = serializers.IntegerField(read_only=True)
     inventory_item_count = serializers.IntegerField(read_only=True)
+    mercator_x = serializers.FloatField(read_only=True, allow_null=True)
+    mercator_y = serializers.FloatField(read_only=True, allow_null=True)
 
     class Meta:
         model = Device
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'device_type', 'role', 'tenant', 'platform', 'serial',
-            'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent_device',
-            'status', 'airflow', 'cooling_method', 'primary_ip', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster',
-            'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'owner', 'comments', 'config_template',
-            'config_context', 'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
+            'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'mercator_x',
+            'mercator_y', 'parent_device', 'status', 'airflow', 'cooling_method', 'primary_ip', 'primary_ip4',
+            'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'owner',
+            'comments', 'config_template', 'config_context', 'local_context_data', 'tags', 'custom_fields', 'created',
+            'last_updated',
             'console_port_count', 'console_server_port_count', 'power_port_count', 'power_outlet_count',
             'cooling_intake_count', 'cooling_outflow_count', 'interface_count', 'front_port_count', 'rear_port_count',
             'device_bay_count', 'module_bay_count', 'inventory_item_count', 'replicate_components',

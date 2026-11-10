@@ -40,6 +40,8 @@ class SitePanel(panels.ObjectAttributesPanel):
     physical_address = attrs.AddressAttr('physical_address', map_url=True, copy_button=True)
     shipping_address = attrs.AddressAttr('shipping_address', map_url=True, copy_button=True)
     gps_coordinates = attrs.GPSCoordinatesAttr()
+    mercator_x = attrs.NumericAttr('mercator_x', label=_('Web Mercator X'), copy_button=True)
+    mercator_y = attrs.NumericAttr('mercator_y', label=_('Web Mercator Y'), copy_button=True)
 
 
 class LocationPanel(panels.NestedGroupObjectPanel):
@@ -120,6 +122,8 @@ class DevicePanel(panels.ObjectAttributesPanel):
     virtual_chassis = attrs.RelatedObjectAttr('virtual_chassis', linkify=True)
     parent_device = attrs.TemplatedAttr('parent_bay', template_name='dcim/device/attrs/parent_device.html')
     gps_coordinates = attrs.GPSCoordinatesAttr()
+    mercator_x = attrs.NumericAttr('mercator_x', label=_('Web Mercator X'), copy_button=True)
+    mercator_y = attrs.NumericAttr('mercator_y', label=_('Web Mercator Y'), copy_button=True)
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
     description = attrs.TextAttr('description')
     cooling_method = attrs.ChoiceAttr('cooling_method')
