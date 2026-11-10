@@ -16,6 +16,7 @@ from rest_framework.viewsets import GenericViewSet
 from netbox.api.fields import RelatedObjectCountField
 from netbox.api.serializers.features import ChangeLogMessageSerializer
 from utilities.api import get_annotations_for_serializer, get_fields_for_serializer, get_prefetches_for_serializer
+from utilities.error_handlers import get_viewable_protected_objects
 from utilities.exceptions import AbortRequest, PreconditionFailed
 from utilities.query import reapply_model_ordering
 
@@ -266,19 +267,7 @@ class NetBoxModelViewSet(
         try:
             return super().dispatch(request, *args, **kwargs)
         except (ProtectedError, RestrictedError) as e:
-            if type(e) is ProtectedError:
-                protected_objects = list(e.protected_objects)
-            else:
-                protected_objects = list(e.restricted_objects)
-            msg = f'Unable to delete object. {len(protected_objects)} dependent objects were found: '
-            msg += ', '.join([f'{obj} ({obj.pk})' for obj in protected_objects])
-            logger.warning(msg)
-            return self.finalize_response(
-                request,
-                Response({'detail': msg}, status=409),
-                *args,
-                **kwargs
-            )
+            return self.finalize_response(request, self._get_protected_error_response(e), *args, **kwargs)
         except AbortRequest as e:
             logger.debug(e.message)
             return self.finalize_response(
@@ -287,6 +276,27 @@ class NetBoxModelViewSet(
                 *args,
                 **kwargs
             )
+
+    def _get_protected_error_response(self, exc):
+        """
+        Log all dependent objects of a ProtectedError or RestrictedError, and return a 409 response listing only those
+        which the user is permitted to view.
+        """
+        def get_message(objects, hidden_count=0):
+            dependent_objects = [f'{obj} ({obj.pk})' for obj in objects]
+            if hidden_count:
+                noun = 'object' if hidden_count == 1 else 'objects'
+                dependent_objects.append(f'{hidden_count} {noun} you do not have permission to view')
+            msg = f'Unable to delete object. {len(objects) + hidden_count} dependent objects were found: '
+            return msg + ', '.join(dependent_objects)
+
+        protected_objects = exc.protected_objects if isinstance(exc, ProtectedError) else exc.restricted_objects
+        logger = logging.getLogger(f'netbox.api.views.{self.__class__.__name__}')
+        logger.warning(get_message(protected_objects))
+
+        return Response({
+            'detail': get_message(*get_viewable_protected_objects(exc, self.request.user)),
+        }, status=409)
 
     def exception_to_response(self, exc):
         """
@@ -301,14 +311,7 @@ class NetBoxModelViewSet(
         """
         logger = logging.getLogger(f'netbox.api.views.{self.__class__.__name__}')
         if isinstance(exc, (ProtectedError, RestrictedError)):
-            if type(exc) is ProtectedError:
-                protected_objects = list(exc.protected_objects)
-            else:
-                protected_objects = list(exc.restricted_objects)
-            msg = f'Unable to delete object. {len(protected_objects)} dependent objects were found: '
-            msg += ', '.join([f'{obj} ({obj.pk})' for obj in protected_objects])
-            logger.warning(msg)
-            return Response({'detail': msg}, status=409)
+            return self._get_protected_error_response(exc)
         if isinstance(exc, AbortRequest):
             logger.debug(exc.message)
             return Response({'detail': exc.message}, status=400)
