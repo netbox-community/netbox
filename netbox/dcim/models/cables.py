@@ -404,6 +404,9 @@ class Cable(PrimaryModel):
             self.update_terminations()
 
         super().save(*args, force_update=True, **save_kwargs)
+        # Discard the pre-termination snapshot so that a later save of this instance takes a fresh one
+        if _created:
+            self.__dict__.pop('_prechange_snapshot', None)
 
         try:
             trace_paths.send(Cable, instance=self, created=_created, status_written=status_written)

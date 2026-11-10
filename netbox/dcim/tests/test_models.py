@@ -3457,6 +3457,20 @@ class CableDisconnectChangeLoggingTestCase(TestCase):
         self.assertEqual(len(change.postchange_data['a_terminations']), 1)
         self.assertEqual(len(change.postchange_data['b_terminations']), 1)
 
+    @tag('regression')  # Ref: #23617
+    def test_resaving_new_cable_records_current_prechange(self):
+        # The creation snapshot must not be reused, so the re-save falls back to the database
+        with self.assertLogs('netbox.core.signals', level='WARNING'), event_tracking(self._request()):
+            cable = Cable(a_terminations=[self.interface1], b_terminations=[self.interface2])
+            cable.save()
+            cable.label = 'x'
+            cable.save()
+
+        change = self._updates(cable).last()
+        self.assertEqual(len(change.prechange_data['a_terminations']), 1)
+        self.assertEqual(len(change.prechange_data['b_terminations']), 1)
+        self.assertEqual(change.postchange_data['label'], 'x')
+
     @tag('regression')  # Ref: netbox-branching#631
     def test_cable_deletion_records_disconnect(self):
         cable = self._connect(self.interface1, self.interface2)

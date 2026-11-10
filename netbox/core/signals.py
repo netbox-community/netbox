@@ -4,10 +4,10 @@ from threading import local
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.signals import request_finished
-from django.db import transaction
+from django.db import router, transaction
 from django.db.models import CASCADE, RESTRICT
 from django.db.models.fields.reverse_related import ManyToManyRel, ManyToOneRel
-from django.db.models.signals import m2m_changed, post_migrate, post_save, pre_delete
+from django.db.models.signals import m2m_changed, post_migrate, post_save, pre_delete, pre_save
 from django.dispatch import Signal, receiver
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
@@ -90,6 +90,26 @@ def update_object_types(sender, **kwargs):
 _signals_received = local()
 
 
+@receiver(pre_save)
+def snapshot_unsnapshotted_object(sender, instance, raw=False, using=None, **kwargs):
+    """
+    Generate a pre-change snapshot from the database for an existing object being saved without one.
+    """
+    if raw or not isinstance(instance, ChangeLoggingMixin) or current_request.get() is None:
+        return
+    if instance._state.adding or instance.pk is None or hasattr(instance, '_prechange_snapshot'):
+        return
+
+    db = using or router.db_for_write(sender, instance=instance)
+    if (original := sender._base_manager.using(db).filter(pk=instance.pk).first()) is None:
+        return
+    logger.warning(f"No pre-change snapshot taken for {sender._meta.label} {instance.pk}; reading it from the database")
+    original.snapshot()
+    instance._prechange_snapshot = original._prechange_snapshot
+    # Discard after this save so that a later save of the instance takes a fresh snapshot
+    instance._prechange_snapshot_from_db = True
+
+
 @receiver((post_save, m2m_changed))
 def handle_changed_object(sender, instance, **kwargs):
     """
@@ -135,6 +155,8 @@ def handle_changed_object(sender, instance, **kwargs):
         OBJECT_DELETED: ObjectChangeActionChoices.ACTION_DELETE,
     }[event_type]
     objectchange = instance.to_objectchange(action)
+    if instance.__dict__.pop('_prechange_snapshot_from_db', False):
+        del instance._prechange_snapshot
     object_change_id = None
     # If this is a many-to-many field change, check for a previous ObjectChange instance recorded
     # for this object by this request and update it
