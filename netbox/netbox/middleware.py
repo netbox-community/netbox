@@ -40,6 +40,9 @@ class CommonMiddleware(DjangoCommonMiddleware):
     body (clients downgrade to GET on a 302) or raise a RuntimeError when
     DEBUG is enabled. Letting the original 404 propagate gives the caller a
     clear, actionable error instead.
+
+    Also reports 404s flagged by handler_404 to Sentry, once any APPEND_SLASH
+    redirect has been applied.
     """
     UNSAFE_METHODS = frozenset(('DELETE', 'PATCH', 'POST', 'PUT'))
 

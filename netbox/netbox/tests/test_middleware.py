@@ -11,7 +11,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from netbox.middleware import CoreMiddleware, MaintenanceModeMiddleware
-from utilities.testing import TestCase
+from utilities.testing import TestCase, disable_warnings
 
 
 class CoreMiddlewareTestCase(TestCase):
@@ -170,7 +170,8 @@ class SentryNotFoundReportingTestCase(TestCase):
         self.addCleanup(patcher.stop)
 
     def test_404_reported_to_sentry(self):
-        response = self.client.get('/nonexistent-path/')
+        with disable_warnings('django.request'):
+            response = self.client.get('/nonexistent-path/')
 
         self.assertEqual(response.status_code, 404)
         self.sentry_sdk.capture_message.assert_called_once_with('Page not found', level='error')
@@ -183,7 +184,16 @@ class SentryNotFoundReportingTestCase(TestCase):
         self.sentry_sdk.capture_message.assert_not_called()
 
     def test_unsafe_api_request_without_slash_reported_to_sentry(self):
-        response = self.client.post('/api/status', data={}, content_type='application/json')
+        with disable_warnings('django.request'):
+            response = self.client.post('/api/status', data={}, content_type='application/json')
 
         self.assertEqual(response.status_code, 404)
         self.sentry_sdk.capture_message.assert_called_once_with('Page not found', level='error')
+
+    @override_settings(SENTRY_ENABLED=False)
+    def test_404_not_reported_when_sentry_disabled(self):
+        with disable_warnings('django.request'):
+            response = self.client.get('/nonexistent-path/')
+
+        self.assertEqual(response.status_code, 404)
+        self.sentry_sdk.capture_message.assert_not_called()
