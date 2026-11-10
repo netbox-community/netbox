@@ -42,9 +42,13 @@ __all__ = (
 # View Mixins
 #
 
+# TODO: Remove in NetBox v5.0
 class ConditionalLoginRequiredMixin(AccessMixin):
     """
     Similar to Django's LoginRequiredMixin, but enforces authentication only if LOGIN_REQUIRED is True.
+
+    Deprecated: LoginRequiredMiddleware now enforces LOGIN_REQUIRED for all views. This mixin will be removed in
+    NetBox v5.0.
     """
     def dispatch(self, request, *args, **kwargs):
         if settings.LOGIN_REQUIRED and not request.user.is_authenticated:
@@ -52,7 +56,13 @@ class ConditionalLoginRequiredMixin(AccessMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
+# TODO: Remove in NetBox v5.0
 class TokenConditionalLoginRequiredMixin(ConditionalLoginRequiredMixin):
+    """
+    Extends ConditionalLoginRequiredMixin to authenticate the request by API token, if one is provided.
+
+    Deprecated: This mixin will be removed in NetBox v5.0.
+    """
     def dispatch(self, request, *args, **kwargs):
         # Attempt to authenticate the user using a DRF token, if provided
         if settings.LOGIN_REQUIRED and not request.user.is_authenticated:
@@ -67,7 +77,7 @@ class TokenConditionalLoginRequiredMixin(ConditionalLoginRequiredMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-class ContentTypePermissionRequiredMixin(ConditionalLoginRequiredMixin):
+class ContentTypePermissionRequiredMixin(AccessMixin):
     """
     Similar to Django's built-in PermissionRequiredMixin, but extended to check model-level permission assignments.
     This is related to ObjectPermissionRequiredMixin, except that it does not enforce object-level permissions,
@@ -103,7 +113,7 @@ class ContentTypePermissionRequiredMixin(ConditionalLoginRequiredMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-class ObjectPermissionRequiredMixin(ConditionalLoginRequiredMixin):
+class ObjectPermissionRequiredMixin(AccessMixin):
     """
     Similar to Django's built-in PermissionRequiredMixin, but extended to check for both model-level and object-level
     permission assignments. If the user has only object-level permissions assigned, the view's queryset is filtered

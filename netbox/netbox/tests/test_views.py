@@ -24,7 +24,8 @@ from netbox.choices import CSVDelimiterChoices, ImportFormatChoices, ImportMetho
 from netbox.constants import EMPTY_TABLE_TEXT
 from netbox.search.backends import search_backend
 from netbox.views import generic
-from users.models import User
+from users.constants import TOKEN_PREFIX
+from users.models import Token, User
 from utilities.exceptions import AbortRequest
 from utilities.testing import TestCase
 from utilities.views import get_action_url
@@ -350,6 +351,15 @@ class MediaViewTestCase(TestCase):
         response = Client().get(url)
 
         # Unauthenticated request should return a 404 (not found)
+        self.assertHttpStatus(response, 404)
+
+    @override_settings(LOGIN_REQUIRED=True)
+    def test_media_token_authentication(self):
+        token = Token.objects.create(version=2, user=self.user)
+        url = reverse('media', kwargs={'path': 'foo.txt'})
+        response = Client().get(url, HTTP_AUTHORIZATION=f'Bearer {TOKEN_PREFIX}{token.key}.{token.token}')
+
+        # Token-authenticated request should return a 404 (not found) rather than redirect to the login page
         self.assertHttpStatus(response, 404)
 
     def test_image_attachment_with_permission(self):

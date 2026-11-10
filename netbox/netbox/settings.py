@@ -531,6 +531,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
     'netbox.middleware.RemoteUserMiddleware',
+    'netbox.middleware.LoginRequiredMiddleware',
     'netbox.middleware.CoreMiddleware',
     'netbox.middleware.MaintenanceModeMiddleware',
     'netbox.middleware.SocialAuthExceptionMiddleware',

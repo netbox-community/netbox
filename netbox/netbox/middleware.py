@@ -3,6 +3,7 @@ import uuid
 
 from django.conf import settings
 from django.contrib import auth, messages
+from django.contrib.auth.middleware import LoginRequiredMiddleware as LoginRequiredMiddleware_
 from django.contrib.auth.middleware import RemoteUserMiddleware as RemoteUserMiddleware_
 from django.core.exceptions import ImproperlyConfigured
 from django.core.signals import got_request_exception
@@ -12,6 +13,7 @@ from django.http import Http404, HttpResponseRedirect
 from django.middleware.common import CommonMiddleware as DjangoCommonMiddleware
 from django.utils.translation import gettext_lazy as _
 from django_prometheus import middleware
+from rest_framework.views import APIView
 from social_django.middleware import SocialAuthExceptionMiddleware as SocialAuthExceptionMiddleware_
 
 from netbox.config import clear_config, get_config
@@ -24,6 +26,7 @@ from utilities.request import apply_request_processors
 __all__ = (
     'CommonMiddleware',
     'CoreMiddleware',
+    'LoginRequiredMiddleware',
     'MaintenanceModeMiddleware',
     'PrometheusAfterMiddleware',
     'PrometheusBeforeMiddleware',
@@ -132,6 +135,29 @@ class CoreMiddleware:
             got_request_exception.send(sender=self.__class__, request=request)
             return handler_500(request, template_name=custom_template)
         return None
+
+
+class LoginRequiredMiddleware(LoginRequiredMiddleware_):
+    """
+    Require authentication for all views not marked with @login_not_required, when LOGIN_REQUIRED is True.
+    """
+    # Third-party URLs which must remain accessible without authentication (e.g. to Prometheus scrapers)
+    exempt_url_names = ('prometheus-django-metrics',)
+
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        # TODO: Remove this check in NetBox v5.0 along with the LOGIN_REQUIRED parameter
+        if not settings.LOGIN_REQUIRED:
+            return None
+
+        # DRF views authenticate requests themselves, and respond with a 403 rather than a login redirect
+        view_class = getattr(view_func, 'cls', None)
+        if isinstance(view_class, type) and issubclass(view_class, APIView):
+            return None
+
+        if (match := request.resolver_match) and match.url_name in self.exempt_url_names:
+            return None
+
+        return super().process_view(request, view_func, view_args, view_kwargs)
 
 
 class RemoteUserMiddleware(RemoteUserMiddleware_):

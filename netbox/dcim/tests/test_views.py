@@ -6846,7 +6846,7 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     def test_set_primary_anonymous_redirects_to_login(self):
         """
         With LOGIN_REQUIRED, an unauthenticated request is redirected to the login page (via
-        ConditionalLoginRequiredMixin) rather than 404ing or acting, for both GET and POST.
+        LoginRequiredMiddleware) rather than 404ing or acting, for both GET and POST.
         """
         self.client.logout()
         mac = MACAddress.objects.first()
