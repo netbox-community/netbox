@@ -1,5 +1,45 @@
 # NetBox v4.7
 
+## v4.7.5 (2026-11-10)
+
+### Enhancements
+
+* [#23470](https://github.com/netbox-community/netbox/issues/23470) - Add 3C8P, 3C12P, and 4C12P trunk cable profiles
+
+### Performance Improvements
+
+* [#23505](https://github.com/netbox-community/netbox/issues/23505) - Avoid redundant query conditions when filtering by a non-unique name or slug, such as MAC addresses by `interface` or device components by `device`
+* [#23562](https://github.com/netbox-community/netbox/issues/23562) - Batch the loading of related objects read by export templates, rather than querying them for each object
+* [#23563](https://github.com/netbox-community/netbox/issues/23563) - Batch the loading of related objects when rendering global search results
+* [#23564](https://github.com/netbox-community/netbox/issues/23564) - Batch the loading of cable terminations and their parent objects when listing cables, cable terminations, ports, and power feeds via the REST API
+* [#23565](https://github.com/netbox-community/netbox/issues/23565) - Batch the loading of deferred fields and related objects which the GraphQL query optimizer can't anticipate, such as those read when resolving `link_peers` and `connected_endpoints`
+
+### Bug Fixes
+
+* [#23185](https://github.com/netbox-community/netbox/issues/23185) - Prevent the deletion of a region or site group from also deleting the circuit terminations attached to its sites and locations
+* [#23260](https://github.com/netbox-community/netbox/issues/23260) - Fix exception when applying migration `dcim.0245_consolidate_unique_constraints` on installations whose location, region, or site group unique constraints have auto-generated names
+* [#23407](https://github.com/netbox-community/netbox/issues/23407) - Restrict the image attachments listed under an object's Images tab to those the user is permitted to view
+* [#23446](https://github.com/netbox-community/netbox/issues/23446) - Prevent duplicate submissions of object add and edit forms (such as duplicate image attachments) by disabling the submit button after the first click
+* [#23447](https://github.com/netbox-community/netbox/issues/23447) - Fix exception when ordering REST API results by an object count field (e.g. `count_ipaddresses`) which is omitted from the response by `brief` or `fields`
+* [#23477](https://github.com/netbox-community/netbox/issues/23477) - Include the `asn_count` field in the REST API representation of ASN ranges
+* [#23478](https://github.com/netbox-community/netbox/issues/23478) - Validate `{module}` placeholders in component labels and module bay templates when installing a module, rather than raising an exception or resolving them to an empty string
+* [#23486](https://github.com/netbox-community/netbox/issues/23486) - Record pre-change data in the change log for virtual chassis members when creating, editing, or deleting a virtual chassis
+* [#23510](https://github.com/netbox-community/netbox/issues/23510) - Prevent a queued background job from running after it has been deleted or marked as failed
+* [#23511](https://github.com/netbox-community/netbox/issues/23511) - Display the correct file path on a script's Source tab, and identify the script file (rather than `<string>`) in error tracebacks
+* [#23534](https://github.com/netbox-community/netbox/issues/23534) - Fix `IntegrityError` exception when completing a job whose owner already has a notification for it
+* [#23535](https://github.com/netbox-community/netbox/issues/23535) - Prevent a duplicate recurring sync job from being created when a data source is saved as its scheduled sync finishes
+* [#23542](https://github.com/netbox-community/netbox/issues/23542) - Fix `FileNotFoundError` exception when synchronizing a local data source whose subdirectory paths repeat the root path (e.g. `/scripts/scripts_old/`)
+* [#23558](https://github.com/netbox-community/netbox/issues/23558) - Fix errors when editing an API token without permission to view users, or from the user's own API tokens view
+* [#23559](https://github.com/netbox-community/netbox/issues/23559) - Fix the prefetching of related objects shown as display attributes in global search results
+* [#23574](https://github.com/netbox-community/netbox/issues/23574) - Fix exception when passing `null` to several filters (e.g. `present_in_vrf_id`, `available_at_site`, and `interface_id`), and support filtering data sources by `sync_interval=null`
+* [#23584](https://github.com/netbox-community/netbox/issues/23584) - Enforce SSO allowlist settings (e.g. `WHITELISTED_DOMAINS` and `WHITELISTED_EMAILS`) by adding `auth_allowed` to the default `SOCIAL_AUTH_PIPELINE`
+* [#23585](https://github.com/netbox-community/netbox/issues/23585) - Enforce view permissions on parent and related objects when adding individual components or component templates, and when bulk adding prefixes, IP addresses, and VLANs
+* [#23595](https://github.com/netbox-community/netbox/issues/23595) - Implement `update_dependent_objects()` for wireless links, circuit terminations, and channel subinterfaces, to rebuild cable paths after writes which bypass `save()`
+* [#23596](https://github.com/netbox-community/netbox/issues/23596) - Record pre-change data in the change log for components adopted when installing a module
+* [#23597](https://github.com/netbox-community/netbox/issues/23597) - Record change log entries and trigger event rules for port mappings created from device type and module type templates, or moved with a module to another device
+
+---
+
 ## v4.7.4 (2026-10-27)
 
 !!! warning "Image Thumbnails on Remote Storage"
