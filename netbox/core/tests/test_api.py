@@ -521,7 +521,8 @@ class BackgroundTaskTestCase(RQQueueTestMixin, TestCase):
         # Re-enqueue the failed job and check that its status has been reset
         self.user.is_superuser = True
         self.user.save()
-        response = self.client.post(url, **self.header)
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(url, **self.header)
         self.assertEqual(response.status_code, 200)
         job = RQ_Job.fetch(job.id, queue.connection)
         self.assertFalse(job.is_failed)
@@ -547,7 +548,8 @@ class BackgroundTaskTestCase(RQQueueTestMixin, TestCase):
         # Force-enqueue the deferred job
         self.user.is_superuser = True
         self.user.save()
-        response = self.client.post(url, **self.header)
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(url, **self.header)
         self.assertEqual(response.status_code, 200)
 
         # Check that job's status is updated correctly

@@ -3,7 +3,7 @@ from unittest import mock
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.db import connection, router
+from django.db import connection, router, transaction
 from django.test import Client, TestCase, TransactionTestCase
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
@@ -850,6 +850,133 @@ class ChannelizedCablePathTestCase(BaseCablePathTestCase):
                 (peer, cable, channel), pk=peer_paths[peer.pk], is_complete=True, is_active=True
             )
 
+    def test_124_update_dependent_objects_mirrors_cable_onto_raw_channel(self):
+        """
+        A channel subinterface written raw must inherit its parent's cable and trace in both directions once
+        Interface.update_dependent_objects() is called. Refs: #23595
+        """
+        parent, channels = self._create_channelized_interface('et0', 4)
+        channels[3].delete()
+        far = [
+            Interface.objects.create(device=self.device, name=f'xe{i}', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS)
+            for i in range(4)
+        ]
+        cable = Cable(profile=CableProfileChoices.BREAKOUT_1C4P_4C1P, a_terminations=[parent], b_terminations=far)
+        cable.clean()
+        cable.save()
+
+        channel = Interface(
+            device=self.device, name='et0:4', type=InterfaceTypeChoices.TYPE_CHANNEL, parent=parent, channel_id=4
+        )
+        channel.save_base(raw=True)
+        channel.refresh_from_db()
+        self.assertIsNone(channel.cable_id)
+        self.assertPathIsNotSet(channel)
+
+        self.update_dependent_objects(channel)
+
+        channel.refresh_from_db()
+        self.assertEqual(channel.cable_id, cable.pk)
+        self.assertEqual(channel.cable_positions, [4])
+        self.assertCurrentPathExists((channel, cable, far[3]), is_complete=True, is_active=True)
+        self.assertCurrentPathExists((far[3], cable, channel), is_complete=True, is_active=True)
+        self.assertEqual(CablePath.objects.count(), 8)
+
+    def _assert_hook_matches_save(self, channel, **attrs):
+        """
+        Assert that writing attrs to channel raw and calling update_dependent_objects() leaves the same cable
+        attributes and CablePaths as a normal save().
+        """
+        def snapshot():
+            interfaces = Interface.objects.order_by('pk').values_list(
+                'pk', 'cable_id', 'cable_end', 'cable_connector', 'cable_positions', '_path__path'
+            )
+            paths = sorted((p.path, p.is_complete, p.is_active, p.is_split) for p in CablePath.objects.all())
+            return list(interfaces), paths
+
+        class Rollback(Exception):
+            pass
+
+        try:
+            with transaction.atomic():
+                instance = Interface.objects.get(pk=channel.pk)
+                for name, value in attrs.items():
+                    setattr(instance, name, value)
+                instance.full_clean()
+                instance.save()
+                expected = snapshot()
+                raise Rollback
+        except Rollback:
+            pass
+
+        instance = Interface.objects.get(pk=channel.pk)
+        for name, value in attrs.items():
+            setattr(instance, name, value)
+        instance.save_base(raw=True)
+        self.update_dependent_objects(instance)
+
+        self.assertEqual(snapshot(), expected)
+
+    def _create_breakout(self, name, far_prefix):
+        parent, channels = self._create_channelized_interface(name, 4)
+        far = [
+            Interface.objects.create(
+                device=self.device, name=f'{far_prefix}{i}', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+            )
+            for i in range(4)
+        ]
+        cable = Cable(profile=CableProfileChoices.BREAKOUT_1C4P_4C1P, a_terminations=[parent], b_terminations=far)
+        cable.clean()
+        cable.save()
+        return parent, channels, far, cable
+
+    def test_125_update_dependent_objects_clears_raw_detached_channel(self):
+        """
+        A channel subinterface detached by a raw write must drop its mirrored cable attributes and paths. Refs: #23595
+        """
+        _, channels, far, _ = self._create_breakout('et0', 'xe')
+
+        self._assert_hook_matches_save(
+            channels[3], parent=None, channel_id=None, type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
+
+        channel = Interface.objects.get(pk=channels[3].pk)
+        self.assertIsNone(channel.cable_id)
+        self.assertPathIsNotSet(channel)
+        self.assertFalse(CablePath.objects.filter(_nodes__contains=channel).exists())
+
+    def test_126_update_dependent_objects_retraces_raw_reparented_channel(self):
+        """
+        A channel subinterface moved to another channelized parent by a raw write must leave no path from its former
+        parent's far end. Refs: #23595
+        """
+        parent1, channels1, far1, cable1 = self._create_breakout('et0', 'xe')
+        parent2, channels2, far2, cable2 = self._create_breakout('et1', 'ge')
+        channels2[3].delete()
+
+        self._assert_hook_matches_save(channels1[3], parent=Interface.objects.get(pk=parent2.pk), name='et1:4')
+
+        channel = Interface.objects.get(pk=channels1[3].pk)
+        self.assertEqual(channel.cable_id, cable2.pk)
+        self.assertCurrentPathExists((channel, cable2, far2[3]), is_complete=True, is_active=True)
+        self.assertCurrentPathExists((far2[3], cable2, channel), is_complete=True, is_active=True)
+        self.assertFalse(CablePath.objects.filter(_nodes__contains=cable1).filter(_nodes__contains=channel).exists())
+
+    def test_127_update_dependent_objects_clears_channel_of_uncabled_parent(self):
+        """
+        A channel subinterface moved by a raw write to a channelized parent with no cable must drop its mirrored
+        cable attributes and paths. Refs: #23595
+        """
+        _, channels, _, _ = self._create_breakout('et0', 'xe')
+        parent2, channels2 = self._create_channelized_interface('et1', 4)
+        channels2[3].delete()
+
+        self._assert_hook_matches_save(channels[3], parent=Interface.objects.get(pk=parent2.pk), name='et1:4')
+
+        channel = Interface.objects.get(pk=channels[3].pk)
+        self.assertIsNone(channel.cable_id)
+        self.assertFalse(CablePath.objects.filter(_nodes__contains=channel).exists())
+
 
 class ChannelizedInterfaceTestCase(TestCase):
     """
@@ -1633,7 +1760,7 @@ class ChannelizedBulkCreateTestCase(ViewTestCase):
         parent = Interface.objects.create(
             device=self.device, name='et0', type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS, channels=4
         )
-        self.add_permissions('dcim.add_interface', 'dcim.view_interface')
+        self.add_permissions('dcim.add_interface', 'dcim.view_interface', 'dcim.view_device')
 
         request_data = {
             'device': self.device.pk,
@@ -1656,7 +1783,7 @@ class ChannelizedBulkCreateTestCase(ViewTestCase):
         parent = InterfaceTemplate.objects.create(
             device_type=self.device_type, name='et0', type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS, channels=4
         )
-        self.add_permissions('dcim.add_interfacetemplate', 'dcim.view_interfacetemplate')
+        self.add_permissions('dcim.add_interfacetemplate', 'dcim.view_interfacetemplate', 'dcim.view_devicetype')
 
         request_data = {
             'device_type': self.device_type.pk,

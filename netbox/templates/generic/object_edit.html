@@ -58,7 +58,7 @@ Context:
       {% include 'inc/missing_prerequisites.html' %}
     {% endif %}
 
-    <form action="" method="post" enctype="multipart/form-data" class="object-edit object-edit--with-sticky-actions mt-5">
+    <form action="" method="post" enctype="multipart/form-data" class="object-edit object-edit--with-sticky-actions mt-5" data-disable-on-submit>
       {% csrf_token %}
 
       {% block pre_form_fields %}{% endblock pre_form_fields %}

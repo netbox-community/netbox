@@ -4,7 +4,7 @@
 {% block extra_controls %}
   {% if perms.core.sync_datasource %}
     {% if object.ready_for_sync %}
-      <form action="{% url 'core:datasource_sync' pk=object.pk %}" method="post">
+      <form action="{% url 'core:datasource_sync' pk=object.pk %}" method="post" data-disable-on-submit>
         {% csrf_token %}
         <button type="submit" class="btn btn-primary">
           <i class="mdi mdi-sync" aria-hidden="true"></i> {% trans "Sync" %}

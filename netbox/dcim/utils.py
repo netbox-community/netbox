@@ -5,6 +5,7 @@ from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.db import router, transaction
 from django.db.models import Q
+from django.db.models.signals import post_save
 from django.utils.translation import gettext as _
 
 from dcim.constants import MODULE_TOKEN
@@ -81,24 +82,31 @@ def resolve_module_placeholder(value, positions):
     Multiple tokens must match the tree depth and resolve level-by-level.
 
     Returns the resolved string.
-    Raises ValueError if token count is greater than 1 and doesn't match tree depth.
+    Raises ValueError if token count is greater than 1 and doesn't match tree depth,
+    or if a position a token resolves to is missing or empty.
     """
     if MODULE_TOKEN not in value:
         return value
 
     token_count = value.count(MODULE_TOKEN)
     if token_count == 1:
-        return value.replace(MODULE_TOKEN, positions[-1])
-    if token_count == len(positions):
-        for pos in positions:
-            value = value.replace(MODULE_TOKEN, pos, 1)
-        return value
-    raise ValueError(
-        _("Cannot install module with placeholder values in a module bay tree "
-          "{level} levels deep but {tokens} placeholders given.").format(
-            level=len(positions), tokens=token_count
+        referenced = positions[-1:]
+    elif token_count == len(positions):
+        referenced = positions
+    else:
+        raise ValueError(
+            _("Cannot install module with placeholder values in a module bay tree "
+              "{level} levels deep but {tokens} placeholders given.").format(
+                level=len(positions), tokens=token_count
+            )
         )
-    )
+    if not referenced or not all(referenced):
+        raise ValueError(
+            _("Cannot install module with placeholder values in a module bay with no position defined.")
+        )
+    for pos in referenced:
+        value = value.replace(MODULE_TOKEN, pos, 1)
+    return value
 
 
 def compile_path_node(ct_id, object_id):
@@ -475,6 +483,7 @@ def update_interface_parents(device, interface_templates, module=None):
 
     for interface_template in interface_templates.exclude(parent=None):
         interface = Interface.objects.get(device=device, name=interface_template.resolve_name(module=module))
+        interface.snapshot()
         interface.parent = Interface.objects.get(
             device=device,
             name=interface_template.parent.resolve_name(module=module)
@@ -497,6 +506,7 @@ def update_interface_bridges(device, interface_templates, module=None):
         )
 
         if interface_template.bridge:
+            interface.snapshot()
             interface.bridge = Interface.objects.get(
                 device=device,
                 name=interface_template.bridge.resolve_name(module=module, device=device)
@@ -535,8 +545,18 @@ def create_port_mappings(device, device_or_module_type, module=None):
                 rear_port_position=template.rear_port_position,
             )
         )
-    # Bulk-created (no per-mapping ObjectChange) to match how every other component is instantiated.
-    PortMapping.objects.bulk_create(mappings)
+    # Send post_save for each mapping to record its creation
+    mappings = PortMapping.objects.bulk_create(mappings)
+    using = router.db_for_write(PortMapping)
+    for mapping in mappings:
+        post_save.send(
+            sender=PortMapping,
+            instance=mapping,
+            created=True,
+            raw=False,
+            using=using,
+            update_fields=None
+        )
 
 
 def reconcile_port_mappings(mapping_model, parent_field, parent, desired):

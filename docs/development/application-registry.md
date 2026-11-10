@@ -30,13 +30,6 @@ A dictionary of model features (e.g. custom fields, tags, etc.) mapped to the fu
 
 Core model features are listed in the [features matrix](./models.md#features-matrix).
 
-### `models`
-
-!!! warning "Deprecated"
-    Usage of this key has been deprecated and will be removed in NetBox v4.7. Use `ObjectType.objects.public()` to find registered models.
-
-This key lists all models which have been registered in NetBox which are not designated for private use. (Setting `_netbox_private` to True on a model excludes it from this list.) As with individual features under `model_features`, models are organized by app label.
-
 ### `pk_allocators`
 
 A list of callables which may supply primary keys for new objects, consulted in order. Primary key allocators are registered using the `register_pk_allocator()` decorator in `netbox.models`. (See the [plugin development documentation](../plugins/development/models.md#primary-key-allocators) for details.)

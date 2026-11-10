@@ -862,6 +862,10 @@ class PrefixTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         self.assertEqual(self.filterset({'present_in_vrf': vrf1.rd}, self.queryset).qs.count(), 6)
         self.assertEqual(self.filterset({'present_in_vrf': vrf2.rd}, self.queryset).qs.count(), 2)
 
+        # Reject invalid filter values
+        for params in ({'present_in_vrf_id': 'null'}, {'present_in_vrf': 'null'}):
+            self.assertFalse(self.filterset(params, self.queryset).is_valid(), msg=params)
+
     def test_region(self):
         regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
@@ -889,6 +893,15 @@ class PrefixTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'vlan_group': [vlan_groups[0].slug, vlan_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_vlan_group_shared_slug(self):
+        # A VLAN group slug shared by several scopes should resolve to a single filter value
+        group = VLANGroup.objects.first()
+        site = Site.objects.create(name='Site 99', slug='site-99')
+        VLANGroup.objects.create(scope=site, name=group.name, slug=group.slug)
+        filterset = self.filterset({'vlan_group': [group.slug]}, self.queryset)
+        self.assertTrue(filterset.is_valid())
+        self.assertEqual(len(filterset.form.cleaned_data['vlan_group']), 1)
 
     def test_vlan(self):
         vlans = VLAN.objects.all()[:2]
@@ -1439,6 +1452,22 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'vrf': [vrfs[0].rd, vrfs[1].rd]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
+    def test_present_in_vrf(self):
+        """Match addresses in the VRF or in a VRF exporting one of its import targets."""
+        vrf1 = VRF.objects.get(name='VRF 1')
+        vrf2 = VRF.objects.get(name='VRF 2')
+        route_target = RouteTarget.objects.create(name='65000:200')
+        vrf1.import_targets.add(route_target)
+        vrf2.export_targets.add(route_target)
+        self.assertEqual(self.filterset({'present_in_vrf_id': vrf1.pk}, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset({'present_in_vrf_id': vrf2.pk}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'present_in_vrf': vrf1.rd}, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset({'present_in_vrf': vrf2.rd}, self.queryset).qs.count(), 2)
+
+        # Reject invalid filter values
+        for params in ({'present_in_vrf_id': 'null'}, {'present_in_vrf': 'null'}):
+            self.assertFalse(self.filterset(params, self.queryset).is_valid(), msg=params)
+
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
@@ -1466,6 +1495,19 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'vminterface': ['Interface 1', 'Interface 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_interface_shared_name(self):
+        # A name shared by several interfaces should resolve to a single filter value
+        Interface.objects.create(
+            device=Device.objects.get(name='Device 2'), name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        VMInterface.objects.create(
+            virtual_machine=VirtualMachine.objects.get(name='Virtual Machine 2'), name='Interface 1'
+        )
+        for param in ('interface', 'vminterface'):
+            filterset = self.filterset({param: ['Interface 1']}, self.queryset)
+            self.assertEqual(filterset.qs.count(), 1)
+            self.assertEqual(len(filterset.form.cleaned_data[param]), 1)
 
     def test_fhrpgroup(self):
         fhrp_groups = FHRPGroup.objects.all()[:2]
@@ -1597,6 +1639,10 @@ class FHRPGroupTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         )
         params = {'related_ip': [ipaddresses[0].pk, ipaddresses[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+        # Reject invalid filter values
+        for params in ({'related_ip': ['null']}, {'related_ip': [ipaddresses[0].pk, 'null']}):
+            self.assertFalse(self.filterset(params, self.queryset).is_valid(), msg=params)
 
 
 class FHRPGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
@@ -2274,6 +2320,10 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
             [2001, 2002, 2003, 3001, 3002, 3003]
         )
 
+        # Reject invalid filter values
+        for params in ({'related_to_site': ['null']}, {'related_to_site': [site.pk, 'null']}):
+            self.assertFalse(self.filterset(params, self.queryset).is_valid(), msg=params)
+
     def test_related_to_site_matches_any_of_several_sites(self):
         """Several sites spanning two site groups are ORed together, and a shared VLAN comes back once."""
         sites = (
@@ -2343,6 +2393,10 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'related_to_site__n': [site.pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), self.queryset.count() - 2)
 
+        # Reject invalid filter values
+        for params in ({'related_to_site__n': ['null']}, {'related_to_site__n': [site.pk, 'null']}):
+            self.assertFalse(self.filterset(params, self.queryset).is_valid(), msg=params)
+
     def test_related_to_site_resolves_site_groups_in_constant_queries(self):
         """The query count is constant in the number of sites, and drops to one without groups."""
         sites = list(Site.objects.filter(slug__in=('site-1', 'site-2', 'site-3')))
@@ -2394,6 +2448,15 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'group': [groups[0].slug, groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
+    def test_group_shared_slug(self):
+        # A VLAN group slug shared by several scopes should resolve to a single filter value
+        group = VLANGroup.objects.first()
+        site = Site.objects.create(name='Site 99', slug='site-99')
+        VLANGroup.objects.create(scope=site, name=group.name, slug=group.slug)
+        filterset = self.filterset({'group': [group.slug]}, self.queryset)
+        self.assertTrue(filterset.is_valid())
+        self.assertEqual(len(filterset.form.cleaned_data['group']), 1)
+
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -2428,6 +2491,10 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'available_on_device': device_id}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 7)  # 5 scoped + 1 global group + 1 global
 
+        # Reject invalid filter values
+        params = {'available_on_device': 'null'}
+        self.assertFalse(self.filterset(params, self.queryset).is_valid())
+
     def test_available_on_device_cluster_scopes(self):
         device = Device.objects.get(name='Device 1')
         device.cluster = Cluster.objects.get(name='Cluster 1')
@@ -2456,15 +2523,27 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'available_on_virtualmachine': vm_id}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)  # 6 scoped + 1 global group + 1 global
 
+        # Reject invalid filter values
+        params = {'available_on_virtualmachine': 'null'}
+        self.assertFalse(self.filterset(params, self.queryset).is_valid())
+
     def test_available_at_site(self):
         site_id = Site.objects.first().pk
         params = {'available_at_site': site_id}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)  # 4 scoped + 1 global group + 1 global
 
+        # Reject invalid filter values
+        params = {'available_at_site': 'null'}
+        self.assertFalse(self.filterset(params, self.queryset).is_valid())
+
     def test_available_at_site_group(self):
         site_group = SiteGroup.objects.get(name='Site Group 1')
         params = {'available_at_site_group': site_group.pk}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)  # 1 scoped + 1 global group + 1 global
+
+        # Reject invalid filter values
+        params = {'available_at_site_group': 'null'}
+        self.assertFalse(self.filterset(params, self.queryset).is_valid())
 
     def test_interface(self):
         interface_id = Interface.objects.first().pk
@@ -2491,6 +2570,10 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         self.assertEqual(qs.count(), 2)
         self.assertEqual(len(qs), len(set(qs.values_list('pk', flat=True))))
 
+        # Reject invalid filter values
+        params = {'interface_id': 'null'}
+        self.assertFalse(self.filterset(params, self.queryset).is_valid())
+
     def test_vminterface(self):
         vminterface_id = VMInterface.objects.first().pk
         params = {'vminterface_id': vminterface_id}
@@ -2514,6 +2597,10 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         qs = self.filterset(params, self.queryset).qs
         self.assertEqual(qs.count(), 2)
         self.assertEqual(len(qs), len(set(qs.values_list('pk', flat=True))))
+
+        # Reject invalid filter values
+        params = {'vminterface_id': 'null'}
+        self.assertFalse(self.filterset(params, self.queryset).is_valid())
 
     def test_qinq_role(self):
         params = {'qinq_role': [VLANQinQRoleChoices.ROLE_SERVICE, VLANQinQRoleChoices.ROLE_CUSTOMER]}

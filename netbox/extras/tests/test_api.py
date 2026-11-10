@@ -2215,16 +2215,14 @@ class ScriptTestCase(APITestCase):
         )
         cls.url = reverse('extras-api:script-detail', kwargs={'pk': script.pk})
 
-    @property
-    def python_class(self):
-        return self.TestScriptClass
-
     def setUp(self):
         super().setUp()
         self.add_permissions('extras.view_script')
 
         # Monkey-patch the Script model to return our TestScriptClass above
-        Script.python_class = self.python_class
+        python_class_patch = patch.object(Script, 'python_class', new=self.TestScriptClass)
+        python_class_patch.start()
+        self.addCleanup(python_class_patch.stop)
 
         # The script-run endpoint gates on a live RQ worker. Tests run without
         # one, so bypass the check to exercise validation and the enqueue path.

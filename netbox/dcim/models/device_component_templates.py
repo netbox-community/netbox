@@ -204,9 +204,9 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
             # Reached only from Module._save_new(); AbortRequest is what the view/viewset catches.
             try:
                 positions = get_module_bay_positions(module.module_bay)
+                value = resolve_module_placeholder(value, positions)
             except ValueError as e:
                 raise AbortRequest(str(e)) from e
-            value = resolve_module_placeholder(value, positions)
         if has_vc:
             resolved_device = (module.device if module else None) or device
             value = self._resolve_vc_position(value, resolved_device)

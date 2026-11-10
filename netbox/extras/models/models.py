@@ -9,6 +9,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models import FETCH_PEERS
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import escape
@@ -572,6 +573,9 @@ class ExportTemplate(
 
     def get_context(self, context=None, queryset=None):
         _context = super().get_context(context=context, queryset=queryset)
+        # Fetch each related object the template reads for the whole queryset at once
+        if queryset is not None:
+            queryset = queryset.fetch_mode(FETCH_PEERS)
         _context['queryset'] = queryset
         return _context
 

@@ -15,7 +15,7 @@ import utilities.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("circuits", "0060_denormalization_triggers"),
+        ("circuits", "0061_circuitterminations_cached_ancestors_on_delete"),
     ]
 
     operations = [

@@ -1,7 +1,9 @@
 import logging
+import uuid
+from functools import partial
 
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
-from django.db import DatabaseError, connection
+from django.db import DatabaseError, connection, router, transaction
 from django.http import Http404
 from django.urls import NoReverseMatch
 from django.utils.translation import gettext_lazy as _
@@ -20,6 +22,7 @@ from rq.registry import (
     StartedJobRegistry,
 )
 
+from core.choices import JobStatusChoices
 from netbox.registry import registry
 
 __all__ = (
@@ -104,6 +107,34 @@ def delete_rq_job(job_id):
     job.delete()
 
 
+def _retry_rq_job(job, queue, ended, push):
+    """
+    Reset the matching NetBox Job so an explicitly retried RQ task can start it, then push the task.
+    """
+    from core.models import Job
+
+    using = router.db_for_write(Job)
+    with transaction.atomic(using=using):
+        try:
+            jobs = Job.objects.using(using).filter(job_id=uuid.UUID(job.id))
+        except ValueError:
+            # Job.job_id is a UUID, other task IDs cannot match
+            jobs = Job.objects.none()
+        # Lock the Job before checking the task, so no worker claims it in between
+        if jobs.select_for_update().exists() and ended() and job.id not in queue.started_job_registry:
+            jobs.update(
+                status=JobStatusChoices.STATUS_PENDING,
+                started=None,
+                completed=None,
+                execution_time=None,
+                error='',
+                data=None,
+                log_entries=[],
+            )
+        # A worker must see the reset, so push only once it commits
+        transaction.on_commit(push, using=using)
+
+
 def requeue_rq_job(job_id):
     """
     Requeue the specified RQ job.
@@ -117,7 +148,13 @@ def requeue_rq_job(job_id):
     queue_index = get_queues_map()[job.origin]
     queue = get_queue_by_index(queue_index)
 
-    requeue_job(job_id, connection=queue.connection, serializer=queue.serializer)
+    _retry_rq_job(
+        job,
+        queue,
+        # requeue_job() raises for a task outside the failed registry
+        ended=lambda: job.id in queue.failed_job_registry,
+        push=partial(requeue_job, job_id, connection=queue.connection, serializer=queue.serializer),
+    )
 
 
 def enqueue_rq_job(job_id):
@@ -133,6 +170,18 @@ def enqueue_rq_job(job_id):
     queue_index = get_queues_map()[job.origin]
     queue = get_queue_by_index(queue_index)
 
+    _retry_rq_job(
+        job,
+        queue,
+        ended=lambda: job.get_status() in (RQJobStatus.FINISHED, RQJobStatus.FAILED, RQJobStatus.STOPPED),
+        push=partial(_push_rq_job, queue, job),
+    )
+
+
+def _push_rq_job(queue, job):
+    """
+    Enqueue the RQ job regardless of its dependencies.
+    """
     try:
         # _enqueue_job is new in RQ 1.14, this is used to enqueue
         # job regardless of its dependencies

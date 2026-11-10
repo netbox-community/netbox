@@ -13,7 +13,12 @@ from ipam.filtersets import PrimaryIPFilterSet
 from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from users.filterset_mixins import OwnerFilterMixin
-from utilities.filters import MultiValueCharFilter, MultiValueMACAddressFilter, TreeNodeMultipleChoiceFilter
+from utilities.filters import (
+    MultiValueCharFilter,
+    MultiValueMACAddressFilter,
+    NonUniqueModelMultipleChoiceFilter,
+    TreeNodeMultipleChoiceFilter,
+)
 from utilities.filtersets import register_filterset
 
 from .choices import *
@@ -204,7 +209,7 @@ class VirtualMachineFilterSet(
         distinct=False,
         label=_('Device (ID)'),
     )
-    device = django_filters.ModelMultipleChoiceFilter(
+    device = NonUniqueModelMultipleChoiceFilter(
         field_name='device__name',
         queryset=Device.objects.all(),
         distinct=False,
@@ -346,7 +351,7 @@ class VMInterfaceFilterSet(CommonInterfaceFilterSet, OwnerFilterMixin, NetBoxMod
         distinct=False,
         label=_('Virtual machine (ID)'),
     )
-    virtual_machine = django_filters.ModelMultipleChoiceFilter(
+    virtual_machine = NonUniqueModelMultipleChoiceFilter(
         field_name='virtual_machine__name',
         queryset=VirtualMachine.objects.all(),
         distinct=False,
@@ -404,7 +409,7 @@ class VirtualDiskFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
         distinct=False,
         label=_('Virtual machine (ID)'),
     )
-    virtual_machine = django_filters.ModelMultipleChoiceFilter(
+    virtual_machine = NonUniqueModelMultipleChoiceFilter(
         field_name='virtual_machine__name',
         queryset=VirtualMachine.objects.all(),
         distinct=False,

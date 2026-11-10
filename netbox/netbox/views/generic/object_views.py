@@ -553,6 +553,7 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
         initial_data = normalize_querydict(request.GET)
 
         form = self.form(data=data, initial=initial_data)
+        restrict_form_fields(form, request.user)
 
         return form
 
@@ -597,6 +598,7 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
                         data.setlist(k, v)
 
                 component_form = self.model_form(data)
+                restrict_form_fields(component_form, request.user)
 
                 if component_form.is_valid():
                     new_components.append(component_form)

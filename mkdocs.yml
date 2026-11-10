@@ -1,7 +1,7 @@
 # Note: NetBox has migrated from MkDocs to Zensical
 site_name: NetBox Documentation
 site_dir: netbox/project-static/docs
-site_url: https://docs.netbox.dev/
+site_url: https://netboxlabs.com/docs/netbox/
 repo_name: netbox-community/netbox
 repo_url: https://github.com/netbox-community/netbox
 theme:

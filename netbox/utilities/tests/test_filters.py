@@ -37,6 +37,7 @@ from utilities.filters import (
     MultiValueMACAddressFilter,
     MultiValueNumberFilter,
     MultiValueTimeFilter,
+    NonUniqueModelMultipleChoiceFilter,
     TreeNodeMultipleChoiceFilter,
 )
 from wireless.choices import WirelessRoleChoices
@@ -99,6 +100,13 @@ class TreeNodeMultipleChoiceFilterTestCase(TestCase):
         self.assertEqual(qs.count(), 2)
         self.assertEqual(qs[0], self.site1)
         self.assertEqual(qs[1], self.site3)
+
+
+class NonUniqueModelMultipleChoiceFilterTestCase(TestCase):
+
+    def test_to_field_name_required(self):
+        with self.assertRaises(ValueError):
+            NonUniqueModelMultipleChoiceFilter(field_name='device__name', queryset=Device.objects.all())
 
 
 class TagFilterTestCase(TestCase):
