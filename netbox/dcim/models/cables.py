@@ -1005,6 +1005,10 @@ class CablePath(models.Model):
             logger.debug(f'[Path segment #{segment}] Position stack: {position_stack}')
             logger.debug(f'[Path segment #{segment}] Local terminations: {terminations}')
 
+            # Fanned-out branches that reconverge on a single port are tracked by the position stack
+            if len(terminations) == 1:
+                fanout = False
+
             # Terminations must all be of the same type
             if not all(isinstance(t, type(terminations[0])) for t in terminations[1:]):
                 raise UnsupportedCablePath(_("All mid-span terminations must have the same termination type"))
@@ -1186,9 +1190,11 @@ class CablePath(models.Model):
                     port_mappings = PortMapping.objects.filter(q_filter)
                 else:
                     # Without positional context, follow all mappings; branches must converge on one endpoint
-                    if remote_terminations[0].positions > 1:
+                    if any(t.positions > 1 for t in remote_terminations):
                         fanout = True
-                    port_mappings = PortMapping.objects.filter(front_port__in=remote_terminations)
+                    port_mappings = PortMapping.objects.filter(
+                        front_port__in=remote_terminations
+                    ).order_by('front_port', 'front_port_position')
                 if not port_mappings:
                     break
 
@@ -1383,7 +1389,8 @@ class CablePath(models.Model):
 
     def get_split_nodes(self):
         """
-        Return all available next segments in a split cable path.
+        Return all available next segments in a split cable path, or the diverging endpoints if the path fanned
+        out across a multi-position front port.
         """
         from circuits.models import CircuitTermination
         nodes = self.path_objects[-1]

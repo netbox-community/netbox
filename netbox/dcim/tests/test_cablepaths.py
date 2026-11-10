@@ -2794,7 +2794,8 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
                 (rearport3, rearport4), (frontport2, frontport3), cable4, interface2
             ),
             is_complete=True,
-            is_active=True
+            is_active=True,
+            is_split=False
         )
         path2 = self.assertPathExists(
             (
@@ -2802,7 +2803,8 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
                 (rearport1, rearport2), frontport1, cable1, interface1
             ),
             is_complete=True,
-            is_active=True
+            is_active=True,
+            is_split=False
         )
         self.assertEqual(CablePath.objects.count(), 2)
         interface1.refresh_from_db()
@@ -2914,7 +2916,8 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
                 (rearport4, rearport3), (frontport2, frontport3), cable4, interface2
             ),
             is_complete=True,
-            is_active=True
+            is_active=True,
+            is_split=False
         )
         path2 = self.assertPathExists(
             (
@@ -2922,7 +2925,8 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
                 (rearport1, rearport2), frontport1, cable1, interface1
             ),
             is_complete=True,
-            is_active=True
+            is_active=True,
+            is_split=False
         )
         self.assertEqual(CablePath.objects.count(), 2)
         interface1.refresh_from_db()
@@ -3129,6 +3133,86 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
         self.assertTrue(path1.is_split)
         self.assertFalse(path1.is_complete)
         self.assertEqual(Interface.objects.get(pk=interface1.pk).connected_endpoints, [])
+
+    def test_232_multiposition_frontport_reconverged_to_multiple_interfaces(self):
+        """
+        [IF1] --C1-- [FP1:1] [RP1:1] --C2-- [RP2:1] [FP2:1] --C3-- [IF2]
+                     [FP1:2] [RP1:2]        [RP2:2] [FP2:2]        [IF3]
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        interface3 = Interface.objects.create(device=self.device, name='Interface 3')
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=2)
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=2)
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1', positions=2)
+        frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2', positions=2)
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device, front_port=frontport, front_port_position=position,
+                rear_port=rearport, rear_port_position=position,
+            )
+            for frontport, rearport in ((frontport1, rearport1), (frontport2, rearport2))
+            for position in (1, 2)
+        ])
+
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[frontport1])
+        cable1.save()
+        cable2 = Cable(a_terminations=[rearport1], b_terminations=[rearport2])
+        cable2.save()
+        cable3 = Cable(a_terminations=[frontport2], b_terminations=[interface2, interface3])
+        cable3.save()
+
+        # Branches reconverge on RP1, so the final multi-termination cable is not a split
+        self.assertPathExists(
+            (
+                interface1, cable1, frontport1, rearport1, cable2, rearport2, frontport2, cable3,
+                (interface2, interface3)
+            ),
+            is_complete=True,
+            is_active=True,
+            is_split=False
+        )
+
+    def test_233_mixed_position_frontports_to_diverging_rear_ports(self):
+        """
+        [IF1] --C1-- [FP1]   [RP1] --C2-- [IF3]
+        [IF2]        [FP2:1] [RP2] --C3-- [IF4]
+                     [FP2:2] [RP3] --C4-- [IF5]
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        interface3 = Interface.objects.create(device=self.device, name='Interface 3')
+        interface4 = Interface.objects.create(device=self.device, name='Interface 4')
+        interface5 = Interface.objects.create(device=self.device, name='Interface 5')
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
+        rearport3 = RearPort.objects.create(device=self.device, name='Rear Port 3')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2', positions=2)
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device, front_port=frontport1, front_port_position=1,
+                rear_port=rearport1, rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device, front_port=frontport2, front_port_position=1,
+                rear_port=rearport2, rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device, front_port=frontport2, front_port_position=2,
+                rear_port=rearport3, rear_port_position=1,
+            ),
+        ])
+
+        # The single-position front port is the first termination on the cable
+        cable1 = Cable(a_terminations=[interface1, interface2], b_terminations=[frontport1, frontport2])
+        cable1.save()
+        for rearport, interface in ((rearport1, interface3), (rearport2, interface4), (rearport3, interface5)):
+            Cable(a_terminations=[rearport], b_terminations=[interface]).save()
+
+        interface1.refresh_from_db()
+        self.assertFalse(interface1.path.is_complete)
+        self.assertTrue(interface1.path.is_split)
 
     def test_301_create_path_via_existing_cable(self):
         """
