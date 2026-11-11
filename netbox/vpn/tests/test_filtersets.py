@@ -969,6 +969,10 @@ class L2VPNTerminationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'ipaddress': ['192.0.2.1/32', '192.0.2.2/32']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'ipaddress': ['192.0.2.1', '192.0.2.2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'ipaddress': ['invalid']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_vlan_shared_name(self):
         # A VLAN name shared by several groups should resolve to a single filter value

@@ -5,6 +5,7 @@ from django.utils.translation import gettext as _
 from core.models import ObjectType
 from dcim.models import Device, Interface
 from ipam.models import VLAN, IPAddress, RouteTarget
+from ipam.utils import parse_inet_addresses
 from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from utilities.filters import (
@@ -484,10 +485,8 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         queryset=VLAN.objects.all(),
         label=_('VLAN (ID)'),
     )
-    ipaddress = django_filters.ModelMultipleChoiceFilter(
-        field_name='ipaddress__address',
-        queryset=IPAddress.objects.all(),
-        to_field_name='address',
+    ipaddress = MultiValueCharFilter(
+        method='filter_ipaddress',
         label=_('IP address'),
     )
     ipaddress_id = django_filters.ModelMultipleChoiceFilter(
@@ -529,6 +528,13 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
             )
         )
         return qs
+
+    def filter_ipaddress(self, queryset, name, value):
+        # Match an address given without a mask regardless of the IP address's mask. Discard any invalid addresses.
+        value = parse_inet_addresses(value)
+        if not value:
+            return queryset.none()
+        return queryset.filter(ipaddress__address__net_in=value)
 
     def filter_device(self, queryset, name, value):
         if not value:

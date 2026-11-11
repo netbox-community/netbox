@@ -9,6 +9,7 @@ from ipam.models import VLAN, IPAddress
 from netbox.models import NetBoxModel, PrimaryModel
 from netbox.models.features import ContactsMixin
 from vpn.choices import L2VPNStatusChoices, L2VPNTypeChoices
+from vpn.constants import L2VPN_MULTI_TERMINATION_MODELS
 
 __all__ = (
     'L2VPN',
@@ -130,9 +131,8 @@ class L2VPNTermination(NetBoxModel):
             terminations = L2VPNTermination.objects.filter(
                 assigned_object_id=obj_id, assigned_object_type=obj_type
             ).exclude(pk=self.pk)
-            # An IP address (e.g. a pseudowire's far-end PE) may terminate many L2VPNs, but each only once. Other
-            # objects may terminate only one L2VPN.
-            if isinstance(self.assigned_object, IPAddress):
+            # Some objects may terminate many L2VPNs, but each only once. Others may terminate only one L2VPN.
+            if self.assigned_object._meta.label_lower in L2VPN_MULTI_TERMINATION_MODELS:
                 if terminations.filter(l2vpn_id=self.l2vpn_id).exists():
                     raise ValidationError(
                         _('{assigned_object} already terminates {l2vpn}').format(
@@ -159,16 +159,11 @@ class L2VPNTermination(NetBoxModel):
 
     @property
     def assigned_object_parent(self):
-        obj_type = ObjectType.objects.get_for_model(self.assigned_object)
-        if obj_type.model == 'ipaddress':
-            # The device or virtual machine whose interface the IP address is assigned to, if any
-            interface = self.assigned_object.assigned_object
-            return getattr(interface, 'parent_object', None)
-        if obj_type.model == 'vminterface':
-            return self.assigned_object.virtual_machine
-        if obj_type.model == 'interface':
-            return self.assigned_object.device
-        return None
+        obj = self.assigned_object
+        if isinstance(obj, IPAddress):
+            # The interface the IP address is assigned to, if any
+            obj = obj.assigned_object
+        return getattr(obj, 'parent_object', None)
 
     @property
     def assigned_object_site(self):

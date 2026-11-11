@@ -1,7 +1,12 @@
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
+from django.urls import reverse
+
 from dcim.choices import InterfaceTypeChoices
 from dcim.models import Interface
 from ipam.models import VLAN, IPAddress, RouteTarget
-from utilities.testing import ViewTestCases, create_tags, create_test_device
+from utilities.testing import ViewTestCases, create_tags, create_test_device, create_test_virtualmachine
+from virtualization.models import VMInterface
 from vpn.choices import *
 from vpn.models import *
 
@@ -685,6 +690,43 @@ class L2VPNTerminationTestCase(
     # TODO: Fix L2VPNTerminationImportForm validation to support bulk updates
     def test_bulk_update_objects_with_permission(self):
         pass
+
+    def test_list_objects_query_count(self):
+        """
+        Listing terminations should not need extra queries for each row to display its parent and site.
+        """
+        self.add_permissions('vpn.view_l2vpntermination')
+        self.user.config.set(
+            'tables.L2VPNTerminationTable.columns',
+            ['l2vpn', 'assigned_object_type', 'assigned_object', 'assigned_object_parent', 'assigned_object_site'],
+            commit=True
+        )
+        device = create_test_device('Device 2')
+        virtual_machine = create_test_virtualmachine('Virtual Machine 1')
+
+        def get_queries(count):
+            l2vpn = L2VPN.objects.create(
+                name=f'L2VPN {count}x', slug=f'l2vpn-{count}x', type=L2VPNTypeChoices.TYPE_VPLS
+            )
+            for i in range(count):
+                interface = Interface.objects.create(device=device, name=f'{count}x {i}', type='1000baset')
+                vminterface = VMInterface.objects.create(virtual_machine=virtual_machine, name=f'{count}x {i}')
+                vlan = VLAN.objects.create(name=f'VLAN {count}x {i}', vid=100 * count + i, site=device.site)
+                for obj in (
+                    interface,
+                    vminterface,
+                    vlan,
+                    IPAddress.objects.create(address=f'198.51.{count}.{i}/32', assigned_object=interface),
+                    IPAddress.objects.create(address=f'203.0.{count}.{i}/32', assigned_object=vminterface),
+                ):
+                    L2VPNTermination.objects.create(l2vpn=l2vpn, assigned_object=obj)
+            with CaptureQueriesContext(connection) as queries:
+                response = self.client.get(f"{reverse('vpn:l2vpntermination_list')}?l2vpn_id={l2vpn.pk}")
+            self.assertHttpStatus(response, 200)
+            self.assertContains(response, device.site.name)
+            return len(queries)
+
+        self.assertEqual(get_queries(1), get_queries(3))
 
     #
     # Custom assertions

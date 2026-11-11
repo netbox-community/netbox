@@ -1,3 +1,5 @@
+import json
+
 from django.urls import reverse
 from rest_framework import status
 
@@ -711,3 +713,17 @@ class L2VPNTerminationTestCase(APIViewTestCases.APIViewTestCase):
         cls.bulk_update_invalid_data = {
             'l2vpn': 99999,
         }
+
+    def test_graphql_ip_address_l2vpn_terminations_filter(self):
+        """IP addresses can be filtered over GraphQL by the L2VPNs they terminate."""
+        self.add_permissions('ipam.view_ipaddress')
+        IPAddress.objects.create(address='192.0.2.2/32')
+        l2vpn = L2VPN.objects.get(name='L2VPN 2')
+        query = (
+            f'{{ ip_address_list(filters: {{l2vpn_terminations: {{l2vpn_id: "{l2vpn.pk}"}}}}) {{ address }} }}'
+        )
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual([ip['address'] for ip in data['data']['ip_address_list']], ['192.0.2.1/32'])
