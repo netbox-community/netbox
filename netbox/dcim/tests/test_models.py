@@ -147,6 +147,16 @@ class MACPrefixTestCase(TestCase):
             with self.assertRaises(ValidationError):
                 mac_prefix.full_clean()
 
+    def test_duplicate_prefix_with_host_bits(self):
+        MACPrefix.objects.create(prefix='BC:24:11:00:00:00', prefix_length=24)
+        mac_prefix = MACPrefix(prefix='BC:24:11:AA:BB:CC', prefix_length=24)
+        with self.assertRaises(ValidationError):
+            mac_prefix.full_clean()
+
+    def test_save_invalid_prefix(self):
+        with self.assertRaisesMessage(ValueError, 'Invalid MAC prefix'):
+            MACPrefix.objects.create(prefix='BC:24:11:00:00:00', prefix_length=0)
+
     def test_size(self):
         self.assertEqual(MACPrefix(prefix='BC:24:11:00:00:00', prefix_length=24).size, 2 ** 24)
         self.assertEqual(MACPrefix(prefix='BC:24:11:50:00:00', prefix_length=28).size, 2 ** 20)

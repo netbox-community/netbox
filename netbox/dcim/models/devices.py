@@ -1692,6 +1692,11 @@ class MACPrefix(PrimaryModel):
     def clean(self):
         super().clean()
 
+        # Clear any host bits from the prefix, so that its uniqueness is validated against the value to be saved
+        if (first_address := self.first_address) is not None:
+            self.prefix = first_address
+            self._last_address = self.last_address
+
         # Uniqueness cannot be enforced if the prefix already contains duplicate MAC addresses
         if self.enforce_unique and self.first_address is not None:
             duplicate = self.get_mac_addresses().values('mac_address').annotate(
@@ -1705,6 +1710,9 @@ class MACPrefix(PrimaryModel):
                 })
 
     def save(self, *args, **kwargs):
+        if self.first_address is None:
+            raise ValueError(f"Invalid MAC prefix: {self.prefix}/{self.prefix_length}")
+
         # Clear any host bits from the prefix, and cache the last address in the block
         self.prefix = self.first_address
         self._last_address = self.last_address

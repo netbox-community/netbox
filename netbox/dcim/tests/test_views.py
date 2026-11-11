@@ -7015,6 +7015,14 @@ class MACPrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
         }
 
+    def test_create_duplicate_prefix_with_host_bits(self):
+        self.add_permissions('dcim.add_macprefix')
+        response = self.client.post(
+            reverse('dcim:macprefix_add'), {'prefix': 'BC:24:11:AA:BB:CC', 'prefix_length': 24}
+        )
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(MACPrefix.objects.filter(prefix='BC:24:11:00:00:00', prefix_length=24).count(), 1)
+
     def test_mac_addresses_panel(self):
         """
         The MAC prefix page offers to add the first available MAC address within the prefix.

@@ -7435,17 +7435,32 @@ class MACPrefixTestCase(APIViewTestCases.APIViewTestCase):
             },
         ]
 
-    def test_mac_address_count(self):
+    def test_read_only_fields(self):
         self.add_permissions('dcim.view_macprefix')
-        mac_prefix = MACPrefix.objects.get(name='Prefix 1')
+        mac_prefix = MACPrefix.objects.create(prefix='BC:24:16:00:00:00', prefix_length=46)
         MACAddress.objects.bulk_create((
-            MACAddress(mac_address='BC:24:11:00:00:01'),
-            MACAddress(mac_address='BC:24:11:00:00:01'),
-            MACAddress(mac_address='BC:24:11:00:00:02'),
+            MACAddress(mac_address='BC:24:16:00:00:01'),
+            MACAddress(mac_address='BC:24:16:00:00:01'),
+            MACAddress(mac_address='BC:24:16:00:00:02'),
         ))
         response = self.client.get(self._get_detail_url(mac_prefix), **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['last_address'], 'BC:24:16:00:00:03')
+        self.assertEqual(response.data['size'], 4)
         self.assertEqual(response.data['mac_address_count'], 2)
+        self.assertEqual(response.data['utilization'], 50)
+
+    def test_create_normalizes_prefix(self):
+        self.add_permissions('dcim.add_macprefix')
+        data = {'prefix': 'BC:24:16:AA:BB:CC', 'prefix_length': 24}
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['prefix'], 'BC:24:16:00:00:00')
+
+        # A prefix whose host bits differ from an existing prefix is a duplicate
+        data = {'prefix': 'BC:24:11:AA:BB:CC', 'prefix_length': 24}
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
     def test_list_available_mac_addresses(self):
         mac_prefix = MACPrefix.objects.create(prefix='BC:24:16:00:00:00', prefix_length=45)

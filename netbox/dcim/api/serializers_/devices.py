@@ -364,16 +364,21 @@ class MACAddressSerializer(PrimaryModelSerializer):
 
 
 class MACPrefixSerializer(PrimaryModelSerializer):
+    last_address = serializers.CharField(read_only=True)
+    size = serializers.IntegerField(read_only=True)
     mac_address_count = serializers.IntegerField(read_only=True)
+    utilization = serializers.FloatField(read_only=True)
 
     class Meta:
         model = MACPrefix
         fields = [
-            'id', 'url', 'display_url', 'display', 'prefix', 'prefix_length', 'name', 'enforce_unique',
-            'mac_address_count', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created',
-            'last_updated',
+            'id', 'url', 'display_url', 'display', 'prefix', 'prefix_length', 'last_address', 'size', 'name',
+            'enforce_unique', 'mac_address_count', 'utilization', 'description', 'owner', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'prefix', 'prefix_length', 'name', 'description')
+        # Preserve the prefix as normalized by MACPrefix.clean()
+        model_clean_fields = ('prefix',)
 
 
 class AvailableMACAddressSerializer(serializers.Serializer):
