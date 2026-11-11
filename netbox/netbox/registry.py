@@ -29,6 +29,7 @@ registry = Registry({
     'event_types': dict(),
     'exporters': dict(),
     'filtersets': dict(),
+    'job_result_urls': dict(),
     'model_actions': collections.defaultdict(set),
     'model_features': dict(),
     'pk_allocators': list(),

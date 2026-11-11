@@ -1,5 +1,6 @@
 import datetime
 import hashlib
+import io
 import logging
 import uuid
 from unittest.mock import PropertyMock, patch
@@ -22,6 +23,7 @@ from extras.scripts import Script as PythonClass
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from users.models import Group, ObjectPermission, User
 from utilities.testing import TestCase, ViewTestCases
+from utilities.views import get_action_url
 
 
 class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -543,6 +545,55 @@ class ImageAttachmentTestCase(
                 ),
             ]
         )
+
+    @tag('regression')
+    def test_add_form_submission_guard(self):
+        """The add form opts into the duplicate submission guard."""
+        self.add_permissions('extras.add_imageattachment')
+        site = Site.objects.get(slug='site-1')
+
+        response = self.client.get(reverse('extras:imageattachment_add'), {
+            'object_type': ContentType.objects.get_for_model(Site).pk,
+            'object_id': site.pk,
+        })
+
+        self.assertHttpStatus(response, 200)
+        self.assertIn(
+            '<form action="" method="post" enctype="multipart/form-data" '
+            'class="object-edit object-edit--with-sticky-actions mt-5" data-disable-on-submit>',
+            response.content.decode(),
+        )
+
+    def test_object_image_attachments_view_with_constrained_permission(self):
+        """The image attachments tab of an object lists only the attachments the user may view."""
+        self.add_permissions('dcim.view_site')
+        obj_perm = ObjectPermission(
+            name='View one image attachment',
+            constraints={'name': 'Image Attachment 1'},
+            actions=['view'],
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(ImageAttachment))
+        site = Site.objects.get(slug='site-1')
+
+        response = self.client.get(get_action_url(site, 'image-attachments', kwargs={'pk': site.pk}))
+
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(
+            [image.name for image in response.context['image_attachments']],
+            ['Image Attachment 1'],
+        )
+
+    def test_object_image_attachments_view_without_permission(self):
+        """A user who can view the object but no image attachments sees an empty list."""
+        self.add_permissions('dcim.view_site')
+        site = Site.objects.get(slug='site-1')
+
+        response = self.client.get(get_action_url(site, 'image-attachments', kwargs={'pk': site.pk}))
+
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(list(response.context['image_attachments']), [])
 
 
 class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -1509,7 +1560,9 @@ class ScriptValidationErrorTestCase(TestCase):
 
     def setUp(self):
         super().setUp()
-        Script.python_class = property(lambda self: ScriptValidationErrorTestCase.TestScriptClass)
+        python_class_patch = patch.object(Script, 'python_class', new=self.TestScriptClass)
+        python_class_patch.start()
+        self.addCleanup(python_class_patch.stop)
 
     @tag('regression')
     def test_script_validation_error_displays_message(self):
@@ -1635,7 +1688,9 @@ class ScriptDefaultValuesTestCase(TestCase):
 
     def setUp(self):
         super().setUp()
-        Script.python_class = property(lambda self: ScriptDefaultValuesTestCase.TestScriptClass)
+        python_class_patch = patch.object(Script, 'python_class', new=self.TestScriptClass)
+        python_class_patch.start()
+        self.addCleanup(python_class_patch.stop)
 
     def test_default_values_are_used(self):
         url = reverse('extras:script', kwargs={'pk': self.script.pk})
@@ -1833,3 +1888,53 @@ class ScriptJobsRestrictionTestCase(TestCase):
     def test_without_view_job_permission(self):
         self._assert_script_views_show(set())
         self._assert_script_list_shows(None)
+
+
+class ScriptSourceViewTestCase(TestCase):
+    """
+    The Source tab must show the script's actual location in the scripts storage backend,
+    not a path derived from the current working directory (#23511).
+    """
+    user_permissions = ['extras.view_script']
+
+    SCRIPT_CONTENT = (
+        "from extras.scripts import Script\n\n\n"
+        "class TestScript(Script):\n    pass\n"
+    )
+
+    @classmethod
+    def setUpTestData(cls):
+        with patch.object(ScriptModule, 'sync_classes'):
+            cls.module = ScriptModule.objects.create(
+                file_root=ManagedFileRootPathChoices.SCRIPTS,
+                file_path='test_script.py',
+            )
+        cls.script = Script.objects.create(module=cls.module, name='TestScript', is_executable=True)
+
+    def setUp(self):
+        super().setUp()
+        content = self.SCRIPT_CONTENT.encode()
+
+        class _Storage:
+            def open(self, name, mode='rb'):
+                if 'b' in mode:
+                    return io.BytesIO(content)
+                return io.StringIO(content.decode())
+
+        self._module_storage_patch = patch('extras.models.mixins.storages')
+        self._script_storage_patch = patch('extras.scripts.storages')
+        module_storage = self._module_storage_patch.start()
+        script_storage = self._script_storage_patch.start()
+        module_storage.__getitem__.return_value = _Storage()
+        script_storage.backends = {'scripts': {}}
+        script_storage.create_storage.return_value = _Storage()
+        self.addCleanup(self._script_storage_patch.stop)
+        self.addCleanup(self._module_storage_patch.stop)
+
+    def test_source_view_shows_storage_location(self):
+        url = reverse('extras:script_source', kwargs={'pk': self.script.pk})
+        response = self.client.get(url)
+
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, self.module.full_path)
+        self.assertContains(response, 'class TestScript(Script):')

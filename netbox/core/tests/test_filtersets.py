@@ -46,7 +46,6 @@ class DataSourceTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 source_url='https://example.com/git/source3',
                 status=DataSourceStatusChoices.COMPLETED,
                 enabled=False,
-                sync_interval=JobIntervalChoices.INTERVAL_WEEKLY
             ),
         )
         DataSource.objects.bulk_create(data_sources)
@@ -80,6 +79,20 @@ class DataSourceTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     def test_sync_interval(self):
         params = {'sync_interval': [JobIntervalChoices.INTERVAL_HOURLY, JobIntervalChoices.INTERVAL_DAILY]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+        # The null choice value matches data sources without a sync interval
+        for params, count in (
+            ({'sync_interval': ['null']}, 1),
+            ({'sync_interval__n': ['null']}, 2),
+            ({'sync_interval': [JobIntervalChoices.INTERVAL_HOURLY, 'null']}, 2),
+        ):
+            filterset = self.filterset(params, self.queryset)
+            self.assertTrue(filterset.is_valid(), msg=params)
+            self.assertEqual(filterset.qs.count(), count, msg=params)
+
+        # Reject invalid filter values
+        for params in ({'sync_interval': ['None']}, {'sync_interval__n': ['None']}):
+            self.assertFalse(self.filterset(params, self.queryset).is_valid(), msg=params)
 
 
 class DataFileTestCase(TestCase, ChangeLoggedFilterSetTestMixin):

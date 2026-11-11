@@ -11,6 +11,7 @@ from circuits.models import Provider
 from dcim.base_filtersets import ScopedFilterSet
 from dcim.models import Device, Interface, Region, Site, SiteGroup
 from netbox.filtersets import (
+    BaseFilterSet,
     ChangeLoggedModelFilterSet,
     NetBoxModelFilterSet,
     OrganizationalModelFilterSet,
@@ -22,6 +23,7 @@ from utilities.filters import (
     MultiValueCharFilter,
     MultiValueContentTypeFilter,
     MultiValueNumberFilter,
+    NonUniqueModelMultipleChoiceFilter,
     TreeNodeMultipleChoiceFilter,
 )
 from utilities.filtersets import register_filterset
@@ -381,11 +383,13 @@ class PrefixFilterSet(PrimaryModelFilterSet, ScopedFilterSet, TenancyFilterSet, 
     )
     present_in_vrf_id = django_filters.ModelChoiceFilter(
         queryset=VRF.objects.all(),
+        null_label=None,
         method='filter_present_in_vrf_id',
         label=_('VRF')
     )
     present_in_vrf = django_filters.ModelChoiceFilter(
         queryset=VRF.objects.all(),
+        null_label=None,
         method='filter_present_in_vrf',
         to_field_name='rd',
         label=_('VRF (RD)'),
@@ -397,7 +401,7 @@ class PrefixFilterSet(PrimaryModelFilterSet, ScopedFilterSet, TenancyFilterSet, 
         to_field_name='id',
         label=_('VLAN Group (ID)'),
     )
-    vlan_group = django_filters.ModelMultipleChoiceFilter(
+    vlan_group = NonUniqueModelMultipleChoiceFilter(
         field_name='vlan__group__slug',
         queryset=VLANGroup.objects.all(),
         distinct=False,
@@ -645,11 +649,13 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
     )
     present_in_vrf_id = django_filters.ModelChoiceFilter(
         queryset=VRF.objects.all(),
+        null_label=None,
         method='filter_present_in_vrf_id',
         label=_('VRF')
     )
     present_in_vrf = django_filters.ModelChoiceFilter(
         queryset=VRF.objects.all(),
+        null_label=None,
         method='filter_present_in_vrf',
         to_field_name='rd',
         label=_('VRF (RD)'),
@@ -675,7 +681,7 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
         field_name='pk',
         label=_('Virtual machine (ID)'),
     )
-    interface = django_filters.ModelMultipleChoiceFilter(
+    interface = NonUniqueModelMultipleChoiceFilter(
         field_name='interface__name',
         queryset=Interface.objects.all(),
         to_field_name='name',
@@ -686,7 +692,7 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
         queryset=Interface.objects.all(),
         label=_('Interface (ID)'),
     )
-    vminterface = django_filters.ModelMultipleChoiceFilter(
+    vminterface = NonUniqueModelMultipleChoiceFilter(
         field_name='vminterface__name',
         queryset=VMInterface.objects.all(),
         to_field_name='name',
@@ -843,6 +849,7 @@ class FHRPGroupFilterSet(PrimaryModelFilterSet):
     )
     related_ip = django_filters.ModelMultipleChoiceFilter(
         queryset=IPAddress.objects.all(),
+        null_label=None,
         method='filter_related_ip'
     )
 
@@ -1032,12 +1039,14 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     )
     related_to_site = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
+        null_label=None,
         method='filter_related_to_site',
         label=_('Related to site (ID)'),
     )
     # get_additional_lookups() skips filters with a method.
     related_to_site__n = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
+        null_label=None,
         method='filter_related_to_site_negated',
         label=_('Related to site (ID)'),
     )
@@ -1046,7 +1055,7 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         distinct=False,
         label=_('Group (ID)'),
     )
-    group = django_filters.ModelMultipleChoiceFilter(
+    group = NonUniqueModelMultipleChoiceFilter(
         field_name='group__slug',
         queryset=VLANGroup.objects.all(),
         distinct=False,
@@ -1072,18 +1081,22 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     )
     available_at_site = django_filters.ModelChoiceFilter(
         queryset=Site.objects.all(),
+        null_label=None,
         method='get_for_site'
     )
     available_at_site_group = django_filters.ModelChoiceFilter(
         queryset=SiteGroup.objects.all(),
+        null_label=None,
         method='get_for_site_group'
     )
     available_on_device = django_filters.ModelChoiceFilter(
         queryset=Device.objects.select_related('cluster'),
+        null_label=None,
         method='get_for_device'
     )
     available_on_virtualmachine = django_filters.ModelChoiceFilter(
         queryset=VirtualMachine.objects.all(),
+        null_label=None,
         method='get_for_virtualmachine'
     )
     qinq_role = django_filters.MultipleChoiceFilter(
@@ -1112,11 +1125,13 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     )
     interface_id = django_filters.ModelChoiceFilter(
         queryset=Interface.objects.all(),
+        null_label=None,
         method='filter_interface_id',
         label=_('Assigned interface')
     )
     vminterface_id = django_filters.ModelChoiceFilter(
         queryset=VMInterface.objects.all(),
+        null_label=None,
         method='filter_vminterface_id',
         label=_('Assigned VM interface')
     )
@@ -1242,7 +1257,7 @@ SERVICE_PORT_FILTERS = {
 }
 
 
-class ServicePortMappingFilterMixin(django_filters.FilterSet):
+class ServicePortMappingFilterMixin(BaseFilterSet):
     """
     Shared ``port_mappings``, ``protocol`` and ``port`` filtering for Service and ServiceTemplate, all
     operating on the ``port_mappings`` array. ``protocol`` and every active ``port`` lookup are
@@ -1312,7 +1327,7 @@ class ServicePortMappingFilterMixin(django_filters.FilterSet):
         """
         queryset = super().filter_queryset(queryset)
 
-        cleaned_data = self.form.cleaned_data
+        cleaned_data = self.cleaned_data
         protocols = cleaned_data.get('protocol') or []
         port_tests = [
             (lookup, values)
@@ -1361,7 +1376,7 @@ class ServicePortMappingFilterMixin(django_filters.FilterSet):
         # ?protocol=tcp&port__n=80 excludes only services exposing tcp/80 (not those exposing udp/80).
         if not value:
             return queryset
-        protocols = self.form.cleaned_data.get('protocol') or []
+        protocols = self.cleaned_data.get('protocol') or []
         return queryset.exclude(port_mapping_q(protocols, [('exact', value)]))
 
 

@@ -66,6 +66,13 @@ class TokenEditView(generic.ObjectEditView):
     form = forms.TokenForm
     template_name = 'users/token_edit.html'
 
+    def get_extra_context(self, request, instance):
+        show_token_user = instance.pk and (
+            instance.user_id == request.user.pk
+            or User.objects.restrict(request.user, 'view').filter(pk=instance.user_id).exists()
+        )
+        return {'show_token_user': show_token_user}
+
     def alter_object(self, obj, request, url_args, url_kwargs):
         # Attach the request so that UserTokenForm.save() can stash the newly-generated plaintext on the session.
         obj._request = request

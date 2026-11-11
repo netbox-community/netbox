@@ -55,6 +55,12 @@ class Region(ContactsMixin, NestedLtreeGroupModel):
         object_id_field='scope_id',
         related_query_name='region'
     )
+    # Deletion cascade only, so no related_query_name. circuit_terminations is the reverse of the cached _region.
+    direct_circuit_terminations = GenericRelation(
+        to='circuits.CircuitTermination',
+        content_type_field='termination_type',
+        object_id_field='termination_id'
+    )
 
     class Meta:
         ordering = ('sort_path',)
@@ -119,6 +125,12 @@ class SiteGroup(ContactsMixin, NestedLtreeGroupModel):
         content_type_field='scope_type',
         object_id_field='scope_id',
         related_query_name='site_group'
+    )
+    # Deletion cascade only, so no related_query_name. circuit_terminations is the reverse of the cached _site_group.
+    direct_circuit_terminations = GenericRelation(
+        to='circuits.CircuitTermination',
+        content_type_field='termination_type',
+        object_id_field='termination_id'
     )
 
     class Meta:

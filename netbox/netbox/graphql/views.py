@@ -1,6 +1,7 @@
 import json
 
 from django.conf import settings
+from django.contrib.auth.decorators import login_not_required
 from django.contrib.auth.views import redirect_to_login
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotFound
 from django.urls import reverse
@@ -16,6 +17,7 @@ from netbox.config import get_config
 from utilities.templatetags.builtins.tags import static_with_params
 
 
+@method_decorator(login_not_required, name='dispatch')
 class NetBoxGraphQLView(GraphQLView):
     """
     Extends strawberry's GraphQLView to support DRF's token-based authentication.

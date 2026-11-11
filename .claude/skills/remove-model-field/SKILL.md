@@ -212,6 +212,6 @@ python manage.py migrate
 
 - Panel attrs reference: `netbox/netbox/ui/attrs.py`
 - Panel classes: `netbox/<app>/ui/panels.py`
-- Base filterset classes: `netbox/netbox/filtersets.py`
+- Base filterset classes: `netbox/netbox/filtersets/__init__.py`
 - `add-model-field` skill: `.claude/skills/add-model-field/SKILL.md` (reverse of this skill)
 - Contributing guide: `docs/development/extending-models.md`

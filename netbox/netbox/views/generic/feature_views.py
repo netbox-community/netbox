@@ -17,7 +17,7 @@ from tenancy.forms import ContactAssignmentFilterForm
 from tenancy.models import ContactAssignment
 from tenancy.tables import ContactAssignmentTable
 from utilities.permissions import get_permission_for_model
-from utilities.views import ConditionalLoginRequiredMixin, GetReturnURLMixin, ViewTab, get_default_template
+from utilities.views import GetReturnURLMixin, ViewTab, get_default_template
 
 from .base import BaseMultiObjectView
 from .object_views import ObjectChildrenView
@@ -33,7 +33,7 @@ __all__ = (
 )
 
 
-class ObjectChangeLogView(ConditionalLoginRequiredMixin, View):
+class ObjectChangeLogView(View):
     """
     Present a history of changes made to a particular object. The model class must be passed as a keyword argument
     when referencing this view in a URL path. For example:
@@ -80,7 +80,7 @@ class ObjectChangeLogView(ConditionalLoginRequiredMixin, View):
         })
 
 
-class ObjectImageAttachmentsView(ConditionalLoginRequiredMixin, View):
+class ObjectImageAttachmentsView(View):
     """
     Render all images attached to the object as linked thumbnails.
 
@@ -97,7 +97,7 @@ class ObjectImageAttachmentsView(ConditionalLoginRequiredMixin, View):
 
     def get(self, request, model, **kwargs):
         obj = get_object_or_404(model.objects.restrict(request.user, 'view'), **kwargs)
-        image_attachments = ImageAttachment.objects.filter(
+        image_attachments = ImageAttachment.objects.restrict(request.user, 'view').filter(
             object_type=ContentType.objects.get_for_model(obj),
             object_id=obj.pk,
         )
@@ -110,7 +110,7 @@ class ObjectImageAttachmentsView(ConditionalLoginRequiredMixin, View):
         })
 
 
-class ObjectJournalView(ConditionalLoginRequiredMixin, View):
+class ObjectJournalView(View):
     """
     Show all journal entries for an object. The model class must be passed as a keyword argument when referencing this
     view in a URL path. For example:
@@ -166,7 +166,7 @@ class ObjectJournalView(ConditionalLoginRequiredMixin, View):
         })
 
 
-class ObjectJobsView(ConditionalLoginRequiredMixin, View):
+class ObjectJobsView(View):
     """
     Render a list of all Job assigned to an object. For example:
 

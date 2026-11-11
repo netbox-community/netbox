@@ -273,7 +273,7 @@ class DataSource(JobsMixin, PrimaryModel):
         paths = set()
 
         for path, dir_names, file_names in os.walk(root):
-            path = path.split(root)[1].lstrip('/')  # Strip root path
+            path = path.removeprefix(root).lstrip('/')  # Strip root path
             if path.startswith('.'):
                 continue
             for file_name in file_names:

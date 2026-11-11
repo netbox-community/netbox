@@ -1,7 +1,7 @@
 import logging
 import uuid
 from dataclasses import asdict
-from functools import partial
+from functools import cached_property, partial
 
 import django_rq
 from django.conf import settings
@@ -10,7 +10,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MinValueValidator
-from django.db import models, transaction
+from django.db import models, router, transaction
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -21,6 +21,7 @@ from core.dataclasses import JobLogEntry
 from core.events import JOB_COMPLETED, JOB_ERRORED, JOB_FAILED
 from core.models import ObjectType
 from core.signals import job_end, job_start
+from core.utils import get_job_result_url
 from extras.models import Notification
 from netbox.models.features import has_feature
 from utilities.json import JobLogDecoder
@@ -155,13 +156,12 @@ class Job(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        # TODO: Employ dynamic registration
-        if self.object_type:
-            if self.object_type.model == 'reportmodule':
-                return reverse('extras:report_result', kwargs={'job_pk': self.pk})
-            if self.object_type.model == 'scriptmodule':
-                return reverse('extras:script_result', kwargs={'job_pk': self.pk})
-        return reverse('core:job', args=[self.pk])
+        return self._absolute_url
+
+    @cached_property
+    def _absolute_url(self):
+        # Cached because job tables link multiple columns, and a registered result URL function may query the database
+        return get_job_result_url(self) or reverse('core:job', args=[self.pk])
 
     def get_status_color(self):
         return JobStatusChoices.colors.get(self.status)
@@ -230,23 +230,31 @@ class Job(models.Model):
 
     def start(self):
         """
-        Record the job's start time and update its status to "running."
+        Claim a pending or scheduled job for execution. Return True if claimed, otherwise False.
         """
-        if self.started is not None:
-            return
+        using = router.db_for_write(self.__class__, instance=self)
+        started = timezone.now()
+        claimed = Job.objects.using(using).filter(
+            pk=self.pk,
+            job_id=self.job_id,
+            status__in=(JobStatusChoices.STATUS_PENDING, JobStatusChoices.STATUS_SCHEDULED),
+            started__isnull=True,
+        ).update(status=JobStatusChoices.STATUS_RUNNING, started=started)
+        if not claimed:
+            return False
 
-        # Start the job
-        self.started = timezone.now()
+        self.started = started
         self.status = JobStatusChoices.STATUS_RUNNING
-        self.save()
 
         # Send signal
         job_start.send(self)
+        return True
     start.alters_data = True
 
-    def terminate(self, status=JobStatusChoices.STATUS_COMPLETED, error=None):
+    def terminate(self, status=JobStatusChoices.STATUS_COMPLETED, error=None, *, dispatch=True):
         """
-        Mark the job as completed, optionally specifying a particular termination status.
+        Mark the job as completed, optionally specifying a particular termination status. With dispatch=False, the
+        owner's notification and job_end are left to a later _dispatch_termination() call.
         """
         if status not in JobStatusChoices.TERMINAL_STATE_CHOICES:
             raise ValueError(
@@ -264,21 +272,34 @@ class Job(models.Model):
             self.execution_time = self.completed - self.started
         self.save()
 
-        # Notify the user (if any) of completion
+        if dispatch:
+            self._dispatch_termination()
+    terminate.alters_data = True
+
+    def _dispatch_termination(self):
+        """
+        Notify the owner (if any) of the job's outcome and send job_end.
+        """
         if self.user and self.notifications != JobNotificationChoices.NOTIFICATION_NEVER:
             if (
                 self.notifications == JobNotificationChoices.NOTIFICATION_ALWAYS or
-                status != JobStatusChoices.STATUS_COMPLETED
+                self.status != JobStatusChoices.STATUS_COMPLETED
             ):
-                Notification(
+                # A Job may be terminated more than once, so update any earlier notification in place
+                Notification.objects.update_or_create(
+                    object_type=ObjectType.objects.get_for_model(self),
+                    object_id=self.pk,
                     user=self.user,
-                    object=self,
-                    event_type=self.get_event_type(),
-                ).save()
+                    defaults={
+                        'event_type': self.get_event_type(),
+                        'object_repr': Notification.get_object_repr(self),
+                        'created': self.completed,
+                        'read': None,
+                    },
+                )
 
         # Send signal
         job_end.send(self)
-    terminate.alters_data = True
 
     def log(self, record: logging.LogRecord):
         """

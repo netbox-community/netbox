@@ -48,7 +48,7 @@ dev = [
     "coverage",
     "packaging",
     "pre-commit",
-    "ruff==0.15.20",
+    "ruff==0.17.4",
     "tblib",
     "twine",
     "uv",

@@ -12,15 +12,17 @@ from django.core.management import call_command
 from django.db import IntegrityError, connection
 from django.test import TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
+from django.urls import reverse
 from django.utils import timezone
 
 from core.choices import DataSourceStatusChoices, JobNotificationChoices, JobStatusChoices, ObjectChangeActionChoices
 from core.data_backends import LocalBackend
+from core.events import JOB_COMPLETED, JOB_FAILED
 from core.exceptions import SyncError
 from core.models import AutoSyncRecord, DataFile, DataSource, Job, ObjectType
 from core.signals import post_sync
 from dcim.models import Device, Location, Site
-from extras.models import ConfigTemplate, Notification
+from extras.models import ConfigTemplate, Notification, Script
 from netbox.constants import CENSOR_TOKEN, CENSOR_TOKEN_CHANGED
 from users.models import User
 from utilities.querysets import RestrictedQuerySet
@@ -275,6 +277,21 @@ class DataSourceTestCase(TestCase):
 
         self.assertEqual(dict(self.datasource.datafiles.values_list('path', 'data')), {'a.txt': b'new\n'})
 
+    def test_sync_keeps_paths_repeating_source_root(self):
+        """A file below a directory repeating the source root syncs under its full path."""
+        # Repeat the whole root string below it, as /scripts/scripts_old does for /scripts
+        nested_path = f'{self.root}_old/legacy.py'.lstrip('/')
+        (self.root / nested_path).parent.mkdir(parents=True)
+        (self.root / nested_path).write_text('nested\n')
+        (self.root / 'legacy.py').write_text('root\n')
+
+        self.datasource.sync()
+
+        self.assertEqual(
+            dict(self.datasource.datafiles.values_list('path', 'data')),
+            {'a.txt': b'new\n', 'b.txt': b'new\n', 'legacy.py': b'root\n', nested_path: b'nested\n'},
+        )
+
 
 class ObjectTypeTestCase(TestCase):
 
@@ -355,7 +372,7 @@ class ObjectTypeTestCase(TestCase):
 
 class JobTestCase(TestCase):
 
-    def _make_job(self, user, notifications):
+    def _make_job(self, user, notifications, **kwargs):
         """
         Create and return a persisted Job with the given user and notifications setting.
         """
@@ -365,6 +382,7 @@ class JobTestCase(TestCase):
             user=user,
             notifications=notifications,
             status=JobStatusChoices.STATUS_RUNNING,
+            **kwargs,
         )
 
     @patch('core.models.jobs.django_rq.get_queue')
@@ -398,6 +416,107 @@ class JobTestCase(TestCase):
         mock_get_queue.assert_called_with(custom_queue)
         mock_queue.fetch_job.assert_called_with(str(job.job_id))
         mock_rq_job.cancel.assert_called_once()
+
+    @patch('core.models.jobs.job_start')
+    def test_start_waiting_job(self, mock_job_start):
+        """A pending or scheduled Job is claimed and marked running."""
+        for status in (JobStatusChoices.STATUS_PENDING, JobStatusChoices.STATUS_SCHEDULED):
+            with self.subTest(status=status):
+                job = Job.objects.create(name='Test Job', job_id=uuid.uuid4(), status=status)
+
+                self.assertTrue(job.start())
+
+                started = job.started
+                self.assertIsNotNone(started)
+                self.assertEqual(job.status, JobStatusChoices.STATUS_RUNNING)
+                job.refresh_from_db()
+                self.assertEqual(job.status, JobStatusChoices.STATUS_RUNNING)
+                self.assertEqual(job.started, started)
+                mock_job_start.send.assert_called_once_with(job)
+                mock_job_start.reset_mock()
+
+    @patch('core.models.jobs.job_start')
+    def test_start_deleted_job(self, mock_job_start):
+        """A deleted Job is neither claimed nor re-created."""
+        job = Job.objects.create(name='Test Job', job_id=uuid.uuid4())
+        Job.objects.filter(pk=job.pk).delete()
+
+        self.assertFalse(job.start())
+
+        self.assertFalse(Job.objects.filter(pk=job.pk).exists())
+        self.assertIsNone(job.started)
+        mock_job_start.send.assert_not_called()
+
+    @patch('core.models.jobs.job_start')
+    def test_start_non_waiting_job(self, mock_job_start):
+        """A running or terminated Job is not claimed and keeps its status."""
+        for status in (JobStatusChoices.STATUS_RUNNING, *JobStatusChoices.TERMINAL_STATE_CHOICES):
+            with self.subTest(status=status):
+                job = Job.objects.create(name='Test Job', job_id=uuid.uuid4())
+                Job.objects.filter(pk=job.pk).update(status=status)
+
+                self.assertFalse(job.start())
+
+                job.refresh_from_db()
+                self.assertEqual(job.status, status)
+                self.assertIsNone(job.started)
+                mock_job_start.send.assert_not_called()
+
+    @patch('core.models.jobs.job_start')
+    def test_start_already_started_job(self, mock_job_start):
+        """A waiting Job that already has a start time is not claimed."""
+        job = Job.objects.create(name='Test Job', job_id=uuid.uuid4())
+        started = timezone.now()
+        Job.objects.filter(pk=job.pk).update(started=started)
+
+        self.assertFalse(job.start())
+
+        job.refresh_from_db()
+        self.assertEqual(job.started, started)
+        self.assertEqual(job.status, JobStatusChoices.STATUS_PENDING)
+        mock_job_start.send.assert_not_called()
+
+    @patch('core.models.jobs.job_start')
+    def test_start_once(self, mock_job_start):
+        """Two copies of one Job claim it only once."""
+        job = Job.objects.create(name='Test Job', job_id=uuid.uuid4())
+        stale_job = Job.objects.get(pk=job.pk)
+
+        self.assertTrue(job.start())
+        started = job.started
+        self.assertFalse(stale_job.start())
+        self.assertFalse(job.start())
+
+        job.refresh_from_db()
+        self.assertEqual(job.started, started)
+        mock_job_start.send.assert_called_once_with(job)
+
+    @patch('core.models.jobs.job_start')
+    def test_start_job_id_mismatch(self, mock_job_start):
+        """A stale copy cannot claim a Job whose task ID has changed."""
+        job = Job.objects.create(name='Test Job', job_id=uuid.uuid4())
+        stale_job = Job.objects.get(pk=job.pk)
+        Job.objects.filter(pk=job.pk).update(job_id=uuid.uuid4())
+
+        self.assertFalse(stale_job.start())
+
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_PENDING)
+        self.assertIsNone(job.started)
+        mock_job_start.send.assert_not_called()
+
+    @patch('core.models.jobs.job_start')
+    def test_start_preserves_other_fields(self, mock_job_start):
+        """Claiming a Job writes only its status and start time."""
+        job = Job.objects.create(name='Test Job', job_id=uuid.uuid4())
+        stale_job = Job.objects.get(pk=job.pk)
+        Job.objects.filter(pk=job.pk).update(name='Renamed')
+
+        self.assertTrue(stale_job.start())
+
+        job.refresh_from_db()
+        self.assertEqual(job.name, 'Renamed')
+        self.assertEqual(job.status, JobStatusChoices.STATUS_RUNNING)
 
     @patch('core.models.jobs.job_end')
     def test_terminate_notification_always(self, mock_job_end):
@@ -472,6 +591,46 @@ class JobTestCase(TestCase):
                 )
 
     @patch('core.models.jobs.job_end')
+    def test_terminate_updates_existing_notification(self, mock_job_end):
+        """Terminating a Job re-issues its owner's existing notification as unread."""
+        user = User.objects.create_user(username='notification-existing')
+        datasource = DataSource.objects.create(name='Data Source 1', type='local')
+        job = self._make_job(user, JobNotificationChoices.NOTIFICATION_ALWAYS, object=datasource)
+        previous_time = timezone.now() - timedelta(days=1)
+        notification = Notification.objects.create(user=user, object=job, event_type=JOB_FAILED, read=previous_time)
+        Notification.objects.filter(pk=notification.pk).update(created=previous_time)
+
+        job.name = 'Renamed Job'
+        job.terminate()
+
+        notification.refresh_from_db()
+        self.assertEqual(notification.event_type, JOB_COMPLETED)
+        self.assertEqual(notification.object_repr, 'Renamed Job')
+        self.assertEqual(notification.created, job.completed)
+        self.assertIsNone(notification.read)
+        mock_job_end.send.assert_called_once_with(job)
+
+    @patch('core.models.jobs.job_end')
+    def test_terminate_without_dispatch(self, mock_job_end):
+        """Terminating without dispatch saves the outcome and leaves the notification and job_end for later."""
+        user = User.objects.create_user(username='notification-deferred')
+        job = self._make_job(user, JobNotificationChoices.NOTIFICATION_ON_FAILURE)
+
+        job.terminate(status=JobStatusChoices.STATUS_FAILED, dispatch=False)
+
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_FAILED)
+        self.assertIsNotNone(job.completed)
+        self.assertFalse(Notification.objects.filter(user=user, object_id=job.pk).exists())
+        mock_job_end.send.assert_not_called()
+
+        job._dispatch_termination()
+
+        notification = Notification.objects.get(user=user, object_id=job.pk)
+        self.assertEqual(notification.event_type, JOB_FAILED)
+        mock_job_end.send.assert_called_once_with(job)
+
+    @patch('core.models.jobs.job_end')
     def test_execution_time_set_on_terminate(self, mock_job_end):
         """
         terminate() should set execution_time to (completed - started) for a started job.
@@ -505,3 +664,11 @@ class JobTestCase(TestCase):
         job.terminate(status=JobStatusChoices.STATUS_COMPLETED)
 
         self.assertIsNone(job.execution_time)
+
+    def test_get_absolute_url(self):
+        job = Job(pk=123, name='Test Job')
+        self.assertEqual(job.get_absolute_url(), reverse('core:job', args=[123]))
+
+        # Jobs for custom scripts link to the script result view
+        job = Job(pk=123, name='Test Job', object_type=ObjectType.objects.get_for_model(Script), object_id=1)
+        self.assertEqual(job.get_absolute_url(), reverse('extras:script_result', kwargs={'job_pk': 123}))

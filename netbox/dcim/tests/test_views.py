@@ -2440,6 +2440,7 @@ class ModuleBayTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
 class ConsolePortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = ConsolePortTemplate
+    bulk_create_permissions = ('dcim.view_devicetype',)
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -2473,6 +2474,7 @@ class ConsolePortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestC
 
 class ConsoleServerPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = ConsoleServerPortTemplate
+    bulk_create_permissions = ('dcim.view_devicetype',)
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -2505,6 +2507,7 @@ class ConsoleServerPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateVie
 
 class PowerPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = PowerPortTemplate
+    bulk_create_permissions = ('dcim.view_devicetype',)
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -2543,6 +2546,7 @@ class PowerPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
 
 class PowerOutletTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = PowerOutletTemplate
+    bulk_create_permissions = ('dcim.view_devicetype', 'dcim.view_powerporttemplate')
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -2585,6 +2589,7 @@ class PowerOutletTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestC
 
 class InterfaceTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = InterfaceTemplate
+    bulk_create_permissions = ('dcim.view_devicetype',)
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -2625,7 +2630,7 @@ class InterfaceTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
         module_type = ModuleType.objects.create(manufacturer=device_type.manufacturer, model='Module Type 1')
         return_url = reverse('dcim:moduletype_interfaces', kwargs={'pk': module_type.pk})
 
-        self.add_permissions('dcim.add_interfacetemplate')
+        self.add_permissions('dcim.add_interfacetemplate', 'dcim.view_moduletype')
 
         response = self.client.post(
             f"{self._get_url('add')}?device_type={device_type.pk}&return_url={return_url}",
@@ -2647,6 +2652,7 @@ class InterfaceTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
 
 class FrontPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = FrontPortTemplate
+    bulk_create_permissions = ('dcim.view_devicetype', 'dcim.view_rearporttemplate')
     validation_excluded_fields = ('name', 'label', 'rear_port')
 
     @classmethod
@@ -2698,6 +2704,7 @@ class FrontPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
 
 class RearPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = RearPortTemplate
+    bulk_create_permissions = ('dcim.view_devicetype',)
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -2732,6 +2739,7 @@ class RearPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase
 
 class ModuleBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = ModuleBayTemplate
+    bulk_create_permissions = ('dcim.view_devicetype',)
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -2813,6 +2821,7 @@ class ModuleBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
 
 class DeviceBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = DeviceBayTemplate
+    bulk_create_permissions = ('dcim.view_devicetype',)
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -2848,6 +2857,7 @@ class DeviceBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
 
 class InventoryItemTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = InventoryItemTemplate
+    bulk_create_permissions = ('dcim.view_devicetype', 'dcim.view_manufacturer')
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -3797,6 +3807,7 @@ class ModuleTestCase(
 
 class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = ConsolePort
+    bulk_create_permissions = ('dcim.view_device', 'extras.view_tag')
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -3913,6 +3924,7 @@ class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
 class ConsoleServerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = ConsoleServerPort
+    bulk_create_permissions = ('dcim.view_device', 'extras.view_tag')
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -3983,6 +3995,7 @@ class ConsoleServerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
 class PowerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = PowerPort
+    bulk_create_permissions = ('dcim.view_device', 'extras.view_tag')
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -4059,6 +4072,7 @@ class PowerPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
 class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = PowerOutlet
+    bulk_create_permissions = ('dcim.view_device', 'dcim.view_powerport', 'extras.view_tag', 'users.view_owner')
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -4145,6 +4159,10 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
 class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = Interface
+    bulk_create_permissions = (
+        'dcim.view_device', 'dcim.view_interface', 'extras.view_tag', 'ipam.view_vlan', 'ipam.view_vrf',
+        'wireless.view_wirelesslan',
+    )
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -4363,6 +4381,49 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             [visible_device.pk]
         )
 
+    @tag('regression')  # Issue #23585
+    def test_add_interface_excludes_restricted_devices(self):
+        """
+        The interface form only displays and accepts devices the user can view.
+        """
+        visible_device = Device.objects.get(name='Device 1')
+        site = Site.objects.create(name='Site 2', slug='site-2')
+        hidden_device = create_test_device('Hidden Device', site=site)
+
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['view'],
+            constraints={'site__slug': 'site-1'},
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Device))
+        self.add_permissions('dcim.add_interface')
+        url = reverse('dcim:interface_add')
+        data = {
+            'device': hidden_device.pk,
+            'name': 'Restricted Interface',
+            'type': InterfaceTypeChoices.TYPE_1GE_FIXED,
+        }
+
+        # Creation rejects the hidden device
+        response = self.client.post(url, data=post_data(data))
+        self.assertHttpStatus(response, 200)
+        self.assertIn('device', response.context['form'].errors)
+        self.assertNotContains(response, hidden_device.name)
+        self.assertFalse(Interface.objects.filter(name='Restricted Interface').exists())
+
+        # The form does not display the hidden device
+        response = self.client.get(url, {'device': hidden_device.pk})
+        self.assertHttpStatus(response, 200)
+        self.assertNotContains(response, hidden_device.name)
+
+        # A visible device is accepted
+        data['device'] = visible_device.pk
+        response = self.client.post(url, data=post_data(data))
+        self.assertHttpStatus(response, 302)
+        self.assertTrue(Interface.objects.filter(device=visible_device, name='Restricted Interface').exists())
+
     def test_rename_select_all_spans_pages(self):
         """
         Tests the bulk rename functionality for interfaces spanning multiple pages in the UI.
@@ -4407,7 +4468,10 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         Submitting the Interface form with a mac_address string creates a MACAddress
         and sets it as primary in one request.
         """
-        self.add_permissions('dcim.add_interface', 'dcim.add_macaddress')
+        self.add_permissions(
+            'dcim.add_interface', 'dcim.add_macaddress', 'dcim.view_device', 'dcim.view_interface', 'extras.view_tag',
+            'ipam.view_vlan', 'ipam.view_vrf', 'wireless.view_wirelesslan',
+        )
 
         data = {**self.form_data, 'mac_address': 'AA:BB:CC:DD:EE:FF', 'changelog_message': 'test'}
         response = self.client.post(self._get_url('add'), data=post_data(data))
@@ -4557,6 +4621,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
 class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = FrontPort
+    bulk_create_permissions = ('dcim.view_device', 'dcim.view_rearport', 'extras.view_tag')
     validation_excluded_fields = ('name', 'label', 'rear_port')
 
     @classmethod
@@ -4679,7 +4744,7 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             RearPort(device=device, name='Rear Port 8', positions=2),
         )
         RearPort.objects.bulk_create(rear_ports)
-        self.add_permissions('dcim.add_frontport')
+        self.add_permissions('dcim.add_frontport', 'dcim.view_device', 'dcim.view_rearport')
 
         response = self.client.post(self._get_url('add'), post_data({
             'device': device.pk,
@@ -4706,6 +4771,50 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
                 [(1, rear_port.pk, 1), (2, rear_port.pk, 2)]
             )
 
+    @tag('regression')  # Issue #23585
+    def test_add_front_port_excludes_restricted_rear_ports(self):
+        """
+        The front port form only offers and accepts rear ports the user can view.
+        """
+        device = Device.objects.get(name='Device 1')
+        visible_rear_port = RearPort.objects.create(device=device, name='Visible Rear Port')
+        hidden_rear_port = RearPort.objects.create(device=device, name='Hidden Rear Port')
+
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['view'],
+            constraints={'pk': visible_rear_port.pk},
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(RearPort))
+        self.add_permissions('dcim.add_frontport', 'dcim.view_device')
+        url = reverse('dcim:frontport_add')
+        data = {
+            'device': device.pk,
+            'name': 'Restricted Front Port',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'positions': 1,
+        }
+
+        # Creation rejects the hidden rear port
+        response = self.client.post(url, data=post_data({**data, 'rear_ports': [f'{hidden_rear_port.pk}:1']}))
+        self.assertHttpStatus(response, 200)
+        self.assertIn('rear_ports', response.context['form'].errors)
+        self.assertFalse(FrontPort.objects.filter(name='Restricted Front Port').exists())
+
+        # The form offers only the visible rear port
+        response = self.client.get(url, {'device': device.pk})
+        self.assertContains(response, visible_rear_port.name)
+        self.assertNotContains(response, hidden_rear_port.name)
+
+        # A visible rear port is accepted
+        response = self.client.post(url, data=post_data({**data, 'rear_ports': [f'{visible_rear_port.pk}:1']}))
+        self.assertHttpStatus(response, 302)
+        self.assertTrue(
+            PortMapping.objects.filter(front_port__name='Restricted Front Port', rear_port=visible_rear_port).exists()
+        )
+
     def test_trace(self):
         self.add_permissions(
             'dcim.view_frontport',
@@ -4727,6 +4836,7 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
 class RearPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = RearPort
+    bulk_create_permissions = ('dcim.view_device', 'extras.view_tag')
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -4800,6 +4910,7 @@ class RearPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
 class ModuleBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = ModuleBay
+    bulk_create_permissions = ('dcim.view_device', 'extras.view_tag')
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -4953,6 +5064,7 @@ class ModuleBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
 class DeviceBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = DeviceBay
+    bulk_create_permissions = ('dcim.view_device', 'extras.view_tag')
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -5006,6 +5118,9 @@ class DeviceBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
 class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = InventoryItem
+    bulk_create_permissions = (
+        'dcim.view_device', 'dcim.view_inventoryitemrole', 'dcim.view_manufacturer', 'extras.view_tag',
+    )
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -5827,6 +5942,140 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertIsNone(member.virtual_chassis)
         self.assertIsNone(member.vc_position)
 
+    def _get_member_changes(self, device):
+        return ObjectChange.objects.filter(
+            changed_object_type=ContentType.objects.get_for_model(Device),
+            changed_object_id=device.pk,
+        ).order_by('pk')
+
+    @tag('regression')  # Ref: #23486
+    def test_edit_member_records_single_change_with_prechange_data(self):
+        self.add_permissions('dcim.change_virtualchassis')
+        vc = VirtualChassis.objects.get(name='VC1')
+        member1, member2, member3 = vc.members.order_by('vc_position')
+
+        data = {
+            'name': vc.name,
+            'domain': vc.domain,
+            'master': vc.master.pk,
+            'form-TOTAL_FORMS': 3,
+            'form-INITIAL_FORMS': 3,
+            'form-MIN_NUM_FORMS': 0,
+            'form-MAX_NUM_FORMS': 1000,
+            'form-0-id': member1.pk,
+            'form-0-vc_position': 1,
+            'form-0-vc_priority': 20,
+            'form-1-id': member2.pk,
+            'form-1-vc_position': 2,
+            'form-1-vc_priority': '',
+            'form-2-id': member3.pk,
+            'form-2-vc_position': 3,
+            'form-2-vc_priority': '',
+        }
+        response = self.client.post(self._get_url('edit', vc), data)
+        self.assertHttpStatus(response, 302)
+
+        member1.refresh_from_db()
+        self.assertEqual(member1.vc_position, 1)
+        self.assertEqual(member1.vc_priority, 20)
+
+        # Exactly one change is recorded, spanning the member's original and final state
+        changes = self._get_member_changes(member1)
+        self.assertEqual(changes.count(), 1)
+        change = changes.first()
+        self.assertEqual(change.action, ObjectChangeActionChoices.ACTION_UPDATE)
+        self.assertEqual(change.prechange_data['vc_position'], 1)
+        self.assertIsNone(change.prechange_data['vc_priority'])
+        self.assertEqual(change.postchange_data['vc_position'], 1)
+        self.assertEqual(change.postchange_data['vc_priority'], 20)
+
+        # Unchanged members produce no changelog entries
+        self.assertFalse(self._get_member_changes(member2).exists())
+        self.assertFalse(self._get_member_changes(member3).exists())
+
+    @tag('regression')  # Ref: #23486
+    def test_edit_member_swap_positions(self):
+        self.add_permissions('dcim.change_virtualchassis')
+        vc = VirtualChassis.objects.get(name='VC1')
+        member1, member2, member3 = vc.members.order_by('vc_position')
+
+        data = {
+            'name': vc.name,
+            'domain': vc.domain,
+            'master': vc.master.pk,
+            'form-TOTAL_FORMS': 3,
+            'form-INITIAL_FORMS': 3,
+            'form-MIN_NUM_FORMS': 0,
+            'form-MAX_NUM_FORMS': 1000,
+            'form-0-id': member1.pk,
+            'form-0-vc_position': 2,
+            'form-0-vc_priority': '',
+            'form-1-id': member2.pk,
+            'form-1-vc_position': 1,
+            'form-1-vc_priority': '',
+            'form-2-id': member3.pk,
+            'form-2-vc_position': 3,
+            'form-2-vc_priority': '',
+        }
+        response = self.client.post(self._get_url('edit', vc), data)
+        self.assertHttpStatus(response, 302)
+
+        member1.refresh_from_db()
+        member2.refresh_from_db()
+        self.assertEqual(member1.vc_position, 2)
+        self.assertEqual(member2.vc_position, 1)
+
+        for member, old_position, new_position in ((member1, 1, 2), (member2, 2, 1)):
+            changes = self._get_member_changes(member)
+            self.assertEqual(changes.count(), 1)
+            change = changes.first()
+            self.assertEqual(change.prechange_data['vc_position'], old_position)
+            self.assertEqual(change.postchange_data['vc_position'], new_position)
+            self.assertEqual(change.postchange_data['virtual_chassis'], vc.pk)
+
+    @tag('regression')  # Ref: #23486
+    def test_delete_records_valid_member_changes(self):
+        self.add_permissions('dcim.delete_virtualchassis')
+        vc = VirtualChassis.objects.get(name='VC1')
+        members = list(vc.members.order_by('vc_position'))
+        Device.objects.filter(pk=members[0].pk).update(vc_priority=10)
+
+        response = self.client.post(self._get_url('delete', vc), {'confirm': True})
+        self.assertHttpStatus(response, 302)
+        self.assertFalse(VirtualChassis.objects.filter(pk=vc.pk).exists())
+
+        for member in members:
+            member.refresh_from_db()
+            self.assertIsNone(member.virtual_chassis)
+            self.assertIsNone(member.vc_position)
+            self.assertIsNone(member.vc_priority)
+
+            # Each member is detached and then cleared in two changes, each with prechange data and valid on
+            # its own (a virtual chassis is never recorded without a position)
+            changes = list(self._get_member_changes(member))
+            self.assertEqual(len(changes), 2)
+            detach, clear = changes
+            self.assertEqual(detach.action, ObjectChangeActionChoices.ACTION_UPDATE)
+            self.assertEqual(detach.prechange_data['virtual_chassis'], vc.pk)
+            self.assertIsNotNone(detach.prechange_data['vc_position'])
+            self.assertIsNone(detach.postchange_data['virtual_chassis'])
+            self.assertEqual(detach.postchange_data['vc_position'], detach.prechange_data['vc_position'])
+            self.assertEqual(clear.action, ObjectChangeActionChoices.ACTION_UPDATE)
+            self.assertIsNone(clear.prechange_data['virtual_chassis'])
+            self.assertEqual(clear.prechange_data['vc_position'], detach.postchange_data['vc_position'])
+            self.assertIsNone(clear.postchange_data['vc_position'])
+            self.assertIsNone(clear.postchange_data['vc_priority'])
+        self.assertEqual(self._get_member_changes(members[0]).first().prechange_data['vc_priority'], 10)
+
+        # The VC deletion is recorded once, before its (former) master is detached
+        vc_change = ObjectChange.objects.get(
+            changed_object_type=ContentType.objects.get_for_model(VirtualChassis),
+            changed_object_id=vc.pk,
+        )
+        self.assertEqual(vc_change.action, ObjectChangeActionChoices.ACTION_DELETE)
+        self.assertEqual(vc_change.prechange_data['master'], members[0].pk)
+        self.assertLess(vc_change.pk, self._get_member_changes(members[0]).first().pk)
+
 
 class PowerPanelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = PowerPanel
@@ -5985,6 +6234,7 @@ class PowerFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
 class CoolingIntakeTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = CoolingIntakeTemplate
+    bulk_create_permissions = ('dcim.view_devicetype',)
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -6029,6 +6279,7 @@ class CoolingIntakeTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTes
 
 class CoolingOutflowTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
     model = CoolingOutflowTemplate
+    bulk_create_permissions = ('dcim.view_coolingintaketemplate', 'dcim.view_devicetype')
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -6074,6 +6325,7 @@ class CoolingOutflowTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTe
 
 class CoolingIntakeTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = CoolingIntake
+    bulk_create_permissions = ('dcim.view_device', 'extras.view_tag')
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -6139,6 +6391,7 @@ class CoolingIntakeTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
 class CoolingOutflowTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = CoolingOutflow
+    bulk_create_permissions = ('dcim.view_coolingintake', 'dcim.view_device', 'extras.view_tag')
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -6593,7 +6846,7 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     def test_set_primary_anonymous_redirects_to_login(self):
         """
         With LOGIN_REQUIRED, an unauthenticated request is redirected to the login page (via
-        ConditionalLoginRequiredMixin) rather than 404ing or acting, for both GET and POST.
+        LoginRequiredMiddleware) rather than 404ing or acting, for both GET and POST.
         """
         self.client.logout()
         mac = MACAddress.objects.first()

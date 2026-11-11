@@ -1,5 +1,11 @@
-from django.db import DatabaseError, connection
+import logging
+import uuid
+from functools import partial
+
+from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
+from django.db import DatabaseError, connection, router, transaction
 from django.http import Http404
+from django.urls import NoReverseMatch
 from django.utils.translation import gettext_lazy as _
 from django_rq.queues import get_queue, get_queue_by_index, get_redis_connection
 from django_rq.settings import get_queues_list, get_queues_map
@@ -16,15 +22,22 @@ from rq.registry import (
     StartedJobRegistry,
 )
 
+from core.choices import JobStatusChoices
+from netbox.registry import registry
+
 __all__ = (
     'delete_rq_job',
     'enqueue_rq_job',
     'get_db_schema',
+    'get_job_result_url',
     'get_rq_jobs',
     'get_rq_jobs_from_status',
+    'register_job_result_url',
     'requeue_rq_job',
     'stop_rq_job',
 )
+
+logger = logging.getLogger('netbox.jobs')
 
 
 def get_rq_jobs():
@@ -94,6 +107,34 @@ def delete_rq_job(job_id):
     job.delete()
 
 
+def _retry_rq_job(job, queue, ended, push):
+    """
+    Reset the matching NetBox Job so an explicitly retried RQ task can start it, then push the task.
+    """
+    from core.models import Job
+
+    using = router.db_for_write(Job)
+    with transaction.atomic(using=using):
+        try:
+            jobs = Job.objects.using(using).filter(job_id=uuid.UUID(job.id))
+        except ValueError:
+            # Job.job_id is a UUID, other task IDs cannot match
+            jobs = Job.objects.none()
+        # Lock the Job before checking the task, so no worker claims it in between
+        if jobs.select_for_update().exists() and ended() and job.id not in queue.started_job_registry:
+            jobs.update(
+                status=JobStatusChoices.STATUS_PENDING,
+                started=None,
+                completed=None,
+                execution_time=None,
+                error='',
+                data=None,
+                log_entries=[],
+            )
+        # A worker must see the reset, so push only once it commits
+        transaction.on_commit(push, using=using)
+
+
 def requeue_rq_job(job_id):
     """
     Requeue the specified RQ job.
@@ -107,7 +148,13 @@ def requeue_rq_job(job_id):
     queue_index = get_queues_map()[job.origin]
     queue = get_queue_by_index(queue_index)
 
-    requeue_job(job_id, connection=queue.connection, serializer=queue.serializer)
+    _retry_rq_job(
+        job,
+        queue,
+        # requeue_job() raises for a task outside the failed registry
+        ended=lambda: job.id in queue.failed_job_registry,
+        push=partial(requeue_job, job_id, connection=queue.connection, serializer=queue.serializer),
+    )
 
 
 def enqueue_rq_job(job_id):
@@ -123,6 +170,18 @@ def enqueue_rq_job(job_id):
     queue_index = get_queues_map()[job.origin]
     queue = get_queue_by_index(queue_index)
 
+    _retry_rq_job(
+        job,
+        queue,
+        ended=lambda: job.get_status() in (RQJobStatus.FINISHED, RQJobStatus.FAILED, RQJobStatus.STOPPED),
+        push=partial(_push_rq_job, queue, job),
+    )
+
+
+def _push_rq_job(queue, job):
+    """
+    Enqueue the RQ job regardless of its dependencies.
+    """
     try:
         # _enqueue_job is new in RQ 1.14, this is used to enqueue
         # job regardless of its dependencies
@@ -203,3 +262,67 @@ def get_db_schema():
     except DatabaseError:
         pass
     return db_schema
+
+
+def register_job_result_url(model, job_name=None, *, raise_exceptions=False):
+    """
+    Decorator for registering a function which returns the URL of the results page for background jobs associated
+    with objects of the given model (and optionally, having the given name). The model may be passed as a class or as
+    a string in the form "<app_label>.<model_name>".
+
+    The function must accept a Job instance and return either a URL, or None to defer to the next applicable function
+    (and ultimately to the generic job view). A function registered for a specific job name takes precedence over one
+    registered for the model alone.
+
+        @register_job_result_url(MyModel, job_name='My Job')
+        def my_job_result_url(job):
+            return reverse('plugins:myplugin:mymodel_results', args=[job.object_id])
+
+    If raise_exceptions is True, exceptions raised by the function propagate instead of being logged. NetBox's own
+    registrations set it, so that core bugs aren't masked.
+    """
+    if isinstance(model, str):
+        if len(parts := model.split('.')) != 2 or not all(parts):
+            raise ImproperlyConfigured(f"Invalid model label {model!r}: must be in the form <app_label>.<model_name>.")
+        label = model.lower()
+    else:
+        label = model._meta.label_lower
+    key = (label, job_name)
+
+    def _wrapper(func):
+        if key in registry['job_result_urls']:
+            raise ImproperlyConfigured(
+                f"A job result URL function is already registered for model {label} and job name {job_name!r}."
+            )
+        registry['job_result_urls'][key] = (func, raise_exceptions)
+        return func
+
+    return _wrapper
+
+
+def get_job_result_url(job):
+    """
+    Return the URL provided by the first applicable job result URL function registered for the given Job, if any.
+    """
+    if not job.object_type:
+        return None
+    model = f'{job.object_type.app_label}.{job.object_type.model}'
+    for key in ((model, job.name), (model, None)):
+        if not (registration := registry['job_result_urls'].get(key)):
+            continue
+        func, raise_exceptions = registration
+        try:
+            if url := func(job):
+                return url
+        except Exception as e:
+            # A failing function must not break the rendering of jobs lists or notifications.
+            if raise_exceptions:
+                raise
+            if isinstance(e, (NoReverseMatch, ObjectDoesNotExist)):
+                logger.warning(
+                    "Failed to resolve the result URL for job %s using %r: %s", job.pk, func, e,
+                    exc_info=logger.isEnabledFor(logging.DEBUG)
+                )
+            else:
+                logger.exception("Error resolving the result URL for job %s using %r", job.pk, func)
+    return None

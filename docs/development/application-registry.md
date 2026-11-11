@@ -20,18 +20,15 @@ A dictionary mapping data backend types to their respective classes. These are u
 
 A dictionary mapping each model (identified by its app and label) to its filterset class, if one has been registered for it. Filtersets are registered using the `@register_filterset` decorator.
 
+### `job_result_urls`
+
+A dictionary mapping `(model_label, job_name)` pairs to `(function, raise_exceptions)` tuples registered with `core.utils.register_job_result_url()`. Model labels use `<app_label>.<model_name>`; a `None` job name provides a fallback for that model. See [Result URLs](../plugins/development/background-jobs.md#result-urls) for details.
+
 ### `model_features`
 
 A dictionary of model features (e.g. custom fields, tags, etc.) mapped to the functions used to qualify a model as supporting each feature. Model features are registered using the `register_model_feature()` function in `netbox.utils`.
 
 Core model features are listed in the [features matrix](./models.md#features-matrix).
-
-### `models`
-
-!!! warning "Deprecated"
-    Usage of this key has been deprecated and will be removed in NetBox v4.7. Use `ObjectType.objects.public()` to find registered models.
-
-This key lists all models which have been registered in NetBox which are not designated for private use. (Setting `_netbox_private` to True on a model excludes it from this list.) As with individual features under `model_features`, models are organized by app label.
 
 ### `pk_allocators`
 

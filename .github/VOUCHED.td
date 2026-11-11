@@ -24,6 +24,7 @@ abrahamvegh
 abubnalitic-nbl
 adamboutcher
 adionit7
+ajay206
 alehaa
 alexhoulton
 alimickey
@@ -46,6 +47,7 @@ ciroiriarte
 clovehitch
 cmdrrobin
 cocofabio
+corencas
 corubba
 cory-kantar
 dansheps
@@ -116,12 +118,14 @@ mskalecki
 nfvelten
 olexandr88
 omripresent
+peio42
 peteeckel
 pheus
 pieterl75
 piyush-003
 pl0xym0r
 pobradovic08
+raffaele-maccarrone
 renatoalmeidaoliveira
 rfdrake
 rhyser9
@@ -129,11 +133,14 @@ rinna11
 robduffy2010
 roberth1993
 rodvand
+sebb0
+sensiblecoder
 sergiolpzgmz
 stalker-nn
 studioussagar
 stuntguy3000
 swoga
+syogo-suganoya
 thordreier
 tishka17
 tobiasge

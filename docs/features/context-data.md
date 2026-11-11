@@ -78,9 +78,50 @@ When the context data for a device at this site is rendered, the second, higher-
 
 Data from the higher-weight context overwrites conflicting data from the lower-weight context, while the non-conflicting portion of the lower-weight context (the list of NTP servers) is preserved.
 
+### Merging Behavior
+
+Config contexts are applied in order of increasing weight (contexts with the same weight are ordered by name), with each context deep-merged into the result of those before it:
+
+* Where both contexts define a key as a dictionary, and the higher-weight dictionary is not empty, the two dictionaries are merged recursively, applying these same rules at each level.
+* Any other value (a list, string, number, boolean, `null`, or empty dictionary) in the higher-weight context replaces the lower-weight value entirely. Lists are not concatenated.
+
+For example, suppose a lower-weight context defines the following data:
+
+```json
+{
+    "snmp": {
+        "contact": "noc@example.com",
+        "location": "Region A"
+    }
+}
+```
+
+And a higher-weight context defines:
+
+```json
+{
+    "snmp": {
+        "location": "Site 12"
+    }
+}
+```
+
+Because both values of `snmp` are dictionaries, they are merged rather than replaced:
+
+```json
+{
+    "snmp": {
+        "contact": "noc@example.com",
+        "location": "Site 12"
+    }
+}
+```
+
+To replace a dictionary outright instead of merging into it, create a config context with an intermediate weight, assigned to the same objects as the higher-weight context, which sets the key to `null` or to an empty dictionary (`{}`). Either value replaces the lower-weight dictionary, and the higher-weight context's dictionary is then applied in full.
+
 ## Local Context Data
 
-Devices and virtual machines may also have a local context data defined. This local context will _always_ take precedence over any separate config context objects which apply to the device/VM. This is useful in situations where we need to call out a specific deviation in the data for a particular object.
+Devices and virtual machines may also have a local context data defined. This local context will _always_ take precedence over any separate config context objects which apply to the device/VM. It is merged last, following the same [merging rules](#merging-behavior) as config contexts. This is useful in situations where we need to call out a specific deviation in the data for a particular object.
 
 !!! warning
     If you find that you're routinely defining local context data for many individual devices or virtual machines, [custom fields](./customization.md#custom-fields) may offer a more effective solution.

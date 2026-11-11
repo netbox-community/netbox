@@ -7,7 +7,12 @@ from dcim.models import Device, Interface
 from ipam.models import VLAN, IPAddress, RouteTarget
 from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
-from utilities.filters import MultiValueBigNumberFilter, MultiValueCharFilter, MultiValueContentTypeFilter
+from utilities.filters import (
+    MultiValueBigNumberFilter,
+    MultiValueCharFilter,
+    MultiValueContentTypeFilter,
+    NonUniqueModelMultipleChoiceFilter,
+)
 from utilities.filtersets import register_filterset
 from virtualization.models import VirtualMachine, VMInterface
 
@@ -105,7 +110,7 @@ class TunnelTerminationFilterSet(NetBoxModelFilterSet):
         distinct=False,
     )
     termination_type = MultiValueContentTypeFilter()
-    interface = django_filters.ModelMultipleChoiceFilter(
+    interface = NonUniqueModelMultipleChoiceFilter(
         field_name='interface__name',
         queryset=Interface.objects.all(),
         to_field_name='name',
@@ -116,7 +121,7 @@ class TunnelTerminationFilterSet(NetBoxModelFilterSet):
         queryset=Interface.objects.all(),
         label=_('Interface (ID)'),
     )
-    vminterface = django_filters.ModelMultipleChoiceFilter(
+    vminterface = NonUniqueModelMultipleChoiceFilter(
         field_name='vminterface__name',
         queryset=VMInterface.objects.all(),
         to_field_name='name',
@@ -416,29 +421,33 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         field_name='pk',
         label=_('Site (ID)'),
     )
-    device = django_filters.ModelMultipleChoiceFilter(
+    device = NonUniqueModelMultipleChoiceFilter(
         method='filter_device',
+        field_name='name',
         queryset=Device.objects.all(),
         to_field_name='name',
         label=_('Device (name)'),
     )
     device_id = django_filters.ModelMultipleChoiceFilter(
         method='filter_device',
+        field_name='pk',
         queryset=Device.objects.all(),
         label=_('Device (ID)'),
     )
-    virtual_machine = django_filters.ModelMultipleChoiceFilter(
+    virtual_machine = NonUniqueModelMultipleChoiceFilter(
         method='filter_virtual_machine',
+        field_name='name',
         queryset=VirtualMachine.objects.all(),
         to_field_name='name',
         label=_('Virtual machine (name)'),
     )
     virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
         method='filter_virtual_machine',
+        field_name='pk',
         queryset=VirtualMachine.objects.all(),
         label=_('Virtual machine (ID)'),
     )
-    interface = django_filters.ModelMultipleChoiceFilter(
+    interface = NonUniqueModelMultipleChoiceFilter(
         field_name='interface__name',
         queryset=Interface.objects.all(),
         to_field_name='name',
@@ -449,7 +458,7 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         queryset=Interface.objects.all(),
         label=_('Interface (ID)'),
     )
-    vminterface = django_filters.ModelMultipleChoiceFilter(
+    vminterface = NonUniqueModelMultipleChoiceFilter(
         field_name='vminterface__name',
         queryset=VMInterface.objects.all(),
         to_field_name='name',
@@ -460,7 +469,7 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         queryset=VMInterface.objects.all(),
         label=_('VM Interface (ID)'),
     )
-    vlan = django_filters.ModelMultipleChoiceFilter(
+    vlan = NonUniqueModelMultipleChoiceFilter(
         field_name='vlan__name',
         queryset=VLAN.objects.all(),
         to_field_name='name',
@@ -524,17 +533,21 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
     def filter_device(self, queryset, name, value):
         if not value:
             return queryset
+        # Match on the name (rather than the object) when filtering by name, as devices may share a name
+        values = [getattr(device, name) for device in value]
         return queryset.filter(
-            Q(interface__device__in=value) |
-            Q(ipaddress__interface__device__in=value)
+            Q(**{f'interface__device__{name}__in': values}) |
+            Q(**{f'ipaddress__interface__device__{name}__in': values})
         )
 
     def filter_virtual_machine(self, queryset, name, value):
         if not value:
             return queryset
+        # Match on the name (rather than the object) when filtering by name, as virtual machines may share a name
+        values = [getattr(vm, name) for vm in value]
         return queryset.filter(
-            Q(vminterface__virtual_machine__in=value) |
-            Q(ipaddress__vminterface__virtual_machine__in=value)
+            Q(**{f'vminterface__virtual_machine__{name}__in': values}) |
+            Q(**{f'ipaddress__vminterface__virtual_machine__{name}__in': values})
         )
 
     def filter_region(self, queryset, name, value):

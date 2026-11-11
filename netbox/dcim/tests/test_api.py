@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.prefetch import GenericPrefetch
 from django.db import connection
+from django.db.models import FETCH_PEERS, prefetch_related_objects
 from django.test import override_settings, tag
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
@@ -22,7 +23,7 @@ from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
 from dcim.api.serializers import InterfaceSerializer
 from dcim.api.serializers_.nested import NestedDeviceBaySerializer, NestedDeviceSerializer
-from dcim.api.views import DeviceViewSet, InterfaceViewSet
+from dcim.api.views import CableTerminationsPrefetch, DeviceViewSet, InterfaceViewSet
 from dcim.choices import *
 from dcim.constants import *
 from dcim.graphql.types import _CABLE_TERMINATION_MODELS
@@ -63,6 +64,24 @@ class AppTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
+def assert_list_query_count_is_constant(test, url, get_params, objects, check_results):
+    """
+    Assert that listing the first of the given objects runs as many queries as listing all of them. `get_params`
+    returns the query parameters selecting the given objects, and `check_results` validates the results listed.
+    """
+    def get_query_count(objs):
+        with CaptureQueriesContext(connection) as queries:
+            response = test.client.get(url, get_params(objs), **test.header)
+        test.assertHttpStatus(response, status.HTTP_200_OK)
+        check_results(objs, response.data['results'])
+        # Token authentication refreshes last_used once a minute
+        return sum('"users_token"' not in query['sql'] for query in queries.captured_queries)
+
+    # Warm per-process caches (e.g. ContentType)
+    get_query_count(objects)
+    test.assertEqual(get_query_count(objects[:1]), get_query_count(objects))
+
+
 class Mixins:
 
     class ComponentTraceMixin(APITestCase):
@@ -98,6 +117,37 @@ class Mixins:
             self.assertEqual(segment1[0][0]['name'], obj.name)
             self.assertEqual(segment1[1]['label'], cable.label)
             self.assertEqual(segment1[2][0]['name'], peer_obj.name)
+
+    class LinkPeersMixin(APITestCase):
+        peer_termination_type = None
+
+        def test_list_objects_link_peers_query_count(self):
+            """
+            Listing cabled components loads their link peers, and the peers' devices and cables, with the same
+            number of queries however many components are listed.
+            """
+            if self.peer_termination_type is None:
+                raise NotImplementedError(_("Test case must set peer_termination_type"))
+            self.add_permissions(f'dcim.view_{self.model._meta.model_name}')
+            objects = list(self.model.objects.order_by('pk')[:3])
+            peer_device = create_test_device('Peer Device', site=Site.objects.first())
+            peer_names = {}
+            for index, obj in enumerate(objects):
+                peer = self.peer_termination_type.objects.create(device=peer_device, name=f'Peer {index}')
+                Cable(a_terminations=[obj], b_terminations=[peer]).save()
+                peer_names[obj.pk] = peer.name
+
+            def check_results(objs, results):
+                link_peers = {result['id']: [peer['name'] for peer in result['link_peers']] for result in results}
+                self.assertEqual(link_peers, {obj.pk: [peer_names[obj.pk]] for obj in objs})
+
+            assert_list_query_count_is_constant(
+                self,
+                self._get_list_url(),
+                lambda objs: {'id': [obj.pk for obj in objs], 'fields': 'id,link_peers'},
+                objects,
+                check_results,
+            )
 
     class FieldPrefetchMixin(APITestCase):
         viewset = None
@@ -1424,6 +1474,18 @@ class RackTestCase(APIViewTestCases.APIViewTestCase):
                 'role': rack_roles[1].pk,
             },
         ]
+
+    def test_ordering_by_count_without_field(self):
+        """Ordering by a count left out of the response still sorts by it."""
+        self.add_permissions('dcim.view_rack')
+        rack = Rack.objects.get(name='Rack 3')
+        create_test_device('Device 1', site=rack.site, rack=rack)
+        response = self.client.get(
+            f'{self._get_list_url()}?ordering=-device_count,name&fields=id,name', **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual([row['name'] for row in response.data['results']], ['Rack 3', 'Rack 1', 'Rack 2'])
+        self.assertNotIn('device_count', response.data['results'][0])
 
     def test_get_rack_elevation(self):
         """
@@ -3690,6 +3752,90 @@ class ModuleTestCase(APIViewTestCases.APIViewTestCase):
         existing_iface.refresh_from_db()
         self.assertIsNotNone(existing_iface.module)
 
+    def test_adopt_components_changelog(self):
+        """
+        Adopted components should be change-logged with prechange data and have last_updated bumped.
+        """
+        self.add_permissions('dcim.add_module')
+        manufacturer = Manufacturer.objects.get(name='Generic')
+        device = create_test_device('Device for Adopt Changelog Test')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Adopt Changelog Module Type')
+        InterfaceTemplate.objects.create(module_type=module_type, name='eth0', type='1000base-t')
+        ModuleBayTemplate.objects.create(module_type=module_type, name='Sub Bay')
+        module_bay = ModuleBay.objects.create(device=device, name='Adopt Changelog Bay')
+        # Adopted bays are also re-parented under the module's bay
+        expected_diffs = [
+            (Interface.objects.create(device=device, name='eth0', type='1000base-t'), {'module': None}),
+            (ModuleBay.objects.create(device=device, name='Sub Bay'), {'module': None, 'parent': None}),
+        ]
+        original_last_updated = {component.pk: component.last_updated for component, _ in expected_diffs}
+
+        url = reverse('dcim-api:module-list')
+        data = {
+            'device': device.pk,
+            'module_bay': module_bay.pk,
+            'module_type': module_type.pk,
+            'adopt_components': True,
+            'replicate_components': False,
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        module_pk = response.data['id']
+
+        for component, expected_pre in expected_diffs:
+            component.refresh_from_db()
+            self.assertEqual(component.module_id, module_pk)
+            self.assertGreater(component.last_updated, original_last_updated[component.pk])
+            objectchange = ObjectChange.objects.get(
+                changed_object_type=ObjectType.objects.get_for_model(component),
+                changed_object_id=component.pk,
+                action=ObjectChangeActionChoices.ACTION_UPDATE,
+            )
+            self.assertIsNotNone(objectchange.prechange_data)
+            self.assertIsNone(objectchange.prechange_data['module'])
+            self.assertEqual(objectchange.postchange_data['module'], module_pk)
+            self.assertEqual(objectchange.diff()['pre'], expected_pre)
+            # Trigger-maintained ltree columns must reflect the post-adoption location
+            if isinstance(component, ModuleBay):
+                self.assertEqual(objectchange.postchange_data['path'], str(component.path))
+                self.assertEqual(objectchange.postchange_data['sort_path'], component.sort_path)
+
+    def test_install_module_interface_parent_bridge_changelog(self):
+        """
+        Interface parent/bridge assignments made during module installation must record prechange data.
+        """
+        self.add_permissions('dcim.add_module')
+        manufacturer = Manufacturer.objects.get(name='Generic')
+        device = create_test_device('Device for Interface Parent Changelog Test')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Parent Changelog Module Type')
+        eth0 = InterfaceTemplate.objects.create(module_type=module_type, name='eth0', type='1000base-t')
+        InterfaceTemplate.objects.create(module_type=module_type, name='eth0.100', type='virtual', parent=eth0)
+        InterfaceTemplate.objects.create(module_type=module_type, name='br0', type='bridge')
+        InterfaceTemplate.objects.create(
+            module_type=module_type, name='eth1', type='1000base-t', bridge=InterfaceTemplate.objects.get(name='br0')
+        )
+        module_bay = ModuleBay.objects.create(device=device, name='Parent Changelog Bay')
+
+        url = reverse('dcim-api:module-list')
+        data = {
+            'device': device.pk,
+            'module_bay': module_bay.pk,
+            'module_type': module_type.pk,
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+
+        for name, field in (('eth0.100', 'parent'), ('eth1', 'bridge')):
+            interface = Interface.objects.get(device=device, name=name)
+            objectchange = ObjectChange.objects.get(
+                changed_object_type=ObjectType.objects.get_for_model(Interface),
+                changed_object_id=interface.pk,
+                action=ObjectChangeActionChoices.ACTION_UPDATE,
+            )
+            self.assertIsNotNone(objectchange.prechange_data)
+            self.assertIsNone(objectchange.prechange_data[field])
+            self.assertEqual(objectchange.postchange_data[field], getattr(interface, f'{field}_id'))
+
     def test_replicate_components_conflict(self):
         """
         Installing a module with replicate_components=True when a component with the same name
@@ -3801,6 +3947,7 @@ class ModuleTestCase(APIViewTestCases.APIViewTestCase):
         # eth1 should have been created
         self.assertTrue(device.interfaces.filter(name='eth1').exists())
 
+    @tag('regression')  # Issue #23478
     def test_module_token_no_position(self):
         """
         Installing a module whose type has a template with a MODULE_TOKEN placeholder into a
@@ -3809,46 +3956,158 @@ class ModuleTestCase(APIViewTestCases.APIViewTestCase):
         self.add_permissions('dcim.add_module')
         manufacturer = Manufacturer.objects.get(name='Generic')
         device = create_test_device('Device for Token No-Position Test')
-        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Token No-Position Module Type')
-        # Template name contains the MODULE_TOKEN placeholder
-        InterfaceTemplate.objects.create(
-            module_type=module_type, name=f'{MODULE_TOKEN}-eth0', type='1000base-t'
-        )
-        # Module bay has no position
-        module_bay = ModuleBay.objects.create(device=device, name='No-Position Bay')
-
         url = reverse('dcim-api:module-list')
-        data = {
-            'device': device.pk,
-            'module_bay': module_bay.pk,
-            'module_type': module_type.pk,
-        }
-        response = self.client.post(url, data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        # One placeholder in each field that installation resolves, each on its own module type
+        templates = (
+            (InterfaceTemplate, {'name': f'{MODULE_TOKEN}-eth0', 'type': '1000base-t'}),
+            (InterfaceTemplate, {'name': 'eth0', 'label': f'Port {MODULE_TOKEN}', 'type': '1000base-t'}),
+            (ModuleBayTemplate, {'name': f'Bay {MODULE_TOKEN}'}),
+            (ModuleBayTemplate, {'name': 'Bay', 'label': f'Bay {MODULE_TOKEN}'}),
+            (ModuleBayTemplate, {'name': 'Bay', 'position': MODULE_TOKEN}),
+        )
+        for i, (template_model, attrs) in enumerate(templates, start=1):
+            with self.subTest(template=template_model.__name__, attrs=attrs):
+                module_type = ModuleType.objects.create(
+                    manufacturer=manufacturer, model=f'Token No-Position Module Type {i}'
+                )
+                template_model.objects.create(module_type=module_type, **attrs)
+                module_bay = ModuleBay.objects.create(device=device, name=f'No-Position Bay {i}')
 
+                data = {
+                    'device': device.pk,
+                    'module_bay': module_bay.pk,
+                    'module_type': module_type.pk,
+                }
+                response = self.client.post(url, data, format='json', **self.header)
+                self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+                self.assertIn('no position defined', str(response.data.get('__all__')))
+                self.assertFalse(Module.objects.filter(module_bay=module_bay).exists())
+
+    @tag('regression')  # Issue #23478
     def test_module_token_depth_mismatch(self):
         """
-        Installing a module whose template name has more MODULE_TOKEN placeholders than the
+        Installing a module whose template has more MODULE_TOKEN placeholders in a field than the
         depth of the module bay tree should return a validation error.
         """
         self.add_permissions('dcim.add_module')
         manufacturer = Manufacturer.objects.get(name='Generic')
         device = create_test_device('Device for Token Depth Mismatch Test')
-        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Token Depth Mismatch Module Type')
-        # Template name has two placeholders but the bay is at depth 1
-        InterfaceTemplate.objects.create(
-            module_type=module_type, name=f'{MODULE_TOKEN}-{MODULE_TOKEN}-eth0', type='1000base-t'
+        url = reverse('dcim-api:module-list')
+        # Two placeholders in each field that installation resolves, while every bay is one level deep
+        tokens = f'{MODULE_TOKEN}/{MODULE_TOKEN}'
+        templates = (
+            (InterfaceTemplate, {'name': f'{MODULE_TOKEN}-{MODULE_TOKEN}-eth0', 'type': '1000base-t'}),
+            (InterfaceTemplate, {'name': 'eth0', 'label': tokens, 'type': '1000base-t'}),
+            (ModuleBayTemplate, {'name': tokens}),
+            (ModuleBayTemplate, {'name': 'Bay', 'label': tokens}),
+            (ModuleBayTemplate, {'name': 'Bay', 'position': tokens}),
         )
-        module_bay = ModuleBay.objects.create(device=device, name='Depth 1 Bay', position='1')
+        for i, (template_model, attrs) in enumerate(templates, start=1):
+            with self.subTest(template=template_model.__name__, attrs=attrs):
+                module_type = ModuleType.objects.create(
+                    manufacturer=manufacturer, model=f'Token Depth Mismatch Module Type {i}'
+                )
+                template_model.objects.create(module_type=module_type, **attrs)
+                module_bay = ModuleBay.objects.create(device=device, name=f'Depth 1 Bay {i}', position='1')
+
+                data = {
+                    'device': device.pk,
+                    'module_bay': module_bay.pk,
+                    'module_type': module_type.pk,
+                }
+                response = self.client.post(url, data, format='json', **self.header)
+                self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+                # Rejected by validation, not by the AbortRequest that component creation would raise
+                self.assertIn('2 placeholders given', str(response.data.get('__all__')))
+                self.assertFalse(Module.objects.filter(module_bay=module_bay).exists())
+
+    @tag('regression')  # Issue #23478
+    def test_module_token_empty_ancestor_position(self):
+        """One placeholder per level needs every bay position, a single placeholder only the immediate one."""
+        self.add_permissions('dcim.add_module')
+        manufacturer = Manufacturer.objects.get(name='Generic')
+        device = create_test_device('Device for Token Ancestor Test')
+        parent_type = ModuleType.objects.create(manufacturer=manufacturer, model='Token Ancestor Parent Type')
+        parent_bay = ModuleBay.objects.create(device=device, name='Parent Bay')
+        parent_module = Module.objects.create(device=device, module_bay=parent_bay, module_type=parent_type)
+        child_bay = ModuleBay.objects.create(device=device, module=parent_module, name='Child Bay', position='2')
+        url = reverse('dcim-api:module-list')
+
+        level_type = ModuleType.objects.create(manufacturer=manufacturer, model='Token Ancestor Level Type')
+        InterfaceTemplate.objects.create(
+            module_type=level_type, name='eth0', label=f'{MODULE_TOKEN}/{MODULE_TOKEN}', type='1000base-t'
+        )
+        data = {
+            'device': device.pk,
+            'module_bay': child_bay.pk,
+            'module_type': level_type.pk,
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('no position defined', str(response.data.get('__all__')))
+
+        leaf_type = ModuleType.objects.create(manufacturer=manufacturer, model='Token Ancestor Leaf Type')
+        InterfaceTemplate.objects.create(
+            module_type=leaf_type, name='eth0', label=f'Port {MODULE_TOKEN}', type='1000base-t'
+        )
+        data['module_type'] = leaf_type.pk
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        module = Module.objects.get(pk=response.data['id'])
+        self.assertEqual(module.interfaces.get().label, 'Port 2')
+
+    def test_module_token_resolves_in_label_and_module_bay(self):
+        """Placeholders in a label and in each module bay template field resolve against a nested bay."""
+        self.add_permissions('dcim.add_module')
+        manufacturer = Manufacturer.objects.get(name='Generic')
+        device = create_test_device('Device for Token Resolution Test')
+        parent_type = ModuleType.objects.create(manufacturer=manufacturer, model='Token Resolution Parent Type')
+        parent_bay = ModuleBay.objects.create(device=device, name='Parent Bay', position='1')
+        parent_module = Module.objects.create(device=device, module_bay=parent_bay, module_type=parent_type)
+        child_bay = ModuleBay.objects.create(device=device, module=parent_module, name='Child Bay', position='2')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Token Resolution Module Type')
+        InterfaceTemplate.objects.create(
+            module_type=module_type, name='eth0', label=f'Port {MODULE_TOKEN}/{MODULE_TOKEN}', type='1000base-t'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=module_type,
+            name=f'SFP {MODULE_TOKEN}',
+            label=f'{MODULE_TOKEN}/{MODULE_TOKEN}',
+            position=f'{MODULE_TOKEN}/1',
+        )
 
         url = reverse('dcim-api:module-list')
         data = {
             'device': device.pk,
-            'module_bay': module_bay.pk,
+            'module_bay': child_bay.pk,
             'module_type': module_type.pk,
         }
         response = self.client.post(url, data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        module = Module.objects.get(pk=response.data['id'])
+        self.assertEqual(module.interfaces.get().label, 'Port 1/2')
+        module_bay = module.modulebays.get()
+        self.assertEqual((module_bay.name, module_bay.label, module_bay.position), ('SFP 2', '1/2', '2/1'))
+
+    def test_module_bay_template_names_repeat_across_modules(self):
+        """Child module bays from one template may share a name across modules on a device."""
+        self.add_permissions('dcim.add_module')
+        manufacturer = Manufacturer.objects.get(name='Generic')
+        device = create_test_device('Device for Repeated Child Bay Test')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Repeated Child Bay Module Type')
+        ModuleBayTemplate.objects.create(module_type=module_type, name='SFP 1')
+
+        url = reverse('dcim-api:module-list')
+        for name in ('Repeated Bay 1', 'Repeated Bay 2'):
+            module_bay = ModuleBay.objects.create(device=device, name=name)
+            data = {
+                'device': device.pk,
+                'module_bay': module_bay.pk,
+                'module_type': module_type.pk,
+            }
+            response = self.client.post(url, data, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(device.modulebays.filter(name='SFP 1').count(), 2)
 
     def test_list_objects_by_profile_id(self):
         profiles = ModuleTypeProfile.objects.filter(name__startswith='Test').order_by('name')
@@ -3986,7 +4245,7 @@ class ModuleTestCase(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
 
-class ConsolePortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class ConsolePortTestCase(Mixins.ComponentTraceMixin, Mixins.LinkPeersMixin, APIViewTestCases.APIViewTestCase):
     model = ConsolePort
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -4032,7 +4291,7 @@ class ConsolePortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTe
         ]
 
 
-class ConsoleServerPortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class ConsoleServerPortTestCase(Mixins.ComponentTraceMixin, Mixins.LinkPeersMixin, APIViewTestCases.APIViewTestCase):
     model = ConsoleServerPort
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -4078,7 +4337,7 @@ class ConsoleServerPortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.API
         ]
 
 
-class PowerPortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class PowerPortTestCase(Mixins.ComponentTraceMixin, Mixins.LinkPeersMixin, APIViewTestCases.APIViewTestCase):
     model = PowerPort
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -4121,7 +4380,7 @@ class PowerPortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTest
         ]
 
 
-class PowerOutletTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class PowerOutletTestCase(Mixins.ComponentTraceMixin, Mixins.LinkPeersMixin, APIViewTestCases.APIViewTestCase):
     model = PowerOutlet
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -4381,6 +4640,45 @@ class InterfaceTestCase(Mixins.FieldPrefetchMixin, Mixins.ComponentTraceMixin, A
             FHRPGroupAssignment.objects.create(group=fhrp_group, interface=interfaces['e'], priority=100)
             filters.append(f'device_id={device.pk}')
         return [filters[0], '&'.join(filters)]
+
+    def test_ordering_by_count_annotation(self):
+        """Ordering by a count annotation sorts the response whether or not it renders the count."""
+        self.add_permissions('dcim.view_interface', 'extras.view_exporttemplate')
+        interfaces = {name: Interface.objects.get(name=name) for name in ('Interface 2', 'Interface 3')}
+        IPAddress.objects.bulk_create((
+            IPAddress(address='192.0.2.1/24', assigned_object=interfaces['Interface 2']),
+            IPAddress(address='192.0.2.2/24', assigned_object=interfaces['Interface 2']),
+            IPAddress(address='192.0.2.3/24', assigned_object=interfaces['Interface 3']),
+        ))
+        export_template = ExportTemplate.objects.create(
+            name='Interfaces', template_code='{% for interface in queryset %}{{ interface.name }},{% endfor %}'
+        )
+        export_template.object_types.set([ObjectType.objects.get_for_model(Interface)])
+        url = f'{self._get_list_url()}?ordering=-count_ipaddresses'
+
+        # The count's source isn't a valid ordering field
+        response = self.client.get(f'{self._get_list_url()}?ordering=-_count_ipaddresses', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(
+            [row['name'] for row in response.data['results']], ['Interface 1', 'Interface 2', 'Interface 3']
+        )
+
+        # Responses without the count annotate it for the ordering alone
+        for params in ('', '&fields=id,name,count_ipaddresses', '&brief=1', '&fields=id,name', '&export=Interfaces'):
+            with self.subTest(params=params):
+                response = self.client.get(url + params, **self.header)
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                if 'export' in params:
+                    self.assertEqual(response.content.decode(), 'Interface 2,Interface 3,Interface 1,')
+                else:
+                    self.assertEqual(
+                        [row['name'] for row in response.data['results']],
+                        ['Interface 2', 'Interface 3', 'Interface 1'],
+                    )
+                    self.assertEqual(
+                        'count_ipaddresses' in response.data['results'][0],
+                        params in ('', '&fields=id,name,count_ipaddresses'),
+                    )
 
     def test_bulk_delete_child_interfaces(self):
         interface1 = Interface.objects.get(name='Interface 1')
@@ -5091,7 +5389,7 @@ class InterfaceTestCase(Mixins.FieldPrefetchMixin, Mixins.ComponentTraceMixin, A
         self.assertNotIn('"ipam_fhrpgroupassignment"', count_sql)
 
 
-class FrontPortTestCase(APIViewTestCases.APIViewTestCase):
+class FrontPortTestCase(Mixins.LinkPeersMixin, APIViewTestCases.APIViewTestCase):
     model = FrontPort
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -5213,7 +5511,7 @@ class FrontPortTestCase(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
 
-class RearPortTestCase(APIViewTestCases.APIViewTestCase):
+class RearPortTestCase(Mixins.LinkPeersMixin, APIViewTestCases.APIViewTestCase):
     model = RearPort
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -5861,6 +6159,46 @@ class CableTestCase(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+    def test_list_objects_terminations_query_count(self):
+        """
+        Listing cables loads their terminating objects, and those objects' devices and cables, with the same number
+        of queries however many cables are listed.
+        """
+        self.add_permissions('dcim.view_cable')
+
+        def check_results(cables, results):
+            self.assertEqual(len(results), len(cables))
+            for result in results:
+                for termination in (*result['a_terminations'], *result['b_terminations']):
+                    self.assertEqual(termination['object']['cable']['id'], result['id'])
+                    self.assertIn(termination['object']['device']['name'], ('Device 1', 'Device 2'))
+
+        assert_list_query_count_is_constant(
+            self,
+            self._get_list_url(),
+            lambda cables: {'id': [cable.pk for cable in cables]},
+            list(Cable.objects.order_by('pk')[:3]),
+            check_results,
+        )
+
+    def test_terminations_prefetch_leaves_shared_queryset_unchanged(self):
+        """
+        CableTerminationsPrefetch, which is shared across requests, gives Django a new queryset to add routing hints
+        to, and the prefetched terminations use the FETCH_PEERS fetch mode.
+        """
+        cable_prefetch = CableTerminationsPrefetch('terminations')
+        cables = list(Cable.objects.all())
+        prefetch_related_objects(cables, cable_prefetch)
+        self.assertEqual(cable_prefetch.queryset._hints, {})
+        self.assertIs(cables[0].terminations.all()[0]._state.fetch_mode, FETCH_PEERS)
+
+        # The two-level lookup used by the port viewsets
+        port_prefetch = CableTerminationsPrefetch()
+        interfaces = list(Interface.objects.filter(cable__isnull=False))
+        prefetch_related_objects(interfaces, port_prefetch)
+        self.assertEqual(port_prefetch.queryset._hints, {})
+        self.assertIs(interfaces[0].cable.terminations.all()[0]._state.fetch_mode, FETCH_PEERS)
+
     def test_repeated_put_does_not_accumulate_paths(self):
         """
         Repeating an identical PUT must leave the cable with the two paths its terminations trace.
@@ -6235,6 +6573,27 @@ class CableTerminationTestCase(
         for cable in cables:
             cable.save()
 
+    def test_list_objects_query_count(self):
+        """
+        Listing cable terminations loads their terminating objects, and those objects' devices and cables, with the
+        same number of queries however many terminations are listed.
+        """
+        self.add_permissions('dcim.view_cabletermination')
+
+        def check_results(cables, results):
+            self.assertEqual(len(results), 2 * len(cables))
+            for result in results:
+                self.assertEqual(result['termination']['cable']['id'], result['cable'])
+                self.assertIn(result['termination']['device']['name'], ('Device 1', 'Device 2'))
+
+        assert_list_query_count_is_constant(
+            self,
+            self._get_list_url(),
+            lambda cables: {'cable_id': [cable.pk for cable in cables]},
+            list(Cable.objects.order_by('pk')[:3]),
+            check_results,
+        )
+
 
 class ConnectedDeviceTestCase(APITestCase):
 
@@ -6374,6 +6733,29 @@ class VirtualChassisTestCase(APIViewTestCases.APIViewTestCase):
         member.refresh_from_db()
         self.assertEqual(member.virtual_chassis.name, 'Virtual Chassis 1')
 
+    @tag('regression')  # Ref: #23486
+    def test_create_with_master_records_prechange_data(self):
+        self.add_permissions('dcim.add_virtualchassis')
+        master = Device.objects.get(name='Device 10')
+
+        data = {'name': 'Virtual Chassis 4', 'master': master.pk}
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+
+        master.refresh_from_db()
+        self.assertEqual(master.virtual_chassis.pk, response.data['id'])
+        self.assertEqual(master.vc_position, 1)
+
+        change = ObjectChange.objects.get(
+            changed_object_type=ContentType.objects.get_for_model(Device),
+            changed_object_id=master.pk,
+        )
+        self.assertEqual(change.action, ObjectChangeActionChoices.ACTION_UPDATE)
+        self.assertIsNone(change.prechange_data['virtual_chassis'])
+        self.assertIsNone(change.prechange_data['vc_position'])
+        self.assertEqual(change.postchange_data['virtual_chassis'], response.data['id'])
+        self.assertEqual(change.postchange_data['vc_position'], 1)
+
 
 class PowerPanelTestCase(APIViewTestCases.APIViewTestCase):
     model = PowerPanel
@@ -6428,7 +6810,7 @@ class PowerPanelTestCase(APIViewTestCases.APIViewTestCase):
         }
 
 
-class PowerFeedTestCase(APIViewTestCases.APIViewTestCase):
+class PowerFeedTestCase(Mixins.LinkPeersMixin, APIViewTestCases.APIViewTestCase):
     model = PowerFeed
     brief_fields = ['_occupied', 'cable', 'description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -6437,6 +6819,7 @@ class PowerFeedTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_invalid_data = {
         'status': 'not-a-valid-status',
     }
+    peer_termination_type = PowerPort
     user_permissions = ('dcim.view_powerpanel', )
 
     @classmethod

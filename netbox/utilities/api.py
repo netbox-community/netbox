@@ -251,7 +251,7 @@ def get_annotations_for_serializer(serializer_class, fields=None, omit=None, exc
 
     annotations = {}
     for field_name, field in serializer_class._declared_fields.items():
-        if field_name in effective_fields and field_name not in exclude and type(field) is RelatedObjectCountField:
+        if field_name in effective_fields and field_name not in exclude and isinstance(field, RelatedObjectCountField):
             related_field = getattr(model, field.relation).field
             if isinstance(related_field, GenericRelation):
                 count = count_related(

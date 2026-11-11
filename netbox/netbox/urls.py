@@ -71,7 +71,7 @@ _patterns = [
     path('graphql/', NetBoxGraphQLView.as_view(schema=schema), name='graphql'),
     path('graphql/workers/<str:name>.js', GraphiQLWorkerView.as_view(), name='graphiql_worker'),
 
-    # Serving static media in Django to pipe it through LoginRequiredMiddleware
+    # Serve uploaded media via Django to enforce authentication and permissions
     path('media/<path:path>', MediaView.as_view(), name='media'),
     path('media-failure/', StaticMediaFailureView.as_view(), name='media_failure'),
 

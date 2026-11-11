@@ -12,6 +12,7 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import Storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
+from django.db.models import FETCH_PEERS
 from django.forms import ValidationError
 from django.test import TestCase, override_settings, tag
 from django.test.utils import CaptureQueriesContext
@@ -1343,11 +1344,13 @@ class ExportTemplateContextTestCase(TestCase):
         self.assertIs(ctx['dcim']['Device'], Device)
 
     def test_get_context_includes_queryset(self):
+        Site.objects.create(name='Site 1', slug='site-1')
         et = ExportTemplate(name='test', template_code='test')
         qs = Site.objects.all()
         ctx = et.get_context(queryset=qs)
 
-        self.assertIs(ctx['queryset'], qs)
+        self.assertQuerySetEqual(ctx['queryset'], qs)
+        self.assertIs(ctx['queryset'][0]._state.fetch_mode, FETCH_PEERS)
 
     def test_get_context_applies_extra_context(self):
         et = ExportTemplate(name='test', template_code='test')
@@ -1580,6 +1583,35 @@ class ExportTemplateRenderTestCase(TestCase):
         queryset = Site.objects.order_by('name')
         output = t.render(queryset=queryset)
         self.assertEqual(output, 'Site A\nSite B\nSite C\n')
+
+    def test_render_batches_related_object_queries(self):
+        """
+        Each relation the template reads (including chained relations) costs one query for the whole queryset.
+        """
+        tenant_group = TenantGroup.objects.create(name='Tenant Group 1', slug='tenant-group-1')
+        for i, site in enumerate(Site.objects.order_by('name'), start=1):
+            site.tenant = Tenant.objects.create(name=f'Tenant {i}', slug=f'tenant-{i}', group=tenant_group)
+            site.save()
+
+        baseline = ExportTemplate(
+            name='names',
+            template_code='{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
+        )
+        t = ExportTemplate(
+            name='related',
+            template_code='{% for obj in queryset %}{{ obj }},{{ obj.tenant }},{{ obj.tenant.group }}\n{% endfor %}',
+        )
+        with CaptureQueriesContext(connection) as baseline_queries:
+            baseline.render(queryset=Site.objects.order_by('name'))
+        with CaptureQueriesContext(connection) as queries:
+            output = t.render(queryset=Site.objects.order_by('name'))
+
+        self.assertEqual(
+            output,
+            'Site A,Tenant 1,Tenant Group 1\nSite B,Tenant 2,Tenant Group 1\nSite C,Tenant 3,Tenant Group 1\n'
+        )
+        # One query for the tenants and one for their group
+        self.assertEqual(len(queries), len(baseline_queries) + 2)
 
     def test_render_to_response_for_queryset(self):
         t = ExportTemplate(

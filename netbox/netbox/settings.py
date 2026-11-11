@@ -531,6 +531,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
     'netbox.middleware.RemoteUserMiddleware',
+    'netbox.middleware.LoginRequiredMiddleware',
     'netbox.middleware.CoreMiddleware',
     'netbox.middleware.MaintenanceModeMiddleware',
     'netbox.middleware.SocialAuthExceptionMiddleware',
@@ -727,6 +728,7 @@ NETBOX_COPILOT_URL = 'https://static.copilot.netboxlabs.ai/load.js'
 SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.social_details',
     'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
     'social_core.pipeline.social_auth.social_user',
     'social_core.pipeline.user.get_username',
     'social_core.pipeline.user.create_user',
@@ -747,6 +749,13 @@ SOCIAL_AUTH_RAISE_EXCEPTIONS = DEBUG
 for name in dir(configuration):
     if name.startswith('SOCIAL_AUTH_'):
         globals()[name] = getattr(configuration, name)
+
+# Warn if a custom pipeline omits the step which enforces allowlists
+if 'social_core.pipeline.social_auth.auth_allowed' not in SOCIAL_AUTH_PIPELINE:
+    warnings.warn(
+        "SOCIAL_AUTH_PIPELINE does not include social_core.pipeline.social_auth.auth_allowed; allowlist settings "
+        "such as WHITELISTED_EMAILS and WHITELISTED_DOMAINS will not be enforced."
+    )
 
 # Force usage of PostgreSQL's JSONB field for extra data
 SOCIAL_AUTH_JSONFIELD_ENABLED = True
@@ -783,7 +792,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
-        'rest_framework.filters.OrderingFilter',
+        'netbox.api.filters.OrderingFilter',
     ),
     'DEFAULT_METADATA_CLASS': 'netbox.api.metadata.BulkOperationMetadata',
     'DEFAULT_PAGINATION_CLASS': 'netbox.api.pagination.NetBoxPagination',

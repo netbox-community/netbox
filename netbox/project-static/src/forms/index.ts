@@ -3,6 +3,7 @@ import { initFormElements } from './elements';
 import { initFilterModifiers } from './filterModifiers';
 import { initPortMappings } from './portMappings';
 import { initSpeedSelector } from './speedSelector';
+import { initSubmissionGuard } from './submissionGuard';
 
 export function initForms(): void {
   for (const func of [
@@ -11,6 +12,7 @@ export function initForms(): void {
     initFilterModifiers,
     initClearField,
     initPortMappings,
+    initSubmissionGuard,
   ]) {
     func();
   }

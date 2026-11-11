@@ -47,6 +47,26 @@ A URL pattern has three components:
 
 This makes our view accessible at the URL `/plugins/animal-sounds/random/`. (Remember, our `AnimalSoundsConfig` class sets our plugin's base URL to `animal-sounds`.) Viewing this URL should show the base NetBox template with our custom content inside it.
 
+### Authentication
+
+!!! info "This behavior was introduced in NetBox v4.8."
+
+When [`LOGIN_REQUIRED`](../../configuration/security.md#login_required) is enabled (the default), NetBox requires authentication for every view, including those provided by plugins. An unauthenticated request is redirected to the login page. REST API views are exempt, as they authenticate requests themselves.
+
+A view intended for anonymous access, such as a health check or an inbound webhook receiver, must be marked with Django's [`login_not_required`](https://docs.djangoproject.com/en/stable/ref/decorators/#django.contrib.auth.decorators.login_not_required) decorator. A class-based view can be wrapped where its URL is registered. A view which accepts `POST` requests from external clients must also be exempted from CSRF protection with [`csrf_exempt`](https://docs.djangoproject.com/en/stable/ref/csrf/#django.views.decorators.csrf.csrf_exempt), and should authenticate those requests by other means (for example, by validating a webhook signature).
+
+```python
+from django.contrib.auth.decorators import login_not_required
+from django.urls import path
+from django.views.decorators.csrf import csrf_exempt
+from . import views
+
+urlpatterns = [
+    path('health/', login_not_required(views.HealthCheckView.as_view()), name='health_check'),
+    path('webhook/', csrf_exempt(login_not_required(views.WebhookReceiverView.as_view())), name='webhook_receiver'),
+]
+```
+
 ## NetBox Model Views
 
 NetBox provides several generic view classes and additional helper functions, to simplify the implementation of plugin logic. These are recommended to be used whenever possible to keep the maintenance overhead of plugins low.
