@@ -1,7 +1,10 @@
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
+from core.models import ObjectType
 from dcim.models import Site
+from extras.choices import CustomFieldTypeChoices
+from extras.models import CustomField
 from tenancy.choices import ContactPriorityChoices
 from tenancy.forms import ContactBulkEditForm
 from tenancy.models import *
@@ -136,7 +139,10 @@ class TenantBulkEditContactsTestCase(TestCase):
             'tenancy.add_contactassignment',
         )
         # An existing assignment should not be duplicated
-        ContactAssignment.objects.create(object=self.tenants[0], contact=self.contacts[0], role=self.roles[0])
+        ContactAssignment.objects.create(
+            object=self.tenants[0], contact=self.contacts[0], role=self.roles[0],
+            priority=ContactPriorityChoices.PRIORITY_PRIMARY,
+        )
 
         response = self._post(
             add_contacts=[c.pk for c in self.contacts],
@@ -151,7 +157,92 @@ class TenantBulkEditContactsTestCase(TestCase):
             self.assertEqual(
                 set(assignments.values_list('contact', flat=True)), {c.pk for c in self.contacts}
             )
-        self.assertEqual(ContactAssignment.objects.filter(priority=ContactPriorityChoices.PRIORITY_PRIMARY).count(), 3)
+        self.assertEqual(ContactAssignment.objects.filter(priority=ContactPriorityChoices.PRIORITY_PRIMARY).count(), 4)
+
+    def test_add_contacts_without_priority(self):
+        self.add_permissions(
+            'tenancy.view_tenant', 'tenancy.change_tenant', 'tenancy.view_contact', 'tenancy.view_contactrole',
+            'tenancy.add_contactassignment',
+        )
+        response = self._post(add_contacts=[self.contacts[0].pk], contact_role=self.roles[0].pk)
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(ContactAssignment.objects.filter(contact=self.contacts[0], priority__isnull=True).count(), 2)
+
+    def test_add_contacts_updates_existing_priority(self):
+        self.add_permissions(
+            'tenancy.view_tenant', 'tenancy.change_tenant', 'tenancy.view_contact', 'tenancy.view_contactrole',
+            'tenancy.add_contactassignment', 'tenancy.change_contactassignment',
+        )
+        assignment = ContactAssignment.objects.create(
+            object=self.tenants[0], contact=self.contacts[0], role=self.roles[0]
+        )
+
+        response = self._post(
+            add_contacts=[self.contacts[0].pk],
+            contact_role=self.roles[0].pk,
+            contact_priority=ContactPriorityChoices.PRIORITY_PRIMARY,
+        )
+        self.assertHttpStatus(response, 302)
+        assignment.refresh_from_db()
+        self.assertEqual(assignment.priority, ContactPriorityChoices.PRIORITY_PRIMARY)
+        self.assertEqual(ContactAssignment.objects.count(), 2)
+
+    def test_add_contacts_updates_existing_priority_without_permission(self):
+        self.add_permissions(
+            'tenancy.view_tenant', 'tenancy.change_tenant', 'tenancy.view_contact', 'tenancy.view_contactrole',
+            'tenancy.add_contactassignment',
+        )
+        assignment = ContactAssignment.objects.create(
+            object=self.tenants[0], contact=self.contacts[0], role=self.roles[0]
+        )
+
+        response = self._post(
+            add_contacts=[self.contacts[0].pk],
+            contact_role=self.roles[0].pk,
+            contact_priority=ContactPriorityChoices.PRIORITY_PRIMARY,
+        )
+        self.assertHttpStatus(response, 200)
+        assignment.refresh_from_db()
+        self.assertIsNone(assignment.priority)
+        self.assertEqual(ContactAssignment.objects.count(), 1)
+
+    def test_add_contacts_required_custom_field(self):
+        self.add_permissions(
+            'tenancy.view_tenant', 'tenancy.change_tenant', 'tenancy.view_contact', 'tenancy.view_contactrole',
+            'tenancy.add_contactassignment',
+        )
+        cf = CustomField.objects.create(name='cf1', type=CustomFieldTypeChoices.TYPE_TEXT, required=True)
+        cf.object_types.set([ObjectType.objects.get_for_model(ContactAssignment)])
+
+        # A required custom field without a default cannot be satisfied
+        response = self._post(add_contacts=[self.contacts[0].pk], contact_role=self.roles[0].pk)
+        self.assertHttpStatus(response, 200)
+        self.assertFalse(ContactAssignment.objects.exists())
+
+        # The default value is applied to new assignments
+        cf.default = 'foo'
+        cf.save()
+        response = self._post(add_contacts=[self.contacts[0].pk], contact_role=self.roles[0].pk)
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(ContactAssignment.objects.filter(custom_field_data__cf1='foo').count(), 2)
+
+    def test_replace_contact_role(self):
+        self.add_permissions(
+            'tenancy.view_tenant', 'tenancy.change_tenant', 'tenancy.view_contact', 'tenancy.view_contactrole',
+            'tenancy.add_contactassignment', 'tenancy.delete_contactassignment',
+        )
+        for tenant in self.tenants:
+            ContactAssignment.objects.create(object=tenant, contact=self.contacts[0], role=self.roles[0])
+
+        # Removing and re-adding a contact in one edit replaces its role
+        response = self._post(
+            add_contacts=[self.contacts[0].pk],
+            contact_role=self.roles[1].pk,
+            remove_contacts=[self.contacts[0].pk],
+        )
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(ContactAssignment.objects.filter(contact=self.contacts[0], role=self.roles[1]).count(), 2)
+        self.assertFalse(ContactAssignment.objects.filter(role=self.roles[0]).exists())
 
     def test_add_contacts_requires_role(self):
         self.add_permissions(

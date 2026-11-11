@@ -48,7 +48,8 @@ class NetBoxModelBulkEditForm(ChangelogMessageMixin, CustomFieldsMixin, BulkEdit
     add_contacts = DynamicModelMultipleChoiceField(
         label=_('Add contacts'),
         queryset=Contact.objects.all(),
-        required=False
+        required=False,
+        help_text=_('Existing assignments with the selected role are updated to the selected priority, if any')
     )
     contact_role = DynamicModelChoiceField(
         label=_('Role'),

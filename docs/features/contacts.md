@@ -47,6 +47,6 @@ The following models support the assignment of contacts:
 
 ### Bulk Assignment
 
-Contacts can be assigned to or removed from many objects at once using the bulk edit form of any supported object type. When adding contacts, a role (and optionally a priority) must be selected to apply to each new assignment. Removing a contact deletes all of its assignments to the selected objects, regardless of role. Removals are processed before additions, so a contact's role can be replaced in a single operation.
+Contacts can be assigned to or removed from many objects at once using the bulk edit form of any supported object type. When adding contacts, a role (and optionally a priority) must be selected to apply to each new assignment. If a contact is already assigned to an object with the selected role, no duplicate is created; instead, the selected priority (if any) is applied to the existing assignment. Removing a contact deletes all of its assignments to the selected objects, regardless of role. Removals are processed before additions, so a contact's role can be replaced in a single operation.
 
 When importing contact assignments in bulk, contacts are matched by name by default. Where contact names are not unique, use the `contact.id` column header to reference contacts by their numeric ID instead.
