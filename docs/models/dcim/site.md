@@ -61,7 +61,7 @@ X = longitude × (π / 180) × 6378137
 Y = ln(tan(π / 4 + latitude × π / 360)) × 6378137
 ```
 
-where `ln` is the natural logarithm. Because Web Mercator is undefined at the poles, latitudes beyond ±85.051129° are clamped to that bound.
+where `ln` is the natural logarithm. Because Web Mercator is undefined at the poles, latitudes beyond ±85.05113° are clamped to that bound.
 
 !!! note
     Web Mercator (EPSG:3857) differs from the ellipsoidal World Mercator projection (EPSG:3395). Ensure the target system expects EPSG:3857 coordinates.

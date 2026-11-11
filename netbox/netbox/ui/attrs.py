@@ -169,19 +169,22 @@ class NumericAttr(ObjectAttribute):
     Parameters:
          unit_accessor (str): Accessor for the unit of measurement to display alongside the value (if any)
          copy_button (bool): Set to True to include a copy-to-clipboard button
+         localize (bool): Set to False to render the value without locale-specific formatting
     """
     template_name = 'ui/attrs/numeric.html'
 
-    def __init__(self, *args, unit_accessor=None, copy_button=False, **kwargs):
+    def __init__(self, *args, unit_accessor=None, copy_button=False, localize=True, **kwargs):
         super().__init__(*args, **kwargs)
         self.unit_accessor = unit_accessor
         self.copy_button = copy_button
+        self.localize = localize
 
     def get_context(self, obj, attr, value, context):
         unit = resolve_attr_path(obj, self.unit_accessor) if self.unit_accessor else None
         return {
             'unit': unit,
             'copy_button': self.copy_button,
+            'localize': self.localize,
         }
 
 

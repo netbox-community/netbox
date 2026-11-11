@@ -147,11 +147,11 @@ class WebMercatorTestCase(TestCase):
     def test_web_mercator_coordinates_at_poles(self):
         site = Site(latitude=Decimal('90'), longitude=Decimal('180'))
         self.assertEqual(site.mercator_x, 20037508.34)
-        self.assertEqual(site.mercator_y, 20037508.63)
+        self.assertEqual(site.mercator_y, 20037508.34)
 
         site = Site(latitude=Decimal('-90'), longitude=Decimal('-180'))
         self.assertEqual(site.mercator_x, -20037508.34)
-        self.assertEqual(site.mercator_y, -20037508.63)
+        self.assertEqual(site.mercator_y, -20037508.34)
 
 
 class LocationTestCase(TestCase):

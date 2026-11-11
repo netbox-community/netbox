@@ -15,7 +15,7 @@ DEVICETYPE_IMAGE_FORMATS = 'image/bmp,image/gif,image/jpeg,image/png,image/tiff,
 # WGS84 semi-major axis (meters), used as the sphere radius for Web Mercator (EPSG:3857)
 WEB_MERCATOR_EARTH_RADIUS = 6378137
 # Latitude bounds of Web Mercator, at which the projection is square
-WEB_MERCATOR_MAX_LATITUDE = 85.051129
+WEB_MERCATOR_MAX_LATITUDE = 85.05112877980659
 
 
 #
