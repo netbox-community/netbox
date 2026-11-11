@@ -1,4 +1,6 @@
+import hashlib
 import json
+import logging
 import re
 from types import SimpleNamespace
 from unittest import mock, skipIf
@@ -13,6 +15,7 @@ from django.test import override_settings
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
+from graphql import parse
 from rest_framework import status
 from strawberry.extensions import QueryDepthLimiter
 from strawberry.schema.config import StrawberryConfig
@@ -38,6 +41,7 @@ from dcim.models import (
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField, ExportTemplate, JournalEntry, TableConfig, Tag
 from ipam.models import ASN, RIR, VLAN, Aggregate, IPAddress, Prefix
+from netbox.graphql.extensions import normalize_query
 from netbox.graphql.pagination import apply_distinct_window_pagination
 from netbox.graphql.scalars import BigInt, BigIntScalar
 from netbox.graphql.schema import Query, get_schema_extensions, schema
@@ -1510,6 +1514,133 @@ class GraphQLAPITestCase(APITestCase):
         data = json.loads(response.content)
         self.assertIn('errors', data)
         self.assertEqual(data['errors'][0]['message'], 'Cannot specify both `start` and `offset` in pagination.')
+
+
+class GraphQLQueryLoggerTestCase(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        Site.objects.create(name='Site 1', slug='site-1')
+
+    def setUp(self):
+        super().setUp()
+        self.add_permissions('dcim.view_site')
+
+    def _post(self, data, **kwargs):
+        return self.client.post(reverse('graphql'), data=data, format='json', **kwargs)
+
+    def test_operation_logged(self):
+        """
+        Each operation is logged with the user, token, client, normalized query and result summary.
+        """
+        query = (
+            'query SiteNames($limit: Int) { '
+            'site_list(filters: {name: {exact: "Site 1"}}, pagination: {limit: $limit}) { name } }'
+        )
+        with self.assertLogs('netbox.graphql.query', level='INFO') as cm:
+            response = self._post({'query': query, 'variables': {'limit': 5}}, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(len(cm.records), 1)
+        data = cm.records[0].graphql
+        expected_query = (
+            'query SiteNames($limit:Int){site_list(filters:{name:{exact:""}}pagination:{limit:$limit}){name}}'
+        )
+        self.assertEqual(data['user'], self.user.username)
+        self.assertEqual(data['token_id'], self.token.pk)
+        self.assertEqual(data['client_ip'], '127.0.0.1')
+        self.assertEqual(data['operation_name'], 'SiteNames')
+        self.assertEqual(data['query'], expected_query)
+        self.assertEqual(data['query_hash'], hashlib.sha256(expected_query.encode()).hexdigest())
+        self.assertEqual(data['variables'], {'limit': 5})
+        self.assertEqual(data['error_count'], 0)
+        self.assertEqual(data['response_size'], len(b'{"site_list": [{"name": "Site 1"}]}'))
+        self.assertGreaterEqual(data['duration_ms'], 0)
+        self.assertIn('operation_name=SiteNames', cm.output[0])
+        self.assertNotIn('Site 1', cm.output[0])
+
+    def test_session_authentication_has_no_token(self):
+        """
+        Operations from a session-authenticated user are logged without a token ID.
+        """
+        self.client.force_login(self.user)
+        with self.assertLogs('netbox.graphql.query', level='INFO') as cm:
+            self._post({'query': '{ site_list { name } }'})
+
+        data = cm.records[0].graphql
+        self.assertEqual(data['user'], self.user.username)
+        self.assertIsNone(data['token_id'])
+        self.assertIsNone(data['operation_name'])
+
+    def test_errors_counted(self):
+        """
+        Errors raised before execution (e.g. validation failures) are counted.
+        """
+        with self.assertLogs('netbox.graphql.query', level='INFO') as cm:
+            self._post({'query': '{ site_list { name invalid_field } }'}, **self.header)
+
+        data = cm.records[0].graphql
+        self.assertEqual(data['error_count'], 1)
+        self.assertEqual(data['response_size'], 0)
+        self.assertEqual(data['query'], '{site_list{name invalid_field}}')
+
+    def test_unparseable_query(self):
+        """
+        A query which can't be parsed is logged without a normalized query.
+        """
+        with self.assertLogs('netbox.graphql.query', level='INFO') as cm:
+            self._post({'query': '{ site_list {'}, **self.header)
+
+        data = cm.records[0].graphql
+        self.assertEqual(data['error_count'], 1)
+        self.assertIsNone(data['query'])
+        self.assertIsNone(data['query_hash'])
+
+    def test_disabled_logger_does_nothing(self):
+        """
+        The extension does no work when the logger isn't enabled for INFO messages.
+        """
+        logger = logging.getLogger('netbox.graphql.query')
+        level = logger.level
+        logger.setLevel(logging.WARNING)
+        try:
+            with mock.patch('netbox.graphql.extensions.normalize_query') as normalize_query:
+                response = self._post({'query': '{ site_list { name } }'}, **self.header)
+        finally:
+            logger.setLevel(level)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        normalize_query.assert_not_called()
+
+
+class NormalizeQueryTestCase(TestCase):
+
+    def test_literals_replaced(self):
+        query = (
+            '{ site_list(filters: {name: {exact: "Site 1"}, id: {in_list: [1, 2, 3]}, status: STATUS_ACTIVE}, '
+            'pagination: {limit: 10, offset: 2}) { id } }'
+        )
+        self.assertEqual(
+            normalize_query(parse(query)),
+            '{site_list(filters:{name:{exact:""}id:{in_list:[]}status:STATUS_ACTIVE}'
+            'pagination:{limit:0 offset:0}){id}}',
+        )
+
+    def test_values_do_not_affect_shape(self):
+        query_a = '{ site_list(filters: {name: {exact: "Site 1"}, id: {in_list: [1, 2, 3]}}) { id } }'
+        query_b = '{ site_list(filters: {name: {exact: "Site 2"}, id: {in_list: [4]}}) { id } }'
+        self.assertEqual(normalize_query(parse(query_a)), normalize_query(parse(query_b)))
+
+    def test_structure_affects_shape(self):
+        query_a = '{ site_list(filters: {name: {exact: "Site 1"}}) { id } }'
+        query_b = '{ site_list(filters: {slug: {exact: "Site 1"}}) { id } }'
+        self.assertNotEqual(normalize_query(parse(query_a)), normalize_query(parse(query_b)))
+
+    def test_lists_of_objects_kept(self):
+        query = '{ site_list(filters: {OR: [{name: {exact: "a"}}, {slug: {exact: "b"}}]}) { id } }'
+        self.assertEqual(
+            normalize_query(parse(query)),
+            '{site_list(filters:{OR:[{name:{exact:""}}{slug:{exact:""}}]}){id}}',
+        )
 
 
 class GraphQLDeferredColumnTestCase(APITestCase):

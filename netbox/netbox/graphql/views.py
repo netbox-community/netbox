@@ -30,6 +30,7 @@ class NetBoxGraphQLView(GraphQLView):
                 auth_info = authenticator.authenticate(request)
                 if auth_info is not None:
                     request.user = auth_info[0]  # User object
+                    request.auth = auth_info[1]  # Token object
             except AuthenticationFailed as exc:
                 return HttpResponseForbidden(exc.detail)
 
