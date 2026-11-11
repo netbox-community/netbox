@@ -8,6 +8,7 @@ from strawberry.django.views import GraphQLView
 
 from netbox.api.authentication import TokenAuthentication
 from netbox.config import get_config
+from netbox.graphql.extensions import log_graphql_queries
 
 
 class NetBoxGraphQLView(GraphQLView):
@@ -40,4 +41,7 @@ class NetBoxGraphQLView(GraphQLView):
                 return redirect_to_login(reverse('graphql'))
             return HttpResponseForbidden("No credentials provided.")
 
-        return super().dispatch(request, *args, **kwargs)
+        response = super().dispatch(request, *args, **kwargs)
+        log_graphql_queries(request, response)
+
+        return response
