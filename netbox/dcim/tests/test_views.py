@@ -6971,3 +6971,58 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertHttpStatus(response, 200)
         self.assertIn(b'quick-add-object', response.content)
         self.assertEqual(initial_count + 1, self._get_queryset().count())
+
+
+class MACPrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = MACPrefix
+
+    @classmethod
+    def setUpTestData(cls):
+        mac_prefixes = (
+            MACPrefix.objects.create(prefix='BC:24:11:00:00:00', prefix_length=24, name='Prefix 1'),
+            MACPrefix.objects.create(prefix='BC:24:12:00:00:00', prefix_length=24, name='Prefix 2'),
+            MACPrefix.objects.create(prefix='BC:24:13:00:00:00', prefix_length=24, name='Prefix 3'),
+        )
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'prefix': EUI('BC:24:14:50:00:00'),
+            'prefix_length': 28,
+            'name': 'Prefix X',
+            'enforce_unique': True,
+            'description': 'New MAC prefix',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "prefix,prefix_length,name",
+            "BC:24:15:00:00:00,24,Prefix 4",
+            "BC:24:16:00:00:00,28,Prefix 5",
+            "BC:24:17:00:00:00,36,Prefix 6",
+        )
+
+        cls.csv_update_data = (
+            "id,name,enforce_unique",
+            f"{mac_prefixes[0].pk},Prefix 7,true",
+            f"{mac_prefixes[1].pk},Prefix 8,true",
+            f"{mac_prefixes[2].pk},Prefix 9,false",
+        )
+
+        cls.bulk_edit_data = {
+            'name': 'New name',
+            'enforce_unique': True,
+            'description': 'New description',
+        }
+
+    def test_mac_addresses_panel(self):
+        """
+        The MAC prefix page offers to add the first available MAC address within the prefix.
+        """
+        self.add_permissions('dcim.view_macprefix', 'dcim.view_macaddress', 'dcim.add_macaddress')
+        mac_prefix = MACPrefix.objects.get(name='Prefix 1')
+        MACAddress.objects.create(mac_address='BC:24:11:00:00:00')
+
+        response = self.client.get(mac_prefix.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'mac_address=BC%3A24%3A11%3A00%3A00%3A01')

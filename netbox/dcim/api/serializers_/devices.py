@@ -8,7 +8,7 @@ from rest_framework import serializers
 
 from dcim.choices import *
 from dcim.constants import MACADDRESS_ASSIGNMENT_MODELS
-from dcim.models import Device, DeviceBay, MACAddress, Module, VirtualDeviceContext
+from dcim.models import Device, DeviceBay, MACAddress, MACPrefix, Module, VirtualDeviceContext
 from dcim.utils import get_module_bay_positions, resolve_module_placeholder
 from extras.api.serializers_.configtemplates import ConfigTemplateSerializer
 from ipam.api.serializers_.ip import IPAddressSerializer
@@ -27,8 +27,10 @@ from .sites import LocationSerializer, SiteSerializer
 from .virtualchassis import VirtualChassisSerializer
 
 __all__ = (
+    'AvailableMACAddressSerializer',
     'DeviceSerializer',
     'MACAddressSerializer',
+    'MACPrefixSerializer',
     'ModuleSerializer',
     'VirtualDeviceContextSerializer',
 )
@@ -359,3 +361,29 @@ class MACAddressSerializer(PrimaryModelSerializer):
             'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'mac_address', 'description')
+
+
+class MACPrefixSerializer(PrimaryModelSerializer):
+    mac_address_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = MACPrefix
+        fields = [
+            'id', 'url', 'display_url', 'display', 'prefix', 'prefix_length', 'name', 'enforce_unique',
+            'mac_address_count', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created',
+            'last_updated',
+        ]
+        brief_fields = ('id', 'url', 'display', 'prefix', 'prefix_length', 'name', 'description')
+
+
+class AvailableMACAddressSerializer(serializers.Serializer):
+    """
+    Representation of a MAC address which does not exist in the database.
+    """
+    mac_address = serializers.CharField(read_only=True)
+    description = serializers.CharField(required=False)
+
+    def to_representation(self, instance):
+        return {
+            'mac_address': str(instance),
+        }

@@ -79,6 +79,7 @@ __all__ = (
     'InventoryItemTemplateFilterSet',
     'LocationFilterSet',
     'MACAddressFilterSet',
+    'MACPrefixFilterSet',
     'ManufacturerFilterSet',
     'ModuleBayFilterSet',
     'ModuleBayTemplateFilterSet',
@@ -2287,6 +2288,10 @@ class MACAddressFilterSet(PrimaryModelFilterSet):
         method='filter_primary',
         label=_('Is primary'),
     )
+    mac_prefix_id = MultiValueBigNumberFilter(
+        method='filter_mac_prefix',
+        label=_('MAC prefix (ID)'),
+    )
 
     class Meta:
         model = MACAddress
@@ -2343,6 +2348,46 @@ class MACAddressFilterSet(PrimaryModelFilterSet):
         if value:
             return queryset.filter(query)
         return queryset.exclude(query)
+
+    def filter_mac_prefix(self, queryset, name, value):
+        query = Q()
+        for mac_prefix in MACPrefix.objects.filter(pk__in=value):
+            query |= Q(mac_address__gte=mac_prefix.first_address, mac_address__lte=mac_prefix.last_address)
+        if not query:
+            return queryset.none()
+        return queryset.filter(query)
+
+
+@register_filterset
+class MACPrefixFilterSet(PrimaryModelFilterSet):
+    prefix = MultiValueMACAddressFilter()
+    contains = django_filters.CharFilter(
+        method='filter_contains',
+        label=_('Contains MAC address'),
+    )
+
+    class Meta:
+        model = MACPrefix
+        fields = ('id', 'prefix_length', 'name', 'enforce_unique', 'description')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(prefix__icontains=value) |
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
+        return queryset.filter(qs_filter)
+
+    def filter_contains(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        try:
+            mac_address = netaddr.EUI(value.strip(), version=48)
+        except (AddrFormatError, TypeError, ValueError):
+            return queryset.none()
+        return queryset.filter(prefix__lte=mac_address, _last_address__gte=mac_address)
 
 
 class CommonInterfaceFilterSet(django_filters.FilterSet):

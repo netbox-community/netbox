@@ -9170,3 +9170,70 @@ class MACAddressTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
         params = {'primary': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_mac_prefix(self):
+        mac_prefixes = (
+            MACPrefix.objects.create(prefix='00:00:00:01:00:00', prefix_length=32),
+            MACPrefix.objects.create(prefix='00:00:00:03:00:00', prefix_length=32),
+        )
+        params = {'mac_prefix_id': [mac_prefixes[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'mac_prefix_id': [mac_prefixes[0].pk, mac_prefixes[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+
+class MACPrefixTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
+    queryset = MACPrefix.objects.all()
+    filterset = MACPrefixFilterSet
+    ignore_fields = ('_last_address',)
+
+    @classmethod
+    def setUpTestData(cls):
+        MACPrefix.objects.create(
+            prefix='BC:24:11:00:00:00', prefix_length=24, name='Prefix 1', enforce_unique=True,
+            description='foobar1'
+        )
+        MACPrefix.objects.create(
+            prefix='BC:24:11:50:00:00', prefix_length=28, name='Prefix 2', description='foobar2'
+        )
+        MACPrefix.objects.create(
+            prefix='BC:24:12:00:00:00', prefix_length=36, name='Prefix 3', description='foobar3'
+        )
+
+    def test_q(self):
+        params = {'q': 'Prefix 1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'q': 'BC:24:11'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_prefix(self):
+        params = {'prefix': ['BC:24:11:00:00:00', 'bc-24-12-00-00-00']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_prefix_length(self):
+        params = {'prefix_length': [24, 28]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Prefix 1', 'Prefix 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_enforce_unique(self):
+        params = {'enforce_unique': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'enforce_unique': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_contains(self):
+        params = {'contains': 'BC:24:11:51:00:00'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'contains': 'BC:24:11:61:00:00'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'contains': 'BC:24:13:00:00:00'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {'contains': 'invalid'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)

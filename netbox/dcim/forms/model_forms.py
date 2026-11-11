@@ -73,6 +73,7 @@ __all__ = (
     'InventoryItemTemplateForm',
     'LocationForm',
     'MACAddressForm',
+    'MACPrefixForm',
     'ManufacturerForm',
     'ModuleBayForm',
     'ModuleBayTemplateForm',
@@ -2603,3 +2604,21 @@ class MACAddressForm(PrimaryModelForm):
             self.instance.assigned_object = self.cleaned_data[selected_objects[0]]
         else:
             self.instance.assigned_object = None
+
+
+class MACPrefixForm(PrimaryModelForm):
+    prefix = forms.CharField(
+        required=True,
+        label=_('Prefix'),
+        help_text=_('The first MAC address in the block (e.g. BC:24:11:00:00:00)')
+    )
+
+    fieldsets = (
+        FieldSet('prefix', 'prefix_length', 'name', 'enforce_unique', 'description', 'tags', name=_('MAC Prefix')),
+    )
+
+    class Meta:
+        model = MACPrefix
+        fields = [
+            'prefix', 'prefix_length', 'name', 'enforce_unique', 'description', 'owner', 'comments', 'tags',
+        ]

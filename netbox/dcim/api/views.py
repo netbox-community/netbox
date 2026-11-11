@@ -1,3 +1,5 @@
+from itertools import islice
+
 from django.contrib.contenttypes.prefetch import GenericPrefetch
 from django.db.models import FETCH_PEERS, Prefetch
 from django.http import Http404, HttpResponse
@@ -14,10 +16,12 @@ from dcim.constants import CABLE_TRACE_SVG_DEFAULT_WIDTH
 from dcim.models import *
 from dcim.svg import CableTraceSVG
 from extras.api.mixins import ConfigContextQuerySetMixin, RenderConfigMixin
+from ipam.api.views import AvailableObjectsView
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import StripCountAnnotationsPaginator
 from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
+from netbox.config import get_config
 from utilities.api import get_serializer_for_model
 from utilities.query import count_related
 from utilities.query_functions import CollateAsChar
@@ -601,6 +605,43 @@ class MACAddressViewSet(NetBoxModelViewSet):
     queryset = MACAddress.objects.all()
     serializer_class = serializers.MACAddressSerializer
     filterset_class = filtersets.MACAddressFilterSet
+
+
+class MACPrefixViewSet(NetBoxModelViewSet):
+    queryset = MACPrefix.objects.annotate_mac_address_count()
+    serializer_class = serializers.MACPrefixSerializer
+    filterset_class = filtersets.MACPrefixFilterSet
+
+
+class MACPrefixAvailableMACAddressesView(AvailableObjectsView):
+    queryset = MACAddress.objects.all()
+    read_serializer_class = serializers.AvailableMACAddressSerializer
+    write_serializer_class = serializers.AvailableMACAddressSerializer
+    advisory_lock_key = 'available-mac-addresses'
+
+    def get_parent(self, request, pk):
+        return get_object_or_404(MACPrefix.objects.restrict(request.user), pk=pk)
+
+    def get_available_objects(self, parent, limit=None):
+        # A prefix may contain millions of available MAC addresses, so always apply a limit
+        return list(islice(parent.iter_available_mac_addresses(), limit or get_config().PAGINATE_COUNT))
+
+    def prep_object_data(self, requested_objects, available_objects, parent):
+        for i, request_data in enumerate(requested_objects):
+            request_data['mac_address'] = str(available_objects[i])
+        return requested_objects
+
+    @extend_schema(methods=['get'], responses={200: serializers.AvailableMACAddressSerializer(many=True)})
+    def get(self, request, pk):
+        return super().get(request, pk)
+
+    @extend_schema(
+        methods=['post'],
+        responses={201: serializers.MACAddressSerializer(many=True)},
+        request=serializers.MACAddressSerializer(many=True),
+    )
+    def post(self, request, pk):
+        return super().post(request, pk)
 
 
 #

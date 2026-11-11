@@ -86,6 +86,15 @@ NONCONNECTABLE_IFACE_TYPES = VIRTUAL_IFACE_TYPES + WIRELESS_IFACE_TYPES + [
 
 
 #
+# MAC prefixes
+#
+
+MACPREFIX_LENGTH_MIN = 1
+MACPREFIX_LENGTH_MAX = 48
+MACPREFIX_LENGTH_DEFAULT = 24  # An organizationally unique identifier (OUI)
+
+
+#
 # Device components
 #
 

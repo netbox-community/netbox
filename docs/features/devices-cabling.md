@@ -91,6 +91,8 @@ One especially nice feature of modules is that templated components can be autom
 
 [MAC addresses](../models/dcim/macaddress.md) are modeled as first-class objects in NetBox so that an interface may have multiple MAC addresses assigned to it, with one optionally designated as the interface's primary MAC. This accommodates virtual interfaces and modular hardware where the link-layer address is not necessarily fixed at the factory. MAC addresses can be assigned to both [device interfaces](../models/dcim/interface.md) and [virtual machine interfaces](../models/virtualization/vminterface.md).
 
+[MAC prefixes](../models/dcim/macprefix.md) represent blocks of MAC addresses, such as organizationally unique identifiers (OUIs). They can be used to track the utilization of a block, to create MAC addresses from the next available address in a block, and to prevent duplicate MAC addresses within a block.
+
 ## Cables
 
 NetBox models cables as connections among certain types of device components and other objects. Each cable can be assigned a type, color, length, and label. NetBox will enforce basic sanity checks to prevent invalid connections. (For example, a network interface cannot be connected to a power outlet.)

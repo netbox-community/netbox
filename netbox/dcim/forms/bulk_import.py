@@ -55,6 +55,7 @@ __all__ = (
     'InventoryItemRoleImportForm',
     'LocationImportForm',
     'MACAddressImportForm',
+    'MACPrefixImportForm',
     'ManufacturerImportForm',
     'ModuleBayImportForm',
     'ModuleBayTypeImportForm',
@@ -1708,6 +1709,15 @@ class MACAddressImportForm(PrimaryModelImportForm):
             interface.save()
 
         return instance
+
+
+class MACPrefixImportForm(PrimaryModelImportForm):
+
+    class Meta:
+        model = MACPrefix
+        fields = [
+            'prefix', 'prefix_length', 'name', 'enforce_unique', 'description', 'owner', 'comments', 'tags',
+        ]
 
 
 #

@@ -476,6 +476,18 @@ class MACAddressPanel(panels.ObjectAttributesPanel):
     description = attrs.TextAttr('description')
     assignment = attrs.RelatedObjectAttr('assigned_object', linkify=True, grouped_by='parent_object')
     is_primary = attrs.BooleanAttr('is_primary', label=_('Primary for interface'))
+    mac_prefix = attrs.RelatedObjectAttr('mac_prefix', linkify=True, label=_('MAC prefix'))
+
+
+class MACPrefixPanel(panels.ObjectAttributesPanel):
+    prefix = attrs.TextAttr('prefix', label=_('Prefix'), style='font-monospace', copy_button=True)
+    prefix_length = attrs.NumericAttr('prefix_length', label=_('Prefix length'))
+    name = attrs.TextAttr('name')
+    last_address = attrs.TextAttr('last_address', label=_('Last address'), style='font-monospace')
+    size = attrs.NumericAttr('size')
+    utilization = attrs.UtilizationAttr('utilization')
+    enforce_unique = attrs.BooleanAttr('enforce_unique', label=_('Enforce unique'))
+    description = attrs.TextAttr('description')
 
 
 class ConnectionPanel(panels.ObjectPanel):

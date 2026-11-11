@@ -60,6 +60,7 @@ __all__ = (
     'InventoryItemTemplateFilterForm',
     'LocationFilterForm',
     'MACAddressFilterForm',
+    'MACPrefixFilterForm',
     'ManufacturerFilterForm',
     'ModuleBayFilterForm',
     'ModuleBayTemplateFilterForm',
@@ -2452,7 +2453,7 @@ class MACAddressFilterForm(PrimaryModelFilterSetForm):
     model = MACAddress
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('mac_address', name=_('Attributes')),
+        FieldSet('mac_address', 'mac_prefix_id', name=_('Attributes')),
         FieldSet('device_id', 'virtual_machine_id', 'assigned', 'primary', name=_('Assignments')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
@@ -2460,6 +2461,11 @@ class MACAddressFilterForm(PrimaryModelFilterSetForm):
     mac_address = forms.CharField(
         required=False,
         label=_('MAC address'),
+    )
+    mac_prefix_id = DynamicModelMultipleChoiceField(
+        queryset=MACPrefix.objects.all(),
+        required=False,
+        label=_('MAC prefix'),
     )
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
@@ -2481,6 +2487,37 @@ class MACAddressFilterForm(PrimaryModelFilterSetForm):
     primary = forms.NullBooleanField(
         required=False,
         label=_('Primary MAC of an interface'),
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        ),
+    )
+    tag = TagFilterField(model)
+
+
+class MACPrefixFilterForm(PrimaryModelFilterSetForm):
+    model = MACPrefix
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('prefix', 'prefix_length', 'contains', 'enforce_unique', name=_('Attributes')),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
+    )
+    prefix = forms.CharField(
+        required=False,
+        label=_('Prefix'),
+    )
+    prefix_length = forms.IntegerField(
+        required=False,
+        min_value=MACPREFIX_LENGTH_MIN,
+        max_value=MACPREFIX_LENGTH_MAX,
+        label=_('Prefix length'),
+    )
+    contains = forms.CharField(
+        required=False,
+        label=_('Contains MAC address'),
+    )
+    enforce_unique = forms.NullBooleanField(
+        required=False,
+        label=_('Enforce unique'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         ),

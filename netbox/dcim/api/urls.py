@@ -1,3 +1,5 @@
+from django.urls import path
+
 from netbox.api.routers import NetBoxRouter
 
 from . import views
@@ -65,6 +67,7 @@ router.register('inventory-item-roles', views.InventoryItemRoleViewSet)
 
 # Addressing
 router.register('mac-addresses', views.MACAddressViewSet)
+router.register('mac-prefixes', views.MACPrefixViewSet)
 
 # Cables
 router.register('cables', views.CableViewSet)
@@ -86,4 +89,13 @@ router.register('cooling-feeds', views.CoolingFeedViewSet)
 router.register('connected-device', views.ConnectedDeviceViewSet, basename='connected-device')
 
 app_name = 'dcim-api'
-urlpatterns = router.urls
+
+urlpatterns = [
+    path(
+        'mac-prefixes/<int:pk>/available-mac-addresses/',
+        views.MACPrefixAvailableMACAddressesView.as_view(),
+        name='macprefix-available-mac-addresses'
+    ),
+]
+
+urlpatterns += router.urls

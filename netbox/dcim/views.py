@@ -5947,3 +5947,79 @@ class MACAddressBulkDeleteView(generic.BulkDeleteView):
     queryset = MACAddress.objects.all()
     filterset = filtersets.MACAddressFilterSet
     table = tables.MACAddressTable
+
+
+#
+# MAC prefixes
+#
+
+@register_model_view(MACPrefix, 'list', path='', detail=False)
+class MACPrefixListView(generic.ObjectListView):
+    queryset = MACPrefix.objects.annotate_mac_address_count()
+    filterset = filtersets.MACPrefixFilterSet
+    filterset_form = forms.MACPrefixFilterForm
+    table = tables.MACPrefixTable
+    actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkDelete)
+
+
+@register_model_view(MACPrefix)
+class MACPrefixView(generic.ObjectView):
+    queryset = MACPrefix.objects.all()
+    template_name = 'generic/object.html'
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.MACPrefixPanel(),
+            TagsPanel(),
+            CustomFieldsPanel(),
+        ],
+        right_panels=[
+            CommentsPanel(),
+        ],
+        bottom_panels=[
+            ObjectsTablePanel(
+                model='dcim.MACAddress',
+                title=_('MAC Addresses'),
+                filters={'mac_prefix_id': lambda ctx: ctx['object'].pk},
+                actions=[
+                    actions.AddObject(
+                        'dcim.MACAddress',
+                        label=_('Add Next Available'),
+                        url_params={'mac_address': lambda ctx: ctx['object'].get_first_available_mac_address()},
+                    ),
+                ],
+            ),
+        ],
+    )
+
+
+@register_model_view(MACPrefix, 'add', detail=False)
+@register_model_view(MACPrefix, 'edit')
+class MACPrefixEditView(generic.ObjectEditView):
+    queryset = MACPrefix.objects.all()
+    form = forms.MACPrefixForm
+
+
+@register_model_view(MACPrefix, 'delete')
+class MACPrefixDeleteView(generic.ObjectDeleteView):
+    queryset = MACPrefix.objects.all()
+
+
+@register_model_view(MACPrefix, 'bulk_import', path='import', detail=False)
+class MACPrefixBulkImportView(generic.BulkImportView):
+    queryset = MACPrefix.objects.all()
+    model_form = forms.MACPrefixImportForm
+
+
+@register_model_view(MACPrefix, 'bulk_edit', path='edit', detail=False)
+class MACPrefixBulkEditView(generic.BulkEditView):
+    queryset = MACPrefix.objects.annotate_mac_address_count()
+    filterset = filtersets.MACPrefixFilterSet
+    table = tables.MACPrefixTable
+    form = forms.MACPrefixBulkEditForm
+
+
+@register_model_view(MACPrefix, 'bulk_delete', path='delete', detail=False)
+class MACPrefixBulkDeleteView(generic.BulkDeleteView):
+    queryset = MACPrefix.objects.annotate_mac_address_count()
+    filterset = filtersets.MACPrefixFilterSet
+    table = tables.MACPrefixTable
