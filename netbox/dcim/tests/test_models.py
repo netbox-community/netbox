@@ -4132,6 +4132,19 @@ class SiteSignalTestCase(TestCase):
         site.save()
 
 
+class PowerTypeImageTestCase(TestCase):
+
+    def test_get_type_image(self):
+        for model, choices, value in (
+            (PowerPort, PowerPortTypeChoices, PowerPortTypeChoices.TYPE_IEC_C14),
+            (PowerOutlet, PowerOutletTypeChoices, PowerOutletTypeChoices.TYPE_IEC_C13),
+        ):
+            with self.subTest(model=model.__name__):
+                self.assertEqual(model(type=value).get_type_image(), choices.images[value])
+                self.assertIsNone(model(type=choices.TYPE_OTHER).get_type_image())
+                self.assertIsNone(model(type=None).get_type_image())
+
+
 class PowerPortDrawTestCase(TestCase):
     """
     Tests for PowerPort.get_power_draw() power aggregation logic.

@@ -18,28 +18,30 @@ __all__ = (
 
 class Choice(tuple):
     """
-    A single choice within a ChoiceSet. Carries the choice's label, and optionally a color and a description, in a
-    single object. A Choice **is** a `(value, label)` two-tuple for backward compatibility with the plain-tuple choice
-    format (so it satisfies `isinstance(choice, tuple)` checks in Django, DRF, etc.); its `color` and `description`
-    are exposed only as attributes.
+    A single choice within a ChoiceSet. Carries the choice's label, and optionally a color, a description, and an
+    image, in a single object. A Choice **is** a `(value, label)` two-tuple for backward compatibility with the
+    plain-tuple choice format (so it satisfies `isinstance(choice, tuple)` checks in Django, DRF, etc.); its `color`,
+    `description`, and `image` are exposed only as attributes. `image` is the path to a static file.
     """
     value: Any
     label: str | Promise
     color: str | None
     description: str | Promise | None
+    image: str | None
 
-    def __new__(cls, value, label, color=None, description=None):
+    def __new__(cls, value, label, color=None, description=None, image=None):
         instance = super().__new__(cls, (value, label))
         instance.value = value
         instance.label = label
         instance.color = color
         instance.description = description
+        instance.image = image
         return instance
 
     def __getnewargs__(self):
         # tuple's default reconstructor would call Choice((value, label)) with a single argument, which fails
         # __new__'s (value, label, ...) signature. Supply the real constructor args so copy/deepcopy/pickle work.
-        return self.value, self.label, self.color, self.description
+        return self.value, self.label, self.color, self.description, self.image
 
     def __repr__(self):
         return f'Choice(value={self.value!r}, label={self.label!r})'
@@ -68,11 +70,13 @@ class ChoiceSetMeta(type):
                 if extend_choices is not None:
                     attrs['CHOICES'].extend(extend_choices)
 
-        # Build the normalized choice list and the derived color map. Each choice may be defined as a Choice object
-        # (which is preserved as-is so consumers can reference its color/description) or as a plain (value, label) or
-        # (value, label, color) tuple. The colors map is kept for model-level consumers (e.g. get_FOO_color()).
+        # Build the normalized choice list and the derived color and image maps. Each choice may be defined as a Choice
+        # object (which is preserved as-is so consumers can reference its color/description/image) or as a plain
+        # (value, label) or (value, label, color) tuple. The maps are kept for model-level consumers (e.g.
+        # get_FOO_color()).
         attrs['_choices'] = []
         attrs['colors'] = {}
+        attrs['images'] = {}
 
         def register(entry):
             # A choice may be given as a dict (e.g. from FIELD_CHOICES config, to avoid importing Choice), a Choice
@@ -84,6 +88,8 @@ class ChoiceSetMeta(type):
             if isinstance(entry, Choice):
                 if entry.color is not None:
                     attrs['colors'][entry.value] = entry.color
+                if entry.image is not None:
+                    attrs['images'][entry.value] = entry.image
                 return entry
             value, label = entry[0], entry[1]
             if len(entry) >= 3:
@@ -112,8 +118,8 @@ class ChoiceSet(metaclass=ChoiceSetMeta):
     """
     Holds an iterable of choices suitable for passing to a Django model or form field. Choices can be defined
     statically within the class as CHOICES and/or gleaned from the FIELD_CHOICES configuration parameter. Each
-    choice may be defined as a Choice object (to carry a color and/or description) or as a plain (value, label) or
-    (value, label, color) tuple.
+    choice may be defined as a Choice object (to carry a color, description, and/or image) or as a plain
+    (value, label) or (value, label, color) tuple.
     """
     CHOICES = list()
 

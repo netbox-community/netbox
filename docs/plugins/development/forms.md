@@ -218,6 +218,8 @@ These fields render a standard HTML `<select>` element (as opposed to the API-ba
 
 For choice set-backed fields, descriptions are defined per choice using a `Choice` object in the `ChoiceSet` and are rendered automatically. Pass `show_descriptions=False` to suppress them for a particular field.
 
+A `Choice` may also define an `image`: the path to a static file (such as a small line drawing) displayed beside the option's label.
+
 ```python
 from utilities.choices import Choice, ChoiceSet
 from utilities.forms.fields import ChoiceField

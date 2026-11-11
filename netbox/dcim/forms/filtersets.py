@@ -22,6 +22,7 @@ from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_ch
 from utilities.forms.fields import (
     ColorField,
     DynamicModelMultipleChoiceField,
+    MultipleChoiceField,
     PositiveBigIntegerField,
     TagFilterField,
 )
@@ -1797,7 +1798,7 @@ class PowerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         FieldSet('cabled', 'connected', 'occupied', name=_('Connection')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=PowerPortTypeChoices,
         required=False
@@ -1812,7 +1813,7 @@ class PowerPortTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
         FieldSet('name', 'label', 'type', name=_('Attributes')),
         FieldSet('device_type_id', 'module_type_id', name=_('Device')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=PowerPortTypeChoices,
         required=False
@@ -1832,7 +1833,7 @@ class PowerOutletFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         FieldSet('cabled', 'connected', 'occupied', name=_('Connection')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=PowerOutletTypeChoices,
         required=False
@@ -1856,7 +1857,7 @@ class PowerOutletTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
         FieldSet('name', 'label', 'type', name=_('Attributes')),
         FieldSet('device_type_id', 'module_type_id', name=_('Device')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=PowerOutletTypeChoices,
         required=False

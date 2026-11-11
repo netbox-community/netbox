@@ -1,11 +1,12 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
+from dcim.choices import PowerOutletTypeChoices, PowerPortTypeChoices
 from dcim.models import *
 from extras.models import Tag
 from netbox.forms.mixins import ChangelogMessageMixin, CustomFieldsMixin
-from utilities.forms import form_from_model
-from utilities.forms.fields import DynamicModelMultipleChoiceField, ExpandableNameField
+from utilities.forms import add_blank_choice, form_from_model
+from utilities.forms.fields import DynamicModelMultipleChoiceField, ExpandableNameField, TypedChoiceField
 from utilities.forms.mixins import BackgroundJobMixin
 
 from .object_create import ComponentCreateForm
@@ -69,6 +70,11 @@ class PowerPortBulkCreateForm(
     DeviceBulkAddComponentForm
 ):
     model = PowerPort
+    type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(PowerPortTypeChoices),
+        required=False,
+    )
     field_order = ('name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'tags')
 
 
@@ -77,6 +83,11 @@ class PowerOutletBulkCreateForm(
     DeviceBulkAddComponentForm
 ):
     model = PowerOutlet
+    type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(PowerOutletTypeChoices),
+        required=False,
+    )
     field_order = (
         'name', 'label', 'type', 'status', 'color', 'feed_leg', 'mark_connected',
         'description', 'tags',

@@ -545,6 +545,9 @@ class PowerPort(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracking
                     ).format(maximum_draw=self.maximum_draw)
                 })
 
+    def get_type_image(self):
+        return PowerPortTypeChoices.images.get(self.type)
+
     def get_downstream_powerports(self, leg=None):
         """
         Return a queryset of all PowerPorts connected via cable to a child PowerOutlet. For example, in the topology
@@ -692,6 +695,9 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
 
     def get_status_color(self):
         return PowerOutletStatusChoices.colors.get(self.status)
+
+    def get_type_image(self):
+        return PowerOutletTypeChoices.images.get(self.type)
 
 
 #

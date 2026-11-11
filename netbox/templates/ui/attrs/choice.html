@@ -1,4 +1,10 @@
-{% if bg_color %}
+{% load static %}
+{% if image %}
+  <span class="d-inline-flex align-items-center gap-2">
+    <img src="{% static image %}" class="choice-image choice-image-lg" alt="" />
+    {% if bg_color %}{% badge value bg_color=bg_color %}{% else %}{{ value }}{% endif %}
+  </span>
+{% elif bg_color %}
   {% badge value bg_color=bg_color %}
 {% else %}
   {{ value }}

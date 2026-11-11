@@ -91,10 +91,28 @@ img.plugin-icon {
   }
 }
 
+// Choice images (e.g. connector drawings) displayed beside a choice's label
+.choice-image {
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  object-fit: contain;
+  vertical-align: middle;
+}
+.choice-image-lg {
+  width: 4rem;
+  height: 4rem;
+}
+
 html[data-bs-theme='dark'] {
   // Assuming icon is black/white line art, invert it and tone down brightness
   img.plugin-icon {
     filter: grayscale(100%) invert(100%) brightness(80%);
+  }
+  // Choice images are black line art
+  img.choice-image {
+    filter: invert(100%) brightness(80%);
   }
 }
 
