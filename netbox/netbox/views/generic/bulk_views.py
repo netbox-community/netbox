@@ -33,6 +33,7 @@ from netbox.exporters import get_exporter
 from netbox.forms.bulk_rename import NetBoxModelBulkRenameForm
 from netbox.models.features import ChangeLoggingMixin
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
+from tenancy.models import ContactAssignment
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
 from utilities.forms import BulkDeleteForm, BulkRenameForm, restrict_form_fields
@@ -909,6 +910,43 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
             obj.tags.add(*form.cleaned_data['add_tags'])
         if form.cleaned_data.get('remove_tags', None):
             obj.tags.remove(*form.cleaned_data['remove_tags'])
+
+        # Remove/add contact assignments
+        if form.cleaned_data.get('remove_contacts') or form.cleaned_data.get('add_contacts'):
+            self._update_contact_assignments(form, obj)
+
+    def _update_contact_assignments(self, form, obj):
+        object_type = ObjectType.objects.get_for_model(obj)
+        assignments = ContactAssignment.objects.filter(object_type=object_type, object_id=obj.pk)
+        changelog_message = form.cleaned_data.get('changelog_message')
+
+        # Removal precedes addition so that a contact's role can be replaced in a single operation
+        if remove_contacts := form.cleaned_data.get('remove_contacts'):
+            to_delete = assignments.filter(contact__in=remove_contacts)
+            deletable = to_delete.restrict(self.request.user, 'delete')
+            if deletable.count() != to_delete.count():
+                raise PermissionsViolation
+            for assignment in to_delete:
+                assignment.snapshot()
+                assignment._changelog_message = changelog_message
+                assignment.delete()
+
+        if add_contacts := form.cleaned_data.get('add_contacts'):
+            role = form.cleaned_data.get('contact_role')
+            priority = form.cleaned_data.get('contact_priority') or None
+            existing = set(assignments.filter(role=role).values_list('contact_id', flat=True))
+            created_pks = []
+            for contact in add_contacts:
+                if contact.pk in existing:
+                    continue
+                assignment = ContactAssignment(object=obj, contact=contact, role=role, priority=priority)
+                assignment._changelog_message = changelog_message
+                assignment.full_clean()
+                assignment.save()
+                created_pks.append(assignment.pk)
+            permitted = ContactAssignment.objects.restrict(self.request.user, 'add').filter(pk__in=created_pks)
+            if permitted.count() != len(created_pks):
+                raise PermissionsViolation
 
     def _update_objects(self, form, request):
         custom_fields = getattr(form, 'custom_fields', {})

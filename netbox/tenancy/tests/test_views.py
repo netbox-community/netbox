@@ -3,8 +3,9 @@ from django.urls import reverse
 
 from dcim.models import Site
 from tenancy.choices import ContactPriorityChoices
+from tenancy.forms import ContactBulkEditForm
 from tenancy.models import *
-from utilities.testing import ViewTestCases, create_tags
+from utilities.testing import TestCase, ViewTestCases, create_tags
 
 
 class TenantGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
@@ -100,6 +101,104 @@ class TenantTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'group': tenant_groups[1].pk,
             'description': 'Bulk edit description',
         }
+
+
+class TenantBulkEditContactsTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+        )
+        Tenant.objects.bulk_create(cls.tenants)
+        cls.contacts = (
+            Contact(name='Contact 1'),
+            Contact(name='Contact 2'),
+        )
+        Contact.objects.bulk_create(cls.contacts)
+        cls.roles = (
+            ContactRole(name='Role 1', slug='role-1'),
+            ContactRole(name='Role 2', slug='role-2'),
+        )
+        ContactRole.objects.bulk_create(cls.roles)
+
+    def _post(self, **data):
+        return self.client.post(reverse('tenancy:tenant_bulk_edit'), {
+            'pk': [t.pk for t in self.tenants],
+            '_apply': True,
+            **data,
+        })
+
+    def test_add_contacts(self):
+        self.add_permissions(
+            'tenancy.view_tenant', 'tenancy.change_tenant', 'tenancy.view_contact', 'tenancy.view_contactrole',
+            'tenancy.add_contactassignment',
+        )
+        # An existing assignment should not be duplicated
+        ContactAssignment.objects.create(object=self.tenants[0], contact=self.contacts[0], role=self.roles[0])
+
+        response = self._post(
+            add_contacts=[c.pk for c in self.contacts],
+            contact_role=self.roles[0].pk,
+            contact_priority=ContactPriorityChoices.PRIORITY_PRIMARY,
+        )
+        self.assertHttpStatus(response, 302)
+        for tenant in self.tenants:
+            assignments = ContactAssignment.objects.filter(
+                object_type=ContentType.objects.get_for_model(Tenant), object_id=tenant.pk, role=self.roles[0]
+            )
+            self.assertEqual(
+                set(assignments.values_list('contact', flat=True)), {c.pk for c in self.contacts}
+            )
+        self.assertEqual(ContactAssignment.objects.filter(priority=ContactPriorityChoices.PRIORITY_PRIMARY).count(), 3)
+
+    def test_add_contacts_requires_role(self):
+        self.add_permissions(
+            'tenancy.view_tenant', 'tenancy.change_tenant', 'tenancy.view_contact',
+            'tenancy.add_contactassignment',
+        )
+        response = self._post(add_contacts=[self.contacts[0].pk])
+        self.assertHttpStatus(response, 200)
+        self.assertFalse(ContactAssignment.objects.exists())
+
+    def test_add_contacts_without_permission(self):
+        self.add_permissions(
+            'tenancy.view_tenant', 'tenancy.change_tenant', 'tenancy.view_contact', 'tenancy.view_contactrole',
+        )
+        response = self._post(add_contacts=[self.contacts[0].pk], contact_role=self.roles[0].pk)
+        self.assertHttpStatus(response, 200)
+        self.assertFalse(ContactAssignment.objects.exists())
+
+    def test_remove_contacts(self):
+        self.add_permissions(
+            'tenancy.view_tenant', 'tenancy.change_tenant', 'tenancy.view_contact',
+            'tenancy.delete_contactassignment',
+        )
+        for tenant in self.tenants:
+            for role in self.roles:
+                ContactAssignment.objects.create(object=tenant, contact=self.contacts[0], role=role)
+            ContactAssignment.objects.create(object=tenant, contact=self.contacts[1], role=self.roles[0])
+
+        response = self._post(remove_contacts=[self.contacts[0].pk])
+        self.assertHttpStatus(response, 302)
+        self.assertFalse(ContactAssignment.objects.filter(contact=self.contacts[0]).exists())
+        self.assertEqual(ContactAssignment.objects.filter(contact=self.contacts[1]).count(), 2)
+
+    def test_remove_contacts_without_permission(self):
+        self.add_permissions(
+            'tenancy.view_tenant', 'tenancy.change_tenant', 'tenancy.view_contact',
+        )
+        ContactAssignment.objects.create(object=self.tenants[0], contact=self.contacts[0], role=self.roles[0])
+
+        response = self._post(remove_contacts=[self.contacts[0].pk])
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(ContactAssignment.objects.count(), 1)
+
+    def test_contact_fields_omitted_for_unsupported_models(self):
+        form = ContactBulkEditForm()
+        self.assertNotIn('add_contacts', form.fields)
+        self.assertNotIn('remove_contacts', form.fields)
 
 
 class ContactGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):

@@ -82,6 +82,19 @@ Context:
             </div>
           {% endif %}
 
+          {# Render contact add/remove fields #}
+          {% if form.add_contacts and form.remove_contacts %}
+            <div class="field-group mb-5">
+              <div class="row">
+                <h2 class="col-9 offset-3">{% trans "Contacts" %}</h2>
+              </div>
+              {% render_field form.add_contacts %}
+              {% render_field form.contact_role %}
+              {% render_field form.contact_priority %}
+              {% render_field form.remove_contacts %}
+            </div>
+          {% endif %}
+
           {# Render custom fields #}
           {% if form.custom_fields %}
             <div class="field-group mb-5">
