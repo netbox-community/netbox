@@ -1005,10 +1005,6 @@ class CablePath(models.Model):
             logger.debug(f'[Path segment #{segment}] Position stack: {position_stack}')
             logger.debug(f'[Path segment #{segment}] Local terminations: {terminations}')
 
-            # Fanned-out branches that reconverge on a single port are tracked by the position stack
-            if len(terminations) == 1:
-                fanout = False
-
             # Terminations must all be of the same type
             if not all(isinstance(t, type(terminations[0])) for t in terminations[1:]):
                 raise UnsupportedCablePath(_("All mid-span terminations must have the same termination type"))
@@ -1266,7 +1262,8 @@ class CablePath(models.Model):
 
             else:
                 # Check for non-symmetric path
-                if fanout and len(remote_terminations) > 1:
+                # Fanned-out branches arriving over separate links reach different endpoints
+                if fanout and len(links) > 1:
                     diverged = True
                 elif all(isinstance(t, type(remote_terminations[0])) for t in remote_terminations[1:]):
                     is_complete = True
