@@ -177,15 +177,21 @@ class SentryNotFoundReportingTestCase(TestCase):
         self.sentry_sdk.capture_message.assert_called_once_with('Page not found', level='error')
 
     def test_append_slash_redirect_not_reported_to_sentry(self):
-        response = self.client.get('/api/status')
+        url = reverse('api-status')
 
-        self.assertEqual(response.status_code, 301)
-        self.assertEqual(response.headers['Location'], '/api/status/')
-        self.sentry_sdk.capture_message.assert_not_called()
+        for method in ('get', 'head'):
+            with self.subTest(method=method):
+                response = getattr(self.client, method)(url.rstrip('/'))
+
+                self.assertEqual(response.status_code, 301)
+                self.assertEqual(response.headers['Location'], url)
+                self.sentry_sdk.capture_message.assert_not_called()
 
     def test_unsafe_api_request_without_slash_reported_to_sentry(self):
         with disable_warnings('django.request'):
-            response = self.client.post('/api/status', data={}, content_type='application/json')
+            response = self.client.post(
+                reverse('api-status').rstrip('/'), data={}, content_type='application/json'
+            )
 
         self.assertEqual(response.status_code, 404)
         self.sentry_sdk.capture_message.assert_called_once_with('Page not found', level='error')

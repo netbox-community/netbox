@@ -41,8 +41,7 @@ class CommonMiddleware(DjangoCommonMiddleware):
     DEBUG is enabled. Letting the original 404 propagate gives the caller a
     clear, actionable error instead.
 
-    Also reports 404s flagged by handler_404 to Sentry, once any APPEND_SLASH
-    redirect has been applied.
+    Also reports 404 responses to Sentry after APPEND_SLASH handling.
     """
     UNSAFE_METHODS = frozenset(('DELETE', 'PATCH', 'POST', 'PUT'))
 
@@ -54,7 +53,6 @@ class CommonMiddleware(DjangoCommonMiddleware):
     def process_response(self, request, response):
         response = super().process_response(request, response)
 
-        # Report 404s to Sentry only if they weren't replaced with an APPEND_SLASH redirect
         if settings.SENTRY_ENABLED and response.status_code == 404 and getattr(request, '_sentry_report_404', False):
             from sentry_sdk import capture_message
             capture_message("Page not found", level="error")
