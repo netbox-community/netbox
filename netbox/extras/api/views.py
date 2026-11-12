@@ -60,6 +60,9 @@ class WebhookViewSet(NetBoxModelViewSet):
     queryset = Webhook.objects.all()
     serializer_class = serializers.WebhookSerializer
     filterset_class = filtersets.WebhookFilterSet
+    # A webhook's secret, headers, body template, and URL may hold credentials, which must not be retained in a job
+    # record. (The URL of an incoming webhook, e.g. Slack's, is itself a credential.)
+    background_sensitive_fields = ('secret', 'additional_headers', 'body_template', 'payload_url')
 
 
 #

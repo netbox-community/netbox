@@ -17,6 +17,7 @@ from core.signals import clear_events
 from extras.models import ExportTemplate
 from netbox.api.serializers import BulkOperationSerializer
 from netbox.api.serializers.bulk import get_bulk_update_serializer_class
+from netbox.constants import CENSOR_TOKEN
 from netbox.jobs import AsyncAPIJob
 from utilities.exceptions import AbortRequest, RQWorkerNotRunningException
 from utilities.request import copy_safe_request
@@ -316,12 +317,31 @@ class BackgroundOperationMixin:
     # False where the response carries a write-once secret: a 202 can only return it via the job record.
     background_enabled = True
 
+    # Fields whose values are censored in the result recorded on a background job, as any user permitted to view the
+    # job can read it
+    background_sensitive_fields = ()
+
     def check_background_enabled(self):
         """Raise a ValidationError if this endpoint has opted out of background processing."""
         if not self.background_enabled:
             raise ValidationError({
                 'detail': _("Background processing is not supported for this endpoint.")
             })
+
+    def censor_background_result(self, data):
+        """
+        Return the result of a successful background bulk write, with the value of each of background_sensitive_fields,
+        where set, replaced with CENSOR_TOKEN in each serialized object.
+        """
+        if not isinstance(data, list):
+            return data
+        return [
+            {
+                name: CENSOR_TOKEN if name in self.background_sensitive_fields and value else value
+                for name, value in obj.items()
+            }
+            for obj in data
+        ]
 
     def _background_requested(self, request):
         """Return True if background processing was requested for this write."""
