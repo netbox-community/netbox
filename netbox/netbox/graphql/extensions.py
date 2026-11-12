@@ -69,27 +69,30 @@ _normalized_queries = {}
 _normalized_queries_lock = threading.Lock()
 
 
-def _normalize_query_text(query, document):
-    """
-    Return the normalized form of the given query (and its parsed document) along with its hash. Clients typically
-    send the same query text repeatedly (passing values as variables), so the result is cached by query text.
-    """
-    if (cached := _normalized_queries.get(query)) is not None:
-        return cached
-    normalized = normalize_query(document)
-    cached = (normalized, hashlib.sha256(normalized.encode()).hexdigest())
-    with _normalized_queries_lock:
-        if len(_normalized_queries) >= NORMALIZED_QUERY_CACHE_SIZE:
-            # Evict the oldest entry
-            _normalized_queries.pop(next(iter(_normalized_queries)), None)
-        _normalized_queries[query] = cached
-    return cached
-
-
 def _truncate(value):
     if value is not None and len(value) > MAX_LOGGED_LENGTH:
         return f'{value[:MAX_LOGGED_LENGTH]}...'
     return value
+
+
+def _normalize_query_text(query, document):
+    """
+    Return the normalized form of the given query (and its parsed document), truncated for logging, along with the
+    hash of the full normalized query. Clients typically send the same query text repeatedly (passing values as
+    variables), so the result is cached. The cache is keyed on a digest of the query text, so that large queries don't
+    occupy memory.
+    """
+    key = hashlib.sha256(query.encode()).digest()
+    if (cached := _normalized_queries.get(key)) is not None:
+        return cached
+    normalized = normalize_query(document)
+    cached = (_truncate(normalized), hashlib.sha256(normalized.encode()).hexdigest())
+    with _normalized_queries_lock:
+        if len(_normalized_queries) >= NORMALIZED_QUERY_CACHE_SIZE:
+            # Evict the oldest entry
+            _normalized_queries.pop(next(iter(_normalized_queries)), None)
+        _normalized_queries[key] = cached
+    return cached
 
 
 def _emit(record):
@@ -118,12 +121,16 @@ def log_graphql_queries(request, response):
     records = getattr(request, REQUEST_ATTR, None)
     if not records:
         return
-    response_size = None if getattr(response, 'streaming', False) else len(response.content)
-    end = time.perf_counter()
-    for record, start in records:
-        record['duration_ms'] = round((end - start) * 1000, 1)
-        record['response_size'] = response_size
-        _emit(record)
+    try:
+        response_size = None if getattr(response, 'streaming', False) else len(response.content)
+        end = time.perf_counter()
+        for record, start in records:
+            record['duration_ms'] = round((end - start) * 1000, 1)
+            record['response_size'] = response_size
+            _emit(record)
+    except Exception:
+        # Never let a logging failure affect the response
+        logger.exception("Failed to log GraphQL operation")
 
 
 class QueryLogger(SchemaExtension):
@@ -149,6 +156,24 @@ class QueryLogger(SchemaExtension):
         self._record(start)
 
     def _record(self, start, failed=False):
+        try:
+            record = self._get_record(failed)
+            request = getattr(self.execution_context.context, 'request', None)
+            if request is None:
+                record['duration_ms'] = round((time.perf_counter() - start) * 1000, 1)
+                _emit(record)
+            else:
+                if not hasattr(request, REQUEST_ATTR):
+                    setattr(request, REQUEST_ATTR, [])
+                getattr(request, REQUEST_ATTR).append((record, start))
+        except Exception:
+            # Never let a logging failure affect the operation (or replace the exception it raised)
+            logger.exception("Failed to log GraphQL operation")
+
+    def _get_record(self, failed):
+        """
+        Return the details of the operation to be logged.
+        """
         execution_context = self.execution_context
         request = getattr(execution_context.context, 'request', None)
 
@@ -163,7 +188,6 @@ class QueryLogger(SchemaExtension):
         # Normalize the query (if it could be parsed)
         if execution_context.graphql_document is not None and execution_context.query:
             query, query_hash = _normalize_query_text(execution_context.query, execution_context.graphql_document)
-            query = _truncate(query)
         else:
             query = query_hash = None
 
@@ -171,7 +195,7 @@ class QueryLogger(SchemaExtension):
         errors = (result.errors if result else None) or execution_context.pre_execution_errors or []
         error_count = len(errors) or int(failed)
 
-        record = {
+        return {
             'user': user.username if user is not None and user.is_authenticated else None,
             'token_id': getattr(token, 'pk', None),
             'client_ip': str(client_ip) if client_ip else None,
@@ -183,11 +207,3 @@ class QueryLogger(SchemaExtension):
             'error_count': error_count,
             'response_size': None,
         }
-
-        if request is None:
-            record['duration_ms'] = round((time.perf_counter() - start) * 1000, 1)
-            _emit(record)
-        else:
-            if not hasattr(request, REQUEST_ATTR):
-                setattr(request, REQUEST_ATTR, [])
-            getattr(request, REQUEST_ATTR).append((record, start))

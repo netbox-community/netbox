@@ -1684,6 +1684,36 @@ class GraphQLQueryLoggerTestCase(APITestCase):
         normalize_query_text.assert_not_called()
         get_client_ip.assert_not_called()
 
+    def test_logging_failure_does_not_affect_operation(self):
+        """
+        An error while logging an operation is logged, and doesn't affect the response.
+        """
+        with (
+            self.assertLogs('netbox.graphql.query', level='INFO') as cm,
+            mock.patch('netbox.graphql.extensions._normalize_query_text', side_effect=RuntimeError),
+        ):
+            response = self._post({'query': '{ site_list { name } }'}, **self.header)
+            # An operation which fails keeps its own error
+            failed_response = self._post(
+                {'query': 'query A { site_list { name } }', 'operationName': 'B'}, **self.header
+            )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.json()['data'], {'site_list': [{'name': 'Site 1'}]})
+        self.assertHttpStatus(failed_response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            [record.getMessage() for record in cm.records],
+            ['Failed to log GraphQL operation', 'Failed to log GraphQL operation'],
+        )
+
+    def test_emit_failure_does_not_affect_response(self):
+        with (
+            self.assertLogs('netbox.graphql.query', level='INFO') as cm,
+            mock.patch('netbox.graphql.extensions._emit', side_effect=RuntimeError),
+        ):
+            response = self._post({'query': '{ site_list { name } }'}, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(cm.records[0].getMessage(), 'Failed to log GraphQL operation')
+
 
 class NormalizeQueryTestCase(TestCase):
 
@@ -1734,7 +1764,20 @@ class NormalizeQueryTestCase(TestCase):
         ):
             for query in queries:
                 _normalize_query_text(query, parse(query))
-            self.assertEqual(list(_normalized_queries), queries[1:])
+            self.assertEqual(
+                list(_normalized_queries), [hashlib.sha256(query.encode()).digest() for query in queries[1:]]
+            )
+
+    def test_cache_holds_truncated_query(self):
+        """
+        The cache holds the normalized query truncated for logging, and the hash of the full normalized query.
+        """
+        query = f'{{ site_list {{ {"x" * MAX_LOGGED_LENGTH * 2}: name }} }}'
+        with mock.patch.dict(_normalized_queries, clear=True):
+            normalized, query_hash = _normalize_query_text(query, parse(query))
+            self.assertEqual(len(normalized), MAX_LOGGED_LENGTH + 3)
+            self.assertEqual(query_hash, hashlib.sha256(normalize_query(parse(query)).encode()).hexdigest())
+            self.assertEqual(list(_normalized_queries.values()), [(normalized, query_hash)])
 
 
 class GraphQLDeferredColumnTestCase(APITestCase):
