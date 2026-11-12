@@ -5,7 +5,7 @@ import strawberry_django
 
 from dcim.models import Interface
 from extras.graphql.mixins import ContactsMixin, CustomFieldsMixin, TagsMixin
-from ipam.models import VLAN
+from ipam.models import VLAN, IPAddress
 from netbox.graphql.optimization import build_gfk_prefetch
 from netbox.graphql.types import (
     NetBoxObjectType,
@@ -162,12 +162,14 @@ class L2VPNTerminationType(NetBoxObjectType):
                 Interface,
                 VMInterface,
                 VLAN,
+                IPAddress,
             ],
         ),
         only=['assigned_object_type', 'assigned_object_id'],
     )
     def assigned_object(self) -> Annotated[
         Annotated['InterfaceType', strawberry.lazy('dcim.graphql.types')]
+        | Annotated['IPAddressType', strawberry.lazy('ipam.graphql.types')]
         | Annotated['VLANType', strawberry.lazy('ipam.graphql.types')]
         | Annotated['VMInterfaceType', strawberry.lazy('virtualization.graphql.types')],
         strawberry.union('L2VPNAssignmentType'),

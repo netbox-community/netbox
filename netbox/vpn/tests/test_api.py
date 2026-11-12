@@ -1,9 +1,11 @@
+import json
+
 from django.urls import reverse
 from rest_framework import status
 
 from dcim.choices import InterfaceTypeChoices
 from dcim.models import Interface
-from ipam.models import VLAN
+from ipam.models import VLAN, IPAddress
 from utilities.testing import APITestCase, APIViewTestCases, create_test_device
 from vpn.choices import *
 from vpn.models import *
@@ -676,10 +678,12 @@ class L2VPNTerminationTestCase(APIViewTestCases.APIViewTestCase):
         )
         L2VPN.objects.bulk_create(l2vpns)
 
+        ip_address = IPAddress.objects.create(address='192.0.2.1/32')
+
         l2vpnterminations = (
             L2VPNTermination(l2vpn=l2vpns[0], assigned_object=vlans[0]),
             L2VPNTermination(l2vpn=l2vpns[0], assigned_object=vlans[1]),
-            L2VPNTermination(l2vpn=l2vpns[0], assigned_object=vlans[2])
+            L2VPNTermination(l2vpn=l2vpns[1], assigned_object=ip_address)
         )
         L2VPNTermination.objects.bulk_create(l2vpnterminations)
 
@@ -695,9 +699,10 @@ class L2VPNTerminationTestCase(APIViewTestCases.APIViewTestCase):
                 'assigned_object_id': vlans[4].pk,
             },
             {
-                'l2vpn': l2vpns[0].pk,
-                'assigned_object_type': 'ipam.vlan',
-                'assigned_object_id': vlans[5].pk,
+                # The same IP address may terminate another L2VPN
+                'l2vpn': l2vpns[2].pk,
+                'assigned_object_type': 'ipam.ipaddress',
+                'assigned_object_id': ip_address.pk,
             },
         ]
 
@@ -708,3 +713,17 @@ class L2VPNTerminationTestCase(APIViewTestCases.APIViewTestCase):
         cls.bulk_update_invalid_data = {
             'l2vpn': 99999,
         }
+
+    def test_graphql_ip_address_l2vpn_terminations_filter(self):
+        """IP addresses can be filtered over GraphQL by the L2VPNs they terminate."""
+        self.add_permissions('ipam.view_ipaddress')
+        IPAddress.objects.create(address='192.0.2.2/32')
+        l2vpn = L2VPN.objects.get(name='L2VPN 2')
+        query = (
+            f'{{ ip_address_list(filters: {{l2vpn_terminations: {{l2vpn_id: "{l2vpn.pk}"}}}}) {{ address }} }}'
+        )
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual([ip['address'] for ip in data['data']['ip_address_list']], ['192.0.2.1/32'])

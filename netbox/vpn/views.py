@@ -1,6 +1,9 @@
+from django.contrib.contenttypes.prefetch import GenericPrefetch
 from django.utils.translation import gettext_lazy as _
 
+from dcim.models import Interface
 from extras.ui.panels import CustomFieldsPanel, TagsPanel
+from ipam.models import VLAN, IPAddress
 from ipam.tables import RouteTargetTable
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport
 from netbox.ui import actions, layout
@@ -14,6 +17,7 @@ from netbox.ui.panels import (
 from netbox.views import generic
 from utilities.query import count_related
 from utilities.views import GetRelatedModelsMixin, register_model_view
+from virtualization.models import VMInterface
 
 from . import filtersets, forms, tables
 from .models import *
@@ -761,7 +765,20 @@ class L2VPNBulkDeleteView(generic.BulkDeleteView):
 
 @register_model_view(L2VPNTermination, 'list', path='', detail=False)
 class L2VPNTerminationListView(generic.ObjectListView):
-    queryset = L2VPNTermination.objects.all()
+    # Fetch each terminating object's parent and site, which the table may display
+    queryset = L2VPNTermination.objects.prefetch_related(
+        GenericPrefetch('assigned_object', [
+            Interface.objects.select_related('device__site'),
+            VMInterface.objects.select_related('virtual_machine__site'),
+            VLAN.objects.select_related('site'),
+            IPAddress.objects.prefetch_related(
+                GenericPrefetch('assigned_object', [
+                    Interface.objects.select_related('device__site'),
+                    VMInterface.objects.select_related('virtual_machine__site'),
+                ])
+            ),
+        ])
+    )
     table = tables.L2VPNTerminationTable
     filterset = filtersets.L2VPNTerminationFilterSet
     filterset_form = forms.L2VPNTerminationFilterForm

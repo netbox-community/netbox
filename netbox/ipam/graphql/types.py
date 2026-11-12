@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     )
     from tenancy.graphql.types import TenantType
     from virtualization.graphql.types import ClusterGroupType, ClusterType, VirtualMachineType, VMInterfaceType
-    from vpn.graphql.types import L2VPNType, TunnelTerminationType
+    from vpn.graphql.types import L2VPNTerminationType, L2VPNType, TunnelTerminationType
     from wireless.graphql.types import WirelessLANType
 
 __all__ = (
@@ -167,6 +167,7 @@ class IPAddressType(ContactsMixin, PrimaryObjectType):
     nat_inside: Annotated['IPAddressType', strawberry.lazy('ipam.graphql.types')] | None
     nat_outside: list[Annotated['IPAddressType', strawberry.lazy('ipam.graphql.types')]]
     tunnel_terminations: list[Annotated['TunnelTerminationType', strawberry.lazy('vpn.graphql.types')]]
+    l2vpn_terminations: list[Annotated['L2VPNTerminationType', strawberry.lazy('vpn.graphql.types')]]
     services: list[Annotated['ServiceType', strawberry.lazy('ipam.graphql.types')]]
 
     # Note that self is the Django model instance, so self.family resolves to the model's family property

@@ -506,6 +506,13 @@ class L2VPNTerminationForm(NetBoxModelForm):
         selector=True,
         label=_('Interface')
     )
+    ipaddress = DynamicModelChoiceField(
+        queryset=IPAddress.objects.all(),
+        required=False,
+        selector=True,
+        label=_('IP Address'),
+        help_text=_('For example, the far-end PE of a pseudowire')
+    )
 
     fieldsets = (
         FieldSet(
@@ -514,6 +521,7 @@ class L2VPNTerminationForm(NetBoxModelForm):
                 FieldSet('vlan', name=_('VLAN')),
                 FieldSet('interface', name=_('Device')),
                 FieldSet('vminterface', name=_('Virtual Machine')),
+                FieldSet('ipaddress', name=_('IP Address')),
             ),
             'tags',
         ),
@@ -534,6 +542,8 @@ class L2VPNTerminationForm(NetBoxModelForm):
                 initial['vlan'] = instance.assigned_object
             elif type(instance.assigned_object) is VMInterface:
                 initial['vminterface'] = instance.assigned_object
+            elif type(instance.assigned_object) is IPAddress:
+                initial['ipaddress'] = instance.assigned_object
             kwargs['initial'] = initial
 
         super().__init__(*args, **kwargs)
@@ -544,10 +554,13 @@ class L2VPNTerminationForm(NetBoxModelForm):
         interface = self.cleaned_data.get('interface')
         vminterface = self.cleaned_data.get('vminterface')
         vlan = self.cleaned_data.get('vlan')
+        ipaddress = self.cleaned_data.get('ipaddress')
 
-        if not (interface or vminterface or vlan):
-            raise ValidationError(_('A termination must specify an interface or VLAN.'))
-        if len([x for x in (interface, vminterface, vlan) if x]) > 1:
-            raise ValidationError(_('A termination can only have one terminating object (an interface or VLAN).'))
+        if not (interface or vminterface or vlan or ipaddress):
+            raise ValidationError(_('A termination must specify an interface, VLAN, or IP address.'))
+        if len([x for x in (interface, vminterface, vlan, ipaddress) if x]) > 1:
+            raise ValidationError(
+                _('A termination can only have one terminating object (an interface, VLAN, or IP address).')
+            )
 
-        self.instance.assigned_object = interface or vminterface or vlan
+        self.instance.assigned_object = interface or vminterface or vlan or ipaddress

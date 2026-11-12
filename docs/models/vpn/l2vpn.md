@@ -1,6 +1,6 @@
 # L2VPN
 
-A L2VPN object is NetBox is a representation of a layer 2 bridge technology such as VXLAN, VPLS, or EPL. Each L2VPN can be identified by name as well as by an optional unique identifier (VNI would be an example). Once created, L2VPNs can be terminated to [interfaces](../dcim/interface.md) and [VLANs](../ipam/vlan.md).
+A L2VPN object is NetBox is a representation of a layer 2 bridge technology such as VXLAN, VPLS, or EPL. Each L2VPN can be identified by name as well as by an optional unique identifier (VNI would be an example). Once created, L2VPNs can be terminated to [interfaces](../dcim/interface.md), [VLANs](../ipam/vlan.md), and [IP addresses](../ipam/ipaddress.md).
 
 ## Fields
 
