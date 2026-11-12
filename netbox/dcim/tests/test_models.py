@@ -4132,10 +4132,12 @@ class SiteSignalTestCase(TestCase):
         site.save()
 
 
-class PowerTypeImageTestCase(TestCase):
+class ComponentTypeImageTestCase(TestCase):
 
     def test_get_type_image(self):
         for model, choices, value in (
+            (ConsolePort, ConsolePortTypeChoices, ConsolePortTypeChoices.TYPE_DE9),
+            (ConsoleServerPort, ConsolePortTypeChoices, ConsolePortTypeChoices.TYPE_RJ45),
             (PowerPort, PowerPortTypeChoices, PowerPortTypeChoices.TYPE_IEC_C14),
             (PowerOutlet, PowerOutletTypeChoices, PowerOutletTypeChoices.TYPE_IEC_C13),
         ):

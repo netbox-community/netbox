@@ -469,6 +469,9 @@ class ConsolePort(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
         verbose_name = _('console port')
         verbose_name_plural = _('console ports')
 
+    def get_type_image(self):
+        return ConsolePortTypeChoices.images.get(self.type)
+
 
 class ConsoleServerPort(ModularComponentModel, CabledObjectModel, PathEndpoint, TrackingModelMixin):
     """
@@ -495,6 +498,9 @@ class ConsoleServerPort(ModularComponentModel, CabledObjectModel, PathEndpoint, 
     class Meta(ModularComponentModel.Meta):
         verbose_name = _('console server port')
         verbose_name_plural = _('console server ports')
+
+    def get_type_image(self):
+        return ConsolePortTypeChoices.images.get(self.type)
 
 
 #

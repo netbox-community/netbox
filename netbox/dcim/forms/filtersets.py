@@ -1718,7 +1718,7 @@ class ConsolePortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         FieldSet('cabled', 'connected', 'occupied', name=_('Connection')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=ConsolePortTypeChoices,
         required=False
@@ -1738,7 +1738,7 @@ class ConsolePortTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
         FieldSet('name', 'label', 'type', name=_('Attributes')),
         FieldSet('device_type_id', 'module_type_id', name=_('Device')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=ConsolePortTypeChoices,
         required=False
@@ -1758,7 +1758,7 @@ class ConsoleServerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterF
         FieldSet('cabled', 'connected', 'occupied', name=_('Connection')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=ConsolePortTypeChoices,
         required=False
@@ -1778,7 +1778,7 @@ class ConsoleServerPortTemplateFilterForm(ModularDeviceComponentTemplateFilterFo
         FieldSet('name', 'label', 'type', name=_('Attributes')),
         FieldSet('device_type_id', 'module_type_id', name=_('Device')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=ConsolePortTypeChoices,
         required=False

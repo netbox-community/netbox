@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from dcim.choices import PowerOutletTypeChoices, PowerPortTypeChoices
+from dcim.choices import ConsolePortTypeChoices, PowerOutletTypeChoices, PowerPortTypeChoices
 from dcim.models import *
 from extras.models import Tag
 from netbox.forms.mixins import ChangelogMessageMixin, CustomFieldsMixin
@@ -54,6 +54,11 @@ class ConsolePortBulkCreateForm(
     DeviceBulkAddComponentForm
 ):
     model = ConsolePort
+    type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(ConsolePortTypeChoices),
+        required=False,
+    )
     field_order = ('name', 'label', 'type', 'mark_connected', 'description', 'tags')
 
 
@@ -62,6 +67,11 @@ class ConsoleServerPortBulkCreateForm(
     DeviceBulkAddComponentForm
 ):
     model = ConsoleServerPort
+    type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(ConsolePortTypeChoices),
+        required=False,
+    )
     field_order = ('name', 'label', 'type', 'speed', 'description', 'tags')
 
 

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Generate the connector drawings displayed for power port and power outlet types.
+Generate the connector drawings displayed for power port, power outlet, and console port types.
 
 Each drawing depicts the mating face of a connector as a 64x64 SVG: the face is outlined and its contacts are
-filled solid black, on a transparent background (the UI inverts the drawings in dark mode). Outlets are drawn as
-seen from the front; ports (plugs and inlets) are drawn as the mirror image of the face they mate with. Geometry
+filled solid black, on a transparent background (the UI inverts the drawings in dark mode). Receptacles are drawn
+as seen from the front; plugs and inlets are drawn as the mirror image of the face they mate with. Geometry
 is defined in millimetres (x right, y down, origin at the face's centre) and each face is scaled to fill the frame,
 so relative physical size is not conveyed. Contacts too small to read at icon size may be exaggerated.
 
@@ -708,6 +708,63 @@ def ita_o(socket=True):
 
 
 #
+# Console (D-subminiature, modular jacks, and Mini-DIN)
+#
+
+def d_sub(contacts, width, pitch):
+    """A D-subminiature connector with two staggered rows of contacts (the longer row along the wide side)."""
+    row, height = 2.84, 7.82
+    top = (contacts + 1) // 2
+    inset = height * math.tan(math.radians(10))
+    outline = rounded_polygon(
+        [(-width / 2, -height / 2), (width / 2, -height / 2), (width / 2 - inset, height / 2),
+         (-width / 2 + inset, height / 2)],
+        2,
+    )
+    drawing = Drawing(width, height).outline(outline)
+    for i in range(top):
+        drawing.fill(Circle((i - (top - 1) / 2) * pitch, -row / 2, 0.8))
+    for i in range(contacts - top):
+        drawing.fill(Circle((i - (contacts - top - 1) / 2) * pitch, row / 2, 0.8))
+    return drawing
+
+
+def modular_jack(width, keyway, contacts, positions):
+    """
+    A modular (RJ) jack, contacts along the top and the latch keyway at the bottom. contacts lists the populated
+    positions, numbered from 1 at the left.
+    """
+    # The opening spans y -3.42 to +5.95 (including the keyway); centre it vertically
+    dy = -1.265
+    x, kw = width / 2, keyway / 2
+    outline = polygon([(px, py + dy) for px, py in (
+        (-x, -3.42), (x, -3.42), (x, 3.42), (kw, 3.42), (kw, 5.1), (2.03, 5.1), (2.03, 5.95), (-2.03, 5.95),
+        (-2.03, 5.1), (-kw, 5.1), (-kw, 3.42), (-x, 3.42),
+    )])
+    drawing = Drawing(width, 9.37).outline(outline)
+    for n in contacts:
+        drawing.fill(rect((n - (positions + 1) / 2) * 1.016, -2.2 + dy, 0.55, 2.4))
+    return drawing
+
+
+def mini_din_8():
+    """A Mini-DIN 8 receptacle: eight contacts in an insert with a notch at the top and shoulders at the bottom."""
+    r = 3.95
+    notch_y = -math.sqrt(r ** 2 - 0.9 ** 2)
+    shoulder_x = math.sqrt(r ** 2 - 1.9 ** 2)
+    base_y = math.sqrt(r ** 2 - 2.5 ** 2)
+    insert = Path([
+        ('M', 0.9, notch_y), arc_to(0, 0, r, (0.9, notch_y), (shoulder_x, 1.9)), ('L', 2.5, 1.9), ('L', 2.5, base_y),
+        arc_to(0, 0, r, (2.5, base_y), (-2.5, base_y)), ('L', -2.5, 1.9), ('L', -shoulder_x, 1.9),
+        arc_to(0, 0, r, (-shoulder_x, 1.9), (-0.9, notch_y)), ('L', -0.9, -3), ('L', 0.9, -3), ('Z',),
+    ])
+    drawing = Drawing(10.2, 10.2).outline(Circle(0, 0, 5.1)).detail(insert)
+    for x, y in ((-2, -1.6), (0, -1.6), (2, -1.6), (-2.5, 0.4), (0.4, 0.4), (2.5, 0.4), (-1, 2.4), (1, 2.4)):
+        drawing.fill(Circle(x, y, 0.55))
+    return drawing
+
+
+#
 # USB (receptacle openings)
 #
 
@@ -1007,6 +1064,26 @@ POWER_PORTS = {
 }
 
 
+# Console port type: drawing function. USB console ports are receptacles.
+CONSOLE_PORTS = {
+    'de-9': lambda: d_sub(9, 16.26, 2.74),
+    'db-25': lambda: d_sub(25, 38.3, 2.77),
+    # RJ-11 is defined with only its two centre positions populated (47 CFR 68.502)
+    'rj-11': lambda: modular_jack(9.88, 6.6, (3, 4), 6),
+    'rj-12': lambda: modular_jack(9.88, 6.6, range(1, 7), 6),
+    'rj-45': lambda: modular_jack(11.91, 6.3, range(1, 9), 8),
+    'mini-din-8': mini_din_8,
+    'usb-a': usb_a,
+    'usb-b': usb_b,
+    'usb-c': usb_c,
+    'usb-mini-a': usb_mini_a,
+    'usb-mini-b': usb_mini_b,
+    'usb-micro-a': usb_micro_a,
+    'usb-micro-b': usb_micro_b,
+    'usb-micro-ab': usb_micro_a,
+}
+
+
 def write(directory, drawings):
     directory.mkdir(parents=True, exist_ok=True)
     expected = set()
@@ -1029,6 +1106,7 @@ def write(directory, drawings):
 def main():
     write(OUTPUT_DIR / 'power-outlet', POWER_OUTLETS)
     write(OUTPUT_DIR / 'power-port', POWER_PORTS)
+    write(OUTPUT_DIR / 'console-port', CONSOLE_PORTS)
 
 
 if __name__ == '__main__':
