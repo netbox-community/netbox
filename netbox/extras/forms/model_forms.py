@@ -607,7 +607,7 @@ class EventRuleForm(OwnerMixin, NetBoxModelForm):
         queryset=ObjectType.objects.with_feature('event_rules'),
     )
     event_types = MultipleChoiceField(
-        choices=get_event_type_choices(),
+        choices=get_event_type_choices,
         label=_('Event types')
     )
     action_choice = ChoiceField(

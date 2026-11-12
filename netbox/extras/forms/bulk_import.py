@@ -317,7 +317,7 @@ class EventRuleImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         help_text=_("One or more assigned object types")
     )
     event_types = CSVMultipleChoiceField(
-        choices=get_event_type_choices(),
+        choices=get_event_type_choices,
         label=_('Event types'),
         help_text=_('The event type(s) which will trigger this rule')
     )

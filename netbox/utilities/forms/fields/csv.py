@@ -37,7 +37,11 @@ class CSVChoicesMixin:
 
     def __init__(self, *, choices=(), **kwargs):
         super().__init__(choices=choices, **kwargs)
-        self.choices = unpack_grouped_choices(choices)
+        # Keep callable choices lazy so they're resolved on each access
+        if callable(choices):
+            self.choices = lambda: unpack_grouped_choices(choices())
+        else:
+            self.choices = unpack_grouped_choices(choices)
 
 
 class CSVChoiceField(CSVChoicesMixin, forms.ChoiceField):
