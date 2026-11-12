@@ -476,7 +476,6 @@ class MACAddressPanel(panels.ObjectAttributesPanel):
     description = attrs.TextAttr('description')
     assignment = attrs.RelatedObjectAttr('assigned_object', linkify=True, grouped_by='parent_object')
     is_primary = attrs.BooleanAttr('is_primary', label=_('Primary for interface'))
-    mac_prefix = attrs.RelatedObjectAttr('mac_prefix', linkify=True, label=_('MAC prefix'))
 
 
 class MACPrefixPanel(panels.ObjectAttributesPanel):

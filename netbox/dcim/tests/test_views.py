@@ -6972,6 +6972,24 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertIn(b'quick-add-object', response.content)
         self.assertEqual(initial_count + 1, self._get_queryset().count())
 
+    def test_mac_prefixes_panel(self):
+        """
+        The MAC address page lists the MAC prefixes containing it, only if the user can view MAC prefixes.
+        """
+        MACPrefix.objects.create(prefix='BC:24:11:00:00:00', prefix_length=24, name='Prefix 1')
+        mac_address = MACAddress.objects.create(mac_address='BC:24:11:00:00:01')
+        panel_url = 'contains=BC%3A24%3A11%3A00%3A00%3A01'
+
+        self.add_permissions('dcim.view_macaddress')
+        response = self.client.get(mac_address.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+        self.assertNotContains(response, panel_url)
+
+        self.add_permissions('dcim.view_macprefix')
+        response = self.client.get(mac_address.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, panel_url)
+
 
 class MACPrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = MACPrefix

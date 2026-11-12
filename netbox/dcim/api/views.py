@@ -624,7 +624,9 @@ class MACPrefixAvailableMACAddressesView(AvailableObjectsView):
 
     def get_available_objects(self, parent, limit=None):
         # A prefix may contain millions of available MAC addresses, so always apply a limit
-        return list(islice(parent.iter_available_mac_addresses(), limit or get_config().PAGINATE_COUNT))
+        if not limit or limit < 0:
+            limit = get_config().PAGINATE_COUNT
+        return list(islice(parent.iter_available_mac_addresses(), limit))
 
     def prep_object_data(self, requested_objects, available_objects, parent):
         for i, request_data in enumerate(requested_objects):

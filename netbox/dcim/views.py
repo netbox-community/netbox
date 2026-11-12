@@ -5870,6 +5870,11 @@ class MACAddressView(generic.ObjectView):
         ],
         right_panels=[
             CommentsPanel(),
+            ObjectsTablePanel(
+                model='dcim.MACPrefix',
+                title=_('MAC Prefixes'),
+                filters={'contains': lambda ctx: str(ctx['object'].mac_address)},
+            ),
         ],
     )
 

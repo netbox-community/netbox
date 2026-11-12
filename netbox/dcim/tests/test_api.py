@@ -7480,6 +7480,11 @@ class MACPrefixTestCase(APIViewTestCases.APIViewTestCase):
         response = self.client.get(url, {'limit': 2}, **self.header)
         self.assertEqual(len(response.data), 2)
 
+        # An invalid limit falls back to the default
+        response = self.client.get(url, {'limit': -1}, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 7)
+
         # A large prefix returns a single page of results
         mac_prefix = MACPrefix.objects.get(name='Prefix 1')
         url = reverse('dcim-api:macprefix-available-mac-addresses', kwargs={'pk': mac_prefix.pk})
