@@ -993,6 +993,9 @@ class CablePath(models.Model):
         is_complete = False
         is_active = True
         is_split = False
+        # Whether the trace fanned out across a multi-position front port without positional context
+        fanout = False
+        diverged = False
 
         logger.debug(f'Tracing cable path from {terminations}...')
 
@@ -1012,7 +1015,11 @@ class CablePath(models.Model):
                 not isinstance(terminations[0].parent_object, Circuit) and
                 not all(t.parent_object == terminations[0].parent_object for t in terminations[1:])
             ):
-                raise UnsupportedCablePath(_("All mid-span terminations must have the same parent object"))
+                if not fanout:
+                    raise UnsupportedCablePath(_("All mid-span terminations must have the same parent object"))
+                # Fanned-out branches crossing different devices are not followed, even if they reconverge later
+                diverged = True
+                break
 
             # Check for a split path (e.g. rear port fanning out to multiple front ports with
             # different cables attached)
@@ -1177,15 +1184,13 @@ class CablePath(models.Model):
                     for rt in remote_terminations:
                         q_filter |= Q(front_port=rt, front_port_position__in=positions)
                     port_mappings = PortMapping.objects.filter(q_filter)
-                elif remote_terminations[0].positions > 1:
-                    is_split = True
-                    logger.debug(
-                        'Encountered front port mapped to multiple rear ports but position stack is empty; aborting '
-                        'trace.'
-                    )
-                    break
                 else:
-                    port_mappings = PortMapping.objects.filter(front_port__in=remote_terminations)
+                    # Without positional context, follow all mappings; branches must converge on one endpoint
+                    if any(t.positions > 1 for t in remote_terminations):
+                        fanout = True
+                    port_mappings = PortMapping.objects.filter(
+                        front_port__in=remote_terminations
+                    ).order_by('front_port', 'front_port_position')
                 if not port_mappings:
                     break
 
@@ -1257,7 +1262,10 @@ class CablePath(models.Model):
 
             else:
                 # Check for non-symmetric path
-                if all(isinstance(t, type(remote_terminations[0])) for t in remote_terminations[1:]):
+                # Fanned-out branches arriving over separate links reach different endpoints
+                if fanout and len(links) > 1:
+                    diverged = True
+                elif all(isinstance(t, type(remote_terminations[0])) for t in remote_terminations[1:]):
                     is_complete = True
                 elif len(remote_terminations) == 0:
                     is_complete = False
@@ -1267,6 +1275,12 @@ class CablePath(models.Model):
                     is_split = True
                     logger.warning('Encountered an unsupported topology; aborting trace.')
                 break
+
+        if diverged:
+            # Keep the full trace so changes to any branch retrace this path
+            logger.debug('Front port branches diverged; treating path as split.')
+            is_complete = False
+            is_split = True
 
         return cls(
             path=path,
@@ -1372,7 +1386,8 @@ class CablePath(models.Model):
 
     def get_split_nodes(self):
         """
-        Return all available next segments in a split cable path.
+        Return all available next segments in a split cable path, or the diverging endpoints if the path fanned
+        out across a multi-position front port.
         """
         from circuits.models import CircuitTermination
         nodes = self.path_objects[-1]
@@ -1395,6 +1410,9 @@ class CablePath(models.Model):
             return [
                 ct.get_peer_termination() for ct in nodes
             ]
+        # Front port branches diverging to different endpoints
+        if isinstance(nodes[0], PathEndpoint):
+            return nodes
         return []
 
     def get_asymmetric_nodes(self):

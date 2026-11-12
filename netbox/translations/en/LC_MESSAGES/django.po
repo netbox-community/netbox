@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-10 05:01+0000\n"
+"POT-Creation-Date: 2026-11-11 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1666,7 +1666,7 @@ msgid "virtual circuit termination"
 msgstr ""
 
 #: netbox/circuits/models/virtual_circuits.py:160
-#: netbox/dcim/models/module_moves.py:380
+#: netbox/dcim/models/module_moves.py:381
 msgid "virtual circuit terminations"
 msgstr ""
 
@@ -3252,18 +3252,12 @@ msgid ""
 "type and move the module as separate operations."
 msgstr ""
 
-#: netbox/dcim/api/serializers_/devices.py:281 netbox/dcim/forms/common.py:159
-msgid ""
-"Cannot install module with placeholder values in a module bay with no "
-"position defined."
-msgstr ""
-
-#: netbox/dcim/api/serializers_/devices.py:292 netbox/dcim/forms/common.py:171
+#: netbox/dcim/api/serializers_/devices.py:287 netbox/dcim/forms/common.py:172
 #, python-brace-format
 msgid "Cannot adopt {model} {name} as it already belongs to a module"
 msgstr ""
 
-#: netbox/dcim/api/serializers_/devices.py:300 netbox/dcim/forms/common.py:180
+#: netbox/dcim/api/serializers_/devices.py:295 netbox/dcim/forms/common.py:181
 #, python-brace-format
 msgid "A {model} named {name} already exists"
 msgstr ""
@@ -7532,7 +7526,7 @@ msgid "untagged VLAN"
 msgstr ""
 
 #: netbox/dcim/models/device_components.py:849
-#: netbox/dcim/models/module_moves.py:384
+#: netbox/dcim/models/module_moves.py:385
 msgid "tagged VLANs"
 msgstr ""
 
@@ -7755,7 +7749,7 @@ msgid "module bays"
 msgstr ""
 
 #: netbox/dcim/models/device_components.py:1711
-#: netbox/dcim/models/module_moves.py:755 netbox/dcim/models/modules.py:503
+#: netbox/dcim/models/module_moves.py:756 netbox/dcim/models/modules.py:503
 msgid "A module bay cannot belong to a module installed within it."
 msgstr ""
 
@@ -8354,116 +8348,116 @@ msgstr ""
 msgid "Module bay hierarchy contains a cycle."
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:357
+#: netbox/dcim/models/module_moves.py:358
 msgid "Device was deleted before the move could be saved."
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:376
+#: netbox/dcim/models/module_moves.py:377
 msgid "IP addresses assigned"
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:377 netbox/ipam/models/fhrp.py:119
+#: netbox/dcim/models/module_moves.py:378 netbox/ipam/models/fhrp.py:119
 msgid "FHRP group assignments"
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:378 netbox/vpn/models/tunnels.py:140
+#: netbox/dcim/models/module_moves.py:379 netbox/vpn/models/tunnels.py:140
 msgid "tunnel terminations"
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:379 netbox/vpn/models/l2vpn.py:117
+#: netbox/dcim/models/module_moves.py:380 netbox/vpn/models/l2vpn.py:117
 msgid "L2VPN terminations"
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:381 netbox/wireless/models.py:195
+#: netbox/dcim/models/module_moves.py:382 netbox/wireless/models.py:195
 msgid "wireless links"
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:382
+#: netbox/dcim/models/module_moves.py:383
 msgid "wireless LAN assignments"
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:383
+#: netbox/dcim/models/module_moves.py:384
 msgid "an untagged VLAN"
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:385
+#: netbox/dcim/models/module_moves.py:386
 msgid "a Q-in-Q service VLAN"
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:386
+#: netbox/dcim/models/module_moves.py:387
 msgid "a VLAN translation policy"
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:387
+#: netbox/dcim/models/module_moves.py:388
 msgid "VDC assignments"
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:388
+#: netbox/dcim/models/module_moves.py:389
 msgid "a VRF assignment"
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:436
+#: netbox/dcim/models/module_moves.py:437
 #, python-brace-format
 msgid "{description} (e.g. {names})"
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:463
+#: netbox/dcim/models/module_moves.py:464
 #, python-brace-format
 msgid "{count} cabled or connection-marked {type}"
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:474
+#: netbox/dcim/models/module_moves.py:475
 #, python-brace-format
 msgid "{count} interfaces with {label}"
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:493
+#: netbox/dcim/models/module_moves.py:494
 #, python-brace-format
 msgid ""
 "{count} parent, bridge, or LAG interface relations crossing the moved "
 "module's boundary"
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:511
+#: netbox/dcim/models/module_moves.py:512
 #, python-brace-format
 msgid "{count} power outlet relations crossing the moved module's boundary"
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:532
+#: netbox/dcim/models/module_moves.py:533
 #, python-brace-format
 msgid "{count} cooling outflow relations crossing the moved module's boundary"
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:550
+#: netbox/dcim/models/module_moves.py:551
 #, python-brace-format
 msgid "{count} front/rear port mappings crossing the moved module's boundary"
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:573
+#: netbox/dcim/models/module_moves.py:574
 #, python-brace-format
 msgid "{count} components with attached inventory items"
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:581
+#: netbox/dcim/models/module_moves.py:582
 #, python-brace-format
 msgid ""
 "This module cannot be moved to a different device because the moved "
 "components have active related objects: {blockers}."
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:595
+#: netbox/dcim/models/module_moves.py:596
 #, python-brace-format
 msgid "Moving this module would create more than one {type} named {name}."
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:609
+#: netbox/dcim/models/module_moves.py:610
 #, python-brace-format
 msgid ""
 "Moving this module would conflict with {count} existing {type} on device "
 "{device} (e.g. {sample})."
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:622
+#: netbox/dcim/models/module_moves.py:623
 #, python-brace-format
 msgid ""
 "Moving this module would rename {old_name} to {new_name}, which is the "
@@ -8471,42 +8465,42 @@ msgid ""
 "manually before moving."
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:639
+#: netbox/dcim/models/module_moves.py:640
 #, python-brace-format
 msgid ""
 "Moving this module would create more than one module bay named {name} within "
 "the same module."
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:652
+#: netbox/dcim/models/module_moves.py:653
 #, python-brace-format
 msgid ""
 "Moving this module would rename module bay {old_name} to {new_name}, which "
 "is the current name of another moved module bay in the same module."
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:681
+#: netbox/dcim/models/module_moves.py:682
 #, python-brace-format
 msgid ""
 "Moving this module would exceed the maximum field length for the following: "
 "{offenders}."
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:698
+#: netbox/dcim/models/module_moves.py:699
 #, python-brace-format
 msgid ""
 "{component}: new {field} {value} ({length} characters) exceeds the {limit}-"
 "character limit"
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:718
+#: netbox/dcim/models/module_moves.py:719
 #, python-brace-format
 msgid ""
 "{component}: the matched template's {field} cannot be resolved for the "
 "destination bay hierarchy"
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:727
+#: netbox/dcim/models/module_moves.py:728
 #, python-brace-format
 msgid ""
 "Moving this module would require template-derived values that cannot be "
@@ -8515,20 +8509,20 @@ msgid ""
 "before moving."
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:736
+#: netbox/dcim/models/module_moves.py:737
 msgid "The target module bay no longer exists."
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:740
+#: netbox/dcim/models/module_moves.py:741
 #, python-brace-format
 msgid "Module bay {module_bay} does not belong to device {device}."
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:745 netbox/dcim/models/modules.py:467
+#: netbox/dcim/models/module_moves.py:746 netbox/dcim/models/modules.py:467
 msgid "Cannot install a module in a disabled module bay."
 msgstr ""
 
-#: netbox/dcim/models/module_moves.py:750 netbox/dcim/models/modules.py:476
+#: netbox/dcim/models/module_moves.py:751 netbox/dcim/models/modules.py:476
 #, python-brace-format
 msgid "Module bay {module_bay} is already occupied by module {module}."
 msgstr ""
@@ -9611,6 +9605,12 @@ msgstr ""
 msgid ""
 "Cannot install module with placeholder values in a module bay tree {level} "
 "levels deep but {tokens} placeholders given."
+msgstr ""
+
+#: netbox/dcim/utils.py:105
+msgid ""
+"Cannot install module with placeholder values in a module bay with no "
+"position defined."
 msgstr ""
 
 #: netbox/dcim/views.py:154
@@ -14415,7 +14415,7 @@ msgstr ""
 msgid "{failed_count} of {total} objects could not be deleted."
 msgstr ""
 
-#: netbox/netbox/api/viewsets/mixins.py:816
+#: netbox/netbox/api/viewsets/mixins.py:813
 #, python-brace-format
 msgid "Unable to delete: {n} dependent object(s) prevent deletion."
 msgstr ""
@@ -18806,16 +18806,26 @@ msgstr ""
 msgid "flow rate"
 msgstr ""
 
-#: netbox/utilities/error_handlers.py:31
+#: netbox/utilities/error_handlers.py:59
 #, python-brace-format
 msgid ""
 "Unable to delete <strong>{objects}</strong>. {count} dependent objects were "
 "found: "
 msgstr ""
 
-#: netbox/utilities/error_handlers.py:33
-msgid "More than 50"
-msgstr ""
+#: netbox/utilities/error_handlers.py:73
+#, python-brace-format
+msgid "{count} more object"
+msgid_plural "{count} more objects"
+msgstr[0] ""
+msgstr[1] ""
+
+#: netbox/utilities/error_handlers.py:79
+#, python-brace-format
+msgid "{count} object you do not have permission to view"
+msgid_plural "{count} objects you do not have permission to view"
+msgstr[0] ""
+msgstr[1] ""
 
 #: netbox/utilities/export.py:28 netbox/utilities/export.py:62
 #, python-brace-format
