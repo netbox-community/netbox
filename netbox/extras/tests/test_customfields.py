@@ -1135,6 +1135,8 @@ class CustomFieldTestCase(TestCase):
             {'and': [{'attr': 'name', 'value': 'a'}, {'attr': 'rd', 'value': 'b'}]},
             {'status': {'value': 'active'}},
             {'status': [['active']]},
+            {'status': ('active', ['planned'])},
+            {'status': ['active', ('planned',)]},
         )
         for related_object_filter in invalid_filters:
             with self.subTest(related_object_filter=related_object_filter):

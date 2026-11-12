@@ -823,8 +823,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
                 })
             # Each value must be a scalar or a list of scalars (rendered as query parameters)
             for attr, value in self.related_object_filter.items():
-                values = value if type(value) is list else [value]
-                if any(isinstance(v, (dict, list)) for v in values):
+                values = value if isinstance(value, (list, tuple)) else [value]
+                if any(isinstance(v, (dict, list, tuple)) for v in values):
                     raise ValidationError({
                         'related_object_filter': _(
                             "Invalid value for filter attribute '{attr}': values must be a scalar or a list of "
