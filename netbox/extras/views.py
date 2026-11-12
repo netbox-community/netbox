@@ -1114,7 +1114,7 @@ class ConfigContextView(generic.ObjectView):
         if request.GET.get('format') in ['json', 'yaml']:
             format = request.GET.get('format')
             if request.user.is_authenticated:
-                request.user.config.set('data_format', format, commit=not get_config().MAINTENANCE_MODE)
+                request.user.config.set('data_format', format, commit=True)
         elif request.user.is_authenticated:
             format = request.user.config.get('data_format', 'json')
         else:
@@ -1176,7 +1176,7 @@ class ObjectConfigContextView(generic.ObjectView):
         if request.GET.get('format') in ['json', 'yaml']:
             format = request.GET.get('format')
             if request.user.is_authenticated:
-                request.user.config.set('data_format', format, commit=not get_config().MAINTENANCE_MODE)
+                request.user.config.set('data_format', format, commit=True)
         elif request.user.is_authenticated:
             format = request.user.config.get('data_format', 'json')
         else:

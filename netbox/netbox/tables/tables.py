@@ -17,7 +17,6 @@ from django_tables2.utils import OrderBy
 from core.models import ObjectType
 from extras.choices import *
 from extras.models import CustomField, CustomLink
-from netbox.config import get_config
 from netbox.constants import EMPTY_TABLE_TEXT
 from netbox.registry import registry
 from netbox.tables import columns
@@ -228,16 +227,14 @@ class BaseTable(tables.Table):
         ordering = None
 
         if request.user.is_authenticated and self.prefixed_order_by_field in request.GET:
-            # Don't save the preference while the database is read-only (maintenance mode)
-            commit = not get_config().MAINTENANCE_MODE
             if request.GET[self.prefixed_order_by_field]:
                 # If an ordering has been specified as a query parameter, save it as the
                 # user's preferred ordering for this table.
                 ordering = request.GET.getlist(self.prefixed_order_by_field)
-                request.user.config.set(f'tables.{self.name}.ordering', ordering, commit=commit)
+                request.user.config.set(f'tables.{self.name}.ordering', ordering, commit=True)
             else:
                 # If the ordering has been set to none (empty), clear any existing preference.
-                request.user.config.clear(f'tables.{self.name}.ordering', commit=commit)
+                request.user.config.clear(f'tables.{self.name}.ordering', commit=True)
 
         # If the user has a saved preference, apply it
         if request.user.is_authenticated and (userconfig := request.user.config):

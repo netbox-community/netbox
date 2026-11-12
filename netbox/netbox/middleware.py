@@ -8,8 +8,9 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.signals import got_request_exception
 from django.db import Error, ProgrammingError, connection
 from django.db.utils import InternalError
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.middleware.common import CommonMiddleware as DjangoCommonMiddleware
+from django.template import loader
 from django.utils.translation import gettext_lazy as _
 from django_prometheus import middleware
 from social_django.middleware import SocialAuthExceptionMiddleware as SocialAuthExceptionMiddleware_
@@ -296,7 +297,7 @@ class MaintenanceModeMiddleware:
 
             # Redirecting a read-only request (e.g. GET) back to the same URL would fail the same way again
             if request.method in ('GET', 'HEAD', 'OPTIONS'):
-                return handler_500(request, template_name='exceptions/maintenance_mode.html')
+                return HttpResponse(loader.render_to_string('exceptions/maintenance_mode.html'), status=503)
 
             messages.error(request, error_message)
             return HttpResponseRedirect(request.path_info)

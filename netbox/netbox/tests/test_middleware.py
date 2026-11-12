@@ -169,8 +169,9 @@ class CoreMiddlewareTestCase(TestCase):
         with patch('netbox.middleware.get_config', return_value=SimpleNamespace(MAINTENANCE_MODE=True)):
             response = self.process_internal_error(request, 'Simulated maintenance mode UI error')
 
-        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.status_code, 503)
         self.assertIn('maintenance mode', response.content.decode())
+        self.assertNotIn('Server Error', response.content.decode())
 
     def test_maintenance_mode_handles_graphql_json_request(self):
         request = self.factory.post(
@@ -279,6 +280,25 @@ class MaintenanceModeTestCase(TransactionTestCase):
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertIn('maintenance mode', response.json()['error'])
         self.assertFalse(Site.objects.exists())
+
+    def test_api_user_config_write_refused(self):
+        """
+        Explicitly saving a user's preferences is refused, unlike the incidental changes made while viewing a page.
+        """
+        token = Token.objects.create(user=self.user)
+        header = {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{token.key}.{token.token}'}
+
+        response = self.client.patch(
+            reverse('users-api:userconfig-list'),
+            {'data_format': 'yaml'},
+            content_type='application/json',
+            **header,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertIn('maintenance mode', response.json()['error'])
+        self.user.config.refresh_from_db()
+        self.assertIsNone(self.user.config.get('data_format'))
 
     def test_writes_resume_when_maintenance_mode_disabled(self):
         self.client.force_login(self.user)

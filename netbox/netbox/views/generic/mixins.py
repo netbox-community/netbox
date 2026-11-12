@@ -1,7 +1,6 @@
 from django.shortcuts import get_object_or_404
 
 from extras.models import TableConfig
-from netbox.config import get_config
 from utilities.permissions import get_permission_for_model
 
 __all__ = (
@@ -57,9 +56,7 @@ class TableMixin:
             if request.user.is_authenticated:
                 table = self.table.__name__
                 request.user.config.set(f'tables.{table}.columns', tableconfig.columns)
-                request.user.config.set(
-                    f'tables.{table}.ordering', tableconfig.ordering, commit=not get_config().MAINTENANCE_MODE
-                )
+                request.user.config.set(f'tables.{table}.ordering', tableconfig.ordering, commit=True)
 
         table = self.table(data)
         if 'pk' in table.base_columns and bulk_actions:
