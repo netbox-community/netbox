@@ -94,6 +94,16 @@ class ColorSelect(forms.Select):
         super().__init__(*args, **kwargs)
         self.attrs['class'] = 'color-select'
 
+    def optgroups(self, name, value, attrs=None):
+        groups = super().optgroups(name, value, attrs)
+        # Render a custom (non-predefined) color as a selected option so it isn't lost on submission
+        known_values = {str(choice[0]) for choice in self.choices}
+        for color in value:
+            if color and color not in known_values:
+                index = len(groups)
+                groups.append((None, [self.create_option(name, color, color, True, index)], index))
+        return groups
+
 
 class HTMXSelect(Select):
     """
