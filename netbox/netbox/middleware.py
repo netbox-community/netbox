@@ -40,6 +40,8 @@ class CommonMiddleware(DjangoCommonMiddleware):
     body (clients downgrade to GET on a 302) or raise a RuntimeError when
     DEBUG is enabled. Letting the original 404 propagate gives the caller a
     clear, actionable error instead.
+
+    Also reports 404 responses to Sentry after APPEND_SLASH handling.
     """
     UNSAFE_METHODS = frozenset(('DELETE', 'PATCH', 'POST', 'PUT'))
 
@@ -47,6 +49,15 @@ class CommonMiddleware(DjangoCommonMiddleware):
         if request.method in self.UNSAFE_METHODS and is_api_request(request):
             return False
         return super().should_redirect_with_slash(request)
+
+    def process_response(self, request, response):
+        response = super().process_response(request, response)
+
+        if settings.SENTRY_ENABLED and response.status_code == 404 and getattr(request, '_sentry_report_404', False):
+            from sentry_sdk import capture_message
+            capture_message("Page not found", level="error")
+
+        return response
 
 
 class CoreMiddleware:
