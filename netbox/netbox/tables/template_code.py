@@ -16,3 +16,12 @@ SEARCH_RESULT_ATTRS = """
   </span>
 {% endfor %}
 """
+
+SEARCH_RESULT_TAGS = """
+{% load helpers %}
+{% for tag in record.object.tags.all %}
+    {% tag tag %}
+{% empty %}
+    <span class="text-muted">&mdash;</span>
+{% endfor %}
+"""
