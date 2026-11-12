@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from dcim.choices import ConsolePortTypeChoices, PowerOutletTypeChoices, PowerPortTypeChoices
+from dcim.choices import ConsolePortTypeChoices, PortTypeChoices, PowerOutletTypeChoices, PowerPortTypeChoices
 from dcim.models import *
 from extras.models import Tag
 from netbox.forms.mixins import ChangelogMessageMixin, CustomFieldsMixin
@@ -156,6 +156,11 @@ class RearPortBulkCreateForm(
     DeviceBulkAddComponentForm
 ):
     model = RearPort
+    type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(PortTypeChoices),
+        required=False,
+    )
     field_order = ('name', 'label', 'type', 'positions', 'mark_connected', 'description', 'tags')
 
 

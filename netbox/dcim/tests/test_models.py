@@ -4138,6 +4138,8 @@ class ComponentTypeImageTestCase(TestCase):
         for model, choices, value in (
             (ConsolePort, ConsolePortTypeChoices, ConsolePortTypeChoices.TYPE_DE9),
             (ConsoleServerPort, ConsolePortTypeChoices, ConsolePortTypeChoices.TYPE_RJ45),
+            (FrontPort, PortTypeChoices, PortTypeChoices.TYPE_8P8C),
+            (RearPort, PortTypeChoices, PortTypeChoices.TYPE_LC),
             (PowerPort, PowerPortTypeChoices, PowerPortTypeChoices.TYPE_IEC_C14),
             (PowerOutlet, PowerOutletTypeChoices, PowerOutletTypeChoices.TYPE_IEC_C13),
         ):

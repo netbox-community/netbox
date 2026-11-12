@@ -1586,6 +1586,9 @@ class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
         verbose_name = _('front port')
         verbose_name_plural = _('front ports')
 
+    def get_type_image(self):
+        return PortTypeChoices.images.get(self.type)
+
     def clean(self):
         super().clean()
 
@@ -1627,6 +1630,9 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
     class Meta(ModularComponentModel.Meta):
         verbose_name = _('rear port')
         verbose_name_plural = _('rear ports')
+
+    def get_type_image(self):
+        return PortTypeChoices.images.get(self.type)
 
     def clean(self):
         super().clean()

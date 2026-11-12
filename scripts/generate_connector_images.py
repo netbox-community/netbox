@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Generate the connector drawings displayed for power port, power outlet, and console port types.
+Generate the connector drawings displayed for power port, power outlet, console port, and front/rear port types.
 
 Each drawing depicts the mating face of a connector as a 64x64 SVG: the face is outlined and its contacts are
 filled solid black, on a transparent background (the UI inverts the drawings in dark mode). Receptacles are drawn
@@ -729,22 +729,101 @@ def d_sub(contacts, width, pitch):
     return drawing
 
 
-def modular_jack(width, keyway, contacts, positions):
+# Modular jack sizes (positions): opening width, and the latch keyway's wide step (width, bottom) and narrow step
+# (width, bottom). The opening spans y -3.42 to +3.42 above the keyway.
+MODULAR_JACKS = {
+    4: (7.85, (5.6, 5.0), (3.2, 7.1)),
+    6: (9.88, (6.6, 5.1), (4.06, 5.95)),
+    8: (11.91, (6.3, 5.1), (4.06, 5.95)),
+}
+
+
+def modular_jack(positions, contacts):
     """
     A modular (RJ) jack, contacts along the top and the latch keyway at the bottom. contacts lists the populated
     positions, numbered from 1 at the left.
     """
-    # The opening spans y -3.42 to +5.95 (including the keyway); centre it vertically
-    dy = -1.265
-    x, kw = width / 2, keyway / 2
+    width, (wide, step), (narrow, bottom) = MODULAR_JACKS[positions]
+    dy = -(bottom - 3.42) / 2  # Centre the opening (including the keyway) vertically
+    x, w, n = width / 2, wide / 2, narrow / 2
     outline = polygon([(px, py + dy) for px, py in (
-        (-x, -3.42), (x, -3.42), (x, 3.42), (kw, 3.42), (kw, 5.1), (2.03, 5.1), (2.03, 5.95), (-2.03, 5.95),
-        (-2.03, 5.1), (-kw, 5.1), (-kw, 3.42), (-x, 3.42),
+        (-x, -3.42), (x, -3.42), (x, 3.42), (w, 3.42), (w, step), (n, step), (n, bottom), (-n, bottom),
+        (-n, step), (-w, step), (-w, 3.42), (-x, 3.42),
     )])
-    drawing = Drawing(width, 9.37).outline(outline)
-    for n in contacts:
-        drawing.fill(rect((n - (positions + 1) / 2) * 1.016, -2.2 + dy, 0.55, 2.4))
+    drawing = Drawing(width, bottom + 3.42).outline(outline)
+    for c in contacts:
+        drawing.fill(rect((c - (positions + 1) / 2) * 1.016, -2.2 + dy, 0.55, 2.4))
     return drawing
+
+
+def gg45():
+    """An 8P jack with an additional pair of contacts standing in each bottom corner (IEC 60603-7-7)."""
+    drawing = modular_jack(8, range(1, 9))
+    dy = -(5.95 - 3.42) / 2
+    return drawing.fill(*(rect(x, 1.9 + dy, 0.56, 3) for x in (-4.85, -3.83, 3.83, 4.85)))
+
+
+def tera(pairs):
+    """
+    A Siemon TERA outlet: four pair cavities beneath a latch. TERA outlets accept 1-, 2- and 4-pair plugs;
+    contacts are shown only in the cavities a plug with the given number of pairs occupies.
+    """
+    drawing = Drawing(14.5, 23.1).outline(rect(0, 0, 14.5, 23.1, 1)).fill(rect(0, -9, 5.25, 1.4, 0.7))
+    # Pair cavities in plug order: 1 (top left), 2 (bottom left), 3 (top right), 4 (bottom right)
+    cavities = [(-1, -0.365, 5.37, -1.3), (-1, 5.845, 5.85, 6.9), (1, -0.365, 5.37, -1.3), (1, 5.845, 5.85, 6.9)]
+    for i, (side, cy, h, contact_y) in enumerate(cavities):
+        drawing.detail(rect(side * 3.55, cy, 5.28, h, 0.6))
+        if i < pairs:
+            drawing.fill(rect(side * 2.68, contact_y, 1.1, 1.6), rect(side * 4.43, contact_y, 1.1, 1.6))
+    return drawing
+
+
+def punch_110():
+    """A 110 connecting block (side view): nine teeth separating eight wire slots."""
+    points = [(-15.24, 11.75)]
+    for i in range(9):
+        x = -15.24 + i * 3.81
+        points.append((x, -11.75))
+        if i < 8:
+            points.append((x + 1.905, -6.5))
+    points.append((15.24, 11.75))
+    drawing = Drawing(30.48, 23.5).outline(polygon(points))
+    for i in range(8):
+        drawing.fill(rect(-13.335 + i * 3.81, -3.5, 0.8, 6))
+    return drawing
+
+
+def bnc():
+    """A BNC jack: a smooth barrel with two bayonet studs."""
+    return Drawing(11, 11).outline(Circle(0, 0, 4.825)).detail(Circle(0, 0, 4.05), Circle(0, 0, 2.3)).fill(
+        Circle(-4.5, 0, 1), Circle(4.5, 0, 1), Circle(0, 0, 1.05),
+    )
+
+
+def f_connector():
+    """An F jack: a threaded barrel on a hex body, with a solid dielectric face and a central pinhole."""
+    hexagon = polygon([polar(0, 0, 6.35, angle) for angle in range(0, 360, 60)])
+    return Drawing(11, 12.7).outline(hexagon).detail(Circle(0, 0, 4.76), Circle(0, 0, 2.6)).fill(Circle(0, 0, 0.65))
+
+
+def n_connector():
+    """An N jack on a square four-hole flange."""
+    holes = (Circle(x, y, 1.6) for x in (-9.15, 9.15) for y in (-9.15, 9.15))
+    return Drawing(25.4, 25.4).outline(rect(0, 0, 25.4, 25.4, 1.5)).detail(
+        *holes, Circle(0, 0, 7.9), Circle(0, 0, 4.3),
+    ).fill(Circle(0, 0, 1.5))
+
+
+def mrj21():
+    """An MRJ21 receptacle: a skewed opening holding two offset rows of contacts."""
+    opening = Path([
+        ('M', -7.35, -5.1), ('L', 7.84, -5.1), ('L', 10.38, -2.57), ('L', 10.38, -1.41), ('L', 7.41, 3.87),
+        ('L', 5.42, 5.09), ('L', -8.31, 5.09), ('L', -9.85, 3.56), ('L', -9.85, 0.395),
+        arc_to(-12.96, -4.34, 5.665, (-9.85, 0.395), (-7.35, -5.1), clockwise=False), ('Z',),
+    ])
+    return Drawing(28.92, 13.25).outline(rect(0, 0, 28.92, 13.25, 0.8)).detail(
+        opening, Circle(-11.44, -3.6, 1.2), Circle(11.44, 3.6, 1.2),
+    ).fill(rect(1.25, -2.42, 15.4, 2.86), rect(-1.25, 2.42, 15.4, 2.86))
 
 
 def mini_din_8():
@@ -761,6 +840,139 @@ def mini_din_8():
     drawing = Drawing(10.2, 10.2).outline(Circle(0, 0, 5.1)).detail(insert)
     for x, y in ((-2, -1.6), (0, -1.6), (2, -1.6), (-2.5, 0.4), (0.4, 0.4), (2.5, 0.4), (-1, 2.4), (1, 2.4)):
         drawing.fill(Circle(x, y, 0.55))
+    return drawing
+
+
+#
+# Fiber optic adapters (as seen on a patch panel, key or latch at the top). Polish variants (PC/UPC/APC) are
+# mechanically identical and share a drawing.
+#
+
+def fiber_sc():
+    """SC (IEC 61754-4): a rectangular opening with a keyway at the top."""
+    outline = polygon([
+        (-4.5, -3.25), (-1, -3.25), (-1, -4.15), (1, -4.15), (1, -3.25), (4.5, -3.25), (4.5, 4.15), (-4.5, 4.15),
+    ])
+    return Drawing(9, 8.3).outline(outline).fill(Circle(0, 0.45, 1.25))
+
+
+def fiber_lc():
+    """LC (IEC 61754-20): a square port beneath a stepped latch cavity."""
+    outline = polygon([(x, y + 1.75) for x, y in (
+        (-2.3, 2.3), (-2.3, -2.3), (-1.8, -2.3), (-1.8, -3.1), (-2.4, -3.1), (-2.4, -4.3), (-1.4, -4.3),
+        (-1.4, -5.8), (1.4, -5.8), (1.4, -4.3), (2.4, -4.3), (2.4, -3.1), (1.8, -3.1), (1.8, -2.3), (2.3, -2.3),
+        (2.3, 2.3),
+    )])
+    return Drawing(4.8, 8.1).outline(outline).fill(Circle(0, 1.75, 0.625))
+
+
+def fiber_mu():
+    """MU (IEC 61754-6): a small upright rectangle with a key on one side."""
+    outline = polygon([
+        (-2, -2.8), (2, -2.8), (2, -1.85), (2.45, -1.2), (2.45, 1.2), (2, 1.85), (2, 2.8), (-2, 2.8),
+    ])
+    return Drawing(4.9, 5.6).outline(outline).fill(Circle(0, 0, 0.625))
+
+
+def fiber_fc():
+    """FC (IEC 61754-13): a threaded barrel with a key slot at the top, on a square two-hole flange."""
+    slot = 1.075
+    outer, inner = math.sqrt(4 ** 2 - slot ** 2), math.sqrt(2.3 ** 2 - slot ** 2)
+    barrel = Path([
+        ('M', slot, -outer), arc_to(0, 0, 4, (slot, -outer), (-slot, -outer)),
+        ('L', -slot, -inner), ('L', slot, -inner), ('Z',),
+    ])
+    return Drawing(15, 15).outline(rect(0, 0, 15, 15, 1.5)).detail(
+        barrel, Circle(0, 0, 2.3), Circle(4.74, -4.74, 1.1), Circle(-4.74, 4.74, 1.1),
+    ).fill(Circle(0, 0, 1.25))
+
+
+def fiber_st():
+    """ST (IEC 61754-2): a bayonet barrel with two pins, keyed at the top."""
+    slot = 0.65
+    outer, inner = math.sqrt(3.52 ** 2 - slot ** 2), math.sqrt(2.745 ** 2 - slot ** 2)
+    barrel = Path([
+        ('M', slot, -outer), arc_to(0, 0, 3.52, (slot, -outer), (-slot, -outer)),
+        ('L', -slot, -inner), ('L', slot, -inner), ('Z',),
+    ])
+    return Drawing(8.6, 8.6).outline(barrel).detail(Circle(0, 0, 2.745)).fill(
+        Circle(-3.62, 0, 0.65), Circle(3.62, 0, 0.65), Circle(0, 0, 1.25),
+    )
+
+
+def fiber_e2000():
+    """LSH/E-2000 (IEC 61754-15): an upright opening with a latch window, its ferrule hidden by a shutter."""
+    return Drawing(7.3, 9.9).outline(rect(0, 0, 7.3, 9.9, 0.5)).detail(rect(0, 1, 5.6, 6.6, 0.4)).fill(
+        rect(0, -3.9, 3, 1.2),
+    )
+
+
+def fiber_lx5():
+    """LX.5 (IEC 61754-23): a narrow upright port with its ferrule offset away from the latch."""
+    return Drawing(5.2, 8.5).outline(rect(0, 0, 5.2, 8.5, 0.4)).fill(rect(0, -3.4, 2, 0.9), Circle(0, 1.7, 0.625))
+
+
+def fiber_mpo():
+    """MPO (IEC 61754-7): a wide opening keyed at the top, around an MT ferrule with a row of fibers."""
+    outline = Path([
+        ('M', -5, -4.1), ('L', -1.5, -4.1), ('L', -1.5, -4.9), ('L', 1.5, -4.9), ('L', 1.5, -4.1), ('L', 5, -4.1),
+        arc_to(-1.4, 0, 7.6, (5, -4.1), (5, 4.1)), ('L', -5, 4.1), arc_to(1.4, 0, 7.6, (-5, 4.1), (-5, -4.1)),
+        ('Z',),
+    ])
+    return Drawing(12.4, 9.8).outline(outline).detail(rect(0, 0, 6.4, 2.45, 0.2)).fill(
+        Circle(-2.3, 0, 0.4), Circle(2.3, 0, 0.4), rect(0, 0, 2.9, 0.3),
+    )
+
+
+def fiber_mtrj():
+    """MT-RJ (IEC 61754-18): a small RJ-style opening around a ferrule holding two fibers between guide pins."""
+    outline = polygon([
+        (-3.6, -1.85), (-2, -1.85), (-2, -2.85), (2, -2.85), (2, -1.85), (3.6, -1.85), (3.6, 2.85), (-3.6, 2.85),
+    ])
+    return Drawing(7.2, 5.7).outline(outline).detail(rect(0, 0.5, 4.4, 2.45, 0.2)).fill(
+        Circle(-1.3, 0.5, 0.35), Circle(1.3, 0.5, 0.35), Circle(-0.375, 0.5, 0.2), Circle(0.375, 0.5, 0.2),
+    )
+
+
+def fiber_cs():
+    """CS (Senko): two ferrules side by side beneath a push-pull tab channel."""
+    outline = polygon([
+        (-3.925, -1.8), (-1.2, -1.8), (-1.2, -3.5), (1.2, -3.5), (1.2, -1.8), (3.925, -1.8), (3.925, 3.5),
+        (-3.925, 3.5),
+    ])
+    return Drawing(7.85, 7).outline(outline).fill(Circle(-1.9, 0.85, 0.625), Circle(1.9, 0.85, 0.625))
+
+
+def fiber_sn():
+    """SN (Senko): a narrow upright port with two stacked ferrules and tabs at the top and bottom."""
+    outline = polygon([
+        (-1.925, -4.73), (-0.8, -4.73), (-0.8, -3.93), (0.8, -3.93), (0.8, -4.73), (1.925, -4.73),
+        (1.925, 4.73), (0.8, 4.73), (0.8, 3.93), (-0.8, 3.93), (-0.8, 4.73), (-1.925, 4.73),
+    ])
+    return Drawing(3.85, 9.46).outline(outline).fill(Circle(0, -1.55, 0.625), Circle(0, 1.55, 0.625))
+
+
+def fiber_mdc():
+    """MDC (US Conec): a narrow upright port with two stacked ferrules in a figure-8 boss."""
+    return Drawing(3.9, 9.1).outline(rect(0, 0, 3.9, 9.1, 0.3)).detail(rect(0, 0.4, 2.92, 6, 1.46)).fill(
+        rect(0, -3.8, 1.7, 0.9), Circle(0, -1.15, 0.625), Circle(0, 1.95, 0.625),
+    )
+
+
+def fiber_sma():
+    """SMA 905/906 (IEC 61754-22): a plain threaded barrel around a large bore; both types look alike."""
+    return Drawing(6.35, 6.35).outline(Circle(0, 0, 3.175)).detail(Circle(0, 0, 2.5)).fill(Circle(0, 0, 1.59))
+
+
+def fiber_urm(cells):
+    """URM (Euromicron, DIN SPEC 40032): a row of cells, each holding two stacked ferrules."""
+    width = cells * 6.4
+    drawing = Drawing(width, 13.4).outline(rect(0, 0, width, 13.4, 1))
+    for i in range(cells):
+        x = (i - (cells - 1) / 2) * 6.4
+        drawing.detail(rect(x, 0, 4.8, 10, 0.5)).fill(
+            rect(x, -4.4, 1.6, 0.8), rect(x, 4.4, 1.6, 0.8), Circle(x, -1.4, 0.625), Circle(x, 1.4, 0.625),
+        )
     return drawing
 
 
@@ -1069,10 +1281,58 @@ CONSOLE_PORTS = {
     'de-9': lambda: d_sub(9, 16.26, 2.74),
     'db-25': lambda: d_sub(25, 38.3, 2.77),
     # RJ-11 is defined with only its two centre positions populated (47 CFR 68.502)
-    'rj-11': lambda: modular_jack(9.88, 6.6, (3, 4), 6),
-    'rj-12': lambda: modular_jack(9.88, 6.6, range(1, 7), 6),
-    'rj-45': lambda: modular_jack(11.91, 6.3, range(1, 9), 8),
+    'rj-11': lambda: modular_jack(6, (3, 4)),
+    'rj-12': lambda: modular_jack(6, range(1, 7)),
+    'rj-45': lambda: modular_jack(8, range(1, 9)),
     'mini-din-8': mini_din_8,
+    'usb-a': usb_a,
+    'usb-b': usb_b,
+    'usb-c': usb_c,
+    'usb-mini-a': usb_mini_a,
+    'usb-mini-b': usb_mini_b,
+    'usb-micro-a': usb_micro_a,
+    'usb-micro-b': usb_micro_b,
+    'usb-micro-ab': usb_micro_a,
+}
+
+
+# Front/rear port type: drawing function. Ports are drawn as the jack, adapter, or bulkhead receptacle.
+PORTS = {
+    '8p8c': lambda: modular_jack(8, range(1, 9)),
+    '8p6c': lambda: modular_jack(8, range(2, 8)),
+    '8p4c': lambda: modular_jack(8, range(3, 7)),
+    '8p2c': lambda: modular_jack(8, (4, 5)),
+    '6p6c': lambda: modular_jack(6, range(1, 7)),
+    '6p4c': lambda: modular_jack(6, range(2, 6)),
+    '6p2c': lambda: modular_jack(6, (3, 4)),
+    '4p4c': lambda: modular_jack(4, range(1, 5)),
+    '4p2c': lambda: modular_jack(4, (2, 3)),
+    'gg45': gg45,
+    'tera-4p': lambda: tera(4),
+    'tera-2p': lambda: tera(2),
+    'tera-1p': lambda: tera(1),
+    '110-punch': punch_110,
+    'bnc': bnc,
+    'f': f_connector,
+    'n': n_connector,
+    'mrj21': mrj21,
+    **{f'fc{polish}': fiber_fc for polish in ('', '-pc', '-upc', '-apc')},
+    **{f'lc{polish}': fiber_lc for polish in ('', '-pc', '-upc', '-apc')},
+    **{f'mu{polish}': fiber_mu for polish in ('', '-pc', '-upc', '-apc')},
+    **{f'lsh{polish}': fiber_e2000 for polish in ('', '-pc', '-upc', '-apc')},
+    **{f'lx5{polish}': fiber_lx5 for polish in ('', '-pc', '-upc', '-apc')},
+    **{f'sc{polish}': fiber_sc for polish in ('', '-pc', '-upc', '-apc')},
+    'mpo': fiber_mpo,
+    'mtrj': fiber_mtrj,
+    'st': fiber_st,
+    'cs': fiber_cs,
+    'sn': fiber_sn,
+    'mdc': fiber_mdc,
+    'sma-905': fiber_sma,
+    'sma-906': fiber_sma,
+    'urm-p2': lambda: fiber_urm(1),
+    'urm-p4': lambda: fiber_urm(2),
+    'urm-p8': lambda: fiber_urm(4),
     'usb-a': usb_a,
     'usb-b': usb_b,
     'usb-c': usb_c,
@@ -1107,6 +1367,7 @@ def main():
     write(OUTPUT_DIR / 'power-outlet', POWER_OUTLETS)
     write(OUTPUT_DIR / 'power-port', POWER_PORTS)
     write(OUTPUT_DIR / 'console-port', CONSOLE_PORTS)
+    write(OUTPUT_DIR / 'port', PORTS)
 
 
 if __name__ == '__main__':

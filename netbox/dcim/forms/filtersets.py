@@ -2206,7 +2206,7 @@ class FrontPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     model = FrontPort
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=PortTypeChoices,
         required=False
@@ -2225,7 +2225,7 @@ class FrontPortTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
         FieldSet('name', 'label', 'type', 'color', name=_('Attributes')),
         FieldSet('device_type_id', 'module_type_id', name=_('Device')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=PortTypeChoices,
         required=False
@@ -2249,7 +2249,7 @@ class RearPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
         FieldSet('cabled', 'occupied', name=_('Cable')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=PortTypeChoices,
         required=False
@@ -2268,7 +2268,7 @@ class RearPortTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
         FieldSet('name', 'label', 'type', 'color', name=_('Attributes')),
         FieldSet('device_type_id', 'module_type_id', name=_('Device')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=PortTypeChoices,
         required=False
