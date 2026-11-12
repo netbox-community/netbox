@@ -50,7 +50,7 @@ class DeviceBulkAddComponentForm(BackgroundJobMixin, ChangelogMessageMixin, Cust
 
 
 class ConsolePortBulkCreateForm(
-    form_from_model(ConsolePort, ['type', 'speed', 'mark_connected']),
+    form_from_model(ConsolePort, ['speed', 'mark_connected']),
     DeviceBulkAddComponentForm
 ):
     model = ConsolePort
@@ -58,12 +58,13 @@ class ConsolePortBulkCreateForm(
         label=_('Type'),
         choices=add_blank_choice(ConsolePortTypeChoices),
         required=False,
+        help_text=_('Physical port type'),
     )
     field_order = ('name', 'label', 'type', 'mark_connected', 'description', 'tags')
 
 
 class ConsoleServerPortBulkCreateForm(
-    form_from_model(ConsoleServerPort, ['type', 'speed', 'mark_connected']),
+    form_from_model(ConsoleServerPort, ['speed', 'mark_connected']),
     DeviceBulkAddComponentForm
 ):
     model = ConsoleServerPort
@@ -71,12 +72,13 @@ class ConsoleServerPortBulkCreateForm(
         label=_('Type'),
         choices=add_blank_choice(ConsolePortTypeChoices),
         required=False,
+        help_text=_('Physical port type'),
     )
     field_order = ('name', 'label', 'type', 'speed', 'description', 'tags')
 
 
 class PowerPortBulkCreateForm(
-    form_from_model(PowerPort, ['type', 'maximum_draw', 'allocated_draw', 'mark_connected']),
+    form_from_model(PowerPort, ['maximum_draw', 'allocated_draw', 'mark_connected']),
     DeviceBulkAddComponentForm
 ):
     model = PowerPort
@@ -84,12 +86,13 @@ class PowerPortBulkCreateForm(
         label=_('Type'),
         choices=add_blank_choice(PowerPortTypeChoices),
         required=False,
+        help_text=_('Physical port type'),
     )
     field_order = ('name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description', 'tags')
 
 
 class PowerOutletBulkCreateForm(
-    form_from_model(PowerOutlet, ['type', 'status', 'color', 'feed_leg', 'mark_connected']),
+    form_from_model(PowerOutlet, ['status', 'color', 'feed_leg', 'mark_connected']),
     DeviceBulkAddComponentForm
 ):
     model = PowerOutlet
@@ -97,6 +100,7 @@ class PowerOutletBulkCreateForm(
         label=_('Type'),
         choices=add_blank_choice(PowerOutletTypeChoices),
         required=False,
+        help_text=_('Physical port type'),
     )
     field_order = (
         'name', 'label', 'type', 'status', 'color', 'feed_leg', 'mark_connected',
@@ -152,7 +156,7 @@ class InterfaceBulkCreateForm(
 
 
 class RearPortBulkCreateForm(
-    form_from_model(RearPort, ['type', 'color', 'positions', 'mark_connected']),
+    form_from_model(RearPort, ['color', 'positions', 'mark_connected']),
     DeviceBulkAddComponentForm
 ):
     model = RearPort

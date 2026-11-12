@@ -12,6 +12,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages import get_messages
 from django.db import connection
 from django.http import QueryDict, StreamingHttpResponse
+from django.templatetags.static import static
 from django.test import override_settings, tag
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
@@ -5680,6 +5681,26 @@ class CableTestCase(
             ],
             [(1, interfaces[1]), (2, interfaces[0])]
         )
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_termination_type_images(self):
+        """Each side shows its termination type, with a connector image only where one exists."""
+        power_port = PowerPort.objects.create(
+            device=Device.objects.get(name='Device 2'), name='Power Port 1', type=PowerPortTypeChoices.TYPE_IEC_C14
+        )
+        power_outlet = PowerOutlet.objects.create(
+            device=Device.objects.get(name='Device 3'), name='Power Outlet 1', type=PowerOutletTypeChoices.TYPE_DC
+        )
+        cable = Cable(a_terminations=[power_port], b_terminations=[power_outlet])
+        cable.save()
+
+        response = self.client.get(cable.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+        content = response.content.decode()
+        self.assertIn(static(power_port.get_type_image()), content)
+        self.assertIn(str(power_port.get_type_display()), content)
+        self.assertIsNone(power_outlet.get_type_image())
+        self.assertIn(str(power_outlet.get_type_display()), content)
 
 
 #

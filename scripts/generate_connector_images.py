@@ -11,9 +11,9 @@ so relative physical size is not conveyed. Contacts too small to read at icon si
 Usage: python scripts/generate_connector_images.py
 """
 import math
-from pathlib import Path
+import pathlib
 
-OUTPUT_DIR = Path(__file__).resolve().parent.parent / 'netbox' / 'project-static' / 'img' / 'connectors'
+OUTPUT_DIR = pathlib.Path(__file__).resolve().parent.parent / 'netbox' / 'project-static' / 'img' / 'connectors'
 SIZE = 64          # Frame size (px)
 CONTENT = 56       # Size of the face's longest dimension within the frame
 OUTLINE = 3        # Stroke width of face outlines
