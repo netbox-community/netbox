@@ -469,6 +469,9 @@ class ConsolePort(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
         verbose_name = _('console port')
         verbose_name_plural = _('console ports')
 
+    def get_type_image(self):
+        return ConsolePortTypeChoices.images.get(self.type)
+
 
 class ConsoleServerPort(ModularComponentModel, CabledObjectModel, PathEndpoint, TrackingModelMixin):
     """
@@ -495,6 +498,9 @@ class ConsoleServerPort(ModularComponentModel, CabledObjectModel, PathEndpoint, 
     class Meta(ModularComponentModel.Meta):
         verbose_name = _('console server port')
         verbose_name_plural = _('console server ports')
+
+    def get_type_image(self):
+        return ConsolePortTypeChoices.images.get(self.type)
 
 
 #
@@ -544,6 +550,9 @@ class PowerPort(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracking
                         "Allocated draw cannot exceed the maximum draw ({maximum_draw}W)."
                     ).format(maximum_draw=self.maximum_draw)
                 })
+
+    def get_type_image(self):
+        return PowerPortTypeChoices.images.get(self.type)
 
     def get_downstream_powerports(self, leg=None):
         """
@@ -692,6 +701,9 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
 
     def get_status_color(self):
         return PowerOutletStatusChoices.colors.get(self.status)
+
+    def get_type_image(self):
+        return PowerOutletTypeChoices.images.get(self.type)
 
 
 #
@@ -1574,6 +1586,9 @@ class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
         verbose_name = _('front port')
         verbose_name_plural = _('front ports')
 
+    def get_type_image(self):
+        return PortTypeChoices.images.get(self.type)
+
     def clean(self):
         super().clean()
 
@@ -1615,6 +1630,9 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
     class Meta(ModularComponentModel.Meta):
         verbose_name = _('rear port')
         verbose_name_plural = _('rear ports')
+
+    def get_type_image(self):
+        return PortTypeChoices.images.get(self.type)
 
     def clean(self):
         super().clean()

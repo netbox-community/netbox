@@ -1155,3 +1155,49 @@ class DescriptionSelectTestCase(TestCase):
         self.assertTrue(calls)
         # And descriptions are still collected as normal
         self.assertEqual(field.widget.descriptions, {self.ExampleChoices.FOO: 'Description of foo'})
+
+
+class ImageSelectTestCase(TestCase):
+    """
+    Validate the rendering of option images in static select fields.
+    """
+    class ExampleChoices(ChoiceSet):
+        FOO = 'foo'
+        BAR = 'bar'
+        CHOICES = (
+            Choice(FOO, 'Foo', image='foo.svg'),
+            Choice(BAR, 'Bar'),
+        )
+
+    def test_choiceset_images_populate_widget(self):
+        for field_class in (ChoiceField, MultipleChoiceField, TypedChoiceField):
+            with self.subTest(field_class=field_class.__name__):
+                field = field_class(choices=self.ExampleChoices)
+                self.assertEqual(field.widget.images, {self.ExampleChoices.FOO: 'foo.svg'})
+
+    def test_add_blank_choice_preserves_images(self):
+        field = ChoiceField(choices=add_blank_choice(self.ExampleChoices))
+        self.assertEqual(field.widget.images, {self.ExampleChoices.FOO: 'foo.svg'})
+
+    def test_images_refresh_when_choices_reassigned(self):
+        class OtherChoices(ChoiceSet):
+            CHOICES = (
+                Choice('baz', 'Baz', image='baz.svg'),
+            )
+
+        field = ChoiceField(choices=self.ExampleChoices)
+        field.choices = OtherChoices
+        self.assertEqual(field.widget.images, {'baz': 'baz.svg'})
+
+    @override_settings(STATIC_URL='/static/')
+    def test_data_image_rendered_on_option(self):
+        field = ChoiceField(choices=self.ExampleChoices)
+        html = field.widget.render('test', None)
+        self.assertInHTML('<option value="foo" data-image="/static/foo.svg">Foo</option>', html)
+        # Options without an image should not receive the attribute
+        self.assertInHTML('<option value="bar">Bar</option>', html)
+
+    def test_deepcopy_does_not_share_images(self):
+        widget = Select(choices=[('x', 'X')], images={'x': 'x.svg'})
+        clone = copy.deepcopy(widget)
+        self.assertIsNot(widget.images, clone.images)

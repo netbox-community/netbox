@@ -22,6 +22,7 @@ from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_ch
 from utilities.forms.fields import (
     ColorField,
     DynamicModelMultipleChoiceField,
+    MultipleChoiceField,
     PositiveBigIntegerField,
     TagFilterField,
 )
@@ -1717,7 +1718,7 @@ class ConsolePortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         FieldSet('cabled', 'connected', 'occupied', name=_('Connection')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=ConsolePortTypeChoices,
         required=False
@@ -1737,7 +1738,7 @@ class ConsolePortTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
         FieldSet('name', 'label', 'type', name=_('Attributes')),
         FieldSet('device_type_id', 'module_type_id', name=_('Device')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=ConsolePortTypeChoices,
         required=False
@@ -1757,7 +1758,7 @@ class ConsoleServerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterF
         FieldSet('cabled', 'connected', 'occupied', name=_('Connection')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=ConsolePortTypeChoices,
         required=False
@@ -1777,7 +1778,7 @@ class ConsoleServerPortTemplateFilterForm(ModularDeviceComponentTemplateFilterFo
         FieldSet('name', 'label', 'type', name=_('Attributes')),
         FieldSet('device_type_id', 'module_type_id', name=_('Device')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=ConsolePortTypeChoices,
         required=False
@@ -1797,7 +1798,7 @@ class PowerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         FieldSet('cabled', 'connected', 'occupied', name=_('Connection')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=PowerPortTypeChoices,
         required=False
@@ -1812,7 +1813,7 @@ class PowerPortTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
         FieldSet('name', 'label', 'type', name=_('Attributes')),
         FieldSet('device_type_id', 'module_type_id', name=_('Device')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=PowerPortTypeChoices,
         required=False
@@ -1832,7 +1833,7 @@ class PowerOutletFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         FieldSet('cabled', 'connected', 'occupied', name=_('Connection')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=PowerOutletTypeChoices,
         required=False
@@ -1856,7 +1857,7 @@ class PowerOutletTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
         FieldSet('name', 'label', 'type', name=_('Attributes')),
         FieldSet('device_type_id', 'module_type_id', name=_('Device')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=PowerOutletTypeChoices,
         required=False
@@ -2205,7 +2206,7 @@ class FrontPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     model = FrontPort
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=PortTypeChoices,
         required=False
@@ -2224,7 +2225,7 @@ class FrontPortTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
         FieldSet('name', 'label', 'type', 'color', name=_('Attributes')),
         FieldSet('device_type_id', 'module_type_id', name=_('Device')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=PortTypeChoices,
         required=False
@@ -2248,7 +2249,7 @@ class RearPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
         FieldSet('cabled', 'occupied', name=_('Cable')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=PortTypeChoices,
         required=False
@@ -2267,7 +2268,7 @@ class RearPortTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
         FieldSet('name', 'label', 'type', 'color', name=_('Attributes')),
         FieldSet('device_type_id', 'module_type_id', name=_('Device')),
     )
-    type = forms.MultipleChoiceField(
+    type = MultipleChoiceField(
         label=_('Type'),
         choices=PortTypeChoices,
         required=False

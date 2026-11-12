@@ -1,5 +1,6 @@
 {% load helpers %}
 {% load i18n %}
+{% load static %}
 {% if terminations.0 %}
   <table class="table table-hover attr-table">
     {% if terminations.0.device %}
@@ -30,6 +31,23 @@
           {% endfor %}
         </td>
       </tr>
+      {% if terminations.0.type %}
+        <tr>
+          <th scope="row">{% trans "Type" %}</th>
+          <td>
+            {% for term in terminations %}
+              {% ifchanged term.type %}
+                <div>
+                  {% if term.get_type_image %}
+                    <img src="{% static term.get_type_image %}" class="choice-image choice-image-lg me-2" alt="" />
+                  {% endif %}
+                  {{ term.get_type_display|placeholder }}
+                </div>
+              {% endifchanged %}
+            {% endfor %}
+          </td>
+        </tr>
+      {% endif %}
     {% elif terminations.0.power_panel %}
       {# Power feed #}
       <tr>
