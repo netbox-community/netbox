@@ -8,7 +8,7 @@ from django.test import TestCase, override_settings
 from django.utils.html import escape
 
 from dcim.models import Rack, Site
-from netbox.choices import ImportFormatChoices
+from netbox.choices import ColorChoices, ImportFormatChoices
 from utilities.choices import Choice, ChoiceSet
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.forms.fields import ChoiceField, MultipleChoiceField, TypedChoiceField
@@ -31,7 +31,7 @@ from utilities.forms.utils import (
     get_field_value,
     parse_numeric_range,
 )
-from utilities.forms.widgets.select import AvailableOptions, HTMXSelect, Select, SelectedOptions
+from utilities.forms.widgets.select import AvailableOptions, ColorSelect, HTMXSelect, Select, SelectedOptions
 
 
 class ExpandIPNetworkTestCase(TestCase):
@@ -1209,3 +1209,20 @@ class DescriptionSelectTestCase(TestCase):
         self.assertTrue(calls)
         # And descriptions are still collected as normal
         self.assertEqual(field.widget.descriptions, {self.ExampleChoices.FOO: 'Description of foo'})
+
+
+class ColorSelectTestCase(TestCase):
+
+    def test_predefined_color_selected(self):
+        html = ColorSelect().render('color', ColorChoices.COLOR_RED)
+        self.assertInHTML(f'<option value="{ColorChoices.COLOR_RED}" selected>Red</option>', html)
+        self.assertEqual(html.count(f'value="{ColorChoices.COLOR_RED}"'), 1)
+
+    def test_custom_color_rendered_as_selected_option(self):
+        html = ColorSelect().render('color', 'e20074')
+        self.assertInHTML('<option value="e20074" selected>e20074</option>', html)
+
+    def test_empty_value_adds_no_option(self):
+        widget = ColorSelect()
+        html = widget.render('color', None)
+        self.assertEqual(html.count('<option'), len(widget.choices))
