@@ -107,6 +107,20 @@ class HandleChangedObjectSignalTestCase(TestCase):
         self.assertEqual([oc.postchange_data['description'] for oc in ocs], ['first', 'second'])
         self.assertFalse(hasattr(site, '_prechange_snapshot'))
 
+    def test_update_without_snapshot_enqueues_prechange_from_database(self):
+        """The event for an update saved without a snapshot carries its pre-change data. Ref: #23617"""
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        request = _build_request(self.user)
+
+        with self.assertLogs('netbox.core.signals', level='WARNING'), event_tracking(request):
+            site.description = 'updated'
+            site.save()
+            snapshots = events_queue.get()[f'dcim.site:{site.pk}']['snapshots']
+
+        self.assertEqual(snapshots['prechange']['description'], '')
+        self.assertEqual(snapshots['postchange']['description'], 'updated')
+        self.assertFalse(hasattr(site, '_prechange_snapshot'))
+
     def test_update_keeps_existing_snapshot(self):
         site = Site.objects.create(name='Site 1', slug='site-1')
         request = _build_request(self.user)

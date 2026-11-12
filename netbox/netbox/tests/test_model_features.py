@@ -164,8 +164,9 @@ class ModelFeaturesTestCase(TestCase):
         request.id = uuid.uuid4()
         request.user = User.objects.create_user(username='testuser')
 
+        template = ConfigTemplate.objects.get(pk=obj.pk)
         with event_tracking(request):
-            ConfigTemplate.objects.get(pk=obj.pk).sync(save=True)
+            template.sync(save=True)
 
         change = ObjectChange.objects.get(
             changed_object_type=ContentType.objects.get_for_model(ConfigTemplate),
@@ -173,6 +174,7 @@ class ModelFeaturesTestCase(TestCase):
         )
         self.assertEqual(change.prechange_data['template_code'], 'original\n')
         self.assertEqual(change.postchange_data['template_code'], 'updated\n')
+        self.assertFalse(hasattr(template, '_prechange_snapshot'))
 
     @patch.object(ManagedFile, 'sync_data')
     def test_synceddatamixin_sync_without_change_logging(self, mock_sync_data):

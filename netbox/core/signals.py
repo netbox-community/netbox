@@ -155,8 +155,6 @@ def handle_changed_object(sender, instance, **kwargs):
         OBJECT_DELETED: ObjectChangeActionChoices.ACTION_DELETE,
     }[event_type]
     objectchange = instance.to_objectchange(action)
-    if instance.__dict__.pop('_prechange_snapshot_from_db', False):
-        del instance._prechange_snapshot
     object_change_id = None
     # If this is a many-to-many field change, check for a previous ObjectChange instance recorded
     # for this object by this request and update it
@@ -184,6 +182,10 @@ def handle_changed_object(sender, instance, **kwargs):
     queue = events_queue.get()
     enqueue_event(queue, instance, request, event_type, object_change_id=object_change_id)
     events_queue.set(queue)
+
+    # Discard a snapshot read from the database only once the event has captured it
+    if instance.__dict__.pop('_prechange_snapshot_from_db', False):
+        instance.__dict__.pop('_prechange_snapshot', None)
 
     # Increment metric counters
     if event_type == OBJECT_CREATED:

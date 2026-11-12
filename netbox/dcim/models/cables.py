@@ -21,6 +21,7 @@ from dcim.exceptions import UnsupportedCablePath
 from dcim.fields import PathField
 from dcim.utils import decompile_path_node, object_to_path_node, rebuild_cable_paths
 from netbox.choices import ColorChoices
+from netbox.context import current_request
 from netbox.models import ChangeLoggedModel, PrimaryModel
 from utilities.conversion import to_meters
 from utilities.data import normalize_update_fields
@@ -353,6 +354,8 @@ class Cable(PrimaryModel):
 
     def save(self, *args, force_insert=False, force_update=False, using=None, update_fields=None):
         _created = self.pk is None
+        # Unlike _created, also true for a new Cable with a preset pk (e.g. one restored by deserialize_object())
+        adding = self._state.adding
         save_kwargs = {
             'using': using,
             'update_fields': update_fields,
@@ -391,21 +394,28 @@ class Cable(PrimaryModel):
         profile_written = update_fields is None or 'profile' in update_fields
 
         # If this is a new Cable, save it before attempting to create its CableTerminations
-        if self._state.adding:
+        if adding:
             super().save(*args, force_insert=True, **save_kwargs)
             # Update the private PK used in __str__()
             self._pk = self.pk
             # Record the pre-termination state for the update made by the save below
             self.snapshot()
 
-        if profile_written and self._orig_profile != self.profile:
-            self.update_terminations(force=True)
-        elif self._terminations_modified:
-            self.update_terminations()
+        force_terminations = profile_written and self._orig_profile != self.profile
+        if force_terminations or self._terminations_modified:
+            # update_terminations() writes before the pre_save fallback runs, so snapshot the stored Cable now
+            if current_request.get() is not None and not hasattr(self, '_prechange_snapshot'):
+                db = using or router.db_for_write(Cable, instance=self)
+                original = Cable._base_manager.using(db).get(pk=self.pk)
+                original.snapshot()
+                self._prechange_snapshot = original._prechange_snapshot
+                # Discarded by handle_changed_object() after this save, like the fallback's own snapshot
+                self._prechange_snapshot_from_db = True
+            self.update_terminations(force=force_terminations)
 
         super().save(*args, force_update=True, **save_kwargs)
         # Discard the pre-termination snapshot so that a later save of this instance takes a fresh one
-        if _created:
+        if adding:
             self.__dict__.pop('_prechange_snapshot', None)
 
         try:

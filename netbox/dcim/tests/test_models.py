@@ -73,6 +73,29 @@ class MACAddressTestCase(TestCase):
         )
         self.assertIsNone(change.prechange_data['assigned_object_id'])
         self.assertEqual(change.postchange_data['assigned_object_id'], interface.pk)
+        self.assertFalse(hasattr(mac, '_prechange_snapshot'))
+
+    @tag('regression')  # Ref: #23617
+    def test_primary_mac_assignment_keeps_existing_snapshot(self):
+        mac = MACAddress.objects.create(mac_address='1234567890ce')
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = User.objects.create_user(username='testuser')
+
+        with event_tracking(request):
+            mac.snapshot()
+            mac.description = 'updated'
+            Interface.objects.create(
+                device=self.interface.device, name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+                primary_mac_address=mac
+            )
+
+        change = ObjectChange.objects.get(
+            changed_object_type=ObjectType.objects.get_for_model(MACAddress),
+            changed_object_id=mac.pk,
+        )
+        self.assertEqual(change.prechange_data['description'], '')
+        self.assertEqual(change.postchange_data['description'], 'updated')
 
     @tag('regression')
     def test_clean_will_not_allow_removal_of_assigned_object_if_primary(self):
@@ -3470,6 +3493,39 @@ class CableDisconnectChangeLoggingTestCase(TestCase):
         self.assertEqual(len(change.prechange_data['a_terminations']), 1)
         self.assertEqual(len(change.prechange_data['b_terminations']), 1)
         self.assertEqual(change.postchange_data['label'], 'x')
+
+    @tag('regression')  # Ref: #23617
+    def test_resaving_new_cable_with_preset_pk_records_current_prechange(self):
+        # A new Cable with a preset pk (e.g. restored by deserialize_object()) must also discard its creation snapshot
+        with self.assertLogs('netbox.core.signals', level='WARNING'), event_tracking(self._request()):
+            cable = Cable(pk=1000000, a_terminations=[self.interface1], b_terminations=[self.interface2])
+            cable.save()
+            cable.label = 'x'
+            cable.save()
+
+        change = self._updates(cable).last()
+        self.assertEqual(len(change.prechange_data['a_terminations']), 1)
+        self.assertEqual(len(change.prechange_data['b_terminations']), 1)
+        self.assertEqual(change.postchange_data['label'], 'x')
+
+    @tag('regression')  # Ref: #23617
+    def test_termination_update_without_snapshot_records_prechange(self):
+        cable = self._connect(self.interface1, self.interface2)
+        old_b_termination = CableTermination.objects.get(cable=cable, cable_end=CableEndChoices.SIDE_B)
+
+        request = self._request()
+        with event_tracking(request):
+            cable = Cable.objects.get(pk=cable.pk)
+            cable.label = 'x'
+            cable.b_terminations = [self.interface3]
+            cable.save()
+
+        change = self._updates(cable).get(request_id=request.id)
+        self.assertEqual(change.prechange_data['b_terminations'], [old_b_termination.pk])
+        self.assertEqual(change.prechange_data['label'], '')
+        self.assertNotEqual(change.postchange_data['b_terminations'], [old_b_termination.pk])
+        self.assertEqual(change.postchange_data['label'], 'x')
+        self.assertFalse(hasattr(cable, '_prechange_snapshot'))
 
     @tag('regression')  # Ref: netbox-branching#631
     def test_cable_deletion_records_disconnect(self):

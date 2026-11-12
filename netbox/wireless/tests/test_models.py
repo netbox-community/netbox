@@ -90,6 +90,29 @@ class WirelessLinkTestCase(TestCase):
             )
             self.assertIsNone(change.prechange_data['wireless_link'])
             self.assertEqual(change.postchange_data['wireless_link'], wireless_link.pk)
+            self.assertFalse(hasattr(interface, '_prechange_snapshot'))
+
+    # Regression test for #23617
+    def test_creating_wireless_link_keeps_existing_interface_snapshot(self):
+        interfaces = [
+            Interface.objects.create(device=self.device, name=name, type=InterfaceTypeChoices.TYPE_80211AC)
+            for name in ('radio0', 'radio1')
+        ]
+        request = RequestFactory().post('/')
+        request.id = uuid4()
+        request.user = self.user
+
+        with event_tracking(request):
+            interfaces[0].snapshot()
+            interfaces[0].description = 'updated'
+            WirelessLink.objects.create(interface_a=interfaces[0], interface_b=interfaces[1], ssid='LINK1')
+
+        change = ObjectChange.objects.get(
+            changed_object_type=ContentType.objects.get_for_model(Interface),
+            changed_object_id=interfaces[0].pk,
+        )
+        self.assertEqual(change.prechange_data['description'], '')
+        self.assertEqual(change.postchange_data['description'], 'updated')
 
     def test_resaving_wireless_link_does_not_log_connected_interfaces(self):
         interface_a = Interface.objects.create(
