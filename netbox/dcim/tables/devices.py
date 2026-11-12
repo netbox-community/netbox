@@ -38,7 +38,7 @@ __all__ = (
     'InventoryItemRoleTable',
     'InventoryItemTable',
     'MACAddressTable',
-    'MACPrefixTable',
+    'MACBlockTable',
     'ModuleBayTable',
     'PlatformTable',
     'PowerOutletTable',
@@ -1333,7 +1333,7 @@ class MACAddressTable(PrimaryModelTable):
         )
 
 
-class MACPrefixTable(PrimaryModelTable):
+class MACBlockTable(PrimaryModelTable):
     prefix = tables.Column(
         verbose_name=_('Prefix'),
         linkify=True
@@ -1350,7 +1350,7 @@ class MACPrefixTable(PrimaryModelTable):
     )
     mac_address_count = columns.LinkedCountColumn(
         viewname='dcim:macaddress_list',
-        url_params={'mac_prefix_id': 'pk'},
+        url_params={'mac_block_id': 'pk'},
         verbose_name=_('MAC Addresses'),
         orderable=False
     )
@@ -1362,7 +1362,7 @@ class MACPrefixTable(PrimaryModelTable):
         verbose_name=_('Enforce Unique')
     )
     tags = columns.TagColumn(
-        url_name='dcim:macprefix_list'
+        url_name='dcim:macblock_list'
     )
 
     def render_prefix(self, record):
@@ -1373,7 +1373,7 @@ class MACPrefixTable(PrimaryModelTable):
         return str(record.prefix)
 
     class Meta(PrimaryModelTable.Meta):
-        model = models.MACPrefix
+        model = models.MACBlock
         fields = (
             'pk', 'id', 'prefix', 'prefix_length', 'name', 'size', 'mac_address_count', 'utilization',
             'enforce_unique', 'description', 'comments', 'tags', 'created', 'last_updated',

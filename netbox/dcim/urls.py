@@ -208,7 +208,7 @@ urlpatterns = [
 
     path('mac-addresses/', include(get_model_urls('dcim', 'macaddress', detail=False))),
     path('mac-addresses/<int:pk>/', include(get_model_urls('dcim', 'macaddress'))),
-    path('mac-prefixes/', include(get_model_urls('dcim', 'macprefix', detail=False))),
-    path('mac-prefixes/<int:pk>/', include(get_model_urls('dcim', 'macprefix'))),
+    path('mac-blocks/', include(get_model_urls('dcim', 'macblock', detail=False))),
+    path('mac-blocks/<int:pk>/', include(get_model_urls('dcim', 'macblock'))),
 
 ]

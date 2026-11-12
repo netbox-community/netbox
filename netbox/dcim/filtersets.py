@@ -79,7 +79,7 @@ __all__ = (
     'InventoryItemTemplateFilterSet',
     'LocationFilterSet',
     'MACAddressFilterSet',
-    'MACPrefixFilterSet',
+    'MACBlockFilterSet',
     'ManufacturerFilterSet',
     'ModuleBayFilterSet',
     'ModuleBayTemplateFilterSet',
@@ -2288,9 +2288,9 @@ class MACAddressFilterSet(PrimaryModelFilterSet):
         method='filter_primary',
         label=_('Is primary'),
     )
-    mac_prefix_id = MultiValueBigNumberFilter(
-        method='filter_mac_prefix',
-        label=_('MAC prefix (ID)'),
+    mac_block_id = MultiValueBigNumberFilter(
+        method='filter_mac_block',
+        label=_('MAC address block (ID)'),
     )
 
     class Meta:
@@ -2349,17 +2349,17 @@ class MACAddressFilterSet(PrimaryModelFilterSet):
             return queryset.filter(query)
         return queryset.exclude(query)
 
-    def filter_mac_prefix(self, queryset, name, value):
+    def filter_mac_block(self, queryset, name, value):
         query = Q()
-        for mac_prefix in MACPrefix.objects.filter(pk__in=value):
-            query |= Q(mac_address__gte=mac_prefix.first_address, mac_address__lte=mac_prefix.last_address)
+        for mac_block in MACBlock.objects.filter(pk__in=value):
+            query |= Q(mac_address__gte=mac_block.first_address, mac_address__lte=mac_block.last_address)
         if not query:
             return queryset.none()
         return queryset.filter(query)
 
 
 @register_filterset
-class MACPrefixFilterSet(PrimaryModelFilterSet):
+class MACBlockFilterSet(PrimaryModelFilterSet):
     prefix = MultiValueMACAddressFilter()
     contains = django_filters.CharFilter(
         method='filter_contains',
@@ -2367,7 +2367,7 @@ class MACPrefixFilterSet(PrimaryModelFilterSet):
     )
 
     class Meta:
-        model = MACPrefix
+        model = MACBlock
         fields = ('id', 'prefix_length', 'name', 'enforce_unique', 'description')
 
     def search(self, queryset, name, value):

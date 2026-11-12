@@ -20,7 +20,7 @@ from netaddr import EUI, AddrFormatError
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import MACAddressField, mac_unix_expanded_uppercase
-from dcim.querysets import MACPrefixQuerySet
+from dcim.querysets import MACBlockQuerySet
 from dcim.utils import create_port_mappings, update_interface_bridges, update_interface_parents
 from extras.models import ConfigContextModel, CustomField
 from extras.querysets import ConfigContextModelQuerySet
@@ -44,7 +44,7 @@ __all__ = (
     'DeviceRole',
     'DeviceType',
     'MACAddress',
-    'MACPrefix',
+    'MACBlock',
     'Manufacturer',
     'Platform',
     'VirtualChassis',
@@ -1563,35 +1563,35 @@ class MACAddress(PrimaryModel):
                         _("Cannot reassign MAC Address while it is designated as the primary MAC for an object")
                     )
 
-        # Enforce uniqueness within any MAC prefix which requires it
+        # Enforce uniqueness within any MAC block which requires it
         if self.mac_address and (
-            mac_prefix := self.get_mac_prefixes().filter(enforce_unique=True).order_by('-prefix_length').first()
+            mac_block := self.get_mac_blocks().filter(enforce_unique=True).order_by('-prefix_length').first()
         ):
             duplicates = MACAddress.objects.filter(mac_address=self.mac_address).exclude(pk=self.pk)
             if duplicates.exists():
                 raise ValidationError({
                     'mac_address': _(
-                        "Duplicate MAC address found within MAC prefix {mac_prefix}, which enforces uniqueness"
-                    ).format(mac_prefix=mac_prefix)
+                        "Duplicate MAC address found within MAC address block {mac_block}, which enforces uniqueness"
+                    ).format(mac_block=mac_block)
                 })
 
-    def get_mac_prefixes(self):
+    def get_mac_blocks(self):
         """
-        Return all MACPrefixes which contain this MAC address.
+        Return all MACBlocks which contain this MAC address.
         """
-        return MACPrefix.objects.filter(prefix__lte=self.mac_address, _last_address__gte=self.mac_address)
+        return MACBlock.objects.filter(prefix__lte=self.mac_address, _last_address__gte=self.mac_address)
 
     @cached_property
-    def mac_prefix(self):
+    def mac_block(self):
         """
-        Return the most specific MACPrefix which contains this MAC address (if any).
+        Return the most specific MACBlock which contains this MAC address (if any).
         """
         if not self.mac_address:
             return None
-        return self.get_mac_prefixes().order_by('-prefix_length').first()
+        return self.get_mac_blocks().order_by('-prefix_length').first()
 
 
-class MACPrefix(PrimaryModel):
+class MACBlock(PrimaryModel):
     """
     A block of MAC addresses which share a common prefix, such as an organizationally unique identifier (OUI).
     """
@@ -1601,10 +1601,10 @@ class MACPrefix(PrimaryModel):
     )
     prefix_length = models.PositiveSmallIntegerField(
         verbose_name=_('prefix length'),
-        default=MACPREFIX_LENGTH_DEFAULT,
+        default=MACBLOCK_LENGTH_DEFAULT,
         validators=(
-            MinValueValidator(MACPREFIX_LENGTH_MIN),
-            MaxValueValidator(MACPREFIX_LENGTH_MAX),
+            MinValueValidator(MACBLOCK_LENGTH_MIN),
+            MaxValueValidator(MACBLOCK_LENGTH_MAX),
         ),
         help_text=_('Number of leading bits shared by all MAC addresses in the block (e.g. 24 for an OUI)')
     )
@@ -1617,16 +1617,16 @@ class MACPrefix(PrimaryModel):
     enforce_unique = models.BooleanField(
         verbose_name=_('enforce unique'),
         default=False,
-        help_text=_('Prevent duplicate MAC addresses within this prefix')
+        help_text=_('Prevent duplicate MAC addresses within this block')
     )
 
-    # Cached last MAC address in the block, for finding the MAC addresses and prefixes it contains
+    # Cached last MAC address in the block, for finding the MAC addresses and blocks it contains
     _last_address = MACAddressField(
         blank=True,
         editable=False
     )
 
-    objects = MACPrefixQuerySet.as_manager()
+    objects = MACBlockQuerySet.as_manager()
 
     clone_fields = ('prefix_length', 'enforce_unique', 'description')
 
@@ -1640,11 +1640,11 @@ class MACPrefix(PrimaryModel):
             models.UniqueConstraint(
                 fields=('prefix', 'prefix_length'),
                 name='%(app_label)s_%(class)s_unique_prefix_prefix_length',
-                violation_error_message=_("A MAC prefix with this prefix and length already exists.")
+                violation_error_message=_("A MAC address block with this prefix and length already exists.")
             ),
         )
-        verbose_name = _('MAC prefix')
-        verbose_name_plural = _('MAC prefixes')
+        verbose_name = _('MAC address block')
+        verbose_name_plural = _('MAC address blocks')
 
     def __str__(self):
         return f'{self.prefix}/{self.prefix_length}'
@@ -1659,7 +1659,7 @@ class MACPrefix(PrimaryModel):
             prefix_length = int(self.prefix_length)
         except (AddrFormatError, TypeError, ValueError):
             return None
-        if not MACPREFIX_LENGTH_MIN <= prefix_length <= MACPREFIX_LENGTH_MAX:
+        if not MACBLOCK_LENGTH_MIN <= prefix_length <= MACBLOCK_LENGTH_MAX:
             return None
         host_mask = (1 << (48 - prefix_length)) - 1
         return prefix & ~host_mask, prefix | host_mask
@@ -1697,7 +1697,7 @@ class MACPrefix(PrimaryModel):
             self.prefix = first_address
             self._last_address = self.last_address
 
-        # Uniqueness cannot be enforced if the prefix already contains duplicate MAC addresses
+        # Uniqueness cannot be enforced if the block already contains duplicate MAC addresses
         if self.enforce_unique and self.first_address is not None:
             duplicate = self.get_mac_addresses().values('mac_address').annotate(
                 count=Count('pk')
@@ -1705,13 +1705,13 @@ class MACPrefix(PrimaryModel):
             if duplicate:
                 raise ValidationError({
                     'enforce_unique': _(
-                        "Cannot enforce uniqueness: duplicate MAC address {mac_address} exists within this prefix"
+                        "Cannot enforce uniqueness: duplicate MAC address {mac_address} exists within this block"
                     ).format(mac_address=duplicate['mac_address'])
                 })
 
     def save(self, *args, **kwargs):
         if self.first_address is None:
-            raise ValueError(f"Invalid MAC prefix: {self.prefix}/{self.prefix_length}")
+            raise ValueError(f"Invalid MAC address block: {self.prefix}/{self.prefix_length}")
 
         # Clear any host bits from the prefix, and cache the last address in the block
         self.prefix = self.first_address
@@ -1721,15 +1721,15 @@ class MACPrefix(PrimaryModel):
 
     def get_mac_addresses(self):
         """
-        Return all MACAddresses within this prefix.
+        Return all MACAddresses within this block.
         """
         return MACAddress.objects.filter(mac_address__gte=self.first_address, mac_address__lte=self.last_address)
 
-    def get_child_prefixes(self):
+    def get_child_blocks(self):
         """
-        Return all MACPrefixes within this prefix.
+        Return all MACBlocks within this block.
         """
-        return MACPrefix.objects.filter(
+        return MACBlock.objects.filter(
             prefix__gte=self.first_address,
             _last_address__lte=self.last_address,
             prefix_length__gt=self.prefix_length,
@@ -1738,21 +1738,21 @@ class MACPrefix(PrimaryModel):
     @cached_property
     def mac_address_count(self):
         """
-        Return the number of distinct MAC addresses within the prefix. (May be annotated by
-        MACPrefixQuerySet.annotate_mac_address_count().)
+        Return the number of distinct MAC addresses within the block. (May be annotated by
+        MACBlockQuerySet.annotate_mac_address_count().)
         """
         return self.get_mac_addresses().order_by().values('mac_address').distinct().count()
 
     @property
     def utilization(self):
         """
-        Return the percentage of MAC addresses within the prefix which exist in NetBox.
+        Return the percentage of MAC addresses within the block which exist in NetBox.
         """
         return self.mac_address_count / self.size * 100
 
     def _iter_occupied(self, batch_size=5000):
         """
-        Yield the distinct MAC addresses within the prefix which exist in NetBox as integers, in ascending order.
+        Yield the distinct MAC addresses within the block which exist in NetBox as integers, in ascending order.
         Addresses are fetched in batches, so that stopping early stops reading from the database.
         """
         resume = self.first_address
@@ -1771,7 +1771,7 @@ class MACPrefix(PrimaryModel):
 
     def iter_available_mac_addresses(self):
         """
-        Yield the MAC addresses within the prefix which do not exist in NetBox, in ascending order.
+        Yield the MAC addresses within the block which do not exist in NetBox, in ascending order.
         """
         candidate = int(self.first_address)
         for occupied in self._iter_occupied():
@@ -1783,6 +1783,6 @@ class MACPrefix(PrimaryModel):
 
     def get_first_available_mac_address(self):
         """
-        Return the first MAC address within the prefix which does not exist in NetBox (or None).
+        Return the first MAC address within the block which does not exist in NetBox (or None).
         """
         return next(self.iter_available_mac_addresses(), None)

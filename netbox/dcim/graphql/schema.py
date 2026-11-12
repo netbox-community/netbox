@@ -66,8 +66,8 @@ class DCIMQuery:
     mac_address: MACAddressType = strawberry_django.field()
     mac_address_list: list[MACAddressType] = strawberry_django.field()
 
-    mac_prefix: MACPrefixType = strawberry_django.field()
-    mac_prefix_list: list[MACPrefixType] = strawberry_django.field()
+    mac_block: MACBlockType = strawberry_django.field()
+    mac_block_list: list[MACBlockType] = strawberry_django.field()
 
     interface: InterfaceType = strawberry_django.field()
     interface_list: list[InterfaceType] = strawberry_django.field()

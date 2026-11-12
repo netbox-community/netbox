@@ -55,7 +55,7 @@ __all__ = (
     'InventoryItemRoleImportForm',
     'LocationImportForm',
     'MACAddressImportForm',
-    'MACPrefixImportForm',
+    'MACBlockImportForm',
     'ManufacturerImportForm',
     'ModuleBayImportForm',
     'ModuleBayTypeImportForm',
@@ -1711,10 +1711,10 @@ class MACAddressImportForm(PrimaryModelImportForm):
         return instance
 
 
-class MACPrefixImportForm(PrimaryModelImportForm):
+class MACBlockImportForm(PrimaryModelImportForm):
 
     class Meta:
-        model = MACPrefix
+        model = MACBlock
         fields = [
             'prefix', 'prefix_length', 'name', 'enforce_unique', 'description', 'owner', 'comments', 'tags',
         ]

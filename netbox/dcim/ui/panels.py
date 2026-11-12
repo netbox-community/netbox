@@ -478,7 +478,7 @@ class MACAddressPanel(panels.ObjectAttributesPanel):
     is_primary = attrs.BooleanAttr('is_primary', label=_('Primary for interface'))
 
 
-class MACPrefixPanel(panels.ObjectAttributesPanel):
+class MACBlockPanel(panels.ObjectAttributesPanel):
     prefix = attrs.TextAttr('prefix', label=_('Prefix'), style='font-monospace', copy_button=True)
     prefix_length = attrs.NumericAttr('prefix_length', label=_('Prefix length'))
     name = attrs.TextAttr('name')

@@ -4,15 +4,15 @@ from django.db.models.functions import Coalesce
 from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
-    'MACPrefixQuerySet',
+    'MACBlockQuerySet',
 )
 
 
-class MACPrefixQuerySet(RestrictedQuerySet):
+class MACBlockQuerySet(RestrictedQuerySet):
 
     def annotate_mac_address_count(self):
         """
-        Annotate the number of distinct MAC addresses within each MACPrefix.
+        Annotate the number of distinct MAC addresses within each MACBlock.
         """
         from .models import MACAddress
 

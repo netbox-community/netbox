@@ -8,7 +8,7 @@ from rest_framework import serializers
 
 from dcim.choices import *
 from dcim.constants import MACADDRESS_ASSIGNMENT_MODELS
-from dcim.models import Device, DeviceBay, MACAddress, MACPrefix, Module, VirtualDeviceContext
+from dcim.models import Device, DeviceBay, MACAddress, MACBlock, Module, VirtualDeviceContext
 from dcim.utils import get_module_bay_positions, resolve_module_placeholder
 from extras.api.serializers_.configtemplates import ConfigTemplateSerializer
 from ipam.api.serializers_.ip import IPAddressSerializer
@@ -30,7 +30,7 @@ __all__ = (
     'AvailableMACAddressSerializer',
     'DeviceSerializer',
     'MACAddressSerializer',
-    'MACPrefixSerializer',
+    'MACBlockSerializer',
     'ModuleSerializer',
     'VirtualDeviceContextSerializer',
 )
@@ -363,21 +363,21 @@ class MACAddressSerializer(PrimaryModelSerializer):
         brief_fields = ('id', 'url', 'display', 'mac_address', 'description')
 
 
-class MACPrefixSerializer(PrimaryModelSerializer):
+class MACBlockSerializer(PrimaryModelSerializer):
     last_address = serializers.CharField(read_only=True)
     size = serializers.IntegerField(read_only=True)
     mac_address_count = serializers.IntegerField(read_only=True)
     utilization = serializers.FloatField(read_only=True)
 
     class Meta:
-        model = MACPrefix
+        model = MACBlock
         fields = [
             'id', 'url', 'display_url', 'display', 'prefix', 'prefix_length', 'last_address', 'size', 'name',
             'enforce_unique', 'mac_address_count', 'utilization', 'description', 'owner', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'prefix', 'prefix_length', 'name', 'description')
-        # Preserve the prefix as normalized by MACPrefix.clean()
+        # Preserve the prefix as normalized by MACBlock.clean()
         model_clean_fields = ('prefix',)
 
 

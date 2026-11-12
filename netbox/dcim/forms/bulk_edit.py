@@ -63,7 +63,7 @@ __all__ = (
     'InventoryItemTemplateBulkEditForm',
     'LocationBulkEditForm',
     'MACAddressBulkEditForm',
-    'MACPrefixBulkEditForm',
+    'MACBlockBulkEditForm',
     'ManufacturerBulkEditForm',
     'ModuleBayBulkEditForm',
     'ModuleBayTemplateBulkEditForm',
@@ -2286,7 +2286,7 @@ class MACAddressBulkEditForm(PrimaryModelBulkEditForm):
     nullable_fields = ('description', 'comments')
 
 
-class MACPrefixBulkEditForm(PrimaryModelBulkEditForm):
+class MACBlockBulkEditForm(PrimaryModelBulkEditForm):
     name = forms.CharField(
         label=_('Name'),
         max_length=100,
@@ -2298,7 +2298,7 @@ class MACPrefixBulkEditForm(PrimaryModelBulkEditForm):
         widget=BulkEditNullBooleanSelect
     )
 
-    model = MACPrefix
+    model = MACBlock
     fieldsets = (
         FieldSet('name', 'enforce_unique', 'description'),
     )

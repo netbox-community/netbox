@@ -5871,8 +5871,8 @@ class MACAddressView(generic.ObjectView):
         right_panels=[
             CommentsPanel(),
             ObjectsTablePanel(
-                model='dcim.MACPrefix',
-                title=_('MAC Prefixes'),
+                model='dcim.MACBlock',
+                title=_('MAC Address Blocks'),
                 filters={'contains': lambda ctx: str(ctx['object'].mac_address)},
             ),
         ],
@@ -5955,25 +5955,25 @@ class MACAddressBulkDeleteView(generic.BulkDeleteView):
 
 
 #
-# MAC prefixes
+# MAC address blocks
 #
 
-@register_model_view(MACPrefix, 'list', path='', detail=False)
-class MACPrefixListView(generic.ObjectListView):
-    queryset = MACPrefix.objects.annotate_mac_address_count()
-    filterset = filtersets.MACPrefixFilterSet
-    filterset_form = forms.MACPrefixFilterForm
-    table = tables.MACPrefixTable
+@register_model_view(MACBlock, 'list', path='', detail=False)
+class MACBlockListView(generic.ObjectListView):
+    queryset = MACBlock.objects.annotate_mac_address_count()
+    filterset = filtersets.MACBlockFilterSet
+    filterset_form = forms.MACBlockFilterForm
+    table = tables.MACBlockTable
     actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkDelete)
 
 
-@register_model_view(MACPrefix)
-class MACPrefixView(generic.ObjectView):
-    queryset = MACPrefix.objects.all()
+@register_model_view(MACBlock)
+class MACBlockView(generic.ObjectView):
+    queryset = MACBlock.objects.all()
     template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
-            panels.MACPrefixPanel(),
+            panels.MACBlockPanel(),
             TagsPanel(),
             CustomFieldsPanel(),
         ],
@@ -5984,7 +5984,7 @@ class MACPrefixView(generic.ObjectView):
             ObjectsTablePanel(
                 model='dcim.MACAddress',
                 title=_('MAC Addresses'),
-                filters={'mac_prefix_id': lambda ctx: ctx['object'].pk},
+                filters={'mac_block_id': lambda ctx: ctx['object'].pk},
                 actions=[
                     actions.AddObject(
                         'dcim.MACAddress',
@@ -5997,34 +5997,34 @@ class MACPrefixView(generic.ObjectView):
     )
 
 
-@register_model_view(MACPrefix, 'add', detail=False)
-@register_model_view(MACPrefix, 'edit')
-class MACPrefixEditView(generic.ObjectEditView):
-    queryset = MACPrefix.objects.all()
-    form = forms.MACPrefixForm
+@register_model_view(MACBlock, 'add', detail=False)
+@register_model_view(MACBlock, 'edit')
+class MACBlockEditView(generic.ObjectEditView):
+    queryset = MACBlock.objects.all()
+    form = forms.MACBlockForm
 
 
-@register_model_view(MACPrefix, 'delete')
-class MACPrefixDeleteView(generic.ObjectDeleteView):
-    queryset = MACPrefix.objects.all()
+@register_model_view(MACBlock, 'delete')
+class MACBlockDeleteView(generic.ObjectDeleteView):
+    queryset = MACBlock.objects.all()
 
 
-@register_model_view(MACPrefix, 'bulk_import', path='import', detail=False)
-class MACPrefixBulkImportView(generic.BulkImportView):
-    queryset = MACPrefix.objects.all()
-    model_form = forms.MACPrefixImportForm
+@register_model_view(MACBlock, 'bulk_import', path='import', detail=False)
+class MACBlockBulkImportView(generic.BulkImportView):
+    queryset = MACBlock.objects.all()
+    model_form = forms.MACBlockImportForm
 
 
-@register_model_view(MACPrefix, 'bulk_edit', path='edit', detail=False)
-class MACPrefixBulkEditView(generic.BulkEditView):
-    queryset = MACPrefix.objects.annotate_mac_address_count()
-    filterset = filtersets.MACPrefixFilterSet
-    table = tables.MACPrefixTable
-    form = forms.MACPrefixBulkEditForm
+@register_model_view(MACBlock, 'bulk_edit', path='edit', detail=False)
+class MACBlockBulkEditView(generic.BulkEditView):
+    queryset = MACBlock.objects.annotate_mac_address_count()
+    filterset = filtersets.MACBlockFilterSet
+    table = tables.MACBlockTable
+    form = forms.MACBlockBulkEditForm
 
 
-@register_model_view(MACPrefix, 'bulk_delete', path='delete', detail=False)
-class MACPrefixBulkDeleteView(generic.BulkDeleteView):
-    queryset = MACPrefix.objects.annotate_mac_address_count()
-    filterset = filtersets.MACPrefixFilterSet
-    table = tables.MACPrefixTable
+@register_model_view(MACBlock, 'bulk_delete', path='delete', detail=False)
+class MACBlockBulkDeleteView(generic.BulkDeleteView):
+    queryset = MACBlock.objects.annotate_mac_address_count()
+    filterset = filtersets.MACBlockFilterSet
+    table = tables.MACBlockTable

@@ -168,8 +168,8 @@ class MACAddressIndex(SearchIndex):
 
 
 @register_search
-class MACPrefixIndex(SearchIndex):
-    model = models.MACPrefix
+class MACBlockIndex(SearchIndex):
+    model = models.MACBlock
     fields = (
         ('prefix', 100),
         ('name', 100),

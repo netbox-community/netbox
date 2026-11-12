@@ -74,7 +74,7 @@ __all__ = (
     'InventoryItemType',
     'LocationType',
     'MACAddressType',
-    'MACPrefixType',
+    'MACBlockType',
     'ManufacturerType',
     'ModularComponentType',
     'ModuleBayTemplateType',
@@ -526,12 +526,12 @@ class FrontPortTemplateType(ModularComponentTemplateType):
 
 
 @register_type(
-    models.MACPrefix,
+    models.MACBlock,
     exclude=['_last_address'],
-    filters=MACPrefixFilter,
+    filters=MACBlockFilter,
     pagination=True
 )
-class MACPrefixType(PrimaryObjectType):
+class MACBlockType(PrimaryObjectType):
     prefix: str
 
 

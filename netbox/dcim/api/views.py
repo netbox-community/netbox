@@ -607,23 +607,23 @@ class MACAddressViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.MACAddressFilterSet
 
 
-class MACPrefixViewSet(NetBoxModelViewSet):
-    queryset = MACPrefix.objects.annotate_mac_address_count()
-    serializer_class = serializers.MACPrefixSerializer
-    filterset_class = filtersets.MACPrefixFilterSet
+class MACBlockViewSet(NetBoxModelViewSet):
+    queryset = MACBlock.objects.annotate_mac_address_count()
+    serializer_class = serializers.MACBlockSerializer
+    filterset_class = filtersets.MACBlockFilterSet
 
 
-class MACPrefixAvailableMACAddressesView(AvailableObjectsView):
+class MACBlockAvailableMACAddressesView(AvailableObjectsView):
     queryset = MACAddress.objects.all()
     read_serializer_class = serializers.AvailableMACAddressSerializer
     write_serializer_class = serializers.AvailableMACAddressSerializer
     advisory_lock_key = 'available-mac-addresses'
 
     def get_parent(self, request, pk):
-        return get_object_or_404(MACPrefix.objects.restrict(request.user), pk=pk)
+        return get_object_or_404(MACBlock.objects.restrict(request.user), pk=pk)
 
     def get_available_objects(self, parent, limit=None):
-        # A prefix may contain millions of available MAC addresses, so always apply a limit
+        # A block may contain millions of available MAC addresses, so always apply a limit
         if not limit or limit < 0:
             limit = get_config().PAGINATE_COUNT
         return list(islice(parent.iter_available_mac_addresses(), limit))

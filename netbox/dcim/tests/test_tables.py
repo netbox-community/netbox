@@ -336,5 +336,5 @@ class MACAddressTableTestCase(TableTestCases.StandardTableTestCase):
     table = MACAddressTable
 
 
-class MACPrefixTableTestCase(TableTestCases.StandardTableTestCase):
-    table = MACPrefixTable
+class MACBlockTableTestCase(TableTestCases.StandardTableTestCase):
+    table = MACBlockTable

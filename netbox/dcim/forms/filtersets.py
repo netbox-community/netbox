@@ -60,7 +60,7 @@ __all__ = (
     'InventoryItemTemplateFilterForm',
     'LocationFilterForm',
     'MACAddressFilterForm',
-    'MACPrefixFilterForm',
+    'MACBlockFilterForm',
     'ManufacturerFilterForm',
     'ModuleBayFilterForm',
     'ModuleBayTemplateFilterForm',
@@ -2453,7 +2453,7 @@ class MACAddressFilterForm(PrimaryModelFilterSetForm):
     model = MACAddress
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('mac_address', 'mac_prefix_id', name=_('Attributes')),
+        FieldSet('mac_address', 'mac_block_id', name=_('Attributes')),
         FieldSet('device_id', 'virtual_machine_id', 'assigned', 'primary', name=_('Assignments')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
@@ -2462,10 +2462,10 @@ class MACAddressFilterForm(PrimaryModelFilterSetForm):
         required=False,
         label=_('MAC address'),
     )
-    mac_prefix_id = DynamicModelMultipleChoiceField(
-        queryset=MACPrefix.objects.all(),
+    mac_block_id = DynamicModelMultipleChoiceField(
+        queryset=MACBlock.objects.all(),
         required=False,
-        label=_('MAC prefix'),
+        label=_('MAC address block'),
     )
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
@@ -2494,8 +2494,8 @@ class MACAddressFilterForm(PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class MACPrefixFilterForm(PrimaryModelFilterSetForm):
-    model = MACPrefix
+class MACBlockFilterForm(PrimaryModelFilterSetForm):
+    model = MACBlock
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('prefix', 'prefix_length', 'contains', 'enforce_unique', name=_('Attributes')),
@@ -2507,8 +2507,8 @@ class MACPrefixFilterForm(PrimaryModelFilterSetForm):
     )
     prefix_length = forms.IntegerField(
         required=False,
-        min_value=MACPREFIX_LENGTH_MIN,
-        max_value=MACPREFIX_LENGTH_MAX,
+        min_value=MACBLOCK_LENGTH_MIN,
+        max_value=MACBLOCK_LENGTH_MAX,
         label=_('Prefix length'),
     )
     contains = forms.CharField(

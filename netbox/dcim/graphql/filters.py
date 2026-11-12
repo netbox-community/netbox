@@ -97,7 +97,7 @@ __all__ = (
     'InventoryItemTemplateFilter',
     'LocationFilter',
     'MACAddressFilter',
-    'MACPrefixFilter',
+    'MACBlockFilter',
     'ManufacturerFilter',
     'ModuleBayFilter',
     'ModuleBayTemplateFilter',
@@ -539,8 +539,8 @@ class MACAddressFilter(PrimaryModelFilter):
         return ~Q(query)
 
 
-@register_filter(models.MACPrefix, lookups=True)
-class MACPrefixFilter(PrimaryModelFilter):
+@register_filter(models.MACBlock, lookups=True)
+class MACBlockFilter(PrimaryModelFilter):
     prefix: StrFilterLookup | None = strawberry_django.filter_field()
     prefix_length: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
