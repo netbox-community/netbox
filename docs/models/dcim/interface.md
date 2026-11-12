@@ -109,6 +109,24 @@ Interfaces can be bridged to other interfaces on a device in two manners: symmet
 
 Physical interfaces may be arranged into link aggregation groups (LAGs, also known as "trunks") and associated with a parent LAG (virtual) interface. LAG interfaces can be recursively nested to model bonding of trunk groups. Like all virtual interfaces, LAG interfaces cannot be connected physically.
 
+### LAG Mode
+
+The link aggregation mode of a LAG interface. (This field may be set only on interfaces of type LAG.) Choices include:
+
+| Mode           | Linux bonding mode |
+|----------------|--------------------|
+| LACP (802.3ad) | `802.3ad`          |
+| Static         | `balance-xor`      |
+| Active-Backup  | `active-backup`    |
+| Balance-RR     | `balance-rr`       |
+| Balance-TLB    | `balance-tlb`      |
+| Balance-ALB    | `balance-alb`      |
+| Broadcast      | `broadcast`        |
+
+### LAG Hash Policy
+
+The transmit hash policy used to distribute traffic across the members of a LAG interface: layer 2, layer 2+3, layer 3+4, encapsulated layer 2+3, or encapsulated layer 3+4. (This field may be set only on interfaces of type LAG.)
+
 ### PoE Mode
 
 The power over Ethernet (PoE) mode for this interface. (This field must be left empty for interfaces which do not support PoE.) Choices include:

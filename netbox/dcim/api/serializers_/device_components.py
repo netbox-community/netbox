@@ -314,6 +314,8 @@ class InterfaceSerializer(
     rf_channel = ChoiceField(choices=WirelessChannelChoices, required=False, allow_blank=True)
     poe_mode = ChoiceField(choices=InterfacePoEModeChoices, required=False, allow_blank=True)
     poe_type = ChoiceField(choices=InterfacePoETypeChoices, required=False, allow_blank=True)
+    lag_mode = ChoiceField(choices=InterfaceLAGModeChoices, required=False, allow_blank=True)
+    lag_hash_policy = ChoiceField(choices=InterfaceLAGHashPolicyChoices, required=False, allow_blank=True)
     untagged_vlan = VLANSerializer(nested=True, required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
         queryset=VLAN.objects.all(),
@@ -356,14 +358,14 @@ class InterfaceSerializer(
         model = Interface
         fields = [
             'id', 'url', 'display_url', 'display', 'device', 'vdcs', 'module', 'name', 'label', 'type', 'channels',
-            'channel_id', 'enabled',
-            'parent', 'bridge', 'bridge_interfaces', 'lag', 'mtu', 'mac_address', 'primary_mac_address',
-            'mac_addresses', 'speed', 'duplex', 'wwn', 'mgmt_only', 'description', 'mode', 'rf_role', 'rf_channel',
-            'poe_mode', 'poe_type', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'untagged_vlan',
-            'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'mark_connected', 'cable', 'cable_end',
-            'wireless_link', 'link_peers', 'link_peers_type', 'wireless_lans', 'vrf', 'l2vpn_termination',
-            'connected_endpoints', 'connected_endpoints_type', 'connected_endpoints_reachable', 'owner', 'tags',
-            'custom_fields', 'created', 'last_updated', 'count_ipaddresses', 'count_fhrp_groups', '_occupied',
+            'channel_id', 'enabled', 'parent', 'bridge', 'bridge_interfaces', 'lag', 'mtu', 'mac_address',
+            'primary_mac_address', 'mac_addresses', 'speed', 'duplex', 'wwn', 'mgmt_only', 'description', 'mode',
+            'rf_role', 'rf_channel', 'poe_mode', 'poe_type', 'lag_mode', 'lag_hash_policy', 'rf_channel_frequency',
+            'rf_channel_width', 'tx_power', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy',
+            'mark_connected', 'cable', 'cable_end', 'wireless_link', 'link_peers', 'link_peers_type', 'wireless_lans',
+            'vrf', 'l2vpn_termination', 'connected_endpoints', 'connected_endpoints_type',
+            'connected_endpoints_reachable', 'owner', 'tags', 'custom_fields', 'created', 'last_updated',
+            'count_ipaddresses', 'count_fhrp_groups', '_occupied',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 

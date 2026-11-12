@@ -22,6 +22,8 @@ __all__ = (
     'FluidTypeEnum',
     'InterfaceDuplexEnum',
     'InterfaceKindEnum',
+    'InterfaceLAGHashPolicyEnum',
+    'InterfaceLAGModeEnum',
     'InterfaceModeEnum',
     'InterfacePoEModeEnum',
     'InterfacePoETypeEnum',
@@ -71,6 +73,8 @@ FluidTypeEnum = strawberry.enum(FluidTypeChoices.as_enum(prefix='fluid'))
 InterfaceDuplexEnum = strawberry.enum(InterfaceDuplexChoices.as_enum(prefix='duplex'))
 InterfaceKindEnum = strawberry.enum(InterfaceKindChoices.as_enum(prefix='kind'))
 InterfaceModeEnum = strawberry.enum(InterfaceModeChoices.as_enum(prefix='mode'))
+InterfaceLAGModeEnum = strawberry.enum(InterfaceLAGModeChoices.as_enum(prefix='mode'))
+InterfaceLAGHashPolicyEnum = strawberry.enum(InterfaceLAGHashPolicyChoices.as_enum(prefix='policy'))
 InterfacePoEModeEnum = strawberry.enum(InterfacePoEModeChoices.as_enum(prefix='mode'))
 InterfacePoETypeEnum = strawberry.enum(InterfacePoETypeChoices.as_enum())
 InterfaceTypeEnum = strawberry.enum(InterfaceTypeChoices.as_enum(prefix='type'))

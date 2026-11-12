@@ -4576,6 +4576,13 @@ class InterfaceTestCase(Mixins.FieldPrefetchMixin, Mixins.ComponentTraceMixin, A
                 'parent': channelized_parent.pk,
                 'channel_id': 1,
             },
+            {
+                'device': device.pk,
+                'name': 'Interface 11',
+                'type': InterfaceTypeChoices.TYPE_LAG,
+                'lag_mode': InterfaceLAGModeChoices.MODE_LACP,
+                'lag_hash_policy': InterfaceLAGHashPolicyChoices.POLICY_LAYER3_4,
+            },
         ]
 
     def _perform_interface_test_with_invalid_data(self, mode: str = None, invalid_data: dict = {}):
@@ -4759,6 +4766,15 @@ class InterfaceTestCase(Mixins.FieldPrefetchMixin, Mixins.ComponentTraceMixin, A
         self._perform_interface_test_with_invalid_data(InterfaceModeChoices.MODE_TAGGED, invalid_data)
         # Tagged-all mode, qinq service vlan
         self._perform_interface_test_with_invalid_data(InterfaceModeChoices.MODE_TAGGED_ALL, invalid_data)
+
+    def test_lag_attributes_on_non_lag_interface(self):
+        self.add_permissions('dcim.add_interface')
+
+        for field, value in (
+            ('lag_mode', InterfaceLAGModeChoices.MODE_LACP),
+            ('lag_hash_policy', InterfaceLAGHashPolicyChoices.POLICY_LAYER2),
+        ):
+            self._perform_interface_test_with_invalid_data(None, {field: value})
 
     def test_list_objects_reuse_peer_serializers(self):
         """Link peers and connected endpoints share one nested serializer each per request."""

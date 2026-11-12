@@ -1939,6 +1939,18 @@ class InterfaceBulkEditForm(
         initial='',
         label=_('PoE type')
     )
+    lag_mode = ChoiceField(
+        choices=add_blank_choice(InterfaceLAGModeChoices),
+        required=False,
+        initial='',
+        label=_('LAG mode')
+    )
+    lag_hash_policy = ChoiceField(
+        choices=add_blank_choice(InterfaceLAGHashPolicyChoices),
+        required=False,
+        initial='',
+        label=_('LAG hash policy')
+    )
     mark_connected = forms.NullBooleanField(
         label=_('Mark connected'),
         required=False,
@@ -2027,6 +2039,7 @@ class InterfaceBulkEditForm(
         FieldSet('vdcs', 'mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected', name=_('Operation')),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
         FieldSet('parent', 'channel_id', 'bridge', 'lag', name=_('Related Interfaces')),
+        FieldSet('lag_mode', 'lag_hash_policy', name=_('LAG')),
         FieldSet(
             'mode', 'vlan_group', 'untagged_vlan', 'qinq_svlan', 'vlan_translation_policy', name=_('802.1Q Switching')
         ),
@@ -2042,9 +2055,10 @@ class InterfaceBulkEditForm(
         ),
     )
     nullable_fields = (
-        'module', 'label', 'channels', 'channel_id', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'wwn', 'vdcs',
-        'mtu', 'description', 'poe_mode', 'poe_type', 'mode', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width',
-        'tx_power', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vrf', 'wireless_lans', 'vlan_translation_policy',
+        'module', 'label', 'channels', 'channel_id', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'wwn', 'vdcs', 'mtu',
+        'description', 'poe_mode', 'poe_type', 'lag_mode', 'lag_hash_policy', 'mode', 'rf_channel',
+        'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vrf',
+        'wireless_lans', 'vlan_translation_policy',
     )
 
     def __init__(self, *args, **kwargs):

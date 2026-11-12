@@ -1209,6 +1209,18 @@ class InterfaceImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         required=False,
         help_text=_('PoE type')
     )
+    lag_mode = CSVChoiceField(
+        label=_('LAG mode'),
+        choices=InterfaceLAGModeChoices,
+        required=False,
+        help_text=_('LAG mode')
+    )
+    lag_hash_policy = CSVChoiceField(
+        label=_('LAG hash policy'),
+        choices=InterfaceLAGHashPolicyChoices,
+        required=False,
+        help_text=_('LAG hash policy')
+    )
     mode = CSVChoiceField(
         label=_('Mode'),
         choices=InterfaceModeChoices,
@@ -1268,8 +1280,8 @@ class InterfaceImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         fields = (
             'device', 'name', 'label', 'parent', 'bridge', 'lag', 'type', 'channels', 'channel_id', 'speed', 'duplex',
             'enabled', 'mark_connected', 'wwn', 'vdcs', 'mtu', 'mgmt_only', 'description', 'poe_mode', 'poe_type',
-            'mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vrf', 'rf_role', 'rf_channel',
-            'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'owner', 'tags'
+            'lag_mode', 'lag_hash_policy', 'mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vrf',
+            'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'owner', 'tags'
         )
 
     def __init__(self, data=None, *args, **kwargs):

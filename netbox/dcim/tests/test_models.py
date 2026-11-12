@@ -3723,6 +3723,49 @@ class CableDisconnectChangeLoggingTestCase(TestCase):
         self.assertFalse(self._updates(self.interface1).filter(request_id=request.id).exists())
 
 
+class InterfaceLAGAttributesTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1', color='ff0000')
+        cls.device = Device.objects.create(device_type=devicetype, role=role, name='Device 1', site=site)
+
+    def test_lag_attributes_on_lag_interface(self):
+        interface = Interface(
+            device=self.device,
+            name='bond0',
+            type=InterfaceTypeChoices.TYPE_LAG,
+            lag_mode=InterfaceLAGModeChoices.MODE_LACP,
+            lag_hash_policy=InterfaceLAGHashPolicyChoices.POLICY_LAYER3_4,
+        )
+        interface.full_clean()
+
+    def test_lag_mode_on_non_lag_interface(self):
+        interface = Interface(
+            device=self.device,
+            name='eth0',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+            lag_mode=InterfaceLAGModeChoices.MODE_LACP,
+        )
+        with self.assertRaises(ValidationError) as cm:
+            interface.full_clean()
+        self.assertIn('lag_mode', cm.exception.message_dict)
+
+    def test_lag_hash_policy_on_non_lag_interface(self):
+        interface = Interface(
+            device=self.device,
+            name='eth0',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+            lag_hash_policy=InterfaceLAGHashPolicyChoices.POLICY_LAYER2,
+        )
+        with self.assertRaises(ValidationError) as cm:
+            interface.full_clean()
+        self.assertIn('lag_hash_policy', cm.exception.message_dict)
+
+
 class VirtualDeviceContextTestCase(TestCase):
 
     @classmethod
