@@ -2038,8 +2038,8 @@ class InterfaceBulkEditForm(
         FieldSet('vrf', 'wwn', name=_('Addressing')),
         FieldSet('vdcs', 'mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected', name=_('Operation')),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
-        FieldSet('parent', 'channel_id', 'bridge', 'lag', name=_('Related Interfaces')),
         FieldSet('lag_mode', 'lag_hash_policy', name=_('LAG')),
+        FieldSet('parent', 'channel_id', 'bridge', 'lag', name=_('Related Interfaces')),
         FieldSet(
             'mode', 'vlan_group', 'untagged_vlan', 'qinq_svlan', 'vlan_translation_policy', name=_('802.1Q Switching')
         ),

@@ -1326,6 +1326,10 @@ class Interface(
             raise ValidationError({'lag_mode': _("LAG mode may be set only on LAG interfaces.")})
         if self.lag_hash_policy and not self.is_lag:
             raise ValidationError({'lag_hash_policy': _("LAG hash policy may be set only on LAG interfaces.")})
+        if self.lag_hash_policy and self.lag_mode not in LAG_HASH_MODES:
+            raise ValidationError({
+                'lag_hash_policy': _("LAG hash policy may be set only for LACP, static, or balance-TLB LAG modes."),
+            })
 
         # Wireless validation
 

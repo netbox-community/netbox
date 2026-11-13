@@ -2057,6 +2057,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         label=_('LAG mode'),
         choices=add_blank_choice(InterfaceLAGModeChoices),
         required=False,
+        widget=HTMXSelect(hx_target_id='lag-attributes'),
     )
     lag_hash_policy = TypedChoiceField(
         label=_('LAG hash policy'),
@@ -2187,8 +2188,8 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         FieldSet('vrf', 'mac_address', 'wwn', name=_('Addressing')),
         FieldSet('vdcs', 'mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected', name=_('Operation')),
         FieldSet('parent', 'channel_id', 'bridge', 'lag', name=_('Related Interfaces')),
-        FieldSet('lag_mode', 'lag_hash_policy', name=_('LAG')),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
+        FieldSet('lag_mode', 'lag_hash_policy', name=_('LAG'), html_id='lag-attributes'),
         FieldSet(
             'mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy',
             name=_('802.1Q Switching'),
@@ -2214,6 +2215,20 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
                 options=InterfaceSpeedChoices
             ),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # A hash policy applies only to LAG modes which hash
+        if get_field_value(self, 'lag_mode') not in LAG_HASH_MODES:
+            del self.fields['lag_hash_policy']
+
+    def clean(self):
+        super().clean()
+
+        # Clear a hash policy left over from a previous LAG mode
+        if 'lag_hash_policy' not in self.fields:
+            self.instance.lag_hash_policy = None
 
 
 class FrontPortForm(FrontPortFormMixin, ModularDeviceComponentForm):

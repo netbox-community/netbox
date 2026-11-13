@@ -3765,6 +3765,32 @@ class InterfaceLAGAttributesTestCase(TestCase):
             interface.full_clean()
         self.assertIn('lag_hash_policy', cm.exception.message_dict)
 
+    def test_lag_hash_policy_lag_mode(self):
+        for lag_mode, valid in (
+            (None, False),
+            (InterfaceLAGModeChoices.MODE_LACP, True),
+            (InterfaceLAGModeChoices.MODE_STATIC, True),
+            (InterfaceLAGModeChoices.MODE_BALANCE_TLB, True),
+            (InterfaceLAGModeChoices.MODE_ACTIVE_BACKUP, False),
+            (InterfaceLAGModeChoices.MODE_BALANCE_RR, False),
+            (InterfaceLAGModeChoices.MODE_BALANCE_ALB, False),
+            (InterfaceLAGModeChoices.MODE_BROADCAST, False),
+        ):
+            with self.subTest(lag_mode=lag_mode):
+                interface = Interface(
+                    device=self.device,
+                    name='bond0',
+                    type=InterfaceTypeChoices.TYPE_LAG,
+                    lag_mode=lag_mode,
+                    lag_hash_policy=InterfaceLAGHashPolicyChoices.POLICY_LAYER3_4,
+                )
+                if valid:
+                    interface.full_clean()
+                else:
+                    with self.assertRaises(ValidationError) as cm:
+                        interface.full_clean()
+                    self.assertIn('lag_hash_policy', cm.exception.message_dict)
+
 
 class VirtualDeviceContextTestCase(TestCase):
 

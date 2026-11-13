@@ -125,7 +125,7 @@ The link aggregation mode of a LAG interface. (This field may be set only on int
 
 ### LAG Hash Policy
 
-The transmit hash policy used to distribute traffic across the members of a LAG interface: layer 2, layer 2+3, layer 3+4, encapsulated layer 2+3, or encapsulated layer 3+4. (This field may be set only on interfaces of type LAG.)
+The transmit hash policy used to distribute traffic across the members of a LAG interface: layer 2, layer 2+3, layer 3+4, encapsulated layer 2+3, or encapsulated layer 3+4. (This field may be set only on LAG interfaces whose mode is LACP, static, or balance-TLB, as other modes do not select members by hash.)
 
 ### PoE Mode
 

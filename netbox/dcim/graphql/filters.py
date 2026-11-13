@@ -603,6 +603,12 @@ class InterfaceFilter(
     poe_type: BaseFilterLookup[Annotated['InterfacePoETypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
+    lag_mode: BaseFilterLookup[Annotated['InterfaceLAGModeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
+        strawberry_django.filter_field()
+    )
+    lag_hash_policy: (
+        BaseFilterLookup[Annotated['InterfaceLAGHashPolicyEnum', strawberry.lazy('dcim.graphql.enums')]] | None
+    ) = strawberry_django.filter_field()
     wireless_link: Annotated['WirelessLinkFilter', strawberry.lazy('wireless.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -685,12 +691,6 @@ class InterfaceTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedM
     poe_type: BaseFilterLookup[Annotated['InterfacePoETypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
-    lag_mode: BaseFilterLookup[Annotated['InterfaceLAGModeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
-        strawberry_django.filter_field()
-    )
-    lag_hash_policy: (
-        BaseFilterLookup[Annotated['InterfaceLAGHashPolicyEnum', strawberry.lazy('dcim.graphql.enums')]] | None
-    ) = strawberry_django.filter_field()
     rf_role: BaseFilterLookup[Annotated['WirelessRoleEnum', strawberry.lazy('wireless.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
