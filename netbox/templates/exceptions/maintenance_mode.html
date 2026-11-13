@@ -1,0 +1,35 @@
+{% load i18n %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>{% trans "Maintenance Mode" %}</title>
+  <link rel="stylesheet" href="{% static 'netbox-external.css' %}" />
+  <link rel="stylesheet" href="{% static 'netbox.css'%}" />
+  <meta charset="UTF-8">
+</head>
+
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col col-md-6 offset-md-3">
+        <div class="card border-warning mt-5">
+          <h2 class="card-header text-bg-warning">
+            <i class="mdi mdi-wrench me-1"></i> {% trans "Maintenance Mode" %}
+          </h2>
+          <div class="card-body">
+            <p>
+              {% trans "NetBox is currently operating in maintenance mode and is unable to perform write operations. Please try again later." %}
+            </p>
+            <div class="text-end">
+              <a href="{% url 'home' %}" class="btn btn-primary">{% trans "Home Page" %}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

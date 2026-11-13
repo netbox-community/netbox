@@ -6,10 +6,11 @@ from django.contrib import auth, messages
 from django.contrib.auth.middleware import RemoteUserMiddleware as RemoteUserMiddleware_
 from django.core.exceptions import ImproperlyConfigured
 from django.core.signals import got_request_exception
-from django.db import ProgrammingError, connection
+from django.db import Error, ProgrammingError, connection
 from django.db.utils import InternalError
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.middleware.common import CommonMiddleware as DjangoCommonMiddleware
+from django.template import loader
 from django.utils.translation import gettext_lazy as _
 from django_prometheus import middleware
 from social_django.middleware import SocialAuthExceptionMiddleware as SocialAuthExceptionMiddleware_
@@ -267,12 +268,20 @@ class MaintenanceModeMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if get_config().MAINTENANCE_MODE:
-            self._set_session_type(
-                allow_write=request.path_info.startswith(settings.MAINTENANCE_EXEMPT_PATHS)
-            )
+        if not get_config().MAINTENANCE_MODE or request.path_info.startswith(settings.MAINTENANCE_EXEMPT_PATHS):
+            return self.get_response(request)
 
-        return self.get_response(request)
+        # The read-only setting persists on the connection, so restore read/write access once the request has been
+        # handled. This also lets outer middleware (e.g. saving the session) write to the database.
+        self._set_session_type(allow_write=False)
+        try:
+            return self.get_response(request)
+        finally:
+            try:
+                self._set_session_type(allow_write=True)
+            except Error:
+                # Never leave a read-only connection to be reused by a later request
+                connection.close()
 
     @staticmethod
     def _set_session_type(allow_write):
@@ -296,6 +305,10 @@ class MaintenanceModeMiddleware:
 
             if is_api_request(request) or is_graphql_request(request):
                 return handle_rest_api_exception(request, error=error_message)
+
+            # Redirecting a read-only request (e.g. GET) back to the same URL would fail the same way again
+            if request.method in ('GET', 'HEAD', 'OPTIONS'):
+                return HttpResponse(loader.render_to_string('exceptions/maintenance_mode.html'), status=503)
 
             messages.error(request, error_message)
             return HttpResponseRedirect(request.path_info)

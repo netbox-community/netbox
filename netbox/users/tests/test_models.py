@@ -233,6 +233,20 @@ class UserConfigTestCase(TestCase):
         # Clear a non-existing value; should fail silently
         userconfig.clear('invalid')
 
+    @override_settings(MAINTENANCE_MODE=True)
+    def test_commit_skipped_in_maintenance_mode(self):
+        userconfig = User.objects.get(username='testuser').config
+
+        # The change is applied, but not saved
+        userconfig.set('a', 'def', commit=True)
+        userconfig.clear('b.foo', commit=True)
+        self.assertEqual(userconfig.data['a'], 'def')
+        self.assertNotIn('foo', userconfig.data['b'])
+
+        userconfig.refresh_from_db()
+        self.assertEqual(userconfig.data['a'], True)
+        self.assertEqual(userconfig.data['b']['foo'], 101)
+
 
 class RestrictedQuerySetTestCase(TestCase):
     """
