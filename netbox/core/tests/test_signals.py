@@ -78,6 +78,7 @@ class HandleChangedObjectSignalTestCase(TestCase):
         request = _build_request(self.user)
 
         with event_tracking(request):
+            site.snapshot()
             site.description = 'updated'
             site.save()
 
@@ -86,6 +87,55 @@ class HandleChangedObjectSignalTestCase(TestCase):
             changed_object_id=site.pk,
         ).order_by('-pk')
         self.assertEqual(ocs.first().action, ObjectChangeActionChoices.ACTION_UPDATE)
+
+    def test_update_without_snapshot_records_prechange_from_database(self):
+        """An update saved without a snapshot records its pre-change data from the database. Ref: #23617"""
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        request = _build_request(self.user)
+
+        with self.assertLogs('netbox.models.features', level='WARNING'), event_tracking(request):
+            site.description = 'first'
+            site.save()
+            site.description = 'second'
+            site.save()
+
+        ocs = ObjectChange.objects.filter(
+            changed_object_type=ContentType.objects.get_for_model(Site),
+            changed_object_id=site.pk,
+        ).order_by('pk')
+        self.assertEqual([oc.prechange_data['description'] for oc in ocs], ['', 'first'])
+        self.assertEqual([oc.postchange_data['description'] for oc in ocs], ['first', 'second'])
+        self.assertFalse(hasattr(site, '_prechange_snapshot'))
+
+    def test_update_without_snapshot_enqueues_prechange_from_database(self):
+        """The event for an update saved without a snapshot carries its pre-change data. Ref: #23617"""
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        request = _build_request(self.user)
+
+        with self.assertLogs('netbox.models.features', level='WARNING'), event_tracking(request):
+            site.description = 'updated'
+            site.save()
+            snapshots = events_queue.get()[f'dcim.site:{site.pk}']['snapshots']
+
+        self.assertEqual(snapshots['prechange']['description'], '')
+        self.assertEqual(snapshots['postchange']['description'], 'updated')
+        self.assertFalse(hasattr(site, '_prechange_snapshot'))
+
+    def test_update_keeps_existing_snapshot(self):
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        request = _build_request(self.user)
+
+        with self.assertNoLogs('netbox.models.features', level='WARNING'), event_tracking(request):
+            site.snapshot()
+            site.description = 'first'
+            site.save()
+
+        oc = ObjectChange.objects.get(
+            changed_object_type=ContentType.objects.get_for_model(Site),
+            changed_object_id=site.pk,
+        )
+        self.assertEqual(oc.prechange_data['description'], '')
+        self.assertEqual(oc.postchange_data['description'], 'first')
 
     def test_no_request_skips_objectchange(self):
         # Saving outside a request context (no event_tracking) should not record any

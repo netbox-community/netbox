@@ -7,7 +7,7 @@ from django.core.signals import request_finished
 from django.db import transaction
 from django.db.models import CASCADE, RESTRICT
 from django.db.models.fields.reverse_related import ManyToManyRel, ManyToOneRel
-from django.db.models.signals import m2m_changed, post_migrate, post_save, pre_delete
+from django.db.models.signals import m2m_changed, post_migrate, post_save, pre_delete, pre_save
 from django.dispatch import Signal, receiver
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
@@ -90,6 +90,19 @@ def update_object_types(sender, **kwargs):
 _signals_received = local()
 
 
+@receiver(pre_save)
+def snapshot_unsnapshotted_object(sender, instance, raw=False, using=None, **kwargs):
+    """
+    Generate a pre-change snapshot from the database for an existing object being saved without one.
+    """
+    if raw or not isinstance(instance, ChangeLoggingMixin) or current_request.get() is None:
+        return
+    if instance._state.adding or instance.pk is None or hasattr(instance, '_prechange_snapshot'):
+        return
+
+    instance.snapshot_from_db(using=using)
+
+
 @receiver((post_save, m2m_changed))
 def handle_changed_object(sender, instance, **kwargs):
     """
@@ -162,6 +175,10 @@ def handle_changed_object(sender, instance, **kwargs):
     queue = events_queue.get()
     enqueue_event(queue, instance, request, event_type, object_change_id=object_change_id)
     events_queue.set(queue)
+
+    # Discard a snapshot read from the database only once the event has captured it
+    if instance.__dict__.pop('_prechange_snapshot_from_db', False):
+        instance.__dict__.pop('_prechange_snapshot', None)
 
     # Increment metric counters
     if event_type == OBJECT_CREATED:
