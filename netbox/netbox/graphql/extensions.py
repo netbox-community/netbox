@@ -99,7 +99,7 @@ def _emit(record):
     logger.info(
         "user=%s token_id=%s client_ip=%s operation_name=%s query_hash=%s duration_ms=%s error_count=%s "
         "response_size=%s query=%s variables=%s",
-        record['user'],
+        json.dumps(record['user']),  # Encode to prevent log forging
         record['token_id'],
         record['client_ip'],
         json.dumps(record['operation_name']),  # Client-supplied; encode to prevent log forging

@@ -1561,6 +1561,7 @@ class GraphQLQueryLoggerTestCase(APITestCase):
         self.assertEqual(data['error_count'], 0)
         self.assertEqual(data['response_size'], len(response.content))
         self.assertGreaterEqual(data['duration_ms'], 0)
+        self.assertIn(f'user={json.dumps(self.user.username)}', cm.output[0])
         self.assertIn('operation_name="SiteNames"', cm.output[0])
         self.assertNotIn('Site 1', cm.output[0])
 
