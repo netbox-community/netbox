@@ -113,11 +113,26 @@ class NotificationAction(EventRuleAction):
     object_required = True
 
     def enqueue(self, *, event_rule, event_context, action_object, action_data):
+        # The payload of an object change event is the serialized object, but the payload of a job event is the
+        # job's data, so prefer the object ID and representation carried on the event context.
+        object_id = event_context.get('object_id')
+        if object_id is None:
+            object_id = action_data.get('id')
+        if object_id is None:
+            logger.warning(
+                "Skipping notification action for event rule %s: %s event has no associated object",
+                event_rule, event_context['event_type']
+            )
+            return
+        object_repr = action_data.get('display')
+        if object_repr is None:
+            object_repr = str(event_context.get('object') or '')
+
         # Bulk-create notifications for all members of the notification group
         action_object.notify(
             object_type=event_context['object_type'],
-            object_id=action_data['id'],
-            object_repr=action_data.get('display'),
+            object_id=object_id,
+            object_repr=object_repr,
             event_type=event_context['event_type'],
         )
 
