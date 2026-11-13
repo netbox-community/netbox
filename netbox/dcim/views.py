@@ -1695,6 +1695,9 @@ class DeviceTypeImportView(generic.BulkImportView):
         'device-bays': forms.DeviceBayTemplateImportForm,
         'inventory-items': forms.InventoryItemTemplateImportForm,
     }
+    related_object_permissions = {
+        'port-mappings': ('dcim.add_frontporttemplate', 'dcim.add_rearporttemplate'),
+    }
 
     def prep_related_object_data(self, parent, data):
         data.update({'device_type': parent})
@@ -2145,6 +2148,9 @@ class ModuleTypeImportView(generic.BulkImportView):
         'front-ports': forms.FrontPortTemplateImportForm,
         'port-mappings': forms.PortTemplateMappingImportForm,
         'module-bays': forms.ModuleBayTemplateImportForm,
+    }
+    related_object_permissions = {
+        'port-mappings': ('dcim.add_frontporttemplate', 'dcim.add_rearporttemplate'),
     }
 
     def prep_related_object_data(self, parent, data):

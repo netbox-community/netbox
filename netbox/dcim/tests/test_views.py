@@ -1296,6 +1296,34 @@ inventory-items:
         self.assertFalse(DeviceType.objects.filter(model='TEST-3000').exists())
         self.assertFalse(ConsolePortTemplate.objects.exists())
 
+    def test_import_port_mappings_without_port_permissions(self):
+        """
+        Importing port mappings requires permission to add front and rear port templates.
+        """
+        device_type = DeviceType.objects.first()
+        front_port = FrontPortTemplate.objects.create(device_type=device_type, name='Front Port 1', type='8p8c')
+        rear_port = RearPortTemplate.objects.create(device_type=device_type, name='Rear Port 1', type='8p8c')
+        self.add_permissions(
+            'dcim.view_manufacturer', 'dcim.view_devicetype', 'dcim.add_devicetype', 'dcim.change_devicetype'
+        )
+        url = reverse('dcim:devicetype_bulk_import')
+        import_data = (
+            f"id: {device_type.pk}\n"
+            "port-mappings:\n  - front_port: Front Port 1\n    rear_port: Rear Port 1\n"
+        )
+
+        response = self.client.post(url, data={'data': import_data, 'format': 'yaml'})
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'dcim.add_frontporttemplate')
+        self.assertFalse(PortTemplateMapping.objects.exists())
+
+        self.add_permissions('dcim.add_frontporttemplate', 'dcim.add_rearporttemplate')
+        response = self.client.post(url, data={'data': import_data, 'format': 'yaml'})
+        self.assertHttpStatus(response, 302)
+        mapping = PortTemplateMapping.objects.get()
+        self.assertEqual(mapping.front_port, front_port)
+        self.assertEqual(mapping.rear_port, rear_port)
+
     def test_import_objects_component_object_permissions(self):
         """
         Object-level constraints on component template permissions are enforced during import.
