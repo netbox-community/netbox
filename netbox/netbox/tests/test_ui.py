@@ -738,6 +738,12 @@ class WeightAttrTestCase(SimpleTestCase):
         self.assertIn('10', result)
         self.assertIn('lbs', result)
 
+    def test_render_localized(self):
+        attr = attrs.WeightAttr('weight')
+        obj = self._obj(Decimal('2.5'), 'kg', 2500, 'Kilograms')
+        with translation.override('de'):
+            self.assertIn('2,5', attr.render(obj, self._ctx()))
+
 
 class DistanceAttrTestCase(SimpleTestCase):
 

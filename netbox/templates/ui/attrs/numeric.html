@@ -1,6 +1,6 @@
 {% load i18n l10n %}
 <span>
-  <span{% if name %} id="attr_{{ name }}"{% endif %}>{% if localize %}{{ value }}{% else %}{{ value|unlocalize }}{% endif %}</span>
+  <span{% if name %} id="attr_{{ name }}"{% endif %}>{% if localize is False %}{{ value|unlocalize }}{% else %}{{ value }}{% endif %}</span>
   {% if unit %}
     {{ unit|lower }}
   {% endif %}
