@@ -216,6 +216,7 @@ class PrefixTableTestCase(TableTestCases.StandardTableTestCase):
         self.assertHTMLEqual(rows[1].get_cell('classification'), '<span class="badge text-bg-green">Private</span>')
         self.assertEqual(rows[0].get_cell_value('classification'), 'Public')
         self.assertEqual(rows[1].get_cell_value('classification'), 'Private')
+        self.assertIs(type(rows[0].get_cell_value('classification')), str)
 
     def test_classification_ordering(self):
         """Available-space rows sort by the classification of their own prefix."""
