@@ -226,6 +226,13 @@ class PrefixTableTestCase(TableTestCases.StandardTableTestCase):
         table = PrefixTable(data, order_by='-classification')
         self.assertEqual([prefix.prefix for prefix in table.data], [IPNetwork('11.0.0.0/8'), IPNetwork('10.0.0.0/8')])
 
+    def test_classification_ordering_queryset(self):
+        """Saved prefixes sort by their stored classification."""
+        Prefix.objects.create(prefix=IPNetwork('8.8.8.0/24'))
+        Prefix.objects.create(prefix=IPNetwork('10.0.0.0/8'))
+        table = PrefixTable(Prefix.objects.all(), order_by='classification')
+        self.assertEqual([prefix.prefix for prefix in table.data], [IPNetwork('10.0.0.0/8'), IPNetwork('8.8.8.0/24')])
+
 
 class IPRangeTableTestCase(TableTestCases.StandardTableTestCase):
     table = IPRangeTable

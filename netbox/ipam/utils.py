@@ -70,10 +70,7 @@ def add_requested_prefixes(parent, prefix_list, show_available=True, show_assign
         # saved Prefix instances with real pks, bulk delete will fail for mixed-type selections
         # due to single-model form validation. See: https://github.com/netbox-community/netbox/issues/21176
         available_prefixes = netaddr.IPSet(parent) ^ netaddr.IPSet([p.prefix for p in prefix_list])
-        available_prefixes = [
-            Prefix(prefix=p, status=None, _classification=get_prefix_classification(p))
-            for p in available_prefixes.iter_cidrs()
-        ]
+        available_prefixes = [Prefix(prefix=p, status=None) for p in available_prefixes.iter_cidrs()]
         child_prefixes = child_prefixes + available_prefixes
 
     # Add assigned prefixes to the table if requested

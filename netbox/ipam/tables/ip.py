@@ -187,11 +187,11 @@ class PrefixTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
         verbose_name=_('Status'),
         default=AVAILABLE_LABEL
     )
-    # Read the property so unsaved prefixes display correctly
+    # Read the property so unsaved prefixes display and sort correctly
     classification = columns.ChoiceFieldColumn(
         verbose_name=_('Classification'),
         accessor='get_classification_display',
-        order_by=('_classification',)
+        order_by=('classification',)
     )
     vrf = tables.TemplateColumn(
         template_code=VRF_LINK,
@@ -253,6 +253,10 @@ class PrefixTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
         row_attrs = {
             'class': lambda record: 'success' if not record.pk else '',
         }
+
+    def order_classification(self, queryset, is_descending):
+        # Querysets sort by the stored field; list data sorts by the property
+        return queryset.order_by('-_classification' if is_descending else '_classification'), True
 
 
 #
