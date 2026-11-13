@@ -5,6 +5,7 @@ CORE_APPS = (
     'dcim',
     'extras',
     'ipam',
+    'ndx',
     'tenancy',
     'users',
     'utilities',

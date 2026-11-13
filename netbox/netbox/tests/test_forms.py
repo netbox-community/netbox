@@ -515,7 +515,7 @@ class MetaShadowingTestCase(TestCase):
         import importlib
         import pkgutil
         for app in (
-            'circuits', 'core', 'dcim', 'extras', 'ipam', 'tenancy', 'users', 'utilities',
+            'circuits', 'core', 'dcim', 'extras', 'ipam', 'ndx', 'tenancy', 'users', 'utilities',
             'virtualization', 'vpn', 'wireless', 'netbox',
         ):
             # Only tolerate an app that has no forms package; a broken import inside a package that

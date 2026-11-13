@@ -79,6 +79,7 @@ nav:
         - Wireless: 'features/wireless.md'
         - Virtualization: 'features/virtualization.md'
         - VPN Tunnels: 'features/vpn-tunnels.md'
+        - NetBox Data Exchange: 'features/ndx.md'
         - Resource Ownership: 'features/resource-ownership.md'
         - Tenancy: 'features/tenancy.md'
         - Contacts: 'features/contacts.md'
@@ -118,6 +119,7 @@ nav:
         - Data & Validation: 'configuration/data-validation.md'
         - Default Values: 'configuration/default-values.md'
         - Error Reporting: 'configuration/error-reporting.md'
+        - NetBox Data Exchange: 'configuration/ndx.md'
         - Plugins: 'configuration/plugins.md'
         - Miscellaneous: 'configuration/miscellaneous.md'
         - Development: 'configuration/development.md'
@@ -156,6 +158,7 @@ nav:
             - Event Types: 'plugins/development/event-types.md'
             - Event Rule Actions: 'plugins/development/event-rule-actions.md'
             - Exporters: 'plugins/development/exporters.md'
+            - NDX Importers: 'plugins/development/ndx-importers.md'
             - Permissions: 'plugins/development/permissions.md'
             - Data Backends: 'plugins/development/data-backends.md'
             - Webhooks: 'plugins/development/webhooks.md'
@@ -289,6 +292,9 @@ nav:
             - VLANTranslationPolicy: 'models/ipam/vlantranslationpolicy.md'
             - VLANTranslationRule: 'models/ipam/vlantranslationrule.md'
             - VRF: 'models/ipam/vrf.md'
+        - NDX:
+            - Enrichment: 'models/ndx/enrichment.md'
+            - ImportRecord: 'models/ndx/importrecord.md'
         - Tenancy:
             - Contact: 'models/tenancy/contact.md'
             - ContactGroup: 'models/tenancy/contactgroup.md'

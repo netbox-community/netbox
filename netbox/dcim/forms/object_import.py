@@ -6,6 +6,8 @@ from dcim.models import *
 from wireless.choices import WirelessRoleChoices
 
 __all__ = (
+    'DEVICE_TYPE_COMPONENT_IMPORT_FORMS',
+    'MODULE_TYPE_COMPONENT_IMPORT_FORMS',
     'ConsolePortTemplateImportForm',
     'ConsoleServerPortTemplateImportForm',
     'CoolingIntakeTemplateImportForm',
@@ -342,3 +344,28 @@ class InventoryItemTemplateImportForm(forms.ModelForm):
             parent.queryset = parent.queryset.filter(module_type=module_type)
 
         return module_type
+
+
+#
+# Component template import forms by YAML key, in the order they must be processed
+#
+
+MODULE_TYPE_COMPONENT_IMPORT_FORMS = {
+    'console-ports': ConsolePortTemplateImportForm,
+    'console-server-ports': ConsoleServerPortTemplateImportForm,
+    'power-ports': PowerPortTemplateImportForm,
+    'power-outlets': PowerOutletTemplateImportForm,
+    'cooling-intakes': CoolingIntakeTemplateImportForm,
+    'cooling-outflows': CoolingOutflowTemplateImportForm,
+    'interfaces': InterfaceTemplateImportForm,
+    'rear-ports': RearPortTemplateImportForm,
+    'front-ports': FrontPortTemplateImportForm,
+    'port-mappings': PortTemplateMappingImportForm,
+    'module-bays': ModuleBayTemplateImportForm,
+}
+
+DEVICE_TYPE_COMPONENT_IMPORT_FORMS = {
+    **MODULE_TYPE_COMPONENT_IMPORT_FORMS,
+    'device-bays': DeviceBayTemplateImportForm,
+    'inventory-items': InventoryItemTemplateImportForm,
+}

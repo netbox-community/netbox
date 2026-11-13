@@ -30,6 +30,10 @@ A dictionary of model features (e.g. custom fields, tags, etc.) mapped to the fu
 
 Core model features are listed in the [features matrix](./models.md#features-matrix).
 
+### `ndx_importers`
+
+A dictionary mapping NetBox Data Exchange catalog entry types (e.g. `device-type`) to the importers which handle them. Importers are registered using the `register_importer()` decorator in `ndx.importers`. (See the [plugin development documentation](../plugins/development/ndx-importers.md) for details.)
+
 ### `pk_allocators`
 
 A list of callables which may supply primary keys for new objects, consulted in order. Primary key allocators are registered using the `register_pk_allocator()` decorator in `netbox.models`. (See the [plugin development documentation](../plugins/development/models.md#primary-key-allocators) for details.)

@@ -26,6 +26,14 @@ Start the Django shell with all NetBox models already imported. See [NetBox Shel
 python3 netbox/manage.py nbshell
 ```
 
+## ndx_sync
+
+Check the [NetBox Data Exchange](../features/ndx.md) catalog for updates to imported types. The check is run as a catalog sync job, so its outcome is shown in the **Sync Status** view. Pass `--vendor` to check only the entries of a single vendor (identified by its catalog slug). Pass `--apply` to re-import any entries for which an update is available, along with `--user` to name the user to whom the changes are attributed (and whose permissions are enforced).
+
+```
+python3 netbox/manage.py ndx_sync [--vendor <slug>] [--apply --user <username>]
+```
+
 ## populate_image_sizes
 
 Populate the cached file size for image attachments that predate the `image_size` field. Running this once after upgrading is recommended for deployments with many existing attachments on a remote storage backend (such as S3). It is safe to run on a live system and may be re-run; any file that cannot be read is skipped and retried on the next run.

@@ -2,6 +2,7 @@ import django_tables2 as tables
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Module, ModuleBayType, ModuleType, ModuleTypeProfile
+from ndx.tables.columns import ImportRecordColumn
 from netbox.tables import PrimaryModelTable, columns
 
 from .template_code import MODULETYPEPROFILE_ATTRIBUTES, WEIGHT
@@ -99,6 +100,7 @@ class ModuleTypeTable(PrimaryModelTable):
         url_params={'module_type_id': 'pk'},
         verbose_name=_('Module Count'),
     )
+    ndx = ImportRecordColumn()
     tags = columns.TagColumn(
         url_name='dcim:moduletype_list'
     )
@@ -108,7 +110,7 @@ class ModuleTypeTable(PrimaryModelTable):
         fields = (
             'pk', 'id', 'model', 'profile', 'manufacturer', 'part_number', 'airflow', 'cooling_method', 'weight',
             'end_of_life', 'module_bay_types',
-            'description', 'attributes', 'module_count', 'comments', 'tags', 'created', 'last_updated',
+            'description', 'attributes', 'module_count', 'comments', 'ndx', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'model', 'profile', 'manufacturer', 'part_number', 'module_count',

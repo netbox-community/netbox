@@ -1,0 +1,25 @@
+{% extends 'generic/object.html' %}
+{% load i18n %}
+
+{% block extra_controls %}
+  {% if can_import %}
+    <form action="{% url 'ndx:catalog_import' %}" method="post" class="d-inline">
+      {% csrf_token %}
+      <input type="hidden" name="pk" value="{{ object.ndx_id }}" />
+      <input type="hidden" name="return_url" value="{{ object.get_absolute_url }}" />
+      <button type="submit" class="btn btn-{% if object.update_available %}warning{% else %}outline-secondary{% endif %}">
+        <i class="mdi mdi-refresh" aria-hidden="true"></i> {% trans "Re-import" %}
+      </button>
+    </form>
+  {% endif %}
+  {% if catalog_url %}
+    <a href="{{ catalog_url }}" class="btn btn-outline-secondary">
+      <i class="mdi mdi-book-open-variant" aria-hidden="true"></i> {% trans "View in Catalog" %}
+    </a>
+  {% endif %}
+  {% if ndx_web_url %}
+    <a href="{{ ndx_web_url }}/{{ object.ndx_id }}" class="btn btn-outline-secondary" target="_blank" rel="noopener noreferrer">
+      <i class="mdi mdi-open-in-new" aria-hidden="true"></i> {% trans "View on NDX" %}
+    </a>
+  {% endif %}
+{% endblock extra_controls %}

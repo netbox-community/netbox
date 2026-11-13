@@ -21,7 +21,9 @@ from netbox.filtersets.utils import FilterDict, get_data_keys
 from netbox.registry import registry
 from utilities.filters import ContentTypeFilter, MultiValueCharFilter, MultiValueContentTypeFilter
 
-CORE_APPS = ('circuits', 'core', 'dcim', 'extras', 'ipam', 'tenancy', 'users', 'virtualization', 'vpn', 'wireless')
+CORE_APPS = (
+    'circuits', 'core', 'dcim', 'extras', 'ipam', 'ndx', 'tenancy', 'users', 'virtualization', 'vpn', 'wireless',
+)
 
 
 def get_filterset_classes():
