@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from functools import cache
 
 import netaddr
 from django.apps import apps
@@ -6,6 +7,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import BooleanField, F, Func, Q
 from django.utils.translation import gettext_lazy as _
 
+from .choices import PrefixClassificationChoices
 from .constants import *
 
 __all__ = (
@@ -17,6 +19,7 @@ __all__ = (
     'annotate_ip_space',
     'expand_port_mapping',
     'get_next_available_prefix',
+    'get_prefix_classification',
     'group_port_mapping_rows',
     'group_port_mappings',
     'legacy_protocol_and_ports',
@@ -67,7 +70,10 @@ def add_requested_prefixes(parent, prefix_list, show_available=True, show_assign
         # saved Prefix instances with real pks, bulk delete will fail for mixed-type selections
         # due to single-model form validation. See: https://github.com/netbox-community/netbox/issues/21176
         available_prefixes = netaddr.IPSet(parent) ^ netaddr.IPSet([p.prefix for p in prefix_list])
-        available_prefixes = [Prefix(prefix=p, status=None) for p in available_prefixes.iter_cidrs()]
+        available_prefixes = [
+            Prefix(prefix=p, status=None, _classification=get_prefix_classification(p))
+            for p in available_prefixes.iter_cidrs()
+        ]
         child_prefixes = child_prefixes + available_prefixes
 
     # Add assigned prefixes to the table if requested
@@ -304,6 +310,40 @@ def parse_inet_addresses(value):
         except (netaddr.AddrFormatError, ValueError):
             continue
     return parsed
+
+
+@cache
+def _prefix_classification_rules():
+    """
+    Return each classification tier in match order, collapsed to (version, first, last) bounds.
+    """
+    special = PrefixClassificationChoices.CLASSIFICATION_SPECIAL
+    tiers = (
+        (PrefixClassificationChoices.CLASSIFICATION_PUBLIC, PREFIX_CLASSIFICATION_PUBLIC_EXCEPTIONS),
+        *((name, networks) for name, networks in PREFIX_CLASSIFICATION_NETWORKS.items() if name != special),
+        (special, PREFIX_CLASSIFICATION_NETWORKS[special]),
+    )
+    return tuple(
+        (name, tuple((cidr.version, cidr.first, cidr.last) for cidr in netaddr.IPSet(networks).iter_cidrs()))
+        for name, networks in tiers
+    )
+
+
+def get_prefix_classification(prefix):
+    """
+    Return the classification of the address space a prefix covers, or None for a missing or invalid prefix.
+    """
+    if not isinstance(prefix, netaddr.IPNetwork):
+        try:
+            prefix = netaddr.IPNetwork(prefix)
+        except (netaddr.AddrFormatError, TypeError):
+            return None
+    version, first, last = prefix.version, prefix.first, prefix.last
+    for classification, bounds in _prefix_classification_rules():
+        for family, start, end in bounds:
+            if version == family and start <= first and last <= end:
+                return classification
+    return PrefixClassificationChoices.CLASSIFICATION_PUBLIC
 
 
 #
