@@ -225,6 +225,7 @@ nav:
             - InventoryItemTemplate: 'models/dcim/inventoryitemtemplate.md'
             - Location: 'models/dcim/location.md'
             - MACAddress: 'models/dcim/macaddress.md'
+            - MACBlock: 'models/dcim/macblock.md'
             - Manufacturer: 'models/dcim/manufacturer.md'
             - Module: 'models/dcim/module.md'
             - ModuleBay: 'models/dcim/modulebay.md'

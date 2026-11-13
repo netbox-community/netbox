@@ -6971,3 +6971,84 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertHttpStatus(response, 200)
         self.assertIn(b'quick-add-object', response.content)
         self.assertEqual(initial_count + 1, self._get_queryset().count())
+
+    def test_mac_blocks_panel(self):
+        """
+        The MAC address page lists the MAC blocks containing it, only if the user can view MAC blocks.
+        """
+        MACBlock.objects.create(prefix='BC:24:11:00:00:00', prefix_length=24, name='Block 1')
+        mac_address = MACAddress.objects.create(mac_address='BC:24:11:00:00:01')
+        panel_url = 'contains=BC%3A24%3A11%3A00%3A00%3A01'
+
+        self.add_permissions('dcim.view_macaddress')
+        response = self.client.get(mac_address.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+        self.assertNotContains(response, panel_url)
+
+        self.add_permissions('dcim.view_macblock')
+        response = self.client.get(mac_address.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, panel_url)
+
+
+class MACBlockTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = MACBlock
+
+    @classmethod
+    def setUpTestData(cls):
+        mac_blocks = (
+            MACBlock.objects.create(prefix='BC:24:11:00:00:00', prefix_length=24, name='Block 1'),
+            MACBlock.objects.create(prefix='BC:24:12:00:00:00', prefix_length=24, name='Block 2'),
+            MACBlock.objects.create(prefix='BC:24:13:00:00:00', prefix_length=24, name='Block 3'),
+        )
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'prefix': EUI('BC:24:14:50:00:00'),
+            'prefix_length': 28,
+            'name': 'Block X',
+            'enforce_unique': True,
+            'description': 'New MAC block',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "prefix,prefix_length,name",
+            "BC:24:15:00:00:00,24,Block 4",
+            "BC:24:16:00:00:00,28,Block 5",
+            "BC:24:17:00:00:00,36,Block 6",
+        )
+
+        cls.csv_update_data = (
+            "id,name,enforce_unique",
+            f"{mac_blocks[0].pk},Block 7,true",
+            f"{mac_blocks[1].pk},Block 8,true",
+            f"{mac_blocks[2].pk},Block 9,false",
+        )
+
+        cls.bulk_edit_data = {
+            'name': 'New name',
+            'enforce_unique': True,
+            'description': 'New description',
+        }
+
+    def test_create_duplicate_prefix_with_host_bits(self):
+        self.add_permissions('dcim.add_macblock')
+        response = self.client.post(
+            reverse('dcim:macblock_add'), {'prefix': 'BC:24:11:AA:BB:CC', 'prefix_length': 24}
+        )
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(MACBlock.objects.filter(prefix='BC:24:11:00:00:00', prefix_length=24).count(), 1)
+
+    def test_mac_addresses_panel(self):
+        """
+        The MAC block page offers to add the first available MAC address within the block.
+        """
+        self.add_permissions('dcim.view_macblock', 'dcim.view_macaddress', 'dcim.add_macaddress')
+        mac_block = MACBlock.objects.get(name='Block 1')
+        MACAddress.objects.create(mac_address='BC:24:11:00:00:00')
+
+        response = self.client.get(mac_block.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'mac_address=BC%3A24%3A11%3A00%3A00%3A01')

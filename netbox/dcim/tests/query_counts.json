@@ -46,6 +46,8 @@
   "location:list_objects_with_permission": 18,
   "macaddress:api_list_objects": 16,
   "macaddress:list_objects_with_permission": 20,
+  "macblock:api_list_objects": 12,
+  "macblock:list_objects_with_permission": 16,
   "manufacturer:api_list_objects": 12,
   "manufacturer:list_objects_with_permission": 16,
   "module:api_list_objects": 19,

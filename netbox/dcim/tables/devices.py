@@ -38,6 +38,7 @@ __all__ = (
     'InventoryItemRoleTable',
     'InventoryItemTable',
     'MACAddressTable',
+    'MACBlockTable',
     'ModuleBayTable',
     'PlatformTable',
     'PowerOutletTable',
@@ -1329,4 +1330,54 @@ class MACAddressTable(PrimaryModelTable):
         )
         default_columns = (
             'pk', 'mac_address', 'is_primary', 'assigned_object_parent', 'assigned_object', 'description',
+        )
+
+
+class MACBlockTable(PrimaryModelTable):
+    prefix = tables.Column(
+        verbose_name=_('Prefix'),
+        linkify=True
+    )
+    prefix_length = tables.Column(
+        verbose_name=_('Length')
+    )
+    name = tables.Column(
+        verbose_name=_('Name')
+    )
+    size = tables.Column(
+        verbose_name=_('Size'),
+        orderable=False
+    )
+    mac_address_count = columns.LinkedCountColumn(
+        viewname='dcim:macaddress_list',
+        url_params={'mac_block_id': 'pk'},
+        verbose_name=_('MAC Addresses'),
+        orderable=False
+    )
+    utilization = columns.UtilizationColumn(
+        verbose_name=_('Utilization'),
+        orderable=False
+    )
+    enforce_unique = columns.BooleanColumn(
+        verbose_name=_('Enforce Unique')
+    )
+    tags = columns.TagColumn(
+        url_name='dcim:macblock_list'
+    )
+
+    def render_prefix(self, record):
+        # Include the prefix length, to distinguish blocks which start at the same address
+        return str(record)
+
+    def value_prefix(self, record):
+        return str(record.prefix)
+
+    class Meta(PrimaryModelTable.Meta):
+        model = models.MACBlock
+        fields = (
+            'pk', 'id', 'prefix', 'prefix_length', 'name', 'size', 'mac_address_count', 'utilization',
+            'enforce_unique', 'description', 'comments', 'tags', 'created', 'last_updated',
+        )
+        default_columns = (
+            'pk', 'prefix', 'name', 'mac_address_count', 'utilization', 'enforce_unique', 'description',
         )

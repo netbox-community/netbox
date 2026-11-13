@@ -9170,3 +9170,70 @@ class MACAddressTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
         params = {'primary': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_mac_block(self):
+        mac_blocks = (
+            MACBlock.objects.create(prefix='00:00:00:01:00:00', prefix_length=32),
+            MACBlock.objects.create(prefix='00:00:00:03:00:00', prefix_length=32),
+        )
+        params = {'mac_block_id': [mac_blocks[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'mac_block_id': [mac_blocks[0].pk, mac_blocks[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+
+class MACBlockTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
+    queryset = MACBlock.objects.all()
+    filterset = MACBlockFilterSet
+    ignore_fields = ('_last_address',)
+
+    @classmethod
+    def setUpTestData(cls):
+        MACBlock.objects.create(
+            prefix='BC:24:11:00:00:00', prefix_length=24, name='Block 1', enforce_unique=True,
+            description='foobar1'
+        )
+        MACBlock.objects.create(
+            prefix='BC:24:11:50:00:00', prefix_length=28, name='Block 2', description='foobar2'
+        )
+        MACBlock.objects.create(
+            prefix='BC:24:12:00:00:00', prefix_length=36, name='Block 3', description='foobar3'
+        )
+
+    def test_q(self):
+        params = {'q': 'Block 1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'q': 'BC:24:11'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_prefix(self):
+        params = {'prefix': ['BC:24:11:00:00:00', 'bc-24-12-00-00-00']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_prefix_length(self):
+        params = {'prefix_length': [24, 28]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Block 1', 'Block 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_enforce_unique(self):
+        params = {'enforce_unique': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'enforce_unique': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_contains(self):
+        params = {'contains': 'BC:24:11:51:00:00'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'contains': 'BC:24:11:61:00:00'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'contains': 'BC:24:13:00:00:00'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {'contains': 'invalid'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)

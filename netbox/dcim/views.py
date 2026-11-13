@@ -5870,6 +5870,11 @@ class MACAddressView(generic.ObjectView):
         ],
         right_panels=[
             CommentsPanel(),
+            ObjectsTablePanel(
+                model='dcim.MACBlock',
+                title=_('MAC Address Blocks'),
+                filters={'contains': lambda ctx: str(ctx['object'].mac_address)},
+            ),
         ],
     )
 
@@ -5947,3 +5952,79 @@ class MACAddressBulkDeleteView(generic.BulkDeleteView):
     queryset = MACAddress.objects.all()
     filterset = filtersets.MACAddressFilterSet
     table = tables.MACAddressTable
+
+
+#
+# MAC address blocks
+#
+
+@register_model_view(MACBlock, 'list', path='', detail=False)
+class MACBlockListView(generic.ObjectListView):
+    queryset = MACBlock.objects.annotate_mac_address_count()
+    filterset = filtersets.MACBlockFilterSet
+    filterset_form = forms.MACBlockFilterForm
+    table = tables.MACBlockTable
+    actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkDelete)
+
+
+@register_model_view(MACBlock)
+class MACBlockView(generic.ObjectView):
+    queryset = MACBlock.objects.all()
+    template_name = 'generic/object.html'
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.MACBlockPanel(),
+            TagsPanel(),
+            CustomFieldsPanel(),
+        ],
+        right_panels=[
+            CommentsPanel(),
+        ],
+        bottom_panels=[
+            ObjectsTablePanel(
+                model='dcim.MACAddress',
+                title=_('MAC Addresses'),
+                filters={'mac_block_id': lambda ctx: ctx['object'].pk},
+                actions=[
+                    actions.AddObject(
+                        'dcim.MACAddress',
+                        label=_('Add Next Available'),
+                        url_params={'mac_address': lambda ctx: ctx['object'].get_first_available_mac_address()},
+                    ),
+                ],
+            ),
+        ],
+    )
+
+
+@register_model_view(MACBlock, 'add', detail=False)
+@register_model_view(MACBlock, 'edit')
+class MACBlockEditView(generic.ObjectEditView):
+    queryset = MACBlock.objects.all()
+    form = forms.MACBlockForm
+
+
+@register_model_view(MACBlock, 'delete')
+class MACBlockDeleteView(generic.ObjectDeleteView):
+    queryset = MACBlock.objects.all()
+
+
+@register_model_view(MACBlock, 'bulk_import', path='import', detail=False)
+class MACBlockBulkImportView(generic.BulkImportView):
+    queryset = MACBlock.objects.all()
+    model_form = forms.MACBlockImportForm
+
+
+@register_model_view(MACBlock, 'bulk_edit', path='edit', detail=False)
+class MACBlockBulkEditView(generic.BulkEditView):
+    queryset = MACBlock.objects.annotate_mac_address_count()
+    filterset = filtersets.MACBlockFilterSet
+    table = tables.MACBlockTable
+    form = forms.MACBlockBulkEditForm
+
+
+@register_model_view(MACBlock, 'bulk_delete', path='delete', detail=False)
+class MACBlockBulkDeleteView(generic.BulkDeleteView):
+    queryset = MACBlock.objects.annotate_mac_address_count()
+    filterset = filtersets.MACBlockFilterSet
+    table = tables.MACBlockTable
