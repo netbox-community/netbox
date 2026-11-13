@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import LinkStatusChoices
 from dcim.constants import WIRELESS_IFACE_TYPES
 from dcim.models.mixins import CachedScopeMixin
+from dcim.utils import create_cablepaths
 from netbox.models import NestedLtreeGroupModel, PrimaryModel
 from netbox.models.mixins import DistanceMixin
 
@@ -222,3 +223,18 @@ class WirelessLink(WirelessAuthenticationBase, DistanceMixin, PrimaryModel):
         self._interface_b_device = self.interface_b.device
 
         super().save(*args, **kwargs)
+
+    def update_dependent_objects(self):
+        """
+        Link both Interfaces to this WirelessLink and recreate the CablePaths which traverse it.
+        """
+        from dcim.models import Interface
+
+        Interface.objects.filter(pk__in=(self.interface_a_id, self.interface_b_id)).exclude(
+            wireless_link=self
+        ).update(wireless_link=self)
+        # Tracing identifies the far end by identity, so pass the instances held by this link
+        for interface in (self.interface_a, self.interface_b):
+            interface.wireless_link = self
+            create_cablepaths([interface])
+    update_dependent_objects.alters_data = True

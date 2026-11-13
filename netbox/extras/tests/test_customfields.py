@@ -1112,6 +1112,43 @@ class CustomFieldTestCase(TestCase):
                 validation_schema=schema, default={'age': 25}
             ).full_clean()
 
+    def test_related_object_filter_validation(self):
+        object_type = ObjectType.objects.get_for_model(Site)
+
+        valid_filters = (
+            {'status': 'active'},
+            {'status': ['active', 'planned']},
+            {'id': 1, 'is_active': True, 'tenant': None, 'region_id': '$region'},
+            {'vid': [1, 2.5, False, None]},
+        )
+        for related_object_filter in valid_filters:
+            with self.subTest(related_object_filter=related_object_filter):
+                CustomField(
+                    name='test',
+                    type=CustomFieldTypeChoices.TYPE_OBJECT,
+                    related_object_type=object_type,
+                    related_object_filter=related_object_filter,
+                ).full_clean()
+
+        # Nested dicts/lists cannot be rendered as query parameters (#23635)
+        invalid_filters = (
+            {'and': [{'attr': 'name', 'value': 'a'}, {'attr': 'rd', 'value': 'b'}]},
+            {'status': {'value': 'active'}},
+            {'status': [['active']]},
+            {'status': ('active', ['planned'])},
+            {'status': ['active', ('planned',)]},
+        )
+        for related_object_filter in invalid_filters:
+            with self.subTest(related_object_filter=related_object_filter):
+                with self.assertRaises(ValidationError) as cm:
+                    CustomField(
+                        name='test',
+                        type=CustomFieldTypeChoices.TYPE_MULTIOBJECT,
+                        related_object_type=object_type,
+                        related_object_filter=related_object_filter,
+                    ).full_clean()
+                self.assertIn('related_object_filter', cm.exception.message_dict)
+
 
 class CustomFieldManagerTestCase(TestCase):
 

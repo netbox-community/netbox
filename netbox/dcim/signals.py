@@ -308,10 +308,13 @@ def retrace_cable_paths(instance, **kwargs):
 
 
 @receiver((post_delete, post_save), sender=PortMapping)
-def update_passthrough_port_paths(instance, **kwargs):
+def update_passthrough_port_paths(instance, update_fields=None, **kwargs):
     """
     When a PortMapping is created or deleted, retrace any CablePaths which traverse its front and/or rear ports.
     """
+    # Moving a module to another device changes only these fields; its connections are unchanged
+    if update_fields and set(update_fields) <= {'device', 'last_updated'}:
+        return
     for cablepath in CablePath.objects.filter(
         Q(_nodes__contains=instance.front_port) | Q(_nodes__contains=instance.rear_port)
     ):
@@ -498,5 +501,10 @@ def update_mac_address_interface(instance, created, raw, **kwargs):
     assign the MACAddress to the interface.
     """
     if created and not raw and instance.primary_mac_address:
+        # Keep any snapshot the caller took before making unsaved changes to the MAC address
+        if not hasattr(instance.primary_mac_address, '_prechange_snapshot'):
+            instance.primary_mac_address.snapshot()
         instance.primary_mac_address.assigned_object = instance
         instance.primary_mac_address.save()
+        # Discard the snapshot so that a later save of the MAC address takes a fresh one
+        instance.primary_mac_address.__dict__.pop('_prechange_snapshot', None)

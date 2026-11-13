@@ -419,11 +419,11 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
 
         return dependent_objects
 
-    def _handle_protected_objects(self, obj, protected_objects, request, exc):
+    def _handle_protected_objects(self, obj, request, exc):
         """
         Handle a ProtectedError or RestrictedError exception raised while attempt to resolve dependent objects.
         """
-        handle_protectederror(protected_objects, request, exc)
+        handle_protectederror([obj], request, exc)
 
         if request.htmx:
             return HttpResponse(headers={
@@ -447,10 +447,8 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
 
         try:
             dependent_objects = self._get_dependent_objects(obj)
-        except ProtectedError as e:
-            return self._handle_protected_objects(obj, e.protected_objects, request, e)
-        except RestrictedError as e:
-            return self._handle_protected_objects(obj, e.restricted_objects, request, e)
+        except (ProtectedError, RestrictedError) as e:
+            return self._handle_protected_objects(obj, request, e)
 
         # If this is an HTMX request, return only the rendered deletion form as modal content
         if htmx_partial(request):
@@ -553,6 +551,7 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
         initial_data = normalize_querydict(request.GET)
 
         form = self.form(data=data, initial=initial_data)
+        restrict_form_fields(form, request.user)
 
         return form
 
@@ -597,6 +596,7 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
                         data.setlist(k, v)
 
                 component_form = self.model_form(data)
+                restrict_form_fields(component_form, request.user)
 
                 if component_form.is_valid():
                     new_components.append(component_form)

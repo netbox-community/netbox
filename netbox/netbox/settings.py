@@ -671,10 +671,11 @@ EXEMPT_EXCLUDE_MODELS = (
 
 # All URLs starting with a string listed here are exempt from maintenance mode enforcement
 MAINTENANCE_EXEMPT_PATHS = (
-    f'/{BASE_PATH}extras/config-revisions/',  # Allow modifying the configuration
+    f'/{BASE_PATH}core/config-revisions/',  # Allow modifying the configuration
     LOGIN_URL,
-    LOGIN_REDIRECT_URL,
-    LOGOUT_REDIRECT_URL
+    f'/{BASE_PATH}logout/',
+    f'/{BASE_PATH}oauth/',  # Single sign-on
+    f'/{BASE_PATH}api/users/tokens/provision/',  # Allow provisioning API tokens
 )
 
 
@@ -737,6 +738,7 @@ NETBOX_COPILOT_URL = 'https://static.copilot.netboxlabs.ai/load.js'
 SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.social_details',
     'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
     'social_core.pipeline.social_auth.social_user',
     'social_core.pipeline.user.get_username',
     'social_core.pipeline.user.create_user',
@@ -757,6 +759,13 @@ SOCIAL_AUTH_RAISE_EXCEPTIONS = DEBUG
 for param in dir(configuration):
     if param.startswith('SOCIAL_AUTH_'):
         globals()[param] = getattr(configuration, param)
+
+# Warn if a custom pipeline omits the step which enforces allowlists
+if 'social_core.pipeline.social_auth.auth_allowed' not in SOCIAL_AUTH_PIPELINE:
+    warnings.warn(
+        "SOCIAL_AUTH_PIPELINE does not include social_core.pipeline.social_auth.auth_allowed; allowlist settings "
+        "such as WHITELISTED_EMAILS and WHITELISTED_DOMAINS will not be enforced."
+    )
 
 # Force usage of PostgreSQL's JSONB field for extra data
 SOCIAL_AUTH_JSONFIELD_ENABLED = True
@@ -793,7 +802,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
-        'rest_framework.filters.OrderingFilter',
+        'netbox.api.filters.OrderingFilter',
     ),
     'DEFAULT_METADATA_CLASS': 'netbox.api.metadata.BulkOperationMetadata',
     'DEFAULT_PAGINATION_CLASS': 'netbox.api.pagination.NetBoxPagination',

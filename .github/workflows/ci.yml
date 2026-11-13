@@ -85,7 +85,7 @@ jobs:
       - name: Check Python linting & PEP8 compliance
         uses: astral-sh/ruff-action@278981a28ce3188b1e39527901f38254bf3aac89  # v4.1.0
         with:
-          version: "0.15.20"
+          version: "0.17.4"
           args: "check --output-format=github"
           src: "netbox/"
 

@@ -821,6 +821,16 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
                 raise ValidationError({
                     'related_object_filter': _("Filter must be defined as a dictionary mapping attributes to values.")
                 })
+            # Each value must be a scalar or a list of scalars (rendered as query parameters)
+            for attr, value in self.related_object_filter.items():
+                values = value if isinstance(value, (list, tuple)) else [value]
+                if any(isinstance(v, (dict, list, tuple)) for v in values):
+                    raise ValidationError({
+                        'related_object_filter': _(
+                            "Invalid value for filter attribute '{attr}': values must be a scalar or a list of "
+                            "scalars."
+                        ).format(attr=attr)
+                    })
 
     def serialize(self, value):
         """

@@ -17,6 +17,7 @@ from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
 from dcim.choices import *
 from dcim.models import *
+from dcim.utils import resolve_module_placeholder
 from extras.events import serialize_for_event
 from extras.models import CustomField
 from ipam.models import IPAddress, Prefix
@@ -25,6 +26,7 @@ from netbox.context_managers import event_tracking
 from tenancy.models import Tenant
 from users.models import User
 from utilities.data import drange
+from utilities.exceptions import AbortRequest
 from utilities.testing import create_test_device, create_test_image
 from virtualization.models import Cluster, ClusterType
 
@@ -53,6 +55,49 @@ class MACAddressTestCase(TestCase):
 
         cls.interface.primary_mac_address = cls.mac_a
         cls.interface.save()
+
+    @tag('regression')  # Ref: #23617
+    def test_primary_mac_assignment_on_interface_creation_records_prechange(self):
+        mac = MACAddress.objects.create(mac_address='1234567890cd')
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = User.objects.create_user(username='testuser')
+
+        with event_tracking(request):
+            interface = Interface.objects.create(
+                device=self.interface.device, name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+                primary_mac_address=mac
+            )
+
+        change = ObjectChange.objects.get(
+            changed_object_type=ObjectType.objects.get_for_model(MACAddress),
+            changed_object_id=mac.pk,
+        )
+        self.assertIsNone(change.prechange_data['assigned_object_id'])
+        self.assertEqual(change.postchange_data['assigned_object_id'], interface.pk)
+        self.assertFalse(hasattr(mac, '_prechange_snapshot'))
+
+    @tag('regression')  # Ref: #23617
+    def test_primary_mac_assignment_keeps_existing_snapshot(self):
+        mac = MACAddress.objects.create(mac_address='1234567890ce')
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = User.objects.create_user(username='testuser')
+
+        with event_tracking(request):
+            mac.snapshot()
+            mac.description = 'updated'
+            Interface.objects.create(
+                device=self.interface.device, name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+                primary_mac_address=mac
+            )
+
+        change = ObjectChange.objects.get(
+            changed_object_type=ObjectType.objects.get_for_model(MACAddress),
+            changed_object_id=mac.pk,
+        )
+        self.assertEqual(change.prechange_data['description'], '')
+        self.assertEqual(change.postchange_data['description'], 'updated')
 
     @tag('regression')
     def test_clean_will_not_allow_removal_of_assigned_object_if_primary(self):
@@ -1325,6 +1370,29 @@ class DeviceBayTestCase(TestCase):
         self.assertIn('installed_device', cm.exception.message_dict)
         self.assertIn('disabled device bay', str(cm.exception.message_dict['installed_device']))
 
+    @tag('regression')  # Ref: #23617
+    def test_moving_parent_device_records_child_prechange(self):
+        DeviceBay.objects.create(device=self.parent_device, name='Bay 1', installed_device=self.child_device)
+        old_site = self.parent_device.site
+        new_site = Site.objects.create(name='Test Site 2', slug='test-site-2')
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = User.objects.create_user(username='testuser')
+
+        with event_tracking(request):
+            parent = Device.objects.get(pk=self.parent_device.pk)
+            parent.snapshot()
+            parent.site = new_site
+            parent.save()
+
+        change = ObjectChange.objects.get(
+            changed_object_type=ObjectType.objects.get_for_model(Device),
+            changed_object_id=self.child_device.pk,
+            action=ObjectChangeActionChoices.ACTION_UPDATE,
+        )
+        self.assertEqual(change.prechange_data['site'], old_site.pk)
+        self.assertEqual(change.postchange_data['site'], new_site.pk)
+
     def test_can_disable_bay_with_existing_device(self):
         """
         Test that disabling a bay that already has a device installed does NOT raise an error
@@ -2156,6 +2224,41 @@ class ModuleBayTestCase(TestCase):
 
         interface = iface_module.interfaces.first()
         self.assertEqual(interface.name, 'Gi1/2')
+
+    @tag('regression')  # #23478
+    def test_module_token_depth_mismatch_in_label_raises_abort_request(self):
+        """An unresolvable {module} label aborts a direct module install with AbortRequest."""
+        device = Device.objects.first()
+        module_bay = ModuleBay.objects.create(device=device, name='Token Label Bay', position='1')
+        module_type = ModuleType.objects.create(manufacturer=Manufacturer.objects.first(), model='Token Label Type')
+        InterfaceTemplate.objects.create(
+            module_type=module_type, name='eth0', label='{module}/{module}', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        module = Module(device=device, module_bay=module_bay, module_type=module_type)
+        with self.assertRaises(AbortRequest) as cm:
+            module.save()
+        self.assertIn('2 placeholders given', cm.exception.message)
+
+    @tag('regression')  # #23478
+    def test_module_token_without_bay_position_raises_abort_request(self):
+        """A {module} name in a bay without a position aborts a direct module install with AbortRequest."""
+        device = Device.objects.first()
+        module_bay = ModuleBay.objects.create(device=device, name='Token Name Bay')
+        module_type = ModuleType.objects.create(manufacturer=Manufacturer.objects.first(), model='Token Name Type')
+        InterfaceTemplate.objects.create(
+            module_type=module_type, name='eth{module}', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        module = Module(device=device, module_bay=module_bay, module_type=module_type)
+        with self.assertRaises(AbortRequest) as cm:
+            module.save()
+        self.assertIn('no position defined', cm.exception.message)
+
+    @tag('regression')  # #23478
+    def test_module_token_without_positions_raises_value_error(self):
+        """A {module} token with no bay position to resolve against raises ValueError."""
+        with self.assertRaises(ValueError) as cm:
+            resolve_module_placeholder('eth{module}', [])
+        self.assertIn('no position defined', str(cm.exception))
 
     @tag('regression')  # #20912
     def test_module_bay_parent_cleared_when_module_removed(self):
@@ -3403,6 +3506,77 @@ class CableDisconnectChangeLoggingTestCase(TestCase):
             action=ObjectChangeActionChoices.ACTION_UPDATE,
         ).order_by('time')
 
+    @tag('regression')  # Ref: #23617
+    def test_cable_creation_records_termination_prechange(self):
+        cable = self._connect(self.interface1, self.interface2)
+
+        # The update recording the terminations follows the creation of the Cable itself
+        change = self._updates(cable).get()
+        self.assertEqual(change.prechange_data['a_terminations'], [])
+        self.assertEqual(change.prechange_data['b_terminations'], [])
+        self.assertEqual(len(change.postchange_data['a_terminations']), 1)
+        self.assertEqual(len(change.postchange_data['b_terminations']), 1)
+
+    @tag('regression')  # Ref: #23617
+    def test_resaving_new_cable_records_current_prechange(self):
+        # The creation snapshot must not be reused, so the re-save falls back to the database
+        with (
+            patch('core.signals.RUNNING_TESTS', False),
+            self.assertLogs('netbox.models.features', level='WARNING'),
+            event_tracking(self._request()),
+        ):
+            cable = Cable(a_terminations=[self.interface1], b_terminations=[self.interface2])
+            cable.save()
+            cable.label = 'x'
+            cable.save()
+
+        change = self._updates(cable).last()
+        self.assertEqual(len(change.prechange_data['a_terminations']), 1)
+        self.assertEqual(len(change.prechange_data['b_terminations']), 1)
+        self.assertEqual(change.postchange_data['label'], 'x')
+
+    @tag('regression')  # Ref: #23617
+    def test_resaving_new_cable_with_preset_pk_records_current_prechange(self):
+        # A new Cable with a preset pk (e.g. restored by deserialize_object()) must also discard its creation snapshot
+        with (
+            patch('core.signals.RUNNING_TESTS', False),
+            self.assertLogs('netbox.models.features', level='WARNING'),
+            event_tracking(self._request()),
+        ):
+            cable = Cable(pk=1000000, a_terminations=[self.interface1], b_terminations=[self.interface2])
+            cable.save()
+            cable.label = 'x'
+            cable.save()
+
+        change = self._updates(cable).last()
+        self.assertEqual(len(change.prechange_data['a_terminations']), 1)
+        self.assertEqual(len(change.prechange_data['b_terminations']), 1)
+        self.assertEqual(change.postchange_data['label'], 'x')
+
+    @tag('regression')  # Ref: #23617
+    def test_termination_update_without_snapshot_records_prechange(self):
+        cable = self._connect(self.interface1, self.interface2)
+        old_b_termination = CableTermination.objects.get(cable=cable, cable_end=CableEndChoices.SIDE_B)
+
+        request = self._request()
+        with (
+            patch('core.signals.RUNNING_TESTS', False),
+            self.assertLogs('netbox.models.features', level='WARNING') as logs,
+            event_tracking(request),
+        ):
+            cable = Cable.objects.get(pk=cable.pk)
+            cable.label = 'x'
+            cable.b_terminations = [self.interface3]
+            cable.save()
+
+        change = self._updates(cable).get(request_id=request.id)
+        self.assertEqual(change.prechange_data['b_terminations'], [old_b_termination.pk])
+        self.assertEqual(change.prechange_data['label'], '')
+        self.assertNotEqual(change.postchange_data['b_terminations'], [old_b_termination.pk])
+        self.assertEqual(change.postchange_data['label'], 'x')
+        self.assertFalse(hasattr(cable, '_prechange_snapshot'))
+        self.assertEqual(len(logs.records), 1)
+
     @tag('regression')  # Ref: netbox-branching#631
     def test_cable_deletion_records_disconnect(self):
         cable = self._connect(self.interface1, self.interface2)
@@ -3480,6 +3654,7 @@ class CableDisconnectChangeLoggingTestCase(TestCase):
         request = self._request()
         with event_tracking(request):
             cable = Cable.objects.get(pk=cable_pk)
+            cable.snapshot()
             cable.b_terminations = [self.interface3]
             cable.save()
 

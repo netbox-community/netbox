@@ -21,6 +21,7 @@ from dcim.exceptions import UnsupportedCablePath
 from dcim.fields import PathField
 from dcim.utils import decompile_path_node, object_to_path_node, rebuild_cable_paths
 from netbox.choices import ColorChoices
+from netbox.context import current_request
 from netbox.models import ChangeLoggedModel, PrimaryModel
 from utilities.conversion import to_meters
 from utilities.data import normalize_update_fields
@@ -353,6 +354,8 @@ class Cable(PrimaryModel):
 
     def save(self, *args, force_insert=False, force_update=False, using=None, update_fields=None):
         _created = self.pk is None
+        # Unlike _created, also true for a new Cable with a preset pk (e.g. one restored by deserialize_object())
+        adding = self._state.adding
         save_kwargs = {
             'using': using,
             'update_fields': update_fields,
@@ -391,17 +394,24 @@ class Cable(PrimaryModel):
         profile_written = update_fields is None or 'profile' in update_fields
 
         # If this is a new Cable, save it before attempting to create its CableTerminations
-        if self._state.adding:
+        if adding:
             super().save(*args, force_insert=True, **save_kwargs)
             # Update the private PK used in __str__()
             self._pk = self.pk
+            # Record the pre-termination state for the update made by the save below
+            self.snapshot()
 
-        if profile_written and self._orig_profile != self.profile:
-            self.update_terminations(force=True)
-        elif self._terminations_modified:
-            self.update_terminations()
+        force_terminations = profile_written and self._orig_profile != self.profile
+        if force_terminations or self._terminations_modified:
+            # update_terminations() writes before the pre_save fallback runs, so snapshot the stored Cable now
+            if current_request.get() is not None and not hasattr(self, '_prechange_snapshot'):
+                self.snapshot_from_db(using=using)
+            self.update_terminations(force=force_terminations)
 
         super().save(*args, force_update=True, **save_kwargs)
+        # Discard the pre-termination snapshot so that a later save of this instance takes a fresh one
+        if adding:
+            self.__dict__.pop('_prechange_snapshot', None)
 
         try:
             trace_paths.send(Cable, instance=self, created=_created, status_written=status_written)
@@ -993,6 +1003,9 @@ class CablePath(models.Model):
         is_complete = False
         is_active = True
         is_split = False
+        # Whether the trace fanned out across a multi-position front port without positional context
+        fanout = False
+        diverged = False
 
         logger.debug(f'Tracing cable path from {terminations}...')
 
@@ -1012,7 +1025,11 @@ class CablePath(models.Model):
                 not isinstance(terminations[0].parent_object, Circuit) and
                 not all(t.parent_object == terminations[0].parent_object for t in terminations[1:])
             ):
-                raise UnsupportedCablePath(_("All mid-span terminations must have the same parent object"))
+                if not fanout:
+                    raise UnsupportedCablePath(_("All mid-span terminations must have the same parent object"))
+                # Fanned-out branches crossing different devices are not followed, even if they reconverge later
+                diverged = True
+                break
 
             # Check for a split path (e.g. rear port fanning out to multiple front ports with
             # different cables attached)
@@ -1177,15 +1194,13 @@ class CablePath(models.Model):
                     for rt in remote_terminations:
                         q_filter |= Q(front_port=rt, front_port_position__in=positions)
                     port_mappings = PortMapping.objects.filter(q_filter)
-                elif remote_terminations[0].positions > 1:
-                    is_split = True
-                    logger.debug(
-                        'Encountered front port mapped to multiple rear ports but position stack is empty; aborting '
-                        'trace.'
-                    )
-                    break
                 else:
-                    port_mappings = PortMapping.objects.filter(front_port__in=remote_terminations)
+                    # Without positional context, follow all mappings; branches must converge on one endpoint
+                    if any(t.positions > 1 for t in remote_terminations):
+                        fanout = True
+                    port_mappings = PortMapping.objects.filter(
+                        front_port__in=remote_terminations
+                    ).order_by('front_port', 'front_port_position')
                 if not port_mappings:
                     break
 
@@ -1257,7 +1272,10 @@ class CablePath(models.Model):
 
             else:
                 # Check for non-symmetric path
-                if all(isinstance(t, type(remote_terminations[0])) for t in remote_terminations[1:]):
+                # Fanned-out branches arriving over separate links reach different endpoints
+                if fanout and len(links) > 1:
+                    diverged = True
+                elif all(isinstance(t, type(remote_terminations[0])) for t in remote_terminations[1:]):
                     is_complete = True
                 elif len(remote_terminations) == 0:
                     is_complete = False
@@ -1267,6 +1285,12 @@ class CablePath(models.Model):
                     is_split = True
                     logger.warning('Encountered an unsupported topology; aborting trace.')
                 break
+
+        if diverged:
+            # Keep the full trace so changes to any branch retrace this path
+            logger.debug('Front port branches diverged; treating path as split.')
+            is_complete = False
+            is_split = True
 
         return cls(
             path=path,
@@ -1372,7 +1396,8 @@ class CablePath(models.Model):
 
     def get_split_nodes(self):
         """
-        Return all available next segments in a split cable path.
+        Return all available next segments in a split cable path, or the diverging endpoints if the path fanned
+        out across a multi-position front port.
         """
         from circuits.models import CircuitTermination
         nodes = self.path_objects[-1]
@@ -1395,6 +1420,9 @@ class CablePath(models.Model):
             return [
                 ct.get_peer_termination() for ct in nodes
             ]
+        # Front port branches diverging to different endpoints
+        if isinstance(nodes[0], PathEndpoint):
+            return nodes
         return []
 
     def get_asymmetric_nodes(self):

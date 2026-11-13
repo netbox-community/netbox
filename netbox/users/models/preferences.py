@@ -81,7 +81,8 @@ class UserConfig(models.Model):
 
         :param path: Dotted path to the configuration key. For example, 'foo.bar' sets self.data['foo']['bar'].
         :param value: The value to be written. This can be any type supported by JSON.
-        :param commit: If true, the UserConfig instance will be saved once the new value has been applied.
+        :param commit: If true, the UserConfig instance will be saved once the new value has been applied. (The save
+            is skipped while maintenance mode is enabled, since the database may be read-only.)
         """
         d = self.data
         keys = path.split('.')
@@ -112,7 +113,7 @@ class UserConfig(models.Model):
             d[key] = value
 
         if commit:
-            self.save()
+            self._commit()
     set.alters_data = True
 
     def clear(self, path, commit=False):
@@ -125,7 +126,8 @@ class UserConfig(models.Model):
         Invalid keys will be ignored silently.
 
         :param path: Dotted path to the configuration key. For example, 'foo.bar' deletes self.data['foo']['bar'].
-        :param commit: If true, the UserConfig instance will be saved once the new value has been applied.
+        :param commit: If true, the UserConfig instance will be saved once the new value has been applied. (The save
+            is skipped while maintenance mode is enabled, since the database may be read-only.)
         """
         d = self.data
         keys = path.split('.')
@@ -140,5 +142,11 @@ class UserConfig(models.Model):
         d.pop(key, None)  # Avoid a KeyError on invalid keys
 
         if commit:
-            self.save()
+            self._commit()
     clear.alters_data = True
+
+    def _commit(self):
+        # Don't save the change while maintenance mode is enabled: the database may be read-only, and these changes
+        # are typically incidental to a read-only request (e.g. a table's ordering).
+        if not get_config().MAINTENANCE_MODE:
+            self.save()

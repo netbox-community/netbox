@@ -262,15 +262,13 @@ class VMInterfaceImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         if data:
             # Limit interface choices for parent & bridge interfaces to the assigned VM
             if virtual_machine := data.get('virtual_machine'):
-                params = {
-                    f"virtual_machine__{self.fields['virtual_machine'].to_field_name}": virtual_machine
-                }
+                params = self.get_related_filter('virtual_machine', 'virtual_machine', virtual_machine)
                 self.fields['parent'].queryset = self.fields['parent'].queryset.filter(**params)
                 self.fields['bridge'].queryset = self.fields['bridge'].queryset.filter(**params)
 
             # Limit choices for VLANs to the assigned VLAN group
             if vlan_group := data.get('vlan_group'):
-                params = {f"group__{self.fields['vlan_group'].to_field_name}": vlan_group}
+                params = self.get_related_filter('group', 'vlan_group', vlan_group)
                 self.fields['untagged_vlan'].queryset = self.fields['untagged_vlan'].queryset.filter(**params)
                 self.fields['tagged_vlans'].queryset = self.fields['tagged_vlans'].queryset.filter(**params)
                 self.fields['qinq_svlan'].queryset = self.fields['qinq_svlan'].queryset.filter(**params)

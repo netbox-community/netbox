@@ -3,7 +3,7 @@ from copy import copy
 import strawberry
 import strawberry_django
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import BinaryField, ExpressionWrapper, F, Func, IntegerField, Value
+from django.db.models import FETCH_PEERS, BinaryField, ExpressionWrapper, F, Func, IntegerField, Value
 from strawberry.types import Info
 from strawberry_django.optimizer import OptimizerStore
 
@@ -41,7 +41,7 @@ def _model_type(model, **kwargs):
     """
     Wrap `strawberry_django.type()` to give each type's `display` field an optimizer hint. `display` resolves via
     `__str__()`, which may read any of the model's columns; without a hint the optimizer defers them, and reading a
-    deferred column reloads the row with one query per object.
+    deferred column costs an extra query.
     """
     def wrapper(cls):
         graphql_type = strawberry_django.type(model, **kwargs)(cls)
@@ -66,14 +66,19 @@ def _model_type(model, **kwargs):
 @strawberry.type
 class BaseObjectType:
     """
-    Base GraphQL object type for all NetBox objects. Restricts the model queryset to enforce object permissions.
+    Base GraphQL object type for all NetBox objects. Enforces object permissions and batches deferred field and
+    relation loads.
     """
 
     @classmethod
     def get_queryset(cls, queryset, info: Info, **kwargs):
         # Enforce object permissions on the queryset
         if hasattr(queryset, 'restrict'):
-            return queryset.restrict(info.context.request.user, 'view')
+            queryset = queryset.restrict(info.context.request.user, 'view')
+        # Batch the loading of deferred fields and relations which the optimizer can't anticipate. Skip a queryset
+        # already evaluated by a prefetch_related hint (e.g. tags): cloning it would discard the prefetched results.
+        if queryset._result_cache is None:
+            queryset = queryset.fetch_mode(FETCH_PEERS)
         return queryset
 
     @strawberry_django.field

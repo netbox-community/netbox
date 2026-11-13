@@ -149,9 +149,8 @@ class UserTokenForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if self.instance.pk:
-            # Disable the version & user fields for existing Tokens
+            # Disable the version field for existing Tokens
             self.fields['version'].disabled = True
-            self.fields['user'].disabled = True
 
         elif self.instance._state.adding:
             self.initial['version'] = TokenVersionChoices.V2
@@ -183,15 +182,15 @@ class TokenForm(UserTokenForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # If not creating a new Token, disable the user field
-        if self.instance and not self.instance._state.adding:
-            self.fields['user'].disabled = True
+        # The owner of an existing token cannot be changed.
+        if self.instance.pk:
+            self.fields.pop('user')
 
     def clean(self):
         super().clean()
 
         # Creating a Token on behalf of another user requires the grant_token permission. This is enforced only on
-        # creation; the user field is disabled when editing an existing Token.
+        # creation; the user field is omitted when editing an existing Token.
         if self.instance._state.adding and (token_user := self.cleaned_data.get('user')):
             request = getattr(self.instance, '_request', None)
             if request is None:

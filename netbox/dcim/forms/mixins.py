@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.constants import LOCATION_SCOPE_TYPES
 from dcim.utils import reconcile_port_mappings
+from netbox.context import current_request
 from utilities.forms import GenericObjectFormMixin
 from utilities.forms.fields import (
     CSVContentTypeField,
@@ -157,16 +158,20 @@ class FrontPortFormMixin(forms.Form):
 
     def _get_rear_port_choices(self, parent_filter, front_port):
         """
-        Return a list of choices representing each available rear port & position pair on the parent object (identified
-        by a Q filter), excluding those assigned to the specified instance.
+        Return rear port position choices for the parent, excluding positions assigned to other front ports.
         """
         occupied_rear_port_positions = [
             f'{mapping.rear_port_id}:{mapping.rear_port_position}'
             for mapping in self.port_mapping_model.objects.filter(parent_filter).exclude(front_port=front_port.pk)
         ]
 
+        # rear_ports is a plain choice field, so restrict_form_fields() cannot narrow it
+        rear_ports = self.rear_port_model.objects.filter(parent_filter)
+        if request := current_request.get():
+            rear_ports = rear_ports.restrict(request.user, 'view')
+
         choices = []
-        for rear_port in self.rear_port_model.objects.filter(parent_filter):
+        for rear_port in rear_ports:
             for i in range(1, rear_port.positions + 1):
                 pair_id = f'{rear_port.pk}:{i}'
                 if pair_id not in occupied_rear_port_positions:

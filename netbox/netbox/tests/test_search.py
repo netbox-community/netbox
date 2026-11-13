@@ -9,11 +9,13 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import DEFAULT_DB_ALIAS, ProgrammingError, connection, transaction
 from django.db.models.signals import post_delete, post_save
 from django.test import TestCase, TransactionTestCase
+from django.test.utils import CaptureQueriesContext
 from redis.exceptions import ConnectionError as RedisConnectionError
 
-from dcim.models import Manufacturer, Site
+from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from dcim.search import SiteIndex
 from extras.models import CachedValue
+from ipam.models import Prefix
 from netbox.search import deferred
 from netbox.search.backends import SearchBackend, search_backend
 from netbox.search.jobs import SearchCacheJob
@@ -193,9 +195,9 @@ class SearchBackendTestCase(TestCase):
         results = search_backend.search('xxxxx')
         self.assertEqual(len(results), 0)
 
-    def test_search_prefetch_display_attrs(self):
+    def test_search_batches_display_attrs(self):
         """
-        Check that ForeignKey fields listed in an indexer's display_attrs are prefetched.
+        Check that a ForeignKey listed in an indexer's display_attrs is fetched for all results with one query.
         """
         tenant = Tenant.objects.create(name='Tenant 1', slug='tenant-1')
         Site.objects.update(tenant=tenant)
@@ -203,8 +205,42 @@ class SearchBackendTestCase(TestCase):
 
         results = search_backend.search('site')
         self.assertEqual(len(results), 3)
-        for result in results:
-            self.assertTrue(Site.tenant.field.is_cached(result.object))
+        with self.assertNumQueries(1):
+            for result in results:
+                self.assertIn(tenant, result.display_attrs.values())
+
+    def test_search_batches_related_objects(self):
+        """
+        Check that the number of queries doesn't grow with the number of results when rendering them reads
+        related objects through __str__() or a GenericForeignKey display attribute.
+        """
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+
+        def render_results(sites):
+            # Unnamed devices render as "<manufacturer> <model> (<pk>)"; prefixes display their scope (a site)
+            for site in sites:
+                Device.objects.create(site=site, device_type=device_type, role=role, description='Batched')
+                Prefix.objects.create(prefix=f'10.0.{site.pk}.0/24', scope=site, description='Batched')
+            search_backend.cache(Device.objects.all())
+            search_backend.cache(Prefix.objects.all())
+
+            ContentType.objects.clear_cache()
+            with CaptureQueriesContext(connection) as queries:
+                results = search_backend.search('batched')
+                rendered = [(result.name, list(result.display_attrs.values())) for result in results]
+            return rendered, len(queries)
+
+        sites = list(Site.objects.order_by('name'))
+        rendered, query_count = render_results(sites[:1])
+        self.assertEqual(len(rendered), 2)
+        rendered, more_query_count = render_results(sites[1:])
+        self.assertEqual(len(rendered), 6)
+        self.assertEqual(more_query_count, query_count)
+
+        self.assertEqual(sum(name.startswith('Manufacturer 1 Device Type 1') for name, _ in rendered), 3)
+        self.assertCountEqual([attrs[0] for name, attrs in rendered if name.startswith('10.0.')], sites)
 
 
 class DeferredCachingTestCase(RQQueueTestMixin, TestCase):

@@ -32,6 +32,7 @@ The central question when evaluating any NetBox security report is: **does the a
 | PostgreSQL database, Redis | **Trusted** | Assumed reachable only by the application. |
 | Infrastructure operators | **Trusted** | Shell/filesystem/DB access implies total control by design. |
 | Superusers (`is_superuser`) | **Trusted** | An active superuser bypasses all object-level permission checks. This is intentional. |
+| Users permitted to manage users (`users.add_user` or `users.change_user`) | **Trusted** | Can assign groups, object permissions, and superuser status to users, including themselves. Equivalent to a superuser by design. |
 | Users permitted to author code-bearing objects | **Trusted** | Holders of permissions to create/modify custom scripts, export templates, config templates, custom links, or webhooks (see below). |
 | Authenticated users **without** those permissions | **Untrusted** | Subject to full object-based permission enforcement. |
 | Unauthenticated / network-adjacent parties | **Untrusted** | Outside the supported deployment model entirely. |
@@ -96,6 +97,7 @@ The following are **not** treated as NetBox vulnerabilities. Most describe a pri
 | --- | --- |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | A permitted user runs code via a custom script, Jinja template, custom link, or webhook | Not a vulnerability | These features exist to execute user-authored logic; the required permission is trusted, operator-tier by design.                                                                                               |
 | A superuser modifies the database, reads secrets, or creates another superuser | Not a vulnerability | Superusers and infrastructure operators are trusted by design.                                                                                                                                                  |
+| A user permitted to add or change users grants themselves (or another user) superuser status or additional permissions | Not a vulnerability | User management permissions are administrative by design.                                                                                                                                                       |
 | A template author reads NetBox data they are otherwise permitted to view | Not a vulnerability | Template rendering with objects in scope is the purpose of the feature; the sandbox, not permission scoping, is the boundary.                                                                                   |
 | Missing login/request rate limiting | Out of scope | A deployment-layer concern, handled by the reverse proxy rather than the application.                                                                                                                           |
 | Client IP spoofing via `X-Forwarded-For` and similar headers | Out of scope | NetBox trusts the headers the reverse proxy sets; trustworthy client IP is a proxy responsibility ([`HTTP_CLIENT_IP_HEADERS`](https://netboxlabs.com/docs/netbox/configuration/system/#http_client_ip_headers)). |
@@ -112,7 +114,7 @@ The following are **not** treated as NetBox vulnerabilities. Most describe a pri
 | **R**epudiation | Changes are recorded via the changelog and journaling; event rules can emit notifications. |
 | **I**nformation disclosure | Object-based view permissions filter every queryset. Cross-boundary disclosure (e.g. API/GraphQL filter injection) is in scope; data legitimately visible to a template author is not. |
 | **D**enial of service | Request rate limiting and resource controls are a deployment/reverse-proxy responsibility, not the application's. |
-| **E**levation of privilege | The superuser flag is all-or-nothing and trusted. Any *unintended* escalation across the permission system (constraint bypass, action bypass) is in scope. |
+| **E**levation of privilege | The superuser flag is all-or-nothing and trusted, as are user management permissions. Any *unintended* escalation across the permission system (constraint bypass, action bypass) is in scope. |
 
 ## Triage & Severity
 

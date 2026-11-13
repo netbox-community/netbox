@@ -251,9 +251,10 @@ class Job(models.Model):
         return True
     start.alters_data = True
 
-    def terminate(self, status=JobStatusChoices.STATUS_COMPLETED, error=None):
+    def terminate(self, status=JobStatusChoices.STATUS_COMPLETED, error=None, *, dispatch=True):
         """
-        Mark the job as completed, optionally specifying a particular termination status.
+        Mark the job as completed, optionally specifying a particular termination status. With dispatch=False, the
+        owner's notification and job_end are left to a later _dispatch_termination() call.
         """
         if status not in JobStatusChoices.TERMINAL_STATE_CHOICES:
             raise ValueError(
@@ -271,11 +272,18 @@ class Job(models.Model):
             self.execution_time = self.completed - self.started
         self.save()
 
-        # Notify the user (if any) of completion
+        if dispatch:
+            self._dispatch_termination()
+    terminate.alters_data = True
+
+    def _dispatch_termination(self):
+        """
+        Notify the owner (if any) of the job's outcome and send job_end.
+        """
         if self.user and self.notifications != JobNotificationChoices.NOTIFICATION_NEVER:
             if (
                 self.notifications == JobNotificationChoices.NOTIFICATION_ALWAYS or
-                status != JobStatusChoices.STATUS_COMPLETED
+                self.status != JobStatusChoices.STATUS_COMPLETED
             ):
                 # A Job may be terminated more than once, so update any earlier notification in place
                 Notification.objects.update_or_create(
@@ -292,7 +300,6 @@ class Job(models.Model):
 
         # Send signal
         job_end.send(self)
-    terminate.alters_data = True
 
     def log(self, record: logging.LogRecord):
         """

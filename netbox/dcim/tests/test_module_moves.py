@@ -1059,6 +1059,15 @@ class ModuleMoveRenameTestCase(TestCase):
         with self.assertRaises(ValidationError):
             pos_module.full_clean()
 
+    def test_move_to_bay_without_position_rejects_templated_values(self):
+        """A move whose template-derived values would need a missing bay position is rejected."""
+        bare_slot = ModuleBay.objects.create(device=self.device, name='Bare Slot')
+
+        self.line_card.module_bay = bare_slot
+        with self.assertRaises(ValidationError) as cm:
+            self.line_card.full_clean()
+        self.assertIn('cannot be resolved for the destination', str(cm.exception))
+
 
 class ModuleCrossDeviceBlockerTestCase(TestCase):
 
@@ -1495,6 +1504,33 @@ class ModuleCrossDeviceMoveTestCase(TestCase):
         mapping.refresh_from_db()
         self.assertEqual(mapping.device, self.device_b)
 
+    @override_settings(BULK_UPDATE_CHUNK_SIZE=1)
+    def test_cross_device_move_changelogs_port_mappings(self):
+        front_port = FrontPort.objects.create(
+            device=self.device_a, module=self.line_card, name='Front 2', type=PortTypeChoices.TYPE_LC
+        )
+        rear_port = RearPort.objects.create(
+            device=self.device_a, module=self.line_card, name='Rear 2', type=PortTypeChoices.TYPE_LC, positions=1
+        )
+        PortMapping.objects.create(
+            front_port=front_port, front_port_position=1, rear_port=rear_port, rear_port_position=1
+        )
+        mappings = PortMapping.objects.filter(front_port__module=self.line_card)
+        self.assertEqual(mappings.count(), 2)
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = User.objects.create_user(username='mapping-mover')
+        with event_tracking(request):
+            self.line_card.snapshot()
+            self._move_to_device_b()
+        for mapping in mappings:
+            self.assertEqual(mapping.device, self.device_b)
+            change = ObjectChange.objects.get(
+                changed_object_type=ContentType.objects.get_for_model(PortMapping), changed_object_id=mapping.pk
+            )
+            self.assertEqual(change.prechange_data['device'], self.device_a.pk)
+            self.assertEqual(change.postchange_data['device'], self.device_b.pk)
+
     def test_cross_device_move_keeps_intra_module_power_link(self):
         outlet = self.line_card.poweroutlets.get(name='Outlet 1')
         self._move_to_device_b()
@@ -1541,7 +1577,8 @@ class ModuleCrossDeviceMoveTestCase(TestCase):
         ModuleBay.objects.bulk_create([
             ModuleBay(device=big_device, name=f'Storage Bay {i}') for i in range(1, 201)
         ])
-        target_bay = ModuleBay.objects.create(device=big_device, name='Target Bay')
+        # Mirrors slot_2_b, the SFP name template needs a bay position
+        target_bay = ModuleBay.objects.create(device=big_device, name='Target Bay', position='2')
         big_count = move_and_count(big_device, target_bay)
         self.assertEqual(small_count, big_count)
 

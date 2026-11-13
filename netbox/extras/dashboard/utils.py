@@ -5,6 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
 
 from extras.constants import DEFAULT_DASHBOARD
+from netbox.config import get_config
 from netbox.registry import registry
 
 __all__ = (
@@ -46,10 +47,11 @@ def get_dashboard(user):
         try:
             dashboard = user.dashboard
         except ObjectDoesNotExist:
-            # Create a dashboard for this user
+            # Create a dashboard for this user (unless the database is read-only)
             dashboard = get_default_dashboard()
             dashboard.user = user
-            dashboard.save()
+            if not get_config().MAINTENANCE_MODE:
+                dashboard.save()
 
     return dashboard
 

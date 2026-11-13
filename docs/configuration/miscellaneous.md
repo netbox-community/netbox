@@ -178,7 +178,20 @@ The number of days to retain job results (scripts and reports). Set this to `0` 
 
 Default: `False`
 
-Setting this to `True` will display a "maintenance mode" banner at the top of every page. Additionally, NetBox will no longer update a user's "last active" time upon login. This is to allow new logins when the database is in a read-only state. Recording of login times will resume when maintenance mode is disabled.
+Setting this to `True` places NetBox in a read-only state, and displays a "maintenance mode" banner (see [`BANNER_MAINTENANCE`](#banner_maintenance)) at the top of every page.
+
+While maintenance mode is enabled, any request which attempts to write to the database through the web UI or the REST API fails with an error message. The following remain available:
+
+* Logging in and out, including via single sign-on and remote authentication
+* Provisioning API tokens via the REST API
+* Modifying the configuration under Admin > Configuration History, so that maintenance mode can be disabled again from the UI (unless it has been set in `configuration.py`)
+
+Additionally, NetBox will not update a user's "last login" time, or a token's "last used" time, while maintenance mode is enabled. This allows users to log in when the database itself is read-only. Note that logging in also saves the user's session, which is stored in the database unless [`SESSION_FILE_PATH`](./security.md#session_file_path) is set.
+
+User preferences that are normally saved while browsing (such as table ordering) apply only to the current request, and viewing a notification does not mark it as read.
+
+!!! note
+    Maintenance mode applies only to web UI and API requests. It does not prevent background jobs (such as scheduled scripts, data source synchronization, and housekeeping tasks) or management commands from writing to the database.
 
 ---
 

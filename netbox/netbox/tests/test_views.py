@@ -3,6 +3,7 @@ from contextlib import contextmanager
 from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.messages import get_messages
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models.signals import pre_delete
 from django.http import HttpResponse
@@ -10,7 +11,7 @@ from django.test import Client, TransactionTestCase, override_settings, tag
 from django.urls import reverse
 from django.utils import timezone
 
-from core.models import DataFile, DataSource, ObjectChange
+from core.models import DataFile, DataSource, ObjectChange, ObjectType
 from dcim.choices import DeviceStatusChoices, InterfaceTypeChoices, SiteStatusChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site, VirtualChassis
 from extras.events import enqueue_event
@@ -22,9 +23,9 @@ from ipam.views import VLANGroupVLANsView
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices, ImportMethodChoices
 from netbox.constants import EMPTY_TABLE_TEXT
 from netbox.search.backends import search_backend
-from users.models import User
+from users.models import ObjectPermission, User
 from utilities.exceptions import AbortRequest
-from utilities.testing import TestCase
+from utilities.testing import TestCase, create_test_device
 from utilities.views import get_action_url
 
 
@@ -450,7 +451,7 @@ class RolledBackWriteEventQueueTestCase(DeleteAtomicityMixin, TestCase):
         # created events for the objects written before the abort.
         group = VLANGroup.objects.create(name='Test Group', slug='test-group')
         VLAN.objects.create(group=group, vid=101, name='VLAN-101')
-        self.add_permissions('ipam.add_vlan', 'ipam.view_vlan')
+        self.add_permissions('ipam.add_vlan', 'ipam.view_vlan', 'ipam.view_vlangroup')
 
         with self.assertNoEventsDispatched():
             response = self.client.post(reverse('ipam:vlan_bulk_add'), data={
@@ -600,3 +601,53 @@ class DeleteAtomicityTestCase(DeleteAtomicityMixin, TransactionTestCase):
         # Without the view's atomic block, the member device's cleared vc_priority commits here,
         # leaving a change which dispatches no events
         self.assertDeleteRolledBack(virtual_chassis, device)
+
+
+class ProtectedObjectsMessageTestCase(TestCase):
+    """
+    The error message for a deletion prevented by dependent objects must name only those dependent objects which the
+    user is permitted to view. (Ref: #23398)
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.devices = (
+            create_test_device('Device 1'),
+            create_test_device('Device 2'),
+        )
+        cls.device_type = cls.devices[0].device_type
+
+    def setUp(self):
+        super().setUp()
+        self.add_permissions('dcim.view_devicetype', 'dcim.delete_devicetype')
+
+        # Permit viewing only the first Device
+        obj_perm = ObjectPermission.objects.create(
+            name='View Device 1', actions=['view'], constraints={'pk': self.devices[0].pk}
+        )
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Device))
+
+    def assertProtectedObjectsMessage(self, response):
+        self.assertHttpStatus(response, 302)
+        self.assertEqual([str(m) for m in get_messages(response.wsgi_request)], [
+            f'Unable to delete <strong>Device Type 1</strong>. 2 dependent objects were found: '
+            f'<a href="{self.devices[0].get_absolute_url()}">Device 1</a>, '
+            '1 object you do not have permission to view'
+        ])
+
+    def test_get_object_delete_view(self):
+        url = get_action_url(DeviceType, action='delete', kwargs={'pk': self.device_type.pk})
+        self.assertProtectedObjectsMessage(self.client.get(url))
+
+    def test_post_object_delete_view(self):
+        url = get_action_url(DeviceType, action='delete', kwargs={'pk': self.device_type.pk})
+        self.assertProtectedObjectsMessage(self.client.post(url, data={'confirm': True}))
+
+    def test_post_bulk_delete_view(self):
+        response = self.client.post(reverse('dcim:devicetype_bulk_delete'), data={
+            'pk': [self.device_type.pk],
+            'confirm': True,
+            '_confirm': True,
+        })
+        self.assertProtectedObjectsMessage(response)

@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.backends.postgresql.psycopg_any import NumericRange
-from django.test import RequestFactory, override_settings
+from django.test import RequestFactory, override_settings, tag
 from django.urls import reverse
 from netaddr import IPNetwork
 
@@ -988,6 +988,50 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertEqual(objectchanges.count(), len(prefixes))
         for objectchange in objectchanges:
             self.assertEqual(objectchange.message, changelog_message)
+
+    @tag('regression')  # Issue #23585
+    def test_bulk_add_prefixes_excludes_restricted_vrfs(self):
+        """
+        The prefix bulk-add form only displays and accepts VRFs the user can view.
+        """
+        visible_vrf = VRF.objects.get(name='VRF 1')
+        hidden_vrf = VRF.objects.get(name='VRF 2')
+
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['view'],
+            constraints={'pk': visible_vrf.pk},
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(VRF))
+        self.add_permissions('ipam.add_prefix')
+        url = reverse('ipam:prefix_bulk_add')
+        data = {
+            'pattern': '198.18.[40-41].0/24',
+            'vrf': hidden_vrf.pk,
+            'status': PrefixStatusChoices.STATUS_ACTIVE,
+        }
+
+        # Creation rejects the hidden VRF
+        response = self.client.post(url, data)
+        self.assertHttpStatus(response, 200)
+        self.assertNotContains(response, hidden_vrf.name)
+        self.assertFalse(Prefix.objects.filter(prefix=IPNetwork('198.18.40.0/24')).exists())
+
+        # Neither the form nor its HTMX re-render displays the hidden VRF
+        for headers in ({}, {'HX-Request': 'true'}):
+            with self.subTest(headers=headers):
+                response = self.client.get(url, {'vrf': hidden_vrf.pk}, headers=headers)
+                self.assertHttpStatus(response, 200)
+                self.assertNotContains(response, hidden_vrf.name)
+
+        # A visible VRF is accepted
+        data['vrf'] = visible_vrf.pk
+        response = self.client.post(url, data)
+        self.assertHttpStatus(response, 302)
+        for i in (40, 41):
+            self.assertTrue(Prefix.objects.filter(prefix=IPNetwork(f'198.18.{i}.0/24'), vrf=visible_vrf).exists())
 
     def test_prefix_prefixes(self):
         self.add_permissions('ipam.view_prefix')
@@ -2460,7 +2504,7 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
     def test_bulk_add_vlans(self):
-        self.add_permissions('ipam.add_vlan')
+        self.add_permissions('ipam.add_vlan', 'ipam.view_vlangroup')
 
         group = VLANGroup.objects.get(name='VLAN Group 1')
         initial_count = VLAN.objects.count()
@@ -2488,7 +2532,7 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             )
 
     def test_bulk_add_vlans_rolls_back_on_duplicate_name(self):
-        self.add_permissions('ipam.add_vlan')
+        self.add_permissions('ipam.add_vlan', 'ipam.view_vlangroup')
 
         group = VLANGroup.objects.get(name='VLAN Group 1')
         initial_count = VLAN.objects.count()
@@ -2507,7 +2551,7 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertFalse(VLAN.objects.filter(group=group, vid=110).exists())
 
     def test_bulk_add_vlans_rolls_back_when_any_id_outside_group_range(self):
-        self.add_permissions('ipam.add_vlan')
+        self.add_permissions('ipam.add_vlan', 'ipam.view_vlangroup')
 
         group = VLANGroup.objects.create(
             name='Restricted VLAN Group',
@@ -2533,7 +2577,7 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     def test_bulk_add_vlans_pattern_shapes(self):
         """Single values, multiple values, ranges, and combinations create the expected VLANs."""
-        self.add_permissions('ipam.add_vlan')
+        self.add_permissions('ipam.add_vlan', 'ipam.view_vlangroup')
         # The combination runs against a second group: subTests share one transaction, and VIDs
         # 10 & 20 would otherwise collide with the multiple-values case via the (group, vid) constraint.
         cases = (
