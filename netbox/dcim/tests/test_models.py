@@ -3520,7 +3520,11 @@ class CableDisconnectChangeLoggingTestCase(TestCase):
     @tag('regression')  # Ref: #23617
     def test_resaving_new_cable_records_current_prechange(self):
         # The creation snapshot must not be reused, so the re-save falls back to the database
-        with self.assertLogs('netbox.models.features', level='WARNING'), event_tracking(self._request()):
+        with (
+            patch('core.signals.RUNNING_TESTS', False),
+            self.assertLogs('netbox.models.features', level='WARNING'),
+            event_tracking(self._request()),
+        ):
             cable = Cable(a_terminations=[self.interface1], b_terminations=[self.interface2])
             cable.save()
             cable.label = 'x'
@@ -3534,7 +3538,11 @@ class CableDisconnectChangeLoggingTestCase(TestCase):
     @tag('regression')  # Ref: #23617
     def test_resaving_new_cable_with_preset_pk_records_current_prechange(self):
         # A new Cable with a preset pk (e.g. restored by deserialize_object()) must also discard its creation snapshot
-        with self.assertLogs('netbox.models.features', level='WARNING'), event_tracking(self._request()):
+        with (
+            patch('core.signals.RUNNING_TESTS', False),
+            self.assertLogs('netbox.models.features', level='WARNING'),
+            event_tracking(self._request()),
+        ):
             cable = Cable(pk=1000000, a_terminations=[self.interface1], b_terminations=[self.interface2])
             cable.save()
             cable.label = 'x'
@@ -3551,7 +3559,11 @@ class CableDisconnectChangeLoggingTestCase(TestCase):
         old_b_termination = CableTermination.objects.get(cable=cable, cable_end=CableEndChoices.SIDE_B)
 
         request = self._request()
-        with self.assertLogs('netbox.models.features', level='WARNING') as logs, event_tracking(request):
+        with (
+            patch('core.signals.RUNNING_TESTS', False),
+            self.assertLogs('netbox.models.features', level='WARNING') as logs,
+            event_tracking(request),
+        ):
             cable = Cable.objects.get(pk=cable.pk)
             cable.label = 'x'
             cable.b_terminations = [self.interface3]

@@ -1,4 +1,5 @@
 import logging
+import sys
 from threading import local
 
 from django.contrib.contenttypes.models import ContentType
@@ -89,6 +90,8 @@ def update_object_types(sender, **kwargs):
 # Used to track received signals per object
 _signals_received = local()
 
+RUNNING_TESTS = 'test' in sys.argv
+
 
 @receiver(pre_save)
 def snapshot_unsnapshotted_object(sender, instance, raw=False, using=None, **kwargs):
@@ -148,6 +151,10 @@ def handle_changed_object(sender, instance, **kwargs):
         OBJECT_DELETED: ObjectChangeActionChoices.ACTION_DELETE,
     }[event_type]
     objectchange = instance.to_objectchange(action)
+    # Under test, fail any update recorded without a prechange snapshot
+    if RUNNING_TESTS and event_type == OBJECT_UPDATED and not m2m_changed:
+        from utilities.testing.changelog import assert_prechange_snapshot
+        assert_prechange_snapshot(instance)
     object_change_id = None
     # If this is a many-to-many field change, check for a previous ObjectChange instance recorded
     # for this object by this request and update it

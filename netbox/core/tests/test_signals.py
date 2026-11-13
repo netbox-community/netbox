@@ -88,12 +88,24 @@ class HandleChangedObjectSignalTestCase(TestCase):
         ).order_by('-pk')
         self.assertEqual(ocs.first().action, ObjectChangeActionChoices.ACTION_UPDATE)
 
+    def test_update_without_snapshot_fails_under_test(self):
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        request = _build_request(self.user)
+
+        with event_tracking(request), self.assertRaisesMessage(AssertionError, 'without calling snapshot()'):
+            site.description = 'updated'
+            site.save()
+
     def test_update_without_snapshot_records_prechange_from_database(self):
         """An update saved without a snapshot records its pre-change data from the database. Ref: #23617"""
         site = Site.objects.create(name='Site 1', slug='site-1')
         request = _build_request(self.user)
 
-        with self.assertLogs('netbox.models.features', level='WARNING'), event_tracking(request):
+        with (
+            patch('core.signals.RUNNING_TESTS', False),
+            self.assertLogs('netbox.models.features', level='WARNING'),
+            event_tracking(request),
+        ):
             site.description = 'first'
             site.save()
             site.description = 'second'
@@ -112,7 +124,11 @@ class HandleChangedObjectSignalTestCase(TestCase):
         site = Site.objects.create(name='Site 1', slug='site-1')
         request = _build_request(self.user)
 
-        with self.assertLogs('netbox.models.features', level='WARNING'), event_tracking(request):
+        with (
+            patch('core.signals.RUNNING_TESTS', False),
+            self.assertLogs('netbox.models.features', level='WARNING'),
+            event_tracking(request),
+        ):
             site.description = 'updated'
             site.save()
             snapshots = events_queue.get()[f'dcim.site:{site.pk}']['snapshots']
@@ -650,6 +666,7 @@ class HandleChangedObjectDirectHandlerTestCase(SimpleTestCase):
         instance = SimpleNamespace(
             pk=123,
             _meta=SimpleNamespace(model_name='device'),
+            _prechange_snapshot={'name': 'Device 1'},
             refresh_from_db=MagicMock(),
         )
         instance.to_objectchange = MagicMock(return_value=objectchange)
