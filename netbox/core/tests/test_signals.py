@@ -93,7 +93,7 @@ class HandleChangedObjectSignalTestCase(TestCase):
         site = Site.objects.create(name='Site 1', slug='site-1')
         request = _build_request(self.user)
 
-        with self.assertLogs('netbox.core.signals', level='WARNING'), event_tracking(request):
+        with self.assertLogs('netbox.models.features', level='WARNING'), event_tracking(request):
             site.description = 'first'
             site.save()
             site.description = 'second'
@@ -112,7 +112,7 @@ class HandleChangedObjectSignalTestCase(TestCase):
         site = Site.objects.create(name='Site 1', slug='site-1')
         request = _build_request(self.user)
 
-        with self.assertLogs('netbox.core.signals', level='WARNING'), event_tracking(request):
+        with self.assertLogs('netbox.models.features', level='WARNING'), event_tracking(request):
             site.description = 'updated'
             site.save()
             snapshots = events_queue.get()[f'dcim.site:{site.pk}']['snapshots']
@@ -125,7 +125,7 @@ class HandleChangedObjectSignalTestCase(TestCase):
         site = Site.objects.create(name='Site 1', slug='site-1')
         request = _build_request(self.user)
 
-        with self.assertNoLogs('netbox.core.signals', level='WARNING'), event_tracking(request):
+        with self.assertNoLogs('netbox.models.features', level='WARNING'), event_tracking(request):
             site.snapshot()
             site.description = 'first'
             site.save()

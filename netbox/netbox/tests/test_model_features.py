@@ -176,6 +176,34 @@ class ModelFeaturesTestCase(TestCase):
         self.assertEqual(change.postchange_data['template_code'], 'updated\n')
         self.assertFalse(hasattr(template, '_prechange_snapshot'))
 
+    def test_synceddatamixin_sync_keeps_existing_snapshot(self):
+        """Saving a sync records a snapshot taken by the caller, then discards it. Ref: #23617"""
+        datafile = self._create_data_file('template.j2', b'original\n')
+        obj = ConfigTemplate(name='Test', data_file=datafile)
+        obj.clean()
+        obj.save()
+        DataFile.objects.filter(pk=datafile.pk).update(data=b'updated\n')
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = User.objects.create_user(username='testuser')
+
+        template = ConfigTemplate.objects.get(pk=obj.pk)
+        with self.assertNoLogs('netbox.models.features', level='WARNING'), event_tracking(request):
+            template.snapshot()
+            template.description = 'updated'
+            # Without save, sync() leaves the caller's snapshot for its own save
+            template.sync()
+            self.assertTrue(hasattr(template, '_prechange_snapshot'))
+            template.sync(save=True)
+
+        change = ObjectChange.objects.get(
+            changed_object_type=ContentType.objects.get_for_model(ConfigTemplate),
+            changed_object_id=obj.pk,
+        )
+        self.assertEqual(change.prechange_data['description'], '')
+        self.assertEqual(change.postchange_data['description'], 'updated')
+        self.assertFalse(hasattr(template, '_prechange_snapshot'))
+
     @patch.object(ManagedFile, 'sync_data')
     def test_synceddatamixin_sync_without_change_logging(self, mock_sync_data):
         """Saving a sync succeeds for models which are not change-logged. Ref: #23617"""

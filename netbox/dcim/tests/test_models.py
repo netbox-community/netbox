@@ -3483,7 +3483,7 @@ class CableDisconnectChangeLoggingTestCase(TestCase):
     @tag('regression')  # Ref: #23617
     def test_resaving_new_cable_records_current_prechange(self):
         # The creation snapshot must not be reused, so the re-save falls back to the database
-        with self.assertLogs('netbox.core.signals', level='WARNING'), event_tracking(self._request()):
+        with self.assertLogs('netbox.models.features', level='WARNING'), event_tracking(self._request()):
             cable = Cable(a_terminations=[self.interface1], b_terminations=[self.interface2])
             cable.save()
             cable.label = 'x'
@@ -3497,7 +3497,7 @@ class CableDisconnectChangeLoggingTestCase(TestCase):
     @tag('regression')  # Ref: #23617
     def test_resaving_new_cable_with_preset_pk_records_current_prechange(self):
         # A new Cable with a preset pk (e.g. restored by deserialize_object()) must also discard its creation snapshot
-        with self.assertLogs('netbox.core.signals', level='WARNING'), event_tracking(self._request()):
+        with self.assertLogs('netbox.models.features', level='WARNING'), event_tracking(self._request()):
             cable = Cable(pk=1000000, a_terminations=[self.interface1], b_terminations=[self.interface2])
             cable.save()
             cable.label = 'x'
@@ -3514,7 +3514,7 @@ class CableDisconnectChangeLoggingTestCase(TestCase):
         old_b_termination = CableTermination.objects.get(cable=cable, cable_end=CableEndChoices.SIDE_B)
 
         request = self._request()
-        with event_tracking(request):
+        with self.assertLogs('netbox.models.features', level='WARNING') as logs, event_tracking(request):
             cable = Cable.objects.get(pk=cable.pk)
             cable.label = 'x'
             cable.b_terminations = [self.interface3]
@@ -3526,6 +3526,7 @@ class CableDisconnectChangeLoggingTestCase(TestCase):
         self.assertNotEqual(change.postchange_data['b_terminations'], [old_b_termination.pk])
         self.assertEqual(change.postchange_data['label'], 'x')
         self.assertFalse(hasattr(cable, '_prechange_snapshot'))
+        self.assertEqual(len(logs.records), 1)
 
     @tag('regression')  # Ref: netbox-branching#631
     def test_cable_deletion_records_disconnect(self):

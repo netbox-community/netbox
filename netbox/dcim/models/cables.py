@@ -405,12 +405,7 @@ class Cable(PrimaryModel):
         if force_terminations or self._terminations_modified:
             # update_terminations() writes before the pre_save fallback runs, so snapshot the stored Cable now
             if current_request.get() is not None and not hasattr(self, '_prechange_snapshot'):
-                db = using or router.db_for_write(Cable, instance=self)
-                original = Cable._base_manager.using(db).get(pk=self.pk)
-                original.snapshot()
-                self._prechange_snapshot = original._prechange_snapshot
-                # Discarded by handle_changed_object() after this save, like the fallback's own snapshot
-                self._prechange_snapshot_from_db = True
+                self.snapshot_from_db(using=using)
             self.update_terminations(force=force_terminations)
 
         super().save(*args, force_update=True, **save_kwargs)

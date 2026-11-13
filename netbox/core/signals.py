@@ -4,7 +4,7 @@ from threading import local
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.signals import request_finished
-from django.db import router, transaction
+from django.db import transaction
 from django.db.models import CASCADE, RESTRICT
 from django.db.models.fields.reverse_related import ManyToManyRel, ManyToOneRel
 from django.db.models.signals import m2m_changed, post_migrate, post_save, pre_delete, pre_save
@@ -100,14 +100,7 @@ def snapshot_unsnapshotted_object(sender, instance, raw=False, using=None, **kwa
     if instance._state.adding or instance.pk is None or hasattr(instance, '_prechange_snapshot'):
         return
 
-    db = using or router.db_for_write(sender, instance=instance)
-    if (original := sender._base_manager.using(db).filter(pk=instance.pk).first()) is None:
-        return
-    logger.warning(f"No pre-change snapshot taken for {sender._meta.label} {instance.pk}; reading it from the database")
-    original.snapshot()
-    instance._prechange_snapshot = original._prechange_snapshot
-    # Discard after this save so that a later save of the instance takes a fresh snapshot
-    instance._prechange_snapshot_from_db = True
+    instance.snapshot_from_db(using=using)
 
 
 @receiver((post_save, m2m_changed))
