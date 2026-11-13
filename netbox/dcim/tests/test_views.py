@@ -34,6 +34,7 @@ from netbox.choices import (
 )
 from tenancy.models import Tenant
 from users.models import ObjectPermission, Owner, User
+from utilities.exceptions import PermissionsViolation
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
 
@@ -5782,7 +5783,7 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @tag('regression')  # Ref: #23212
     def test_remove_member_blocked_by_cross_chassis_lag(self):
-        self.add_permissions('dcim.change_device')
+        self.add_permissions('dcim.change_device', 'dcim.change_virtualchassis')
         master = Device.objects.get(name='Device 1')
         member = Device.objects.get(name='Device 2')
         lag = Interface.objects.create(device=master, name='lag0', type=InterfaceTypeChoices.TYPE_LAG)
@@ -5816,7 +5817,7 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @tag('regression')  # Ref: #23212
     def test_create_with_members_blocked_by_cross_chassis_lag(self):
-        self.add_permissions('dcim.add_virtualchassis', 'dcim.view_device')
+        self.add_permissions('dcim.add_virtualchassis', 'dcim.view_device', 'dcim.change_device')
         vc1_member = Device.objects.get(name='Device 1')
         device = Device.objects.get(name='Device 10')
         lag = Interface.objects.create(device=vc1_member, name='lag0', type=InterfaceTypeChoices.TYPE_LAG)
@@ -5832,7 +5833,7 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertIsNone(device.virtual_chassis)
 
     def test_create_with_members_allowed_with_lag_between_new_members(self):
-        self.add_permissions('dcim.add_virtualchassis', 'dcim.view_device')
+        self.add_permissions('dcim.add_virtualchassis', 'dcim.view_device', 'dcim.change_device')
         device1 = Device.objects.get(name='Device 10')
         device2 = Device.objects.get(name='Device 11')
         lag = Interface.objects.create(device=device1, name='lag0', type=InterfaceTypeChoices.TYPE_LAG)
@@ -5846,7 +5847,7 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertEqual(set(vc.members.values_list('name', flat=True)), {'Device 10', 'Device 11'})
 
     def test_remove_member(self):
-        self.add_permissions('dcim.change_device')
+        self.add_permissions('dcim.change_device', 'dcim.change_virtualchassis')
         master = Device.objects.get(name='Device 1')
         member = Device.objects.get(name='Device 2')
 
@@ -5871,7 +5872,7 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @tag('regression')  # Ref: #23486
     def test_edit_member_records_single_change_with_prechange_data(self):
-        self.add_permissions('dcim.change_virtualchassis')
+        self.add_permissions('dcim.change_virtualchassis', 'dcim.change_device')
         vc = VirtualChassis.objects.get(name='VC1')
         member1, member2, member3 = vc.members.order_by('vc_position')
 
@@ -5916,7 +5917,7 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @tag('regression')  # Ref: #23486
     def test_edit_member_swap_positions(self):
-        self.add_permissions('dcim.change_virtualchassis')
+        self.add_permissions('dcim.change_virtualchassis', 'dcim.change_device')
         vc = VirtualChassis.objects.get(name='VC1')
         member1, member2, member3 = vc.members.order_by('vc_position')
 
@@ -5996,6 +5997,151 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertEqual(vc_change.action, ObjectChangeActionChoices.ACTION_DELETE)
         self.assertEqual(vc_change.prechange_data['master'], members[0].pk)
         self.assertLess(vc_change.pk, self._get_member_changes(members[0]).first().pk)
+
+    def _add_constrained_permission(self, model, actions, constraints):
+        obj_perm = ObjectPermission(name='Test permission', actions=actions, constraints=constraints)
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(model))
+
+    def _get_edit_data(self, vc, **member_data):
+        """
+        Return POST data for the edit view, overriding each member's position and priority from member_data.
+        """
+        data = {
+            'name': vc.name,
+            'domain': vc.domain,
+            'master': vc.master.pk,
+            'form-MIN_NUM_FORMS': 0,
+            'form-MAX_NUM_FORMS': 1000,
+        }
+        members = vc.members.order_by('vc_position')
+        for i, member in enumerate(members):
+            position, priority = member_data.get(member.name, (member.vc_position, member.vc_priority))
+            data[f'form-{i}-id'] = member.pk
+            data[f'form-{i}-vc_position'] = position
+            data[f'form-{i}-vc_priority'] = '' if priority is None else priority
+        data['form-TOTAL_FORMS'] = data['form-INITIAL_FORMS'] = len(members)
+        return data
+
+    @tag('regression')  # Ref: #23669
+    def test_create_with_members_requires_change_device_permission(self):
+        self.add_permissions('dcim.add_virtualchassis', 'dcim.view_device')
+        device = Device.objects.get(name='Device 10')
+
+        data = {'name': 'VC4', 'members': [device.pk], 'initial_position': 1}
+        response = self.client.post(reverse('dcim:virtualchassis_add'), data)
+        self.assertHttpStatus(response, 200)
+        self.assertTrue(response.context['form'].has_error('members', code='invalid_choice'))
+        self.assertFalse(VirtualChassis.objects.filter(name='VC4').exists())
+
+        device.refresh_from_db()
+        self.assertIsNone(device.virtual_chassis)
+        self.assertFalse(self._get_member_changes(device).exists())
+
+    @tag('regression')  # Ref: #23669
+    def test_create_with_members_blocked_by_constrained_change_device_permission(self):
+        self.add_permissions('dcim.add_virtualchassis', 'dcim.view_device')
+        self._add_constrained_permission(Device, ['change'], {'virtual_chassis__isnull': True})
+        device = Device.objects.get(name='Device 10')
+
+        data = {'name': 'VC4', 'members': [device.pk], 'initial_position': 1}
+        response = self.client.post(reverse('dcim:virtualchassis_add'), data)
+        self.assertHttpStatus(response, 200)
+        self.assertIn(PermissionsViolation.message, response.context['form'].non_field_errors())
+
+        # The change is rolled back
+        self.assertFalse(VirtualChassis.objects.filter(name='VC4').exists())
+        device.refresh_from_db()
+        self.assertIsNone(device.virtual_chassis)
+        self.assertIsNone(device.vc_position)
+        self.assertFalse(self._get_member_changes(device).exists())
+
+    @tag('regression')  # Ref: #23669
+    def test_create_with_members_rejects_device_in_another_chassis(self):
+        self.add_permissions('dcim.add_virtualchassis', 'dcim.view_device', 'dcim.change_device')
+        device = Device.objects.get(name='Device 4')
+        vc2 = VirtualChassis.objects.get(name='VC2')
+
+        data = {'name': 'VC4', 'members': [device.pk], 'initial_position': 1}
+        response = self.client.post(reverse('dcim:virtualchassis_add'), data)
+        self.assertHttpStatus(response, 200)
+        self.assertTrue(response.context['form'].has_error('members'))
+        self.assertFalse(VirtualChassis.objects.filter(name='VC4').exists())
+
+        device.refresh_from_db()
+        self.assertEqual(device.virtual_chassis, vc2)
+        self.assertEqual(device.vc_position, 1)
+
+    @tag('regression')  # Ref: #23669
+    def test_edit_members_requires_change_device_permission(self):
+        self.add_permissions('dcim.change_virtualchassis', 'dcim.view_device')
+        vc = VirtualChassis.objects.get(name='VC1')
+        member = Device.objects.get(name='Device 2')
+
+        response = self.client.post(self._get_url('edit', vc), self._get_edit_data(vc, **{'Device 2': (5, 10)}))
+        self.assertHttpStatus(response, 200)
+        self.assertIn(PermissionsViolation.message, response.context['vc_form'].non_field_errors())
+
+        # The change is rolled back
+        member.refresh_from_db()
+        self.assertEqual(member.vc_position, 2)
+        self.assertIsNone(member.vc_priority)
+        self.assertFalse(self._get_member_changes(member).exists())
+
+    @tag('regression')  # Ref: #23669
+    def test_edit_blocked_by_constrained_change_virtualchassis_permission(self):
+        self._add_constrained_permission(VirtualChassis, ['view', 'change'], {'name': 'VC1'})
+        vc = VirtualChassis.objects.get(name='VC1')
+
+        data = self._get_edit_data(vc)
+        data['name'] = 'VC-renamed'
+        response = self.client.post(self._get_url('edit', vc), data)
+        self.assertHttpStatus(response, 200)
+        self.assertIn(PermissionsViolation.message, response.context['vc_form'].non_field_errors())
+
+        # The change is rolled back
+        vc.refresh_from_db()
+        self.assertEqual(vc.name, 'VC1')
+        self.assertFalse(ObjectChange.objects.filter(
+            changed_object_type=ContentType.objects.get_for_model(VirtualChassis),
+            changed_object_id=vc.pk,
+        ).exists())
+
+    @tag('regression')  # Ref: #23669
+    def test_remove_member_requires_change_virtualchassis_permission(self):
+        self.add_permissions('dcim.view_device', 'dcim.change_device')
+        member = Device.objects.get(name='Device 2')
+        url = reverse('dcim:virtualchassis_remove_member', kwargs={'pk': member.pk})
+
+        response = self.client.post(url, {'confirm': True})
+        self.assertHttpStatus(response, 403)
+
+        # The member's chassis must also be one the user can change
+        self._add_constrained_permission(VirtualChassis, ['change'], {'name': 'VC2'})
+        response = self.client.post(url, {'confirm': True})
+        self.assertHttpStatus(response, 404)
+
+        member.refresh_from_db()
+        self.assertEqual(member.virtual_chassis.name, 'VC1')
+        self.assertEqual(member.vc_position, 2)
+
+    @tag('regression')  # Ref: #23669
+    def test_remove_member_blocked_by_constrained_change_device_permission(self):
+        self.add_permissions('dcim.change_virtualchassis')
+        self._add_constrained_permission(Device, ['view', 'change'], {'virtual_chassis__isnull': False})
+        member = Device.objects.get(name='Device 2')
+
+        url = reverse('dcim:virtualchassis_remove_member', kwargs={'pk': member.pk})
+        response = self.client.post(url, {'confirm': True})
+        self.assertHttpStatus(response, 302)
+        self.assertIn(PermissionsViolation.message, [str(m) for m in get_messages(response.wsgi_request)])
+
+        # The change is rolled back
+        member.refresh_from_db()
+        self.assertEqual(member.virtual_chassis.name, 'VC1')
+        self.assertEqual(member.vc_position, 2)
+        self.assertFalse(self._get_member_changes(member).exists())
 
 
 class PowerPanelTestCase(ViewTestCases.PrimaryObjectViewTestCase):

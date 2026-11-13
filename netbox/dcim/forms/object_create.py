@@ -2,8 +2,10 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import *
+from netbox.context import current_request
 from netbox.forms import NetBoxModelForm
 from netbox.forms.mixins import OwnerMixin
+from utilities.exceptions import PermissionsViolation
 from utilities.forms.fields import (
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
@@ -382,6 +384,22 @@ class VirtualChassisCreateForm(OwnerMixin, NetBoxModelForm):
             'initial_position', 'tags',
         ]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Assigning members modifies them, so limit choices to devices the user can change
+        if request := current_request.get():
+            self.fields['members'].queryset = self.fields['members'].queryset.restrict(request.user, 'change')
+
+    def clean_members(self):
+        members = self.cleaned_data['members']
+        for member in members:
+            if member.virtual_chassis is not None:
+                raise forms.ValidationError(
+                    _("Device {device} is already assigned to a virtual chassis.").format(device=member)
+                )
+        return members
+
     def clean(self):
         super().clean()
 
@@ -409,5 +427,12 @@ class VirtualChassisCreateForm(OwnerMixin, NetBoxModelForm):
                 member.virtual_chassis = instance
                 member.vc_position = i
                 member.save()
+
+            # Check that each member still conforms with any assigned object-level permissions
+            if request := current_request.get():
+                members = self.cleaned_data['members']
+                permitted = Device.objects.restrict(request.user, 'change').filter(pk__in=[m.pk for m in members])
+                if permitted.count() != len(members):
+                    raise PermissionsViolation()
 
         return instance
