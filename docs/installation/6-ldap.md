@@ -12,6 +12,16 @@ sudo apt install -y libldap2-dev libsasl2-dev libssl-dev
 
 ### Install django-auth-ldap
 
+=== "Python package"
+
+    Install NetBox's `ldap` optional dependency group, pinned to the installed NetBox version:
+
+    ```no-highlight
+    sudo /opt/netbox/venv/bin/python -m pip install "netbox[ldap]==X.Y.Z"
+    ```
+
+    Specify the `ldap` extra again when upgrading the NetBox package. See the [Python package upgrade procedure](upgrading.md#upgrade-a-python-package-installation).
+
 === "Release archive or Git"
 
     Activate the Python virtual environment and install the `django-auth-ldap` package using pip:
@@ -27,16 +37,6 @@ sudo apt install -y libldap2-dev libsasl2-dev libssl-dev
     sudo sh -c "echo 'django-auth-ldap' >> /opt/netbox/local_requirements.txt"
     ```
 
-=== "Python package (experimental)"
-
-    Install NetBox's `ldap` optional dependency group, pinned to the installed NetBox version:
-
-    ```no-highlight
-    sudo /opt/netbox/venv/bin/python -m pip install "netbox[ldap]==X.Y.Z"
-    ```
-
-    Specify the `ldap` extra again when upgrading the NetBox package. See the [Python package upgrade procedure](upgrading.md#upgrade-a-python-package-installation-experimental).
-
 ## Configuration
 
 First, enable the LDAP authentication backend in `configuration.py`. (Be sure to overwrite this definition if it is already set to `RemoteUserBackend`.)
@@ -45,7 +45,7 @@ First, enable the LDAP authentication backend in `configuration.py`. (Be sure to
 REMOTE_AUTH_BACKEND = 'netbox.authentication.LDAPBackend'
 ```
 
-Next, create a file named `ldap_config.py` in the same directory as the active `configuration.py`. This is typically `/opt/netbox/netbox/netbox/` for a release archive or Git installation, or `/opt/netbox/conf/` for a Python package installation. Define all of the parameters required below in `ldap_config.py`. Complete documentation of all `django-auth-ldap` configuration options is included in the project's [official documentation](https://django-auth-ldap.readthedocs.io/).
+Next, create a file named `ldap_config.py` in the same directory as the active `configuration.py`. This is typically `/opt/netbox/conf/` for a Python package installation, or `/opt/netbox/netbox/netbox/` for a release archive or Git installation. Define all of the parameters required below in `ldap_config.py`. Complete documentation of all `django-auth-ldap` configuration options is included in the project's [official documentation](https://django-auth-ldap.readthedocs.io/).
 
 For a Python package installation, protect the file while allowing the NetBox service account to read it:
 

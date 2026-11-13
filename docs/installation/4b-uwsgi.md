@@ -7,16 +7,10 @@ NetBox runs as a [WSGI application](https://en.wikipedia.org/wiki/Web_Server_Gat
 
 ## Installation
 
-Activate the Python virtual environment and install the `pyuwsgi` package using pip:
+Install the `pyuwsgi` package into NetBox's virtual environment, and add it to `local_requirements.txt` to ensure it is re-installed whenever the virtual environment is rebuilt:
 
 ```no-highlight
-source /opt/netbox/venv/bin/activate
-pip3 install pyuwsgi
-```
-
-Once installed, add the package to `local_requirements.txt` to ensure it is re-installed during future rebuilds of the virtual environment:
-
-```no-highlight
+sudo /opt/netbox/venv/bin/python -m pip install pyuwsgi
 sudo sh -c "echo 'pyuwsgi' >> /opt/netbox/local_requirements.txt"
 ```
 

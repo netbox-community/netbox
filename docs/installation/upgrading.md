@@ -84,138 +84,9 @@ Alternatively, a database administrator can install the extension before upgradi
 CREATE EXTENSION IF NOT EXISTS ltree;
 ```
 
-## Upgrade a Release Archive or Git Installation
+## Upgrade a Python Package Installation
 
-The following procedure applies to NetBox installations created from a release archive or Git checkout. Complete the preparation steps above, then use the same installation method that was used for the existing deployment.
-
-### 1. Install the Latest Release
-
-As with the initial installation, you can upgrade NetBox by either downloading the latest release package or by checking out the latest production release from the git repository.
-
-!!! warning
-    Use the same method as you used to install NetBox originally.
-
-If you are not sure how NetBox was installed originally, check with this command:
-
-```
-ls -ld /opt/netbox /opt/netbox/.git
-```
-
-If NetBox was installed from a release package, then `/opt/netbox` will be a symlink pointing to the current version, and `/opt/netbox/.git` will not exist.  If it was installed from git, then `/opt/netbox` and `/opt/netbox/.git` will both exist as normal directories.
-
-#### Option A: Download a Release
-
-Download the [latest stable release](https://github.com/netbox-community/netbox/releases) from GitHub as a tarball or ZIP archive. Extract it to your desired path. In this example, we'll use `/opt/netbox`.
-
-Download and extract the latest version:
-
-```no-highlight
-# Set $NEWVER to the NetBox version being installed
-NEWVER=4.5.0
-wget https://github.com/netbox-community/netbox/archive/v$NEWVER.tar.gz
-sudo tar -xzf v$NEWVER.tar.gz -C /opt
-sudo ln -sfn /opt/netbox-$NEWVER/ /opt/netbox
-```
-
-Copy `local_requirements.txt`, `configuration.py`, and `ldap_config.py` (if present) from the current installation to the new version:
-
-```no-highlight
-# Set $OLDVER to the NetBox version currently installed
-OLDVER=4.4.10
-sudo cp /opt/netbox-$OLDVER/local_requirements.txt /opt/netbox/
-sudo cp /opt/netbox-$OLDVER/netbox/netbox/configuration.py /opt/netbox/netbox/netbox/
-sudo cp /opt/netbox-$OLDVER/netbox/netbox/ldap_config.py /opt/netbox/netbox/netbox/
-```
-
-Be sure to replicate your uploaded media as well. (The exact action necessary will depend on where you choose to store your media, but in general moving or copying the media directory will suffice.)
-
-```no-highlight
-sudo cp -pr /opt/netbox-$OLDVER/netbox/media/ /opt/netbox/netbox/
-```
-
-Also make sure to copy or link any custom scripts and reports that you've made. Note that if these are stored outside the project root, you will not need to copy them. (Check the `SCRIPTS_ROOT` and `REPORTS_ROOT` parameters in the configuration file above if you're unsure.)
-
-```no-highlight
-sudo cp -r /opt/netbox-$OLDVER/netbox/scripts /opt/netbox/netbox/
-sudo cp -r /opt/netbox-$OLDVER/netbox/reports /opt/netbox/netbox/
-```
-
-If you followed the original installation guide to set up gunicorn, be sure to copy its configuration as well:
-
-```no-highlight
-sudo cp /opt/netbox-$OLDVER/gunicorn.py /opt/netbox/
-```
-
-#### Option B: Check Out a Git Release
-
-This guide assumes that NetBox is installed in `/opt/netbox`. First, determine the latest release either by visiting our [releases page](https://github.com/netbox-community/netbox/releases) or by running the following command:
-
-```
-git ls-remote --tags https://github.com/netbox-community/netbox.git \
-  | grep -o 'refs/tags/v[0-9]*\.[0-9]*\.[0-9]*$' \
-  | tail -n 1 \
-  | sed 's|refs/tags/||'
-```
-
-Check out the desired release by specifying its tag. For example:
-
-```
-cd /opt/netbox && \
-sudo git fetch --tags && \
-sudo git checkout v4.5.0
-```
-
-### 2. Run the Upgrade Script
-
-Once the new code is in place, verify that any optional Python packages required by your deployment (e.g. `django-auth-ldap`) are listed in `local_requirements.txt`. Then, run the upgrade script:
-
-```no-highlight
-sudo ./upgrade.sh
-```
-
-!!! warning
-    If the default version of Python is not **at least 3.12**, you'll need to pass the path to a supported Python version as an environment variable when calling the upgrade script. For example:
-
-    ```no-highlight
-    sudo PYTHON=/usr/bin/python3.12 ./upgrade.sh
-    ```
-
-!!! note
-    To run the script on a node connected to a database in read-only mode, include the `--readonly` parameter. This will skip the application of any database migrations.
-
-This script performs the following actions:
-
-* Destroys and rebuilds the Python virtual environment
-* Installs all required Python packages (listed in `requirements.txt`)
-* Installs any additional packages from `local_requirements.txt`
-* Applies any database migrations that were included in the release
-* Builds the documentation locally (for offline use)
-* Collects all static files to be served by the HTTP service
-* Deletes stale content types from the database
-* Deletes all expired user sessions from the database
-
-!!! note
-    If the upgrade script prompts a warning about unreflected database migrations, this indicates that some change has
-    been made to your local codebase and should be investigated. Never attempt to create new migrations unless you are
-    intentionally modifying the database schema.
-
-### 3. Restart the NetBox Services
-
-!!! warning
-    If you are upgrading from an installation that does not use a Python virtual environment (any release prior to v2.7.9), you'll need to update the systemd service files to reference the new Python and gunicorn executables before restarting the services. These are located in `/opt/netbox/venv/bin/`. See the example service files in `/opt/netbox/contrib/` for reference.
-
-Finally, restart the gunicorn and RQ services:
-
-```no-highlight
-sudo systemctl restart netbox netbox-rq
-```
-
-## Upgrade a Python Package Installation (Experimental)
-
-!!! warning "Experimental installation method"
-    Installing NetBox from the Python package is experimental in NetBox v4.7 and is **not recommended for production use**. Test the upgrade and rollback procedures in a non-production environment before relying on them.
-
-This procedure applies only to a deployment created using the [Python package installation method](3b-python-package.md). A package installation does not use `upgrade.sh`; use the installed `netbox upgrade` command instead. For a release archive or Git installation, follow the [procedure above](#upgrade-a-release-archive-or-git-installation).
+This procedure applies to a deployment installed from the Python package per the [installation guide](3-netbox.md). A package installation does not use `upgrade.sh`; use the installed `netbox upgrade` command instead. For a release archive or Git installation, follow the [procedure below](#upgrade-a-release-archive-or-git-installation).
 
 Complete the preparation steps at the beginning of this page before proceeding.
 
@@ -288,4 +159,133 @@ Start the services and verify that both the web application and background worke
 
 ```no-highlight
 sudo systemctl start netbox netbox-rq
+```
+
+## Upgrade a Release Archive or Git Installation
+
+The following procedure applies to NetBox installations created from a release archive or Git checkout. Complete the preparation steps above, then use the same installation method that was used for the existing deployment.
+
+!!! tip "Migrating to the Python package"
+    The Python package is the recommended installation method for production deployments. To move an existing release archive or Git installation to the package, follow the [migration procedure](3-netbox.md#migrate-an-existing-archive-or-git-installation) separately from any version upgrade.
+
+### 1. Install the Latest Release
+
+Upgrade NetBox by either downloading the latest release archive or checking out the latest production release from the Git repository.
+
+!!! warning
+    Use the same method as you used to install NetBox originally.
+
+If you are not sure how NetBox was installed originally, check with this command:
+
+```
+ls -ld /opt/netbox /opt/netbox/.git
+```
+
+If NetBox was installed from a release package, then `/opt/netbox` will be a symlink pointing to the current version, and `/opt/netbox/.git` will not exist.  If it was installed from git, then `/opt/netbox` and `/opt/netbox/.git` will both exist as normal directories.
+
+#### Option A: Download a Release
+
+Download the [latest stable release](https://github.com/netbox-community/netbox/releases) from GitHub as a tarball or ZIP archive. Extract it to your desired path. In this example, we'll use `/opt/netbox`.
+
+Download and extract the latest version:
+
+```no-highlight
+# Set $NEWVER to the NetBox version being installed
+NEWVER=4.5.0
+wget https://github.com/netbox-community/netbox/archive/v$NEWVER.tar.gz
+sudo tar -xzf v$NEWVER.tar.gz -C /opt
+sudo ln -sfn /opt/netbox-$NEWVER/ /opt/netbox
+```
+
+Copy `local_requirements.txt`, `configuration.py`, and `ldap_config.py` (if present) from the current installation to the new version:
+
+```no-highlight
+# Set $OLDVER to the NetBox version currently installed
+OLDVER=4.4.10
+sudo cp /opt/netbox-$OLDVER/local_requirements.txt /opt/netbox/
+sudo cp /opt/netbox-$OLDVER/netbox/netbox/configuration.py /opt/netbox/netbox/netbox/
+sudo cp /opt/netbox-$OLDVER/netbox/netbox/ldap_config.py /opt/netbox/netbox/netbox/
+```
+
+Be sure to replicate your uploaded media as well. (The exact action necessary will depend on where you choose to store your media, but in general moving or copying the media directory will suffice.)
+
+```no-highlight
+sudo cp -pr /opt/netbox-$OLDVER/netbox/media/ /opt/netbox/netbox/
+```
+
+Also make sure to copy or link any custom scripts and reports that you've made. Note that if these are stored outside the project root, you will not need to copy them. (Check the `SCRIPTS_ROOT` and `REPORTS_ROOT` parameters in the configuration file above if you're unsure.)
+
+```no-highlight
+sudo cp -r /opt/netbox-$OLDVER/netbox/scripts /opt/netbox/netbox/
+sudo cp -r /opt/netbox-$OLDVER/netbox/reports /opt/netbox/netbox/
+```
+
+If your deployment uses gunicorn, be sure to copy its configuration file as well:
+
+```no-highlight
+sudo cp /opt/netbox-$OLDVER/gunicorn.py /opt/netbox/
+```
+
+#### Option B: Check Out a Git Release
+
+This guide assumes that NetBox is installed in `/opt/netbox`. First, determine the latest release either by visiting our [releases page](https://github.com/netbox-community/netbox/releases) or by running the following command:
+
+```
+git ls-remote --tags https://github.com/netbox-community/netbox.git \
+  | grep -o 'refs/tags/v[0-9]*\.[0-9]*\.[0-9]*$' \
+  | tail -n 1 \
+  | sed 's|refs/tags/||'
+```
+
+Check out the desired release by specifying its tag. For example:
+
+```
+cd /opt/netbox && \
+sudo git fetch --tags && \
+sudo git checkout v4.5.0
+```
+
+### 2. Run the Upgrade Script
+
+Once the new code is in place, verify that any optional Python packages required by your deployment (e.g. `django-auth-ldap`) are listed in `local_requirements.txt`. Then, run the upgrade script:
+
+```no-highlight
+sudo ./upgrade.sh
+```
+
+!!! warning
+    If the default version of Python is not **at least 3.12**, you'll need to pass the path to a supported Python version as an environment variable when calling the upgrade script. For example:
+
+    ```no-highlight
+    sudo PYTHON=/usr/bin/python3.12 ./upgrade.sh
+    ```
+
+!!! note
+    To run the script on a node connected to a database in read-only mode, include the `--readonly` parameter. This will skip the application of any database migrations.
+
+This script performs the following actions:
+
+* Destroys and rebuilds the Python virtual environment
+* Installs all required Python packages (listed in `requirements.txt`)
+* Installs any additional packages from `local_requirements.txt`
+* Applies any database migrations that were included in the release
+* Builds the documentation locally (for offline use)
+* Collects all static files to be served by the HTTP service
+* Deletes stale content types from the database
+* Deletes all expired user sessions from the database
+
+!!! note
+    If the upgrade script prompts a warning about unreflected database migrations, this indicates that some change has
+    been made to your local codebase and should be investigated. Never attempt to create new migrations unless you are
+    intentionally modifying the database schema.
+
+### 3. Restart the NetBox Services
+
+!!! warning
+    If you are upgrading from an installation that does not use a Python virtual environment (any release prior to v2.7.9), you'll need to update the systemd service files to reference the new Python and gunicorn executables before restarting the services. These are located in `/opt/netbox/venv/bin/`. See the example service files in `/opt/netbox/contrib/` for reference.
+
+Finally, restart the gunicorn and RQ services:
+
+```no-highlight
+sudo systemctl restart netbox netbox-rq
 ```

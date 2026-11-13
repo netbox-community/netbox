@@ -217,7 +217,7 @@ Once created, the release will become available for users to install from GitHub
 
 ### Publish to PyPI
 
-Creating the GitHub release pushes the new tag and starts the Python package publishing workflow. With the prerequisites above in place, the workflow builds and verifies the wheel and source distribution, then holds the production upload until the `pypi` deployment is approved. Approving the deployment publishes the verified artifacts to **PyPI**. Installing NetBox from the Python package is experimental in NetBox v4.7 and is not recommended for production use.
+Creating the GitHub release pushes the new tag and starts the Python package publishing workflow. With the prerequisites above in place, the workflow builds and verifies the wheel and source distribution, then holds the production upload until the `pypi` deployment is approved. Approving the deployment publishes the verified artifacts to **PyPI**.
 
 A manual `workflow_dispatch` run from a `v*` release tag publishes to **Test PyPI** instead. This remains available as an optional rehearsal after packaging or publishing changes, but it is not required for every production release. Dispatching from a branch runs the build and verification jobs as a dry run without publishing anywhere.
 
