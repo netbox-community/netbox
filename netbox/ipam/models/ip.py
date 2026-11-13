@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import F
 from django.db.models.functions import Cast
+from django.utils.encoding import force_str
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
@@ -405,7 +406,7 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         return PrefixClassificationChoices.colors.get(self.classification)
 
     def get_classification_display(self):
-        return dict(PrefixClassificationChoices).get(self.classification)
+        return force_str(dict(PrefixClassificationChoices).get(self.classification), strings_only=True)
 
     @cached_property
     def aggregate(self):
