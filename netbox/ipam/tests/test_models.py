@@ -1,13 +1,21 @@
+import re
+
 import netaddr
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.db import connection
 from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.test import TestCase, override_settings
 from netaddr import IPNetwork, IPSet
 
 from dcim.models import Location, Region, Site, SiteGroup
 from ipam.choices import *
-from ipam.constants import SERVICE_PORT_MAX, SERVICE_PORT_MIN
+from ipam.constants import (
+    PREFIX_CLASSIFICATION_NETWORKS,
+    PREFIX_CLASSIFICATION_PUBLIC_EXCEPTIONS,
+    SERVICE_PORT_MAX,
+    SERVICE_PORT_MIN,
+)
 from ipam.models import *
 from ipam.utils import port_mapping_q, rebuild_prefixes
 from utilities.data import string_to_ranges
@@ -383,6 +391,147 @@ class PrefixTestCase(TestCase):
         self.assertEqual(prefix.mask_length, 8)
         prefix_v6 = Prefix(prefix='2001:db8::/32')
         self.assertEqual(prefix_v6.mask_length, 32)
+
+    def test_classification(self):
+        """Each prefix is classified by the address space it covers, in Python and in the database."""
+        expected = {
+            IPNetwork('8.8.8.0/24'): PrefixClassificationChoices.CLASSIFICATION_PUBLIC,
+            IPNetwork('10.0.0.0/8'): PrefixClassificationChoices.CLASSIFICATION_PRIVATE,
+            IPNetwork('10.0.0.0/7'): PrefixClassificationChoices.CLASSIFICATION_PUBLIC,
+            IPNetwork('0.0.0.0/7'): PrefixClassificationChoices.CLASSIFICATION_PUBLIC,
+            IPNetwork('100.64.0.0/10'): PrefixClassificationChoices.CLASSIFICATION_SHARED,
+            IPNetwork('100.64.1.0/24'): PrefixClassificationChoices.CLASSIFICATION_SHARED,
+            IPNetwork('127.0.0.0/8'): PrefixClassificationChoices.CLASSIFICATION_LOOPBACK,
+            IPNetwork('169.254.0.0/16'): PrefixClassificationChoices.CLASSIFICATION_LINK_LOCAL,
+            IPNetwork('192.0.0.0/24'): PrefixClassificationChoices.CLASSIFICATION_SPECIAL,
+            IPNetwork('192.0.0.8/31'): PrefixClassificationChoices.CLASSIFICATION_SPECIAL,
+            IPNetwork('192.0.0.8/32'): PrefixClassificationChoices.CLASSIFICATION_SPECIAL,
+            IPNetwork('192.0.0.9/32'): PrefixClassificationChoices.CLASSIFICATION_PUBLIC,
+            IPNetwork('192.0.2.0/24'): PrefixClassificationChoices.CLASSIFICATION_DOCUMENTATION,
+            IPNetwork('198.18.0.0/15'): PrefixClassificationChoices.CLASSIFICATION_BENCHMARKING,
+            IPNetwork('224.0.0.0/4'): PrefixClassificationChoices.CLASSIFICATION_MULTICAST,
+            IPNetwork('224.0.0.0/3'): PrefixClassificationChoices.CLASSIFICATION_PUBLIC,
+            IPNetwork('240.0.0.0/4'): PrefixClassificationChoices.CLASSIFICATION_SPECIAL,
+            IPNetwork('2001:4860::/32'): PrefixClassificationChoices.CLASSIFICATION_PUBLIC,
+            IPNetwork('2000::/3'): PrefixClassificationChoices.CLASSIFICATION_PUBLIC,
+            IPNetwork('fd00::/8'): PrefixClassificationChoices.CLASSIFICATION_PRIVATE,
+            IPNetwork('::1/128'): PrefixClassificationChoices.CLASSIFICATION_LOOPBACK,
+            IPNetwork('::ffff:10.0.0.0/104'): PrefixClassificationChoices.CLASSIFICATION_SPECIAL,
+            IPNetwork('fe80::/10'): PrefixClassificationChoices.CLASSIFICATION_LINK_LOCAL,
+            IPNetwork('2001:db8::/32'): PrefixClassificationChoices.CLASSIFICATION_DOCUMENTATION,
+            IPNetwork('3fff::/20'): PrefixClassificationChoices.CLASSIFICATION_DOCUMENTATION,
+            IPNetwork('ff00::/8'): PrefixClassificationChoices.CLASSIFICATION_MULTICAST,
+            IPNetwork('2001:2::/48'): PrefixClassificationChoices.CLASSIFICATION_BENCHMARKING,
+            IPNetwork('2001::/32'): PrefixClassificationChoices.CLASSIFICATION_SPECIAL,
+            IPNetwork('2001:1::3/128'): PrefixClassificationChoices.CLASSIFICATION_PUBLIC,
+            IPNetwork('2001:1::/126'): PrefixClassificationChoices.CLASSIFICATION_SPECIAL,
+            IPNetwork('2001:20::/27'): PrefixClassificationChoices.CLASSIFICATION_PUBLIC,
+            IPNetwork('64:ff9b::/96'): PrefixClassificationChoices.CLASSIFICATION_PUBLIC,
+            IPNetwork('64:ff9b::/95'): PrefixClassificationChoices.CLASSIFICATION_SPECIAL,
+            IPNetwork('fec0::/10'): PrefixClassificationChoices.CLASSIFICATION_SPECIAL,
+            IPNetwork('4000::/2'): PrefixClassificationChoices.CLASSIFICATION_SPECIAL,
+        }
+        Prefix.objects.bulk_create(Prefix(prefix=prefix) for prefix in expected)
+        self.assertEqual(dict(Prefix.objects.values_list('prefix', '_classification')), expected)
+        self.assertEqual({prefix.prefix: prefix.classification for prefix in Prefix.objects.all()}, expected)
+
+    def test_classification_before_save(self):
+        """The classification follows unsaved changes to the prefix without querying the database."""
+        with self.assertNumQueries(0):
+            prefix = Prefix(prefix=IPNetwork('10.0.0.0/8'))
+            self.assertEqual(prefix.classification, PrefixClassificationChoices.CLASSIFICATION_PRIVATE)
+            prefix.prefix_length = 7
+            self.assertEqual(prefix.classification, PrefixClassificationChoices.CLASSIFICATION_PUBLIC)
+            prefix.prefix = '2001:db8::/32'
+            self.assertEqual(prefix.classification, PrefixClassificationChoices.CLASSIFICATION_DOCUMENTATION)
+            self.assertIsNone(Prefix().classification)
+            self.assertIsNone(Prefix(prefix='invalid').classification)
+
+    @override_settings(CUSTOM_VALIDATORS={
+        'ipam.prefix': [{'classification': {'eq': PrefixClassificationChoices.CLASSIFICATION_PRIVATE}}],
+    })
+    def test_classification_custom_validator(self):
+        """Custom validators check the classification of the prefix being saved."""
+        Prefix(prefix=IPNetwork('10.0.0.0/8')).full_clean()
+        with self.assertRaisesMessage(ValidationError, 'Custom validation failed for classification'):
+            Prefix(prefix=IPNetwork('8.8.8.0/24')).full_clean()
+        prefix = Prefix.objects.create(prefix=IPNetwork('10.1.0.0/16'))
+        prefix.prefix = IPNetwork('8.8.8.0/24')
+        with self.assertRaisesMessage(ValidationError, 'Custom validation failed for classification'):
+            prefix.full_clean()
+
+    def test_classification_follows_prefix(self):
+        """The stored classification follows the prefix on every write path and ignores direct writes."""
+        prefix = Prefix.objects.create(prefix=IPNetwork('10.1.0.0/16'))
+        self.assertEqual(prefix._classification, PrefixClassificationChoices.CLASSIFICATION_PRIVATE)
+        prefix.prefix = IPNetwork('8.8.0.0/16')
+        prefix.save()
+        self.assertEqual(prefix._classification, PrefixClassificationChoices.CLASSIFICATION_PUBLIC)
+        prefix.prefix = IPNetwork('100.64.0.0/16')
+        prefix.save(update_fields=['prefix'])
+        prefix.refresh_from_db()
+        self.assertEqual(prefix._classification, PrefixClassificationChoices.CLASSIFICATION_SHARED)
+        Prefix.objects.filter(pk=prefix.pk).update(prefix=IPNetwork('192.0.2.0/24'))
+        prefix.refresh_from_db()
+        self.assertEqual(prefix._classification, PrefixClassificationChoices.CLASSIFICATION_DOCUMENTATION)
+        prefix.prefix = IPNetwork('fe80::/64')
+        Prefix.objects.bulk_update([prefix], ['prefix'])
+        prefix.refresh_from_db()
+        self.assertEqual(prefix._classification, PrefixClassificationChoices.CLASSIFICATION_LINK_LOCAL)
+        Prefix.objects.filter(pk=prefix.pk).update(_classification=PrefixClassificationChoices.CLASSIFICATION_PUBLIC)
+        prefix.refresh_from_db()
+        self.assertEqual(prefix._classification, PrefixClassificationChoices.CLASSIFICATION_LINK_LOCAL)
+
+    def test_classification_ignores_search_path(self):
+        """The trigger uses the installed classifier when another schema shadows it."""
+        with connection.cursor() as cursor:
+            cursor.execute('CREATE SCHEMA sp_classification')
+            cursor.execute(
+                'CREATE FUNCTION sp_classification.ipam_prefix_classification(prefix cidr) RETURNS text '
+                "LANGUAGE sql AS $$ SELECT 'shadowed' $$"
+            )
+            cursor.execute('SET LOCAL search_path = sp_classification, public')
+            cursor.execute("SELECT ipam_prefix_classification('10.1.0.0/16'::cidr)")
+            self.assertEqual(cursor.fetchone()[0], 'shadowed')
+        prefix = Prefix.objects.create(prefix=IPNetwork('10.1.0.0/16'))
+        prefix.refresh_from_db()
+        self.assertEqual(prefix._classification, PrefixClassificationChoices.CLASSIFICATION_PRIVATE)
+        Prefix.objects.filter(pk=prefix.pk).update(prefix=IPNetwork('192.0.2.0/24'))
+        prefix.refresh_from_db()
+        self.assertEqual(prefix._classification, PrefixClassificationChoices.CLASSIFICATION_DOCUMENTATION)
+
+    def test_classification_matches_database(self):
+        """The database classifies every boundary of its rules and the constants like the classification property."""
+        # Sampling the installed rules too catches a rule removed from the constants without a migration
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT prosrc FROM pg_proc WHERE oid = 'ipam_prefix_classification(cidr)'::regprocedure")
+            installed = re.findall(r"'([0-9a-f.:]+/\d+)'", cursor.fetchone()[0])
+        prefixes = set()
+        for networks in (installed, PREFIX_CLASSIFICATION_PUBLIC_EXCEPTIONS, *PREFIX_CLASSIFICATION_NETWORKS.values()):
+            for network in map(IPNetwork, networks):
+                prefixes.add(network)
+                prefixes.add(IPNetwork(f'{network.network}/{network.prefixlen - 1}').cidr)
+                bits = 32 if network.version == 4 else 128
+                for address in (network.first - 1, network.first, network.last, network.last + 1):
+                    if 0 <= address < 2 ** bits:
+                        prefixes.add(IPNetwork(netaddr.IPAddress(address, network.version)))
+        Prefix.objects.bulk_create(Prefix(prefix=prefix) for prefix in prefixes)
+        for prefix in Prefix.objects.all():
+            with self.subTest(prefix=prefix.prefix):
+                self.assertEqual(prefix._classification, prefix.classification)
+
+    def test_classification_rules(self):
+        """The rule tiers keep the invariants their precedence relies on."""
+        rules = dict(PREFIX_CLASSIFICATION_NETWORKS)
+        special = IPSet(rules.pop(PrefixClassificationChoices.CLASSIFICATION_SPECIAL))
+        exceptions = IPSet(PREFIX_CLASSIFICATION_PUBLIC_EXCEPTIONS)
+        claimed = IPSet(exceptions)
+        for networks in rules.values():
+            self.assertFalse(claimed & IPSet(networks))
+            claimed |= IPSet(networks)
+        self.assertTrue(exceptions.issubset(special))
+        for network in special.iter_cidrs():
+            self.assertTrue(IPSet([network]) - exceptions, network)
 
     def test_get_duplicates(self):
         prefixes = Prefix.objects.bulk_create((
