@@ -2230,6 +2230,13 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         if 'lag_hash_policy' not in self.fields:
             self.instance.lag_hash_policy = None
 
+        # Clear LAG attributes left over when changing a LAG interface to another type
+        if self.instance.is_lag and self.cleaned_data.get('type') != InterfaceTypeChoices.TYPE_LAG:
+            self.cleaned_data['lag_mode'] = None
+            self.instance.lag_hash_policy = None
+            if 'lag_hash_policy' in self.fields:
+                self.cleaned_data['lag_hash_policy'] = None
+
 
 class FrontPortForm(FrontPortFormMixin, ModularDeviceComponentForm):
     type = ChoiceField(
