@@ -4576,6 +4576,13 @@ class InterfaceTestCase(Mixins.FieldPrefetchMixin, Mixins.ComponentTraceMixin, A
                 'parent': channelized_parent.pk,
                 'channel_id': 1,
             },
+            {
+                'device': device.pk,
+                'name': 'Interface 11',
+                'type': InterfaceTypeChoices.TYPE_LAG,
+                'lag_mode': InterfaceLAGModeChoices.MODE_LACP,
+                'lag_hash_policy': InterfaceLAGHashPolicyChoices.POLICY_LAYER3_4,
+            },
         ]
 
     def _perform_interface_test_with_invalid_data(self, mode: str = None, invalid_data: dict = {}):
@@ -4759,6 +4766,48 @@ class InterfaceTestCase(Mixins.FieldPrefetchMixin, Mixins.ComponentTraceMixin, A
         self._perform_interface_test_with_invalid_data(InterfaceModeChoices.MODE_TAGGED, invalid_data)
         # Tagged-all mode, qinq service vlan
         self._perform_interface_test_with_invalid_data(InterfaceModeChoices.MODE_TAGGED_ALL, invalid_data)
+
+    def test_lag_attributes_on_non_lag_interface(self):
+        self.add_permissions('dcim.add_interface')
+
+        for field, value in (
+            ('lag_mode', InterfaceLAGModeChoices.MODE_LACP),
+            ('lag_hash_policy', InterfaceLAGHashPolicyChoices.POLICY_LAYER2),
+        ):
+            self._perform_interface_test_with_invalid_data(None, {field: value})
+
+    def test_lag_hash_policy_without_hash_mode(self):
+        self.add_permissions('dcim.add_interface')
+        data = {
+            'device': Device.objects.first().pk,
+            'name': 'bond0',
+            'type': InterfaceTypeChoices.TYPE_LAG,
+            'lag_mode': InterfaceLAGModeChoices.MODE_ACTIVE_BACKUP,
+            'lag_hash_policy': InterfaceLAGHashPolicyChoices.POLICY_LAYER3_4,
+        }
+
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('lag_hash_policy', response.json())
+
+    def test_graphql_filter_lag_attributes(self):
+        self.add_permissions('dcim.view_interface')
+        lag = Interface.objects.create(
+            device=Device.objects.get(name='Device 1'),
+            name='LAG 1',
+            type=InterfaceTypeChoices.TYPE_LAG,
+            lag_mode=InterfaceLAGModeChoices.MODE_LACP,
+            lag_hash_policy=InterfaceLAGHashPolicyChoices.POLICY_LAYER3_4,
+        )
+
+        for filters in ('lag_mode: {exact: MODE_LACP}', 'lag_hash_policy: {exact: POLICY_LAYER3_4}'):
+            with self.subTest(filters=filters):
+                query = f'{{ interface_list(filters: {{ {filters} }}) {{ id }} }}'
+                response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                data = response.json()
+                self.assertNotIn('errors', data)
+                self.assertEqual([row['id'] for row in data['data']['interface_list']], [str(lag.pk)])
 
     def test_list_objects_reuse_peer_serializers(self):
         """Link peers and connected endpoints share one nested serializer each per request."""

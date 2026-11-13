@@ -1127,6 +1127,20 @@ class Interface(
         null=True,
         verbose_name=_('PoE type')
     )
+    lag_mode = models.CharField(
+        max_length=50,
+        choices=InterfaceLAGModeChoices,
+        blank=True,
+        null=True,
+        verbose_name=_('LAG mode')
+    )
+    lag_hash_policy = models.CharField(
+        max_length=50,
+        choices=InterfaceLAGHashPolicyChoices,
+        blank=True,
+        null=True,
+        verbose_name=_('LAG hash policy')
+    )
     wireless_link = models.ForeignKey(
         to='wireless.WirelessLink',
         on_delete=models.SET_NULL,
@@ -1182,7 +1196,7 @@ class Interface(
     clone_fields = (
         'device', 'module', 'parent', 'bridge', 'lag', 'type', 'channels', 'mgmt_only', 'mtu', 'mode', 'speed',
         'duplex', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'poe_mode',
-        'poe_type', 'vrf',
+        'poe_type', 'lag_mode', 'lag_hash_policy', 'vrf',
     )
 
     class Meta(ModularComponentModel.Meta):
@@ -1306,6 +1320,16 @@ class Interface(
                             lag=self.lag, device=self.lag.device, virtual_chassis=self.device.virtual_chassis)
                     )
                 })
+
+        # LAG attributes may only be set on LAG interfaces
+        if self.lag_mode and not self.is_lag:
+            raise ValidationError({'lag_mode': _("LAG mode may be set only on LAG interfaces.")})
+        if self.lag_hash_policy and not self.is_lag:
+            raise ValidationError({'lag_hash_policy': _("LAG hash policy may be set only on LAG interfaces.")})
+        if self.lag_hash_policy and self.lag_mode not in LAG_HASH_MODES:
+            raise ValidationError({
+                'lag_hash_policy': _("LAG hash policy may be set only for LACP, static, or balance-TLB LAG modes."),
+            })
 
         # Wireless validation
 

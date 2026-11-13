@@ -2019,6 +2019,7 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         ),
         FieldSet('vrf_id', 'l2vpn_id', 'mac_address', 'wwn', name=_('Addressing')),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
+        FieldSet('lag_mode', 'lag_hash_policy', name=_('LAG')),
         FieldSet('mode', 'vlan_translation_policy_id', name=_('802.1Q Switching')),
         FieldSet('rf_role', 'rf_channel', 'rf_channel_width', 'tx_power', name=_('Wireless')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
@@ -2100,6 +2101,16 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         choices=InterfacePoETypeChoices,
         required=False,
         label=_('PoE type')
+    )
+    lag_mode = forms.MultipleChoiceField(
+        choices=InterfaceLAGModeChoices,
+        required=False,
+        label=_('LAG mode')
+    )
+    lag_hash_policy = forms.MultipleChoiceField(
+        choices=InterfaceLAGHashPolicyChoices,
+        required=False,
+        label=_('LAG hash policy')
     )
     mode = forms.MultipleChoiceField(
         choices=InterfaceModeChoices,
