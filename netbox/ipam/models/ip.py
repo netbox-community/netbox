@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import F
 from django.db.models.functions import Cast
+from django.utils.encoding import force_str
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
@@ -16,6 +17,7 @@ from ipam.fields import IPAddressField, IPNetworkField
 from ipam.lookups import Host
 from ipam.managers import IPAddressManager
 from ipam.querysets import IPRangeQuerySet, PrefixQuerySet
+from ipam.utils import get_prefix_classification
 from ipam.validators import DNSValidator
 from netbox.config import get_config
 from netbox.models import OrganizationalModel, PrimaryModel
@@ -281,6 +283,15 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         editable=False
     )
 
+    # Cached classification for filtering, maintained by a database trigger
+    _classification = models.CharField(
+        verbose_name=_('classification'),
+        max_length=50,
+        choices=PrefixClassificationChoices,
+        default=PrefixClassificationChoices.CLASSIFICATION_PUBLIC,
+        editable=False,
+    )
+
     objects = PrefixQuerySet.as_manager()
 
     clone_fields = (
@@ -294,6 +305,7 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         indexes = (
             models.Index(fields=('scope_type', 'scope_id')),
             GistIndex(fields=['prefix'], name='ipam_prefix_gist_idx', opclasses=['inet_ops']),
+            models.Index(fields=('_classification',), name='ipam_prefix_classification_idx'),
         )
 
     def __init__(self, *args, **kwargs):
@@ -339,6 +351,9 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         # Cache objects associated with the terminating object (for filtering)
         self.cache_related_objects()
 
+        # Update the cached classification for change logging
+        self._classification = self.classification
+
         super().save(*args, **kwargs)
 
     @property
@@ -356,6 +371,10 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         if isinstance(self.prefix, str):
             return netaddr.IPNetwork(self.prefix).prefixlen
         return self.prefix.prefixlen
+
+    @property
+    def classification(self):
+        return get_prefix_classification(self.prefix)
 
     @property
     def ipv6_full(self):
@@ -382,6 +401,12 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
 
     def get_status_color(self):
         return PrefixStatusChoices.colors.get(self.status)
+
+    def get_classification_color(self):
+        return PrefixClassificationChoices.colors.get(self.classification)
+
+    def get_classification_display(self):
+        return force_str(dict(PrefixClassificationChoices).get(self.classification), strings_only=True)
 
     @cached_property
     def aggregate(self):

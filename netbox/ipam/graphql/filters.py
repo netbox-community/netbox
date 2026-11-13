@@ -292,6 +292,9 @@ class PrefixFilter(ContactFilterMixin, ScopedFilterMixin, TenancyFilterMixin, Pr
     status: BaseFilterLookup[Annotated['PrefixStatusEnum', strawberry.lazy('ipam.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
+    _classification: BaseFilterLookup[
+        Annotated['PrefixClassificationEnum', strawberry.lazy('ipam.graphql.enums')]
+    ] | None = strawberry_django.filter_field(name='classification')
     role: Annotated['RoleFilter', strawberry.lazy('ipam.graphql.filters')] | None = strawberry_django.filter_field()
     role_id: ID | None = strawberry_django.filter_field()
     is_pool: FilterLookup[bool] | None = strawberry_django.filter_field()
