@@ -114,6 +114,9 @@ $ sudo -u netbox /opt/netbox/venv/bin/netbox upgrade --no-input
 $ sudo systemctl restart netbox netbox-rq
 ```
 
+!!! note "Release archive and Git installations"
+    For a NetBox installation created from a release archive or Git checkout, run `sudo /opt/netbox/upgrade.sh` in place of the `pip install` and `netbox upgrade` commands above. The upgrade script installs the package from `local_requirements.txt`, applies database migrations, and collects static files.
+
 Each plugin is different and may require additional configuration or setup steps, so always consult the plugin's own documentation as well as NetBox's [plugin installation guide](../plugins/installation.md) before getting started.
 
 To browse the full catalog of available plugins, visit [netboxlabs.com/plugins](https://netboxlabs.com/plugins/).

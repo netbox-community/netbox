@@ -37,10 +37,10 @@ $ sudo /opt/netbox/venv/bin/python3 -m pip uninstall <package>
 
 ## Restart WSGI Service
 
-Restart the WSGI service:
+Restart the WSGI service and RQ workers to unload the plugin:
 
 ```no-highlight
-$ sudo systemctl restart netbox
+$ sudo systemctl restart netbox netbox-rq
 ```
 
 ## Drop Database Tables

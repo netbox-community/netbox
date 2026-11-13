@@ -64,7 +64,7 @@ sudo python3 -m venv /opt/netbox/venv
 sudo /opt/netbox/venv/bin/python -m pip install --upgrade pip
 ```
 
-If the default `python3` executable is older than Python 3.12, create the virtual environment with a supported interpreter instead (for example, `sudo python3.12 -m venv /opt/netbox/venv`).
+If the default `python3` executable is older than Python 3.12, create the virtual environment with a supported interpreter instead (for example, `sudo python3.12 -m venv /opt/netbox/venv`). That interpreter also needs its own `venv` and `dev` packages (for example, `python3.12-venv` and `python3.12-dev`), which are not covered by the system packages above.
 
 Install the desired NetBox release. Replace `X.Y.Z` with the exact version to install. (Available releases are listed on [PyPI](https://pypi.org/project/netbox/#history).)
 
@@ -252,6 +252,9 @@ To install one or more extras, install NetBox again with the same pinned version
 sudo /opt/netbox/venv/bin/python -m pip install "netbox[ldap,s3]==X.Y.Z"
 ```
 
+!!! note "Building `xmlsec` for SAML"
+    The `saml2` and `remote-auth` extras depend on `xmlsec`. If no prebuilt wheel is available for your platform, `pip` builds it from source, which requires the `libxmlsec1-dev` and `pkg-config` system packages.
+
 Remember which extras are in use and specify them again when upgrading. For LDAP authentication, create `ldap_config.py` beside the active configuration file at `/opt/netbox/conf/ldap_config.py` when following the [LDAP configuration guide](6-ldap.md). Give it the same ownership and permissions as `configuration.py`:
 
 ```no-highlight
@@ -285,7 +288,7 @@ The same command is used for both a fresh installation and future upgrades. It p
 * Traces any missing cable paths
 * Collects static files to be served by the HTTP server
 * Removes stale content types from the database
-* Rebuilds the search index
+* Builds any missing search index entries
 * Clears expired user sessions from the database
 
 For a custom instance root, pass `NETBOX_ROOT` explicitly. The virtual environment may remain elsewhere:

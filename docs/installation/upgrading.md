@@ -170,7 +170,7 @@ The following procedure applies to NetBox installations created from a release a
 
 ### 1. Install the Latest Release
 
-As with the initial installation, you can upgrade NetBox by either downloading the latest release package or by checking out the latest production release from the git repository.
+Upgrade NetBox by either downloading the latest release archive or checking out the latest production release from the Git repository.
 
 !!! warning
     Use the same method as you used to install NetBox originally.
@@ -220,7 +220,7 @@ sudo cp -r /opt/netbox-$OLDVER/netbox/scripts /opt/netbox/netbox/
 sudo cp -r /opt/netbox-$OLDVER/netbox/reports /opt/netbox/netbox/
 ```
 
-If you followed the original installation guide to set up gunicorn, be sure to copy its configuration as well:
+If your deployment uses gunicorn, be sure to copy its configuration file as well:
 
 ```no-highlight
 sudo cp /opt/netbox-$OLDVER/gunicorn.py /opt/netbox/
