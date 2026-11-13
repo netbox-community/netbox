@@ -11,6 +11,7 @@ from django.db.models.signals import post_save
 from django.test import RequestFactory, TestCase, override_settings, tag
 from django.test.utils import CaptureQueriesContext
 from django.utils.text import slugify
+from netaddr import EUI
 
 from circuits.models import *
 from core.choices import ObjectChangeActionChoices
@@ -152,6 +153,153 @@ class WebMercatorTestCase(TestCase):
         site = Site(latitude=Decimal('-90'), longitude=Decimal('-180'))
         self.assertEqual(site.mercator_x, -20037508.34)
         self.assertEqual(site.mercator_y, -20037508.34)
+
+
+class MACBlockTestCase(TestCase):
+
+    def test_prefix_normalized(self):
+        mac_block = MACBlock.objects.create(prefix='BC:24:11:12:34:56', prefix_length=24)
+        mac_block.refresh_from_db()
+        self.assertEqual(str(mac_block.prefix), 'BC:24:11:00:00:00')
+        self.assertEqual(str(mac_block.last_address), 'BC:24:11:FF:FF:FF')
+        self.assertEqual(str(mac_block._last_address), 'BC:24:11:FF:FF:FF')
+        self.assertEqual(str(mac_block), 'BC:24:11:00:00:00/24')
+
+    def test_invalid_prefix(self):
+        for prefix, prefix_length in (('invalid', 24), ('BC:24:11:00:00:00', 49), ('BC:24:11:00:00:00', 'x')):
+            mac_block = MACBlock(prefix=prefix, prefix_length=prefix_length, enforce_unique=True)
+            self.assertIsNone(mac_block.first_address)
+            with self.assertRaises(ValidationError):
+                mac_block.full_clean()
+
+    def test_duplicate_prefix_with_host_bits(self):
+        MACBlock.objects.create(prefix='BC:24:11:00:00:00', prefix_length=24)
+        mac_block = MACBlock(prefix='BC:24:11:AA:BB:CC', prefix_length=24)
+        with self.assertRaises(ValidationError):
+            mac_block.full_clean()
+
+    def test_save_invalid_prefix(self):
+        with self.assertRaisesMessage(ValueError, 'Invalid MAC address block'):
+            MACBlock.objects.create(prefix='BC:24:11:00:00:00', prefix_length=0)
+
+    def test_size(self):
+        self.assertEqual(MACBlock(prefix='BC:24:11:00:00:00', prefix_length=24).size, 2 ** 24)
+        self.assertEqual(MACBlock(prefix='BC:24:11:50:00:00', prefix_length=28).size, 2 ** 20)
+        self.assertEqual(MACBlock(prefix='BC:24:11:00:00:01', prefix_length=48).size, 1)
+
+    def test_duplicate_prefix(self):
+        MACBlock.objects.create(prefix='BC:24:11:00:00:00', prefix_length=24)
+        mac_block = MACBlock(prefix='BC:24:11:00:00:00', prefix_length=24)
+        with self.assertRaises(ValidationError):
+            mac_block.full_clean()
+        # A block of a different length may share the same first address
+        MACBlock(prefix='BC:24:11:00:00:00', prefix_length=28).full_clean()
+
+    def test_get_mac_addresses(self):
+        mac_block = MACBlock.objects.create(prefix='BC:24:11:50:00:00', prefix_length=28)
+        MACAddress.objects.bulk_create((
+            MACAddress(mac_address='BC:24:11:4F:FF:FF'),
+            MACAddress(mac_address='BC:24:11:50:00:00'),
+            MACAddress(mac_address='BC:24:11:5F:FF:FF'),
+            MACAddress(mac_address='BC:24:11:60:00:00'),
+        ))
+        self.assertEqual(
+            sorted(str(mac.mac_address) for mac in mac_block.get_mac_addresses()),
+            ['BC:24:11:50:00:00', 'BC:24:11:5F:FF:FF']
+        )
+
+    def test_get_child_blocks(self):
+        mac_blocks = (
+            MACBlock.objects.create(prefix='BC:24:11:00:00:00', prefix_length=24),
+            MACBlock.objects.create(prefix='BC:24:11:00:00:00', prefix_length=28),
+            MACBlock.objects.create(prefix='BC:24:11:F0:00:00', prefix_length=28),
+            MACBlock.objects.create(prefix='BC:24:12:00:00:00', prefix_length=28),
+        )
+        self.assertEqual(list(mac_blocks[0].get_child_blocks()), [mac_blocks[1], mac_blocks[2]])
+        self.assertEqual(list(mac_blocks[1].get_child_blocks()), [])
+
+    def test_mac_address_mac_block(self):
+        mac_blocks = (
+            MACBlock.objects.create(prefix='BC:24:11:00:00:00', prefix_length=24),
+            MACBlock.objects.create(prefix='BC:24:11:50:00:00', prefix_length=28),
+        )
+        self.assertEqual(MACAddress(mac_address='BC:24:11:51:00:00').mac_block, mac_blocks[1])
+        self.assertEqual(MACAddress(mac_address='BC:24:11:61:00:00').mac_block, mac_blocks[0])
+        self.assertIsNone(MACAddress(mac_address='BC:24:12:00:00:00').mac_block)
+
+    def test_available_mac_addresses(self):
+        mac_block = MACBlock.objects.create(prefix='BC:24:11:00:00:00', prefix_length=45)
+        self.assertEqual(str(mac_block.get_first_available_mac_address()), 'BC:24:11:00:00:00')
+
+        MACAddress.objects.bulk_create((
+            MACAddress(mac_address='BC:24:11:00:00:00'),
+            MACAddress(mac_address='BC:24:11:00:00:01'),
+            MACAddress(mac_address='BC:24:11:00:00:01'),  # Duplicate
+            MACAddress(mac_address='BC:24:11:00:00:03'),
+            MACAddress(mac_address='BC:24:11:00:00:07'),
+            MACAddress(mac_address='BC:24:11:00:00:08'),  # Outside the block
+        ))
+        self.assertEqual(str(mac_block.get_first_available_mac_address()), 'BC:24:11:00:00:02')
+        self.assertEqual(
+            [str(mac) for mac in mac_block.iter_available_mac_addresses()],
+            ['BC:24:11:00:00:02', 'BC:24:11:00:00:04', 'BC:24:11:00:00:05', 'BC:24:11:00:00:06']
+        )
+
+        # Fetching occupied addresses in batches finds the same gaps
+        self.assertEqual(
+            list(mac_block._iter_occupied(batch_size=2)),
+            [int(EUI(mac)) for mac in ('BC:24:11:00:00:00', 'BC:24:11:00:00:01', 'BC:24:11:00:00:03',
+                                       'BC:24:11:00:00:07')]
+        )
+
+    def test_no_available_mac_addresses(self):
+        mac_block = MACBlock.objects.create(prefix='BC:24:11:00:00:00', prefix_length=47)
+        MACAddress.objects.bulk_create((
+            MACAddress(mac_address='BC:24:11:00:00:00'),
+            MACAddress(mac_address='BC:24:11:00:00:01'),
+        ))
+        self.assertIsNone(mac_block.get_first_available_mac_address())
+        self.assertEqual(mac_block.utilization, 100)
+
+    def test_utilization(self):
+        mac_block = MACBlock.objects.create(prefix='BC:24:11:00:00:00', prefix_length=46)
+        MACAddress.objects.bulk_create((
+            MACAddress(mac_address='BC:24:11:00:00:00'),
+            MACAddress(mac_address='BC:24:11:00:00:00'),  # Duplicate
+            MACAddress(mac_address='BC:24:11:00:00:02'),
+        ))
+        self.assertEqual(mac_block.utilization, 50)
+        annotated = MACBlock.objects.annotate_mac_address_count().get(pk=mac_block.pk)
+        self.assertEqual(annotated.mac_address_count, 2)
+        self.assertEqual(annotated.utilization, 50)
+
+    def test_enforce_unique(self):
+        MACBlock.objects.create(prefix='BC:24:11:00:00:00', prefix_length=24, enforce_unique=True)
+        MACAddress.objects.create(mac_address='BC:24:11:00:00:01')
+        MACAddress.objects.create(mac_address='BC:24:12:00:00:01')
+
+        # A duplicate within the block is rejected
+        with self.assertRaisesMessage(ValidationError, 'BC:24:11:00:00:00/24'):
+            MACAddress(mac_address='BC:24:11:00:00:01').full_clean()
+
+        # A duplicate Outside the block is permitted
+        MACAddress(mac_address='BC:24:12:00:00:01').full_clean()
+
+        # Saving an existing MAC address does not count it as its own duplicate
+        MACAddress.objects.get(mac_address='BC:24:11:00:00:01').full_clean()
+
+    def test_enforce_unique_with_duplicates(self):
+        MACAddress.objects.bulk_create((
+            MACAddress(mac_address='BC:24:11:00:00:01'),
+            MACAddress(mac_address='BC:24:11:00:00:01'),
+        ))
+        mac_block = MACBlock(prefix='BC:24:11:00:00:00', prefix_length=24, enforce_unique=True)
+        with self.assertRaisesMessage(ValidationError, 'BC:24:11:00:00:01'):
+            mac_block.full_clean()
+
+        # Uniqueness is not enforced by default
+        mac_block.enforce_unique = False
+        mac_block.full_clean()
 
 
 class LocationTestCase(TestCase):

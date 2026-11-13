@@ -12,7 +12,7 @@
   "l2vpn:api_list_objects": 14,
   "l2vpn:list_objects_with_permission": 16,
   "l2vpntermination:api_list_objects": 15,
-  "l2vpntermination:list_objects_with_permission": 21,
+  "l2vpntermination:list_objects_with_permission": 20,
   "tunnel:api_list_objects": 13,
   "tunnel:list_objects_with_permission": 17,
   "tunnelgroup:api_list_objects": 12,

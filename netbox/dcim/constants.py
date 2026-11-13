@@ -96,6 +96,15 @@ NONCONNECTABLE_IFACE_TYPES = VIRTUAL_IFACE_TYPES + WIRELESS_IFACE_TYPES + [
 
 
 #
+# MAC blocks
+#
+
+MACBLOCK_LENGTH_MIN = 1
+MACBLOCK_LENGTH_MAX = 48
+MACBLOCK_LENGTH_DEFAULT = 24  # An organizationally unique identifier (OUI)
+
+
+#
 # Device components
 #
 

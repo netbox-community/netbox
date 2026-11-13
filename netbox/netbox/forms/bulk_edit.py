@@ -4,8 +4,11 @@ from django.utils.translation import gettext_lazy as _
 from core.models import ObjectType
 from extras.choices import *
 from extras.models import Tag
-from utilities.forms import BulkEditForm
-from utilities.forms.fields import CommentField, DynamicModelMultipleChoiceField
+from netbox.models.features import ContactsMixin
+from tenancy.choices import ContactPriorityChoices
+from tenancy.models import Contact, ContactRole
+from utilities.forms import BulkEditForm, add_blank_choice
+from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
 
 from .mixins import ChangelogMessageMixin, CustomFieldsMixin, OwnerMixin
 
@@ -20,7 +23,7 @@ __all__ = (
 class NetBoxModelBulkEditForm(ChangelogMessageMixin, CustomFieldsMixin, BulkEditForm):
     """
     Base form for modifying multiple NetBox objects (of the same type) in bulk via the UI. Adds support for custom
-    fields and adding/removing tags.
+    fields, adding/removing tags, and adding/removing contact assignments (for models which support contacts).
 
     Attributes:
         fieldsets: An iterable of two-tuples which define a heading and field set to display per section of
@@ -42,6 +45,30 @@ class NetBoxModelBulkEditForm(ChangelogMessageMixin, CustomFieldsMixin, BulkEdit
         queryset=Tag.objects.all(),
         required=False
     )
+    add_contacts = DynamicModelMultipleChoiceField(
+        label=_('Add contacts'),
+        queryset=Contact.objects.all(),
+        required=False,
+        help_text=_('Existing assignments with the selected role are updated to the selected priority, if any')
+    )
+    contact_role = DynamicModelChoiceField(
+        label=_('Role'),
+        queryset=ContactRole.objects.all(),
+        required=False,
+        help_text=_('Role to assign to added contacts')
+    )
+    contact_priority = forms.ChoiceField(
+        label=_('Priority'),
+        choices=add_blank_choice(ContactPriorityChoices),
+        required=False,
+        help_text=_('Priority to assign to added contacts')
+    )
+    remove_contacts = DynamicModelMultipleChoiceField(
+        label=_('Remove contacts'),
+        queryset=Contact.objects.all(),
+        required=False,
+        help_text=_('Removes all assignments of these contacts, regardless of role')
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -53,7 +80,22 @@ class NetBoxModelBulkEditForm(ChangelogMessageMixin, CustomFieldsMixin, BulkEdit
         self.fields['add_tags'].widget.add_query_param('for_object_type_id', object_type.pk)
         self.fields['remove_tags'].widget.add_query_param('for_object_type_id', object_type.pk)
 
+        # Contact fields apply only to models which support contact assignment
+        if not issubclass(self.model, ContactsMixin):
+            for name in ('add_contacts', 'contact_role', 'contact_priority', 'remove_contacts'):
+                del self.fields[name]
+
         self._extend_nullable_fields()
+
+    def clean(self):
+        super().clean()
+
+        if self.cleaned_data.get('add_contacts') and not self.cleaned_data.get('contact_role'):
+            raise forms.ValidationError({
+                'contact_role': _('A role must be specified when adding contacts.')
+            })
+
+        return self.cleaned_data
 
     def _get_form_field(self, customfield):
         return customfield.to_form_field(set_initial=False, enforce_required=False)

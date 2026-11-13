@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device, Interface
-from ipam.models import VLAN, IPAddress
+from ipam.models import VLAN, VRF, IPAddress
 from netbox.forms import NetBoxModelImportForm, OrganizationalModelImportForm, PrimaryModelImportForm
 from tenancy.models import Tenant
 from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, CSVModelMultipleChoiceField
@@ -289,14 +289,14 @@ class L2VPNTerminationImportForm(NetBoxModelImportForm):
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Parent device (for interface)')
+        help_text=_('Parent device (for interface or IP address)')
     )
     virtual_machine = CSVModelChoiceField(
         label=_('Virtual machine'),
         queryset=VirtualMachine.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Parent virtual machine (for interface)')
+        help_text=_('Parent virtual machine (for interface or IP address)')
     )
     interface = CSVModelChoiceField(
         label=_('Interface'),
@@ -312,24 +312,53 @@ class L2VPNTerminationImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Assigned VLAN')
     )
+    ipaddress = CSVModelChoiceField(
+        label=_('IP address'),
+        queryset=IPAddress.objects.all(),
+        required=False,
+        to_field_name='address',
+        help_text=_('Assigned IP address, with mask (e.g. the far-end PE of a pseudowire)')
+    )
+    ipaddress_vrf = CSVModelChoiceField(
+        label=_('IP address VRF'),
+        queryset=VRF.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('VRF of the assigned IP address')
+    )
 
     class Meta:
         model = L2VPNTermination
-        fields = ('l2vpn', 'device', 'virtual_machine', 'interface', 'vlan', 'tags')
+        fields = ('l2vpn', 'device', 'virtual_machine', 'interface', 'vlan', 'ipaddress', 'ipaddress_vrf', 'tags')
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
 
         if data:
 
-            # Limit interface queryset by device or VM
+            # Limit interface and IP address querysets by device or VM
             if data.get('device'):
                 self.fields['interface'].queryset = Interface.objects.filter(
                     **{f"device__{self.fields['device'].to_field_name}": data['device']}
                 )
+                self.fields['ipaddress'].queryset = IPAddress.objects.filter(
+                    **{f"interface__device__{self.fields['device'].to_field_name}": data['device']}
+                )
             elif data.get('virtual_machine'):
                 self.fields['interface'].queryset = VMInterface.objects.filter(
                     **{f"virtual_machine__{self.fields['virtual_machine'].to_field_name}": data['virtual_machine']}
+                )
+                self.fields['ipaddress'].queryset = IPAddress.objects.filter(
+                    **{
+                        f"vminterface__virtual_machine__{self.fields['virtual_machine'].to_field_name}":
+                            data['virtual_machine']
+                    }
+                )
+
+            # Limit IP address queryset by VRF
+            if data.get('ipaddress_vrf'):
+                self.fields['ipaddress'].queryset = self.fields['ipaddress'].queryset.filter(
+                    **{f"vrf__{self.fields['ipaddress_vrf'].to_field_name}": data['ipaddress_vrf']}
                 )
 
     def clean(self):
@@ -337,11 +366,18 @@ class L2VPNTerminationImportForm(NetBoxModelImportForm):
 
         if self.cleaned_data.get('device') and self.cleaned_data.get('virtual_machine'):
             raise ValidationError(_('Cannot import device and VM interface terminations simultaneously.'))
-        if not self.instance and not (self.cleaned_data.get('interface') or self.cleaned_data.get('vlan')):
-            raise ValidationError(_('Each termination must specify either an interface or a VLAN.'))
-        if self.cleaned_data.get('interface') and self.cleaned_data.get('vlan'):
-            raise ValidationError(_('Cannot assign both an interface and a VLAN.'))
+        assigned_objects = [
+            obj for obj in (
+                self.cleaned_data.get('interface'),
+                self.cleaned_data.get('vlan'),
+                self.cleaned_data.get('ipaddress'),
+            ) if obj
+        ]
+        if not self.instance.pk and not assigned_objects:
+            raise ValidationError(_('Each termination must specify an interface, a VLAN, or an IP address.'))
+        if len(assigned_objects) > 1:
+            raise ValidationError(_('Cannot assign more than one of an interface, a VLAN, and an IP address.'))
 
-        # if this is an update we might not have interface or vlan in the form data
-        if self.cleaned_data.get('interface') or self.cleaned_data.get('vlan'):
-            self.instance.assigned_object = self.cleaned_data.get('interface') or self.cleaned_data.get('vlan')
+        # if this is an update we might not have an assigned object in the form data
+        if assigned_objects:
+            self.instance.assigned_object = assigned_objects[0]

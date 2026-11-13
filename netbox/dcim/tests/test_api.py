@@ -32,6 +32,7 @@ from extras.models import ConfigContext, ConfigTemplate, ExportTemplate, Tag
 from ipam.choices import FHRPGroupProtocolChoices, VLANQinQRoleChoices
 from ipam.models import ASN, RIR, VLAN, VRF, FHRPGroup, FHRPGroupAssignment, IPAddress
 from netbox.api.serializers import GenericObjectSerializer
+from netbox.config import get_config
 from tenancy.models import Tenant
 from users.constants import TOKEN_PREFIX
 from users.models import ObjectPermission, Token, User
@@ -7438,3 +7439,129 @@ class MACAddressTestCase(APIViewTestCases.APIViewTestCase):
         url = reverse('dcim-api:macaddress-detail', kwargs={'pk': non_primary_mac.pk})
         response = self.client.get(url, **self.header)
         self.assertFalse(response.data['is_primary'])
+
+
+class MACBlockTestCase(APIViewTestCases.APIViewTestCase):
+    model = MACBlock
+    graphql_base_name = 'mac_block'
+    brief_fields = ['description', 'display', 'id', 'name', 'prefix', 'prefix_length', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'prefix_length': 99,
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        MACBlock.objects.create(prefix='BC:24:11:00:00:00', prefix_length=24, name='Block 1')
+        MACBlock.objects.create(prefix='BC:24:12:00:00:00', prefix_length=24, name='Block 2')
+        MACBlock.objects.create(prefix='BC:24:13:00:00:00', prefix_length=24, name='Block 3')
+
+        cls.create_data = [
+            {
+                'prefix': 'BC:24:14:00:00:00',
+                'prefix_length': 24,
+                'name': 'Block 4',
+            },
+            {
+                'prefix': 'BC:24:14:50:00:00',
+                'prefix_length': 28,
+                'enforce_unique': True,
+            },
+            {
+                'prefix': 'BC:24:15:00:00:00',
+            },
+        ]
+
+    def test_read_only_fields(self):
+        self.add_permissions('dcim.view_macblock')
+        mac_block = MACBlock.objects.create(prefix='BC:24:16:00:00:00', prefix_length=46)
+        MACAddress.objects.bulk_create((
+            MACAddress(mac_address='BC:24:16:00:00:01'),
+            MACAddress(mac_address='BC:24:16:00:00:01'),
+            MACAddress(mac_address='BC:24:16:00:00:02'),
+        ))
+        response = self.client.get(self._get_detail_url(mac_block), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['last_address'], 'BC:24:16:00:00:03')
+        self.assertEqual(response.data['size'], 4)
+        self.assertEqual(response.data['mac_address_count'], 2)
+        self.assertEqual(response.data['utilization'], 50)
+
+    def test_create_normalizes_prefix(self):
+        self.add_permissions('dcim.add_macblock')
+        data = {'prefix': 'BC:24:16:AA:BB:CC', 'prefix_length': 24}
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['prefix'], 'BC:24:16:00:00:00')
+
+        # A block whose host bits differ from an existing block is a duplicate
+        data = {'prefix': 'BC:24:11:AA:BB:CC', 'prefix_length': 24}
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_list_available_mac_addresses(self):
+        mac_block = MACBlock.objects.create(prefix='BC:24:16:00:00:00', prefix_length=45)
+        MACAddress.objects.create(mac_address='BC:24:16:00:00:01')
+        url = reverse('dcim-api:macblock-available-mac-addresses', kwargs={'pk': mac_block.pk})
+        self.add_permissions('dcim.view_macblock', 'dcim.view_macaddress')
+
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(
+            [mac['mac_address'] for mac in response.data],
+            ['BC:24:16:00:00:00', 'BC:24:16:00:00:02', 'BC:24:16:00:00:03', 'BC:24:16:00:00:04',
+             'BC:24:16:00:00:05', 'BC:24:16:00:00:06', 'BC:24:16:00:00:07']
+        )
+
+        # The number of results is limited
+        response = self.client.get(url, {'limit': 2}, **self.header)
+        self.assertEqual(len(response.data), 2)
+
+        # An invalid limit falls back to the default
+        response = self.client.get(url, {'limit': -1}, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 7)
+
+        # A large block returns a single page of results
+        mac_block = MACBlock.objects.get(name='Block 1')
+        url = reverse('dcim-api:macblock-available-mac-addresses', kwargs={'pk': mac_block.pk})
+        response = self.client.get(url, **self.header)
+        self.assertEqual(len(response.data), get_config().PAGINATE_COUNT)
+
+    def test_create_single_available_mac_address(self):
+        mac_block = MACBlock.objects.create(prefix='BC:24:16:00:00:00', prefix_length=47)
+        url = reverse('dcim-api:macblock-available-mac-addresses', kwargs={'pk': mac_block.pk})
+        self.add_permissions('dcim.view_macblock', 'dcim.add_macaddress')
+
+        # Create both available MAC addresses with individual requests
+        for i in range(2):
+            data = {'description': f'MAC address {i}'}
+            response = self.client.post(url, data, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
+            self.assertEqual(response.data['mac_address'], f'BC:24:16:00:00:0{i}')
+            self.assertEqual(response.data['description'], data['description'])
+
+        # Try to create one more MAC address
+        response = self.client.post(url, {}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
+        self.assertIn('detail', response.data)
+
+    def test_create_multiple_available_mac_addresses(self):
+        mac_block = MACBlock.objects.create(prefix='BC:24:16:00:00:00', prefix_length=46)
+        url = reverse('dcim-api:macblock-available-mac-addresses', kwargs={'pk': mac_block.pk})
+        self.add_permissions('dcim.view_macblock', 'dcim.add_macaddress')
+
+        # Try to create five MAC addresses (only four are available)
+        data = [{'description': f'MAC address {i}'} for i in range(5)]
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
+
+        # Create all four available MAC addresses in a single request
+        response = self.client.post(url, data[:4], format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(
+            [mac['mac_address'] for mac in response.data],
+            ['BC:24:16:00:00:00', 'BC:24:16:00:00:01', 'BC:24:16:00:00:02', 'BC:24:16:00:00:03']
+        )

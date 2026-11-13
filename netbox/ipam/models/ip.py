@@ -1,5 +1,5 @@
 import netaddr
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ValidationError
@@ -1012,6 +1012,12 @@ class IPAddress(ContactsMixin, PrimaryModel):
         validators=[DNSValidator],
         verbose_name=_('DNS name'),
         help_text=_('Hostname or FQDN (not case-sensitive)')
+    )
+    l2vpn_terminations = GenericRelation(
+        to='vpn.L2VPNTermination',
+        content_type_field='assigned_object_type',
+        object_id_field='assigned_object_id',
+        related_query_name='ipaddress',
     )
 
     objects = IPAddressManager()

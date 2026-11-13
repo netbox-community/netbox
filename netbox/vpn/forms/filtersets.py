@@ -3,7 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
 from dcim.models import Device, Region, Site
-from ipam.models import VLAN, RouteTarget
+from ipam.models import VLAN, IPAddress, RouteTarget
 from netbox.forms import NetBoxModelFilterSetForm, OrganizationalModelFilterSetForm, PrimaryModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms.fields import (
@@ -259,7 +259,7 @@ class L2VPNTerminationFilterForm(NetBoxModelFilterSetForm):
         FieldSet('filter_id', 'tag', 'l2vpn_id'),
         FieldSet(
             'assigned_object_type_id', 'region_id', 'site_id', 'device_id', 'virtual_machine_id', 'vlan_id',
-            name=_('Assigned Object')
+            'ipaddress_id', name=_('Assigned Object')
         ),
     )
     l2vpn_id = DynamicModelChoiceField(
@@ -313,5 +313,10 @@ class L2VPNTerminationFilterForm(NetBoxModelFilterSetForm):
             'site_id': '$site_id'
         },
         label=_('Virtual Machine')
+    )
+    ipaddress_id = DynamicModelMultipleChoiceField(
+        queryset=IPAddress.objects.all(),
+        required=False,
+        label=_('IP Address')
     )
     tag = TagFilterField(model)

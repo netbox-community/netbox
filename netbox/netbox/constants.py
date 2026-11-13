@@ -28,6 +28,7 @@ ADVISORY_LOCK_KEYS = {
     'available-ips': 100200,
     'available-vlans': 100300,
     'available-asns': 100400,
+    'available-mac-addresses': 100500,
 
     # Jobs
     'job-schedules': 110100,

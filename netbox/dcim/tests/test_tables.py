@@ -334,3 +334,7 @@ class VirtualDeviceContextTableTestCase(TableTestCases.StandardTableTestCase):
 
 class MACAddressTableTestCase(TableTestCases.StandardTableTestCase):
     table = MACAddressTable
+
+
+class MACBlockTableTestCase(TableTestCases.StandardTableTestCase):
+    table = MACBlockTable

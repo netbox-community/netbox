@@ -4,6 +4,8 @@ A MAC address object in NetBox represents a single Ethernet link-layer address a
 
 Most physical interfaces have only a single MAC address, hard-coded at the factory. However, some interfaces (particularly virtual interfaces and modular hardware) support multiple or reassignable MAC addresses. To accommodate this, NetBox models MAC addresses as first-class objects which may be created, modified, and reassigned independently of any specific interface.
 
+Blocks of MAC addresses, such as organizationally unique identifiers (OUIs), can be tracked as [MAC address blocks](./macblock.md).
+
 ## Fields
 
 ### MAC Address

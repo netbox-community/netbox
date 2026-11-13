@@ -168,6 +168,18 @@ class MACAddressIndex(SearchIndex):
 
 
 @register_search
+class MACBlockIndex(SearchIndex):
+    model = models.MACBlock
+    fields = (
+        ('prefix', 100),
+        ('name', 100),
+        ('description', 500),
+        ('comments', 5000),
+    )
+    display_attrs = ('name', 'description')
+
+
+@register_search
 class InterfaceIndex(SearchIndex):
     model = models.Interface
     fields = (

@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from core.graphql.filters import ContentTypeFilter
     from dcim.graphql.filters import SiteFilter
     from netbox.graphql.filter_lookups import BigIntegerLookup, IntegerLookup, IntegerRangeArrayLookup
-    from vpn.graphql.filters import L2VPNFilter
+    from vpn.graphql.filters import L2VPNFilter, L2VPNTerminationFilter
 
     from .enums import *
 
@@ -198,6 +198,9 @@ class IPAddressFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilter
     )
     nat_outside_id: ID | None = strawberry_django.filter_field()
     dns_name: StrFilterLookup | None = strawberry_django.filter_field()
+    l2vpn_terminations: Annotated['L2VPNTerminationFilter', strawberry.lazy('vpn.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
 
     @strawberry_django.filter_field()
     def assigned(self, value: bool, prefix) -> Q:

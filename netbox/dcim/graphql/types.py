@@ -74,6 +74,7 @@ __all__ = (
     'InventoryItemType',
     'LocationType',
     'MACAddressType',
+    'MACBlockType',
     'ManufacturerType',
     'ModularComponentType',
     'ModuleBayTemplateType',
@@ -522,6 +523,16 @@ class FrontPortTemplateType(ModularComponentTemplateType):
     color: str
 
     mappings: list[Annotated["PortMappingTemplateType", strawberry.lazy('dcim.graphql.types')]]
+
+
+@register_type(
+    models.MACBlock,
+    exclude=['_last_address'],
+    filters=MACBlockFilter,
+    pagination=True
+)
+class MACBlockType(PrimaryObjectType):
+    prefix: str
 
 
 @register_type(

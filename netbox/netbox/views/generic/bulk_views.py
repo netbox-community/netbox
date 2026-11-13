@@ -33,6 +33,7 @@ from netbox.exporters import get_exporter
 from netbox.forms.bulk_rename import NetBoxModelBulkRenameForm
 from netbox.models.features import ChangeLoggingMixin
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
+from tenancy.models import ContactAssignment
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
 from utilities.forms import BulkDeleteForm, BulkRenameForm, restrict_form_fields
@@ -910,6 +911,78 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
         if form.cleaned_data.get('remove_tags', None):
             obj.tags.remove(*form.cleaned_data['remove_tags'])
 
+        # Remove/add contact assignments
+        if form.cleaned_data.get('remove_contacts') or form.cleaned_data.get('add_contacts'):
+            self._update_contact_assignments(form, obj)
+
+    def _update_contact_assignments(self, form, obj):
+        object_type = ObjectType.objects.get_for_model(obj)
+        assignments = ContactAssignment.objects.filter(object_type=object_type, object_id=obj.pk)
+        changelog_message = form.cleaned_data.get('changelog_message')
+
+        # Removal precedes addition so that a contact's role can be replaced in a single operation
+        if remove_contacts := form.cleaned_data.get('remove_contacts'):
+            for assignment in assignments.filter(contact__in=remove_contacts):
+                assignment.snapshot()
+                assignment._changelog_message = changelog_message
+                assignment.delete()
+
+        if add_contacts := form.cleaned_data.get('add_contacts'):
+            role = form.cleaned_data.get('contact_role')
+            priority = form.cleaned_data.get('contact_priority') or None
+            existing = {
+                a.contact_id: a for a in assignments.filter(role=role, contact__in=add_contacts)
+            }
+            cf_defaults = CustomField.objects.get_defaults_for_model(ContactAssignment)
+            for contact in add_contacts:
+                # Apply a specified priority to an existing assignment rather than duplicating it
+                if assignment := existing.get(contact.pk):
+                    if priority is None or assignment.priority == priority:
+                        continue
+                    assignment.snapshot()
+                    assignment.priority = priority
+                    pk_list = self._contact_assignments['change']
+                else:
+                    assignment = ContactAssignment(
+                        object=obj, contact=contact, role=role, priority=priority,
+                        custom_field_data=dict(cf_defaults),
+                    )
+                    pk_list = self._contact_assignments['add']
+                assignment._changelog_message = changelog_message
+                try:
+                    assignment.full_clean()
+                except ValidationError as e:
+                    raise ValidationError(
+                        _("Unable to assign contact {contact} to {object}: {error}").format(
+                            contact=contact, object=obj, error='; '.join(e.messages)
+                        )
+                    )
+                assignment.save()
+                pk_list.append(assignment.pk)
+
+    def _check_contact_removal_permission(self, form):
+        """
+        Verify that the user may delete every contact assignment targeted for removal.
+        """
+        if remove_contacts := form.cleaned_data.get('remove_contacts'):
+            to_delete = ContactAssignment.objects.filter(
+                object_type=ObjectType.objects.get_for_model(self.queryset.model),
+                object_id__in=self.queryset.filter(pk__in=form.cleaned_data['pk']).values('pk'),
+                contact__in=remove_contacts,
+            )
+            if to_delete.restrict(self.request.user, 'delete').count() != to_delete.count():
+                raise PermissionsViolation
+
+    def _check_contact_assignment_permissions(self):
+        """
+        Verify that the user was permitted to create or modify every affected contact assignment.
+        """
+        for action, pk_list in self._contact_assignments.items():
+            if pk_list:
+                permitted = ContactAssignment.objects.restrict(self.request.user, action).filter(pk__in=pk_list)
+                if permitted.count() != len(pk_list):
+                    raise PermissionsViolation
+
     def _update_objects(self, form, request):
         custom_fields = getattr(form, 'custom_fields', {})
         standard_fields = [
@@ -934,6 +1007,10 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
             except FieldDoesNotExist:
                 # This form field is used to modify a field rather than set its value directly
                 model_fields[name] = None
+
+        # Contact assignment permissions are checked once for all objects rather than per object
+        self._contact_assignments = {'add': [], 'change': []}
+        self._check_contact_removal_permission(form)
 
         for obj in self.queryset.filter(pk__in=form.cleaned_data['pk']):
 
@@ -995,6 +1072,8 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
 
             if is_background_request(request):
                 request.job.logger.info(f"Updated {obj}")
+
+        self._check_contact_assignment_permissions()
 
         # Rebuild the tree for MPTT plugin models (no-op for ltree; its triggers keep
         # the tree current). TODO: Remove in v5.0 (see _rebuild_mptt_tree).
