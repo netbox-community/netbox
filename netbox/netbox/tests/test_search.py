@@ -218,11 +218,11 @@ class SearchBackendTestCase(TestCase):
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
         role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
-        def render_results(sites):
+        def render_results(sites, offset):
             # Unnamed devices render as "<manufacturer> <model> (<pk>)"; prefixes display their scope (a site)
-            for site in sites:
+            for i, site in enumerate(sites, start=offset):
                 Device.objects.create(site=site, device_type=device_type, role=role, description='Batched')
-                Prefix.objects.create(prefix=f'10.0.{site.pk}.0/24', scope=site, description='Batched')
+                Prefix.objects.create(prefix=f'10.0.{i}.0/24', scope=site, description='Batched')
             search_backend.cache(Device.objects.all())
             search_backend.cache(Prefix.objects.all())
 
@@ -233,9 +233,9 @@ class SearchBackendTestCase(TestCase):
             return rendered, len(queries)
 
         sites = list(Site.objects.order_by('name'))
-        rendered, query_count = render_results(sites[:1])
+        rendered, query_count = render_results(sites[:1], 0)
         self.assertEqual(len(rendered), 2)
-        rendered, more_query_count = render_results(sites[1:])
+        rendered, more_query_count = render_results(sites[1:], 1)
         self.assertEqual(len(rendered), 6)
         self.assertEqual(more_query_count, query_count)
 
