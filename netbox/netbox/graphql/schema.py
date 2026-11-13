@@ -19,6 +19,7 @@ from virtualization.graphql.schema import VirtualizationQuery
 from vpn.graphql.schema import VPNQuery
 from wireless.graphql.schema import WirelessQuery
 
+from .extensions import QueryLogger
 from .scalars import BigInt, BigIntScalar
 from .utils import validate_extension_targets
 
@@ -51,6 +52,7 @@ def get_schema_extensions() -> list[SchemaExtensionFactory]:
     max_depth = settings.GRAPHQL_MAX_QUERY_DEPTH
 
     extensions: list[SchemaExtensionFactory] = [
+        QueryLogger,
         lambda: DjangoOptimizerExtension(prefetch_custom_queryset=True),
         lambda: MaxAliasesLimiter(max_alias_count=max_aliases),
     ]

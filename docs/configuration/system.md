@@ -247,6 +247,7 @@ LOGGING = {
 * `netbox.auth.*` - Authentication events
 * `netbox.api.views.*` - Views which handle business logic for the REST API
 * `netbox.event_rules` - Event rules
+* `netbox.graphql.query` - GraphQL API requests (logged at `INFO`; see [GraphQL API logging](../integrations/graphql-api.md#logging))
 * `netbox.jobs.*` - Background jobs
 * `netbox.reports.*` - Report execution (`module.name`)
 * `netbox.scripts.*` - Custom script execution (`module.name`)
