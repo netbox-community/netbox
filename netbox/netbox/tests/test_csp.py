@@ -1,10 +1,13 @@
 import re
 from html.parser import HTMLParser
+from urllib.parse import urlsplit
 
 from django.conf import settings
+from django.contrib.staticfiles import finders
 from django.test import Client, override_settings
 from django.urls import reverse
 from django.utils.csp import CSP
+from drf_spectacular.settings import patched_settings
 
 from dcim.models import Site
 from utilities.testing import TestCase
@@ -108,6 +111,51 @@ class ScriptNonceTestCase(TestCase):
 
     def test_graphiql(self):
         self.assertScriptsNonced(self.client.get(reverse('graphql'), HTTP_ACCEPT='text/html'))
+
+    def test_swagger_ui(self):
+        self.assertScriptsNonced(self.client.get(reverse('api_docs')))
+
+    def test_redoc(self):
+        self.assertScriptsNonced(self.client.get(reverse('api_redocs')))
+
+    def test_redoc_with_settings(self):
+        # With REDOC_UI_SETTINGS set, Redoc renders an inline Redoc.init script. drf-spectacular reads its settings
+        # once at import and has no setting_changed hook, so override_settings(SPECTACULAR_SETTINGS=...) has no
+        # effect. patched_settings is its own supported way to override them temporarily.
+        with patched_settings({'REDOC_UI_SETTINGS': {'hideDownloadButton': True}}):
+            response = self.client.get(reverse('api_redocs'))
+        self.assertScriptsNonced(response)
+        inline = [script for script in self.collect(response).scripts if 'src' not in script]
+        self.assertEqual(len(inline), 1)
+        self.assertIn('Redoc.init', response.content.decode())
+
+    def test_browsable_api(self):
+        self.assertScriptsNonced(self.client.get(reverse('api-root'), HTTP_ACCEPT='text/html'))
+        self.assertScriptsNonced(self.client.get(reverse('dcim-api:site-list'), HTTP_ACCEPT='text/html'))
+
+    def test_api_script_sources_exist(self):
+        # The overrides copy upstream script tags, so an upgrade that renames a bundled file (e.g. jQuery) would
+        # leave a dead src. Every same-origin script src must resolve to a static file.
+        static_url = settings.STATIC_URL
+        responses = [
+            self.client.get(reverse('api_docs')),
+            self.client.get(reverse('api_redocs')),
+            self.client.get(reverse('api-root'), HTTP_ACCEPT='text/html'),
+        ]
+        for response in responses:
+            self.assertHttpStatus(response, 200)
+            checked = 0
+            for script in self.collect(response).scripts:
+                src = script.get('src')
+                if not src:
+                    continue
+                path = urlsplit(src).path
+                if not path.startswith(static_url):
+                    continue
+                checked += 1
+                relative = path.removeprefix(static_url)
+                self.assertTrue(finders.find(relative), f'No static file for script src {src}')
+            self.assertGreater(checked, 0, f'No same-origin scripts found on {response.request["PATH_INFO"]}')
 
     def test_search_has_no_runtime_eval(self):
         # A trigger filter such as keyup[...] is compiled with eval by htmx, which a policy without

@@ -1,0 +1,15 @@
+{# Extends the upstream drf_spectacular template of the same name. The body block copies upstream to add CSP nonces: re-sync it when drf-spectacular is upgraded. #}
+{% extends 'drf_spectacular/swagger_ui.html' %}
+
+{% block body %}
+  <div id="swagger-ui"></div>
+  <script src="{{ swagger_ui_bundle }}" nonce="{{ csp_nonce }}"></script>
+  <script src="{{ swagger_ui_standalone }}" nonce="{{ csp_nonce }}"></script>
+  {% if script_url %}
+    <script src="{{ script_url }}" nonce="{{ csp_nonce }}"></script>
+  {% else %}
+    <script nonce="{{ csp_nonce }}">
+      {% include template_name_js %}
+    </script>
+  {% endif %}
+{% endblock body %}
