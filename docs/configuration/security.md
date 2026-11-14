@@ -200,6 +200,44 @@ The view name or URL to which a user is redirected after logging out.
 
 ---
 
+## PERMISSIONS_POLICY
+
+Default:
+
+```python
+PERMISSIONS_POLICY = {
+    'camera': [],
+    'microphone': [],
+    'geolocation': [],
+    'payment': [],
+    'usb': [],
+    'hid': [],
+    'serial': [],
+    'bluetooth': [],
+}
+```
+
+Defines the `Permissions-Policy` header sent with HTML responses, which controls which browser features NetBox pages may use. See the [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Permissions-Policy) for the syntax and the list of features.
+
+Your dictionary replaces the default entirely, so copy the default and edit it. For example, to re-allow the camera for NetBox's own origin:
+
+```python
+PERMISSIONS_POLICY = {
+    'camera': ['self'],
+    'microphone': [],
+    'geolocation': [],
+    'payment': [],
+    'usb': [],
+    'hid': [],
+    'serial': [],
+    'bluetooth': [],
+}
+```
+
+Set `PERMISSIONS_POLICY = {}` to send no header. Values are checked at startup, and Django's quoted `CSP.SELF` is not accepted here.
+
+---
+
 ## SECURE_CSP
 
 Default: `{}`
