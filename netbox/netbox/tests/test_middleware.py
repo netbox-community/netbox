@@ -1,4 +1,5 @@
 import json
+import re
 from contextlib import contextmanager
 from types import SimpleNamespace
 from unittest import skipIf
@@ -10,12 +11,18 @@ from django.core.signals import got_request_exception
 from django.db.utils import InternalError
 from django.test import Client, RequestFactory, override_settings
 from django.urls import ResolverMatch, reverse
+from django.utils.csp import CSP
 from django.views.generic import View
 from rest_framework import status
 from rest_framework.views import APIView
 
 from netbox.middleware import CoreMiddleware, LoginRequiredMiddleware, MaintenanceModeMiddleware
 from utilities.testing import TestCase
+
+CSP_POLICY = {
+    'default-src': [CSP.SELF],
+    'script-src': [CSP.SELF, CSP.NONCE],
+}
 
 
 class CoreMiddlewareTestCase(TestCase):
@@ -249,3 +256,63 @@ class LoginRequiredMiddlewareTestCase(TestCase):
     def test_plugin_views_login_not_required(self):
         response = self.anonymous_client.get(reverse('plugins:dummy_plugin:dummy_model_list'))
         self.assertHttpStatus(response, 200)
+
+
+class ContentSecurityPolicyTestCase(TestCase):
+    """
+    SECURE_CSP and SECURE_CSP_REPORT_ONLY are passed through to Django's CSP middleware.
+
+    Django adds the nonce to the header only when the rendered page reads csp_nonce. The nonce
+    tests set DEBUG=True because {% django_htmx_script %} in base.html then does.
+    """
+
+    def setUp(self):
+        super().setUp()
+
+        self.anonymous_client = Client()
+
+    def get_nonce(self, response, header='Content-Security-Policy'):
+        match = re.search(r"'nonce-([^']+)'", response[header])
+        self.assertIsNotNone(match, f'No nonce in {header}: {response[header]}')
+        return match.group(1)
+
+    @override_settings(SECURE_CSP=CSP_POLICY, DEBUG=True)
+    def test_policy_sends_header_with_nonce(self):
+        response = self.anonymous_client.get(reverse('login'))
+        self.assertHttpStatus(response, 200)
+        self.assertIn("default-src 'self'", response['Content-Security-Policy'])
+        nonce = self.get_nonce(response)
+        self.assertIn(f'nonce="{nonce}"', response.content.decode())
+
+    @override_settings(SECURE_CSP=CSP_POLICY, DEBUG=True)
+    def test_nonce_differs_between_requests(self):
+        nonce1 = self.get_nonce(self.anonymous_client.get(reverse('login')))
+        nonce2 = self.get_nonce(self.anonymous_client.get(reverse('login')))
+        self.assertNotEqual(nonce1, nonce2)
+
+    @override_settings(SECURE_CSP_REPORT_ONLY=CSP_POLICY, DEBUG=True)
+    def test_report_only_policy(self):
+        response = self.anonymous_client.get(reverse('login'))
+        self.assertHttpStatus(response, 200)
+        self.assertNotIn('Content-Security-Policy', response)
+        nonce = self.get_nonce(response, header='Content-Security-Policy-Report-Only')
+        self.assertIn(f'nonce="{nonce}"', response.content.decode())
+
+    def test_no_header_by_default(self):
+        response = self.anonymous_client.get(reverse('login'))
+        self.assertHttpStatus(response, 200)
+        self.assertNotIn('Content-Security-Policy', response)
+        self.assertNotIn('Content-Security-Policy-Report-Only', response)
+
+    @override_settings(SECURE_CSP=CSP_POLICY, LOGIN_REQUIRED=True, DEBUG=False)
+    def test_header_on_non_html_responses(self):
+        requests = (
+            (reverse('home'), 302),
+            (reverse('api-root'), 403),
+            ('/no-such-page/', 404),
+        )
+        for url, status_code in requests:
+            with self.subTest(url=url):
+                response = self.anonymous_client.get(url)
+                self.assertHttpStatus(response, status_code)
+                self.assertIn("default-src 'self'", response['Content-Security-Policy'])

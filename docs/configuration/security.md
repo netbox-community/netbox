@@ -200,6 +200,33 @@ The view name or URL to which a user is redirected after logging out.
 
 ---
 
+## SECURE_CSP
+
+Default: `{}`
+
+Defines a Content Security Policy (CSP) to be sent with every response in the `Content-Security-Policy` header. This is a pass-through to Django's [`SECURE_CSP`](https://docs.djangoproject.com/en/stable/ref/settings/#secure-csp) setting: directives are mapped to lists of sources, using the constants in `django.utils.csp.CSP`. Include `CSP.NONCE` in a directive to have a fresh nonce generated for each request, which is added to the header whenever the rendered page uses it. If empty (the default), no header is sent.
+
+```python
+from django.utils.csp import CSP
+
+SECURE_CSP = {
+    'default-src': [CSP.SELF],
+    'script-src': [CSP.SELF, CSP.NONCE],
+}
+```
+
+Templates can read the per-request nonce as `csp_nonce`.
+
+---
+
+## SECURE_CSP_REPORT_ONLY
+
+Default: `{}`
+
+Defines a Content Security Policy to be sent in the `Content-Security-Policy-Report-Only` header. The browser reports violations of this policy without blocking anything, which makes it useful for testing a policy before enforcing it with [`SECURE_CSP`](#secure_csp). This is a pass-through to Django's [`SECURE_CSP_REPORT_ONLY`](https://docs.djangoproject.com/en/stable/ref/settings/#secure-csp-report-only) setting, and takes the same form as `SECURE_CSP`. If empty (the default), no header is sent.
+
+---
+
 ## SECURE_HSTS_INCLUDE_SUBDOMAINS
 
 Default: `False`
