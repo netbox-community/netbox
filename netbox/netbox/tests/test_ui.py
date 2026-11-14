@@ -4,6 +4,7 @@ from types import SimpleNamespace
 from django.template import Context, Template
 from django.test import RequestFactory, SimpleTestCase, TestCase
 from django.urls import reverse
+from django.utils import translation
 from netaddr import IPNetwork
 
 from account.models import UserToken
@@ -298,6 +299,12 @@ class NumericAttrTestCase(TestCase):
         obj = SimpleNamespace(speed=1000)
         context = attr.get_context(obj, 'speed', 1000, {})
         self.assertTrue(context['copy_button'])
+
+    def test_render_localize(self):
+        obj = SimpleNamespace(x=-8238310.24)
+        with translation.override('de'):
+            self.assertIn('-8238310,24', attrs.NumericAttr('x').render(obj, {'name': 'x'}))
+            self.assertIn('-8238310.24', attrs.NumericAttr('x', localize=False).render(obj, {'name': 'x'}))
 
 
 class BooleanAttrTestCase(TestCase):
@@ -730,6 +737,12 @@ class WeightAttrTestCase(SimpleTestCase):
         result = attr.render(obj, self._ctx(system='metric'))
         self.assertIn('10', result)
         self.assertIn('lbs', result)
+
+    def test_render_localized(self):
+        attr = attrs.WeightAttr('weight')
+        obj = self._obj(Decimal('2.5'), 'kg', 2500, 'Kilograms')
+        with translation.override('de'):
+            self.assertIn('2,5', attr.render(obj, self._ctx()))
 
 
 class DistanceAttrTestCase(SimpleTestCase):

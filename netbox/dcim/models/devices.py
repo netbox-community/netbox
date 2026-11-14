@@ -36,7 +36,7 @@ from utilities.prefetch import get_prefetchable_fields
 from utilities.tracking import TrackingModelMixin
 
 from .device_components import *
-from .mixins import RenderConfigMixin
+from .mixins import RenderConfigMixin, WebMercatorMixin
 from .modules import Module
 
 __all__ = (
@@ -553,6 +553,7 @@ class Device(
     ContactsMixin,
     ImageAttachmentsMixin,
     RenderConfigMixin,
+    WebMercatorMixin,
     ConfigContextModel,
     TrackingModelMixin,
     PrimaryModel

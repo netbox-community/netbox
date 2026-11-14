@@ -458,6 +458,27 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
         self.assertNotIn('remove_tags', response.data)
         self.assertIn('tags', response.data)
 
+    def test_web_mercator_coordinates(self):
+        """
+        Web Mercator coordinates are calculated from the GPS coordinates and cannot be written.
+        """
+        obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        site = Site.objects.first()
+        data = {
+            'latitude': 40.7128,
+            'longitude': -74.006,
+            'mercator_x': 1,
+            'mercator_y': 1,
+        }
+        response = self.client.patch(self._get_detail_url(site), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['mercator_x'], -8238310.24)
+        self.assertEqual(response.data['mercator_y'], 4970071.58)
+
     def test_remove_tags(self):
         """
         Remove tags from an existing object via the remove_tags field.
@@ -3089,6 +3110,23 @@ class DeviceTestCase(Mixins.FieldPrefetchMixin, APIViewTestCases.APIViewTestCase
         response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_web_mercator_coordinates(self):
+        """
+        Web Mercator coordinates are calculated from the GPS coordinates and cannot be written.
+        """
+        self.add_permissions('dcim.change_device')
+        device = Device.objects.first()
+        data = {
+            'latitude': 40.7128,
+            'longitude': -74.006,
+            'mercator_x': 1,
+            'mercator_y': 1,
+        }
+        response = self.client.patch(self._get_detail_url(device), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['mercator_x'], -8238310.24)
+        self.assertEqual(response.data['mercator_y'], 4970071.58)
 
     def test_create_device_replicates_components(self):
         """

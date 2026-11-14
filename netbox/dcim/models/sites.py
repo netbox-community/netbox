@@ -13,6 +13,8 @@ from dcim.constants import *
 from netbox.models import NestedLtreeGroupModel, PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 
+from .mixins import WebMercatorMixin
+
 __all__ = (
     'Location',
     'Region',
@@ -167,7 +169,7 @@ class SiteGroup(ContactsMixin, NestedLtreeGroupModel):
 # Sites
 #
 
-class Site(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
+class Site(ContactsMixin, ImageAttachmentsMixin, WebMercatorMixin, PrimaryModel):
     """
     A Site represents a geographic location within a network; typically a building or campus. The optional facility
     field can be used to include an external designation, such as a data center name (e.g. Equinix SV6).
