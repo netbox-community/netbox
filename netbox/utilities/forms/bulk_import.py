@@ -4,7 +4,7 @@ from io import StringIO
 
 import yaml
 from django import forms
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from core.forms.mixins import SyncedDataMixin
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices, ImportMethodChoices

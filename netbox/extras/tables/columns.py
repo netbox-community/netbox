@@ -1,6 +1,6 @@
 import django_tables2 as tables
 from django.utils.html import format_html
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from extras.choices import CustomFieldStatusChoices
 from netbox.tables.columns import ActionsColumn, ActionsItem

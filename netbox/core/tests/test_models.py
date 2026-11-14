@@ -10,9 +10,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import call_command
 from django.db import IntegrityError, connection
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from django.test.utils import CaptureQueriesContext
-from django.utils import timezone
+from django.utils import timezone, translation
 
 from core.choices import DataSourceStatusChoices, JobNotificationChoices, JobStatusChoices, ObjectChangeActionChoices
 from core.data_backends import LocalBackend
@@ -663,3 +663,17 @@ class JobTestCase(TestCase):
         job.terminate(status=JobStatusChoices.STATUS_COMPLETED)
 
         self.assertIsNone(job.execution_time)
+
+
+class LabelTranslationTestCase(TestCase):
+    """
+    Labels defined at import render in the active language (#23702).
+    """
+
+    @tag('regression')  # Ref: #23702
+    def test_model_verbose_name(self):
+        # Set in the model's Meta class body
+        with translation.override('nl'):
+            self.assertEqual(str(Job._meta.verbose_name), 'taak')
+        with translation.override('en'):
+            self.assertEqual(str(Job._meta.verbose_name), 'job')
