@@ -20,7 +20,7 @@
 
 {% block javascript %}
 {{ block.super }}
-<script>
+<script nonce="{{ csp_nonce }}">
   (function () {
     const versionField = document.getElementById('id_version');
     const v1Warning = document.getElementById('v1-deprecation-warning');
