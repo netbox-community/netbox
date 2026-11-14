@@ -510,6 +510,9 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
             logger.info(msg)
             messages.success(request, msg)
 
+            return_url = form.cleaned_data.get('return_url')
+            if return_url and safe_for_redirect(return_url):
+                return redirect(return_url)
             return redirect(self.get_return_url(request, obj))
 
         logger.debug("Form validation failed")
