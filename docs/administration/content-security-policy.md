@@ -31,3 +31,5 @@ SECURE_CSP = {
 ```
 
 Try a policy first by assigning it to `SECURE_CSP_REPORT_ONLY`, which reports violations in the browser console without blocking anything.
+
+If your users enable NetBox Copilot, also allow `https://unpkg.com` and `https://js.stripe.com` in `script-src`, `'self'` and `https://js.stripe.com` in `frame-src`, and `https://api.copilot.netboxlabs.ai` and `wss://api.copilot.netboxlabs.ai` in `connect-src`.
