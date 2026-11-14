@@ -205,6 +205,8 @@ RQ_RETRY_MAX = param('RQ_RETRY_MAX', 0, types=int, min_value=0)
 SCRIPTS_ROOT = param('SCRIPTS_ROOT', os.path.join(NETBOX_ROOT, 'scripts'), types=str).rstrip('/')
 SEARCH_BACKEND = param('SEARCH_BACKEND', 'netbox.search.backends.CachedValueSearchBackend', types=str)
 SECRET_KEY = param('SECRET_KEY', types=str)  # Required
+SECURE_CSP = param('SECURE_CSP', {}, types=dict)
+SECURE_CSP_REPORT_ONLY = param('SECURE_CSP_REPORT_ONLY', {}, types=dict)
 SECURE_HSTS_INCLUDE_SUBDOMAINS = param('SECURE_HSTS_INCLUDE_SUBDOMAINS', False, types=bool)
 SECURE_HSTS_PRELOAD = param('SECURE_HSTS_PRELOAD', False, types=bool)
 SECURE_HSTS_SECONDS = param('SECURE_HSTS_SECONDS', 0, types=int, min_value=0)
@@ -529,6 +531,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.csp.ContentSecurityPolicyMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
     'netbox.middleware.RemoteUserMiddleware',
     'netbox.middleware.LoginRequiredMiddleware',
@@ -570,6 +573,7 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.template.context_processors.media',
+                'django.template.context_processors.csp',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'netbox.context_processors.settings',
