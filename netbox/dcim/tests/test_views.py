@@ -1270,6 +1270,86 @@ inventory-items:
         ii1 = InventoryItemTemplate.objects.first()
         self.assertEqual(ii1.name, 'Inventory Item 1')
 
+    def test_import_objects_without_component_permissions(self):
+        """
+        Importing a device type requires only add_devicetype unless component templates are included.
+        """
+        Manufacturer.objects.create(name='Generic', slug='generic')
+        self.add_permissions('dcim.view_manufacturer', 'dcim.add_devicetype')
+        url = reverse('dcim:devicetype_bulk_import')
+
+        self.assertHttpStatus(self.client.get(url), 200)
+
+        import_data = "manufacturer: Generic\nmodel: TEST-2000\nslug: test-2000\nu_height: 1\n"
+        response = self.client.post(url, data={'data': import_data, 'format': 'yaml'})
+        self.assertHttpStatus(response, 302)
+        self.assertTrue(DeviceType.objects.filter(model='TEST-2000').exists())
+
+        # Including component templates requires the corresponding add permission
+        import_data = (
+            "manufacturer: Generic\nmodel: TEST-3000\nslug: test-3000\nu_height: 1\n"
+            "console-ports:\n  - name: Console Port 1\n    type: de-9\n"
+        )
+        response = self.client.post(url, data={'data': import_data, 'format': 'yaml'})
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'dcim.add_consoleporttemplate')
+        self.assertFalse(DeviceType.objects.filter(model='TEST-3000').exists())
+        self.assertFalse(ConsolePortTemplate.objects.exists())
+
+    def test_import_port_mappings_without_port_permissions(self):
+        """
+        Importing port mappings requires permission to add front and rear port templates.
+        """
+        device_type = DeviceType.objects.first()
+        front_port = FrontPortTemplate.objects.create(device_type=device_type, name='Front Port 1', type='8p8c')
+        rear_port = RearPortTemplate.objects.create(device_type=device_type, name='Rear Port 1', type='8p8c')
+        self.add_permissions(
+            'dcim.view_manufacturer', 'dcim.view_devicetype', 'dcim.add_devicetype', 'dcim.change_devicetype'
+        )
+        url = reverse('dcim:devicetype_bulk_import')
+        import_data = (
+            f"id: {device_type.pk}\n"
+            "port-mappings:\n  - front_port: Front Port 1\n    rear_port: Rear Port 1\n"
+        )
+
+        response = self.client.post(url, data={'data': import_data, 'format': 'yaml'})
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'dcim.add_frontporttemplate')
+        self.assertFalse(PortTemplateMapping.objects.exists())
+
+        self.add_permissions('dcim.add_frontporttemplate', 'dcim.add_rearporttemplate')
+        response = self.client.post(url, data={'data': import_data, 'format': 'yaml'})
+        self.assertHttpStatus(response, 302)
+        mapping = PortTemplateMapping.objects.get()
+        self.assertEqual(mapping.front_port, front_port)
+        self.assertEqual(mapping.rear_port, rear_port)
+
+    def test_import_objects_component_object_permissions(self):
+        """
+        Object-level constraints on component template permissions are enforced during import.
+        """
+        Manufacturer.objects.create(name='Generic', slug='generic')
+        self.add_permissions('dcim.view_manufacturer', 'dcim.add_devicetype')
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'], constraints={'name': 'Console Port 1'})
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(ConsolePortTemplate))
+        url = reverse('dcim:devicetype_bulk_import')
+
+        import_data = (
+            "manufacturer: Generic\nmodel: TEST-2000\nslug: test-2000\nu_height: 1\n"
+            "console-ports:\n  - name: Console Port 2\n    type: de-9\n"
+        )
+        response = self.client.post(url, data={'data': import_data, 'format': 'yaml'})
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'Record 1 console-ports: Operation failed due to object-level permissions')
+        self.assertFalse(DeviceType.objects.filter(model='TEST-2000').exists())
+
+        import_data = import_data.replace('Console Port 2', 'Console Port 1')
+        response = self.client.post(url, data={'data': import_data, 'format': 'yaml'})
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(DeviceType.objects.get(model='TEST-2000').consoleporttemplates.count(), 1)
+
     def test_bulk_yaml_export_module_bay_types_query_count_is_constant(self):
         """Query count shouldn't scale with bay count -- module_bay_types is prefetched."""
         manufacturer = Manufacturer.objects.create(name='Export Query Manufacturer', slug='export-query-mfr')
@@ -1587,56 +1667,8 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             f"{module_types[0].id},test model",
         )
 
-    def test_bulk_update_objects_with_permission(self):
-        self.add_permissions(
-            'dcim.add_consoleporttemplate',
-            'dcim.add_consoleserverporttemplate',
-            'dcim.add_powerporttemplate',
-            'dcim.add_poweroutlettemplate',
-            'dcim.add_coolingintaketemplate',
-            'dcim.add_coolingoutflowtemplate',
-            'dcim.add_interfacetemplate',
-            'dcim.add_frontporttemplate',
-            'dcim.add_rearporttemplate',
-            'dcim.add_modulebaytemplate',
-        )
-
-        # run base test
-        super().test_bulk_update_objects_with_permission()
-
-    def test_bulk_update_objects_without_change_permission(self):
-        # ModuleTypeImportView declares these as additional_permissions, so they're required to reach the view
-        self.add_permissions(
-            'dcim.add_consoleporttemplate',
-            'dcim.add_consoleserverporttemplate',
-            'dcim.add_powerporttemplate',
-            'dcim.add_poweroutlettemplate',
-            'dcim.add_coolingintaketemplate',
-            'dcim.add_coolingoutflowtemplate',
-            'dcim.add_interfacetemplate',
-            'dcim.add_frontporttemplate',
-            'dcim.add_rearporttemplate',
-            'dcim.add_modulebaytemplate',
-        )
-
-        # run base test
-        super().test_bulk_update_objects_without_change_permission()
-
     @tag('regression')
     def test_bulk_import_objects_with_permission(self):
-        self.add_permissions(
-            'dcim.add_consoleporttemplate',
-            'dcim.add_consoleserverporttemplate',
-            'dcim.add_powerporttemplate',
-            'dcim.add_poweroutlettemplate',
-            'dcim.add_coolingintaketemplate',
-            'dcim.add_coolingoutflowtemplate',
-            'dcim.add_interfacetemplate',
-            'dcim.add_frontporttemplate',
-            'dcim.add_rearporttemplate',
-            'dcim.add_modulebaytemplate',
-        )
-
         def verify_module_type_profile(scenario_name):
             # TODO: remove extra regression asserts once parent test supports testing all import fields
             module_type = ModuleType.objects.get(part_number='module-type-4')
@@ -1644,22 +1676,6 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         # run base test
         super().test_bulk_import_objects_with_permission(post_import_callback=verify_module_type_profile)
-
-    def test_bulk_import_objects_with_constrained_permission(self):
-        self.add_permissions(
-            'dcim.add_consoleporttemplate',
-            'dcim.add_consoleserverporttemplate',
-            'dcim.add_powerporttemplate',
-            'dcim.add_poweroutlettemplate',
-            'dcim.add_coolingintaketemplate',
-            'dcim.add_coolingoutflowtemplate',
-            'dcim.add_interfacetemplate',
-            'dcim.add_frontporttemplate',
-            'dcim.add_rearporttemplate',
-            'dcim.add_modulebaytemplate',
-        )
-
-        super().test_bulk_import_objects_with_constrained_permission()
 
     @tag('regression')
     def test_get_object_renders_profile_attribute_lists(self):
@@ -1985,6 +2001,31 @@ module-bays:
         self.assertEqual(mb1.name, 'Module Bay 1')
         self.assertEqual(mb1.position, '1')
         self.assertEqual(list(mb1.module_bay_types.values_list('name', flat=True)), ['SFP28'])
+
+    def test_import_objects_without_component_permissions(self):
+        """
+        Importing a module type requires only add_moduletype unless component templates are included.
+        """
+        self.add_permissions('dcim.view_manufacturer', 'dcim.add_moduletype')
+        url = reverse('dcim:moduletype_bulk_import')
+
+        self.assertHttpStatus(self.client.get(url), 200)
+
+        import_data = "manufacturer: Manufacturer 1\nmodel: TEST-2000\n"
+        response = self.client.post(url, data={'data': import_data, 'format': 'yaml'})
+        self.assertHttpStatus(response, 302)
+        self.assertTrue(ModuleType.objects.filter(model='TEST-2000').exists())
+
+        # Including component templates requires the corresponding add permission
+        import_data = (
+            "manufacturer: Manufacturer 1\nmodel: TEST-3000\n"
+            "interfaces:\n  - name: Interface 1\n    type: 1000base-t\n"
+        )
+        response = self.client.post(url, data={'data': import_data, 'format': 'yaml'})
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'dcim.add_interfacetemplate')
+        self.assertFalse(ModuleType.objects.filter(model='TEST-3000').exists())
+        self.assertFalse(InterfaceTemplate.objects.exists())
 
     def test_import_channelized_interfaces(self):
         """

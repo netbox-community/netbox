@@ -8,7 +8,7 @@ from types import SimpleNamespace
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRel
-from django.core.exceptions import FieldDoesNotExist, ImproperlyConfigured, ObjectDoesNotExist, ValidationError
+from django.core.exceptions import FieldDoesNotExist, ImproperlyConfigured, ValidationError
 from django.db import IntegrityError, router, transaction
 from django.db.models import ManyToManyField, ProtectedError, RestrictedError
 from django.db.models.fields.reverse_related import ManyToManyRel
@@ -26,7 +26,7 @@ from extras.choices import CustomFieldUIEditableChoices
 from extras.models import CustomField, ExportTemplate
 from netbox.choices import ImportMethodChoices
 from netbox.forms.bulk_rename import NetBoxModelBulkRenameForm
-from netbox.models.features import ChangeLoggingMixin
+from netbox.models.features import ChangeLoggingMixin, model_is_public
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
@@ -480,10 +480,14 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
     Attributes:
         model_form: The form used to create each imported object
+        related_object_forms: A mapping of import field names to the forms used to create related objects
+        related_object_permissions: Permissions required to import related objects, by field name (defaults to
+            the add permission for the related model)
     """
     template_name = 'generic/bulk_import.html'
     model_form = None
     related_object_forms = dict()
+    related_object_permissions = dict()
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
@@ -540,6 +544,28 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     )
                 )
 
+            # Require permission to create each type of related object being imported. Private models (e.g.
+            # PortTemplateMapping) can't be assigned permissions, so the view must declare a stand-in for them.
+            model = related_object_form.Meta.model
+            enforce_permissions = model_is_public(model)
+            if field_name in self.related_object_permissions:
+                permissions = self.related_object_permissions[field_name]
+            elif enforce_permissions:
+                permissions = (get_permission_for_model(model, 'add'),)
+            else:
+                raise ImproperlyConfigured(
+                    f"{self.__class__.__name__} must declare related_object_permissions for {field_name}."
+                )
+            if related_objects:
+                for permission in permissions:
+                    if not request.user.has_perm(permission):
+                        raise ValidationError(
+                            self._compile_form_errors(
+                                {field_name: [_("Permission {permission} is required.").format(permission=permission)]},
+                                index=parent_idx
+                            )
+                        )
+
             related_obj_pks = []
             for i, rel_obj_data in enumerate(related_objects, start=1):
                 if not isinstance(rel_obj_data, dict):
@@ -567,9 +593,15 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     )
 
             # Enforce object-level permissions on related objects
-            model = related_object_form.Meta.model
-            if model.objects.filter(pk__in=related_obj_pks).count() != len(related_obj_pks):
-                raise ObjectDoesNotExist
+            if enforce_permissions and related_obj_pks and hasattr(model.objects, 'restrict'):
+                permitted = model.objects.restrict(request.user, 'add').filter(pk__in=related_obj_pks)
+                if permitted.count() != len(related_obj_pks):
+                    raise ValidationError(
+                        self._compile_form_errors(
+                            {field_name: [PermissionsViolation.message]},
+                            index=parent_idx
+                        )
+                    )
 
         if is_background_request(request):
             request.job.logger.info(f'{_action} {obj}')
