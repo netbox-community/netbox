@@ -173,6 +173,7 @@ nav:
             - Microsoft Entra ID: 'administration/authentication/microsoft-entra-id.md'
             - Okta: 'administration/authentication/okta.md'
         - Permissions: 'administration/permissions.md'
+        - Content Security Policy: 'administration/content-security-policy.md'
         - Error Reporting: 'administration/error-reporting.md'
         - Management Commands: 'administration/management-commands.md'
         - Replicating NetBox: 'administration/replicating-netbox.md'
