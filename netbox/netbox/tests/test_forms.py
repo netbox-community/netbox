@@ -5,7 +5,8 @@ from django.core.exceptions import NON_FIELD_ERRORS
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.core.validators import MaxLengthValidator
 from django.forms.models import ALL_FIELDS
-from django.test import TestCase
+from django.test import TestCase, tag
+from django.utils import translation
 
 from circuits.forms import CircuitGroupAssignmentForm, CircuitTerminationForm
 from core.forms import DataSourceForm
@@ -17,6 +18,8 @@ from dcim.forms import (
     InterfaceImportForm,
     ModuleTypeForm,
     RackForm,
+    SiteFilterForm,
+    SiteForm,
 )
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
 from extras.forms import CustomFieldForm, EventRuleForm
@@ -574,3 +577,48 @@ class MetaShadowingTestCase(TestCase):
     def test_localized_fields_all_sentinel_expands_to_declared(self):
         # The ALL_FIELDS sentinel must expand to the declared fields, not char-split into letters.
         self.assertEqual(self._configured_field_names(ALL_FIELDS, {'name', 'status'}), {'name', 'status'})
+
+
+class FormMixinLabelTranslationTestCase(TestCase):
+    """
+    Labels declared on the shared form mixins render in the active language (#23702).
+    """
+
+    def assertLabels(self, form_class, expected):
+        form = form_class()
+        labels = {name: str(form[name].label) for name in expected}
+        self.assertEqual(labels, expected)
+
+    @tag('regression')  # Ref: #23702
+    def test_model_form_mixin_labels(self):
+        # SiteForm inherits OwnerMixin and TagsMixin
+        with translation.override('nl'):
+            self.assertLabels(SiteForm, {
+                'owner_group': 'Eigenaarsgroep',
+                'owner': 'Eigenaar',
+                'tags': 'Labels',
+            })
+        with translation.override('en'):
+            self.assertLabels(SiteForm, {
+                'owner_group': 'Owner group',
+                'owner': 'Owner',
+                'tags': 'Tags',
+            })
+
+    @tag('regression')  # Ref: #23702
+    def test_filter_form_mixin_labels(self):
+        # SiteFilterForm inherits OwnerFilterMixin and SavedFiltersMixin
+        with translation.override('nl'):
+            self.assertLabels(SiteFilterForm, {
+                'owner_group_id': 'Eigenaarsgroep',
+                'owner_id': 'Eigenaar',
+                'filter_id': 'Opgeslagen filter',
+            })
+            # Set in __init__, so it renders as a lazy string in the widget attrs
+            self.assertIn('aria-label="Opgeslagen filter"', str(SiteFilterForm()['filter_id']))
+        with translation.override('en'):
+            self.assertLabels(SiteFilterForm, {
+                'owner_group_id': 'Owner Group',
+                'owner_id': 'Owner',
+                'filter_id': 'Saved Filter',
+            })
