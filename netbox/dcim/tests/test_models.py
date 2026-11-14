@@ -2671,6 +2671,20 @@ class CableTestCase(TestCase):
         self.assertEqual(interface1.link_peers, [interface2])
         self.assertEqual(interface2.link_peers, [interface1])
 
+    def test_clone_includes_color_and_length(self):
+        """
+        Cloning a cable preserves its color, length, and length unit.
+        """
+        cable = Cable.objects.first()
+        cable.color = 'ff0000'
+        cable.length = Decimal('3.50')
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+
+        attrs = cable.clone()
+        self.assertEqual(attrs['color'], 'ff0000')
+        self.assertEqual(attrs['length'], Decimal('3.50'))
+        self.assertEqual(attrs['length_unit'], CableLengthUnitChoices.UNIT_METER)
+
     def test_cable_deletion(self):
         """
         When a Cable is deleted, the `cable` field on its termination points must be nullified. The str() method
