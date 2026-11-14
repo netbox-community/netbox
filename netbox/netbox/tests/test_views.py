@@ -683,7 +683,8 @@ class ObjectDeleteReturnURLTestCase(TestCase):
 
     def test_local_return_url_precedes_get_return_url_override(self):
         """
-        A local return URL must take precedence over a view which overrides get_return_url().
+        JournalEntryDeleteView overrides get_return_url() and ignores return_url. The delete view must check
+        return_url itself, or the user lands on the parent object's journal tab.
         """
         self.add_permissions('extras.delete_journalentry')
         site = Site.objects.create(name='Site 1', slug='site-1')
