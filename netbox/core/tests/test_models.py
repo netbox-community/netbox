@@ -667,12 +667,11 @@ class JobTestCase(TestCase):
 
 class LabelTranslationTestCase(TestCase):
     """
-    Labels defined at import render in the active language (#23702).
+    Model Meta labels are set at import, so eager gettext keeps them in DEFAULT_LANGUAGE (#23702).
     """
 
     @tag('regression')  # Ref: #23702
     def test_model_verbose_name(self):
-        # Set in the model's Meta class body
         with translation.override('nl'):
             self.assertEqual(str(Job._meta.verbose_name), 'taak')
         with translation.override('en'):

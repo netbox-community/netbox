@@ -581,7 +581,7 @@ class MetaShadowingTestCase(TestCase):
 
 class FormMixinLabelTranslationTestCase(TestCase):
     """
-    Labels declared on the shared form mixins render in the active language (#23702).
+    Mixin labels are set at import, so eager gettext keeps them in DEFAULT_LANGUAGE (#23702).
     """
 
     def assertLabels(self, form_class, expected):
@@ -614,7 +614,7 @@ class FormMixinLabelTranslationTestCase(TestCase):
                 'owner_id': 'Eigenaar',
                 'filter_id': 'Opgeslagen filter',
             })
-            # Set in __init__, so it renders as a lazy string in the widget attrs
+            # Set in __init__, so it also passes with eager gettext. It pins that a lazy value renders in widget attrs.
             self.assertIn('aria-label="Opgeslagen filter"', str(SiteFilterForm()['filter_id']))
         with translation.override('en'):
             self.assertLabels(SiteFilterForm, {
