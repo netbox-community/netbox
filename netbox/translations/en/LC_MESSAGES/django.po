@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-13 05:01+0000\n"
+"POT-Creation-Date: 2026-11-14 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1384,7 +1384,7 @@ msgstr ""
 msgid "Group Assignment"
 msgstr ""
 
-#: netbox/circuits/models/base.py:18 netbox/dcim/models/cables.py:136
+#: netbox/circuits/models/base.py:18 netbox/dcim/models/cables.py:137
 #: netbox/dcim/models/device_component_templates.py:373
 #: netbox/dcim/models/device_component_templates.py:801
 #: netbox/dcim/models/device_component_templates.py:874
@@ -1417,11 +1417,11 @@ msgstr ""
 
 #: netbox/circuits/models/circuits.py:77
 #: netbox/circuits/models/virtual_circuits.py:60 netbox/core/models/data.py:53
-#: netbox/core/models/jobs.py:101 netbox/dcim/models/cables.py:112
+#: netbox/core/models/jobs.py:101 netbox/dcim/models/cables.py:113
 #: netbox/dcim/models/cooling.py:46 netbox/dcim/models/cooling.py:130
 #: netbox/dcim/models/device_components.py:645
 #: netbox/dcim/models/device_components.py:1875
-#: netbox/dcim/models/devices.py:632 netbox/dcim/models/devices.py:1376
+#: netbox/dcim/models/devices.py:632 netbox/dcim/models/devices.py:1377
 #: netbox/dcim/models/modules.py:395 netbox/dcim/models/power.py:95
 #: netbox/dcim/models/racks.py:352 netbox/dcim/models/racks.py:736
 #: netbox/dcim/models/sites.py:188 netbox/dcim/models/sites.py:312
@@ -1557,11 +1557,11 @@ msgstr ""
 #: netbox/circuits/models/providers.py:21
 #: netbox/circuits/models/providers.py:63
 #: netbox/circuits/models/providers.py:98 netbox/core/models/data.py:40
-#: netbox/core/models/jobs.py:56 netbox/dcim/models/cables.py:56
+#: netbox/core/models/jobs.py:56 netbox/dcim/models/cables.py:57
 #: netbox/dcim/models/cooling.py:36 netbox/dcim/models/cooling.py:125
 #: netbox/dcim/models/device_component_templates.py:61
 #: netbox/dcim/models/device_components.py:67 netbox/dcim/models/devices.py:576
-#: netbox/dcim/models/devices.py:1291 netbox/dcim/models/devices.py:1371
+#: netbox/dcim/models/devices.py:1292 netbox/dcim/models/devices.py:1372
 #: netbox/dcim/models/modules.py:44 netbox/dcim/models/modules.py:97
 #: netbox/dcim/models/power.py:39 netbox/dcim/models/power.py:90
 #: netbox/dcim/models/racks.py:313 netbox/dcim/models/sites.py:176
@@ -2594,7 +2594,7 @@ msgstr ""
 #: netbox/core/models/files.py:30 netbox/core/models/jobs.py:60
 #: netbox/extras/models/models.py:1036 netbox/extras/models/notifications.py:40
 #: netbox/extras/models/notifications.py:197
-#: netbox/netbox/models/features.py:63 netbox/users/models/tokens.py:51
+#: netbox/netbox/models/features.py:66 netbox/users/models/tokens.py:51
 msgid "created"
 msgstr ""
 
@@ -2627,7 +2627,7 @@ msgstr ""
 msgid "Config revision #{id}"
 msgstr ""
 
-#: netbox/core/models/data.py:45 netbox/dcim/models/cables.py:105
+#: netbox/core/models/data.py:45 netbox/dcim/models/cables.py:106
 #: netbox/dcim/models/cooling.py:41
 #: netbox/dcim/models/device_component_templates.py:230
 #: netbox/dcim/models/device_component_templates.py:265
@@ -2722,11 +2722,11 @@ msgid ""
 msgstr ""
 
 #: netbox/core/models/data.py:310 netbox/core/models/files.py:34
-#: netbox/netbox/models/features.py:69
+#: netbox/netbox/models/features.py:72
 msgid "last updated"
 msgstr ""
 
-#: netbox/core/models/data.py:320 netbox/dcim/models/cables.py:872
+#: netbox/core/models/data.py:320 netbox/dcim/models/cables.py:882
 msgid "path"
 msgstr ""
 
@@ -2879,19 +2879,19 @@ msgstr ""
 msgid "Sync Data"
 msgstr ""
 
-#: netbox/core/signals.py:187
+#: netbox/core/signals.py:204
 #, python-brace-format
 msgid "Deletion is prevented by a protection rule: {message}"
 msgstr ""
 
-#: netbox/core/signals.py:363
+#: netbox/core/signals.py:380
 #, python-brace-format
 msgid "Automatic synchronization failed for {count} object:"
 msgid_plural "Automatic synchronization failed for {count} objects:"
 msgstr[0] ""
 msgstr[1] ""
 
-#: netbox/core/signals.py:369
+#: netbox/core/signals.py:386
 #, python-brace-format
 msgid "{count} additional failure is not shown."
 msgid_plural "{count} additional failures are not shown."
@@ -4449,7 +4449,7 @@ msgstr ""
 #: netbox/dcim/filtersets.py:1543 netbox/dcim/forms/common.py:29
 #: netbox/dcim/forms/filtersets.py:1050 netbox/dcim/forms/filtersets.py:2087
 #: netbox/dcim/forms/filtersets.py:2462 netbox/dcim/forms/model_forms.py:2517
-#: netbox/dcim/models/devices.py:1474 netbox/dcim/models/devices.py:1498
+#: netbox/dcim/models/devices.py:1475 netbox/dcim/models/devices.py:1499
 #: netbox/dcim/ui/panels.py:475 netbox/dcim/ui/panels.py:612
 #: netbox/virtualization/filtersets.py:287
 #: netbox/virtualization/filtersets.py:375
@@ -6457,7 +6457,7 @@ msgid "Occupied"
 msgstr ""
 
 #: netbox/dcim/forms/filtersets.py:2042 netbox/extras/forms/bulk_edit.py:449
-#: netbox/extras/forms/bulk_import.py:421 netbox/extras/forms/filtersets.py:633
+#: netbox/extras/forms/bulk_import.py:425 netbox/extras/forms/filtersets.py:633
 #: netbox/extras/forms/model_forms.py:922 netbox/extras/tables/tables.py:790
 msgid "Kind"
 msgstr ""
@@ -6911,149 +6911,149 @@ msgstr ""
 msgid "A position must be specified for the first VC member."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:63
+#: netbox/dcim/models/cables.py:64
 msgid "cable bundle"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:64
+#: netbox/dcim/models/cables.py:65
 msgid "cable bundles"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:118
+#: netbox/dcim/models/cables.py:119
 msgid "profile"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:131
+#: netbox/dcim/models/cables.py:132
 #: netbox/dcim/models/device_component_templates.py:69
 #: netbox/dcim/models/device_components.py:72
 #: netbox/extras/models/customfields.py:191
 msgid "label"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:140 netbox/utilities/conversion.py:71
+#: netbox/dcim/models/cables.py:141 netbox/utilities/conversion.py:71
 msgid "length"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:147
+#: netbox/dcim/models/cables.py:148
 msgid "length unit"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:166
+#: netbox/dcim/models/cables.py:167
 msgid "bundle"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:175
+#: netbox/dcim/models/cables.py:176
 msgid "cable"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:176
+#: netbox/dcim/models/cables.py:177
 msgid "cables"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:313
+#: netbox/dcim/models/cables.py:314
 msgid "Must specify a unit when setting a cable length"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:316
+#: netbox/dcim/models/cables.py:317
 msgid "Must define A and B terminations when creating a new cable."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:327
+#: netbox/dcim/models/cables.py:328
 msgid "Cannot connect different termination types to same end of cable."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:335
+#: netbox/dcim/models/cables.py:336
 #, python-brace-format
 msgid "Incompatible termination types: {type_a} and {type_b}"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:345
+#: netbox/dcim/models/cables.py:346
 msgid "A and B terminations cannot connect to the same object."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:649 netbox/ipam/models/asns.py:38
+#: netbox/dcim/models/cables.py:659 netbox/ipam/models/asns.py:38
 msgid "end"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:720
+#: netbox/dcim/models/cables.py:730
 msgid "cable termination"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:721
+#: netbox/dcim/models/cables.py:731
 msgid "cable terminations"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:734
+#: netbox/dcim/models/cables.py:744
 #, python-brace-format
 msgid ""
 "Cannot connect a cable to {obj_parent} > {obj} because it is marked as "
 "connected."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:751
+#: netbox/dcim/models/cables.py:761
 #, python-brace-format
 msgid ""
 "Duplicate termination found for {app_label}.{model} {termination_id}: cable "
 "{cable_pk}"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:763
+#: netbox/dcim/models/cables.py:773
 msgid ""
 "Cables cannot be terminated directly to a channel subinterface; cable the "
 "parent interface instead."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:769
+#: netbox/dcim/models/cables.py:779
 #, python-brace-format
 msgid "Cables cannot be terminated to {type_display} interfaces"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:776
+#: netbox/dcim/models/cables.py:786
 msgid "Circuit terminations attached to a provider network may not be cabled."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:808
+#: netbox/dcim/models/cables.py:818
 msgid ""
 "Invalid cable termination: the assigned termination object does not exist."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:876 netbox/extras/models/configs.py:105
+#: netbox/dcim/models/cables.py:886 netbox/extras/models/configs.py:105
 msgid "is active"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:880
+#: netbox/dcim/models/cables.py:890
 msgid "is complete"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:884
+#: netbox/dcim/models/cables.py:894
 msgid "is split"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:897
+#: netbox/dcim/models/cables.py:907
 msgid "cable path"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:898
+#: netbox/dcim/models/cables.py:908
 msgid "cable paths"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:989
+#: netbox/dcim/models/cables.py:999
 msgid "All originating terminations must be attached to the same link"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:1010
+#: netbox/dcim/models/cables.py:1020
 msgid "All mid-span terminations must have the same termination type"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:1019
+#: netbox/dcim/models/cables.py:1029
 msgid "All mid-span terminations must have the same parent object"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:1052
+#: netbox/dcim/models/cables.py:1062
 msgid "All links must be cable or wireless"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:1054
+#: netbox/dcim/models/cables.py:1064
 msgid "All links must match first link type"
 msgstr ""
 
@@ -7999,12 +7999,12 @@ msgstr ""
 msgid "rack face"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:657 netbox/dcim/models/devices.py:1392
+#: netbox/dcim/models/devices.py:657 netbox/dcim/models/devices.py:1393
 #: netbox/virtualization/models/virtualmachines.py:190
 msgid "primary IPv4"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:665 netbox/dcim/models/devices.py:1400
+#: netbox/dcim/models/devices.py:665 netbox/dcim/models/devices.py:1401
 #: netbox/virtualization/models/virtualmachines.py:198
 msgid "primary IPv6"
 msgstr ""
@@ -8165,69 +8165,69 @@ msgstr ""
 msgid "Component name conflict after resolving {{vc_position}}: {names}"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1296
+#: netbox/dcim/models/devices.py:1297
 msgid "domain"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1312 netbox/dcim/models/devices.py:1313
+#: netbox/dcim/models/devices.py:1313 netbox/dcim/models/devices.py:1314
 msgid "virtual chassis"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1325
+#: netbox/dcim/models/devices.py:1326
 #, python-brace-format
 msgid "The selected master ({master}) is not assigned to this virtual chassis."
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1341
+#: netbox/dcim/models/devices.py:1342
 #, python-brace-format
 msgid ""
 "Unable to delete virtual chassis {virtual_chassis}. One or more member "
 "interfaces form a cross-chassis LAG."
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1381 netbox/vpn/models/l2vpn.py:42
+#: netbox/dcim/models/devices.py:1382 netbox/vpn/models/l2vpn.py:42
 msgid "identifier"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1382
+#: netbox/dcim/models/devices.py:1383
 msgid "Numeric identifier unique to the parent device"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1410 netbox/extras/models/customfields.py:321
+#: netbox/dcim/models/devices.py:1411 netbox/extras/models/customfields.py:321
 #: netbox/extras/models/models.py:134 netbox/extras/models/models.py:996
 #: netbox/netbox/models/__init__.py:157 netbox/netbox/models/__init__.py:184
 #: netbox/netbox/models/__init__.py:290
 msgid "comments"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1429
+#: netbox/dcim/models/devices.py:1430
 msgid "virtual device context"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1430
+#: netbox/dcim/models/devices.py:1431
 msgid "virtual device contexts"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1458
+#: netbox/dcim/models/devices.py:1459
 #, python-brace-format
 msgid "{ip} is not an IPv{family} address."
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1464
+#: netbox/dcim/models/devices.py:1465
 msgid "Primary IP address must belong to an interface on the assigned device."
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1499
+#: netbox/dcim/models/devices.py:1500
 msgid "MAC addresses"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1532
+#: netbox/dcim/models/devices.py:1533
 msgid ""
 "Cannot unassign MAC Address while it is designated as the primary MAC for an "
 "object"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1536
+#: netbox/dcim/models/devices.py:1537
 msgid ""
 "Cannot reassign MAC Address while it is designated as the primary MAC for an "
 "object"
@@ -10554,7 +10554,7 @@ msgstr ""
 msgid "Timeout"
 msgstr ""
 
-#: netbox/extras/forms/bulk_edit.py:307 netbox/extras/forms/bulk_import.py:321
+#: netbox/extras/forms/bulk_edit.py:307 netbox/extras/forms/bulk_import.py:320
 #: netbox/extras/forms/model_forms.py:611
 msgid "Event types"
 msgstr ""
@@ -10580,7 +10580,7 @@ msgstr ""
 #: netbox/extras/forms/bulk_import.py:178
 #: netbox/extras/forms/bulk_import.py:291
 #: netbox/extras/forms/bulk_import.py:315
-#: netbox/extras/forms/bulk_import.py:402 netbox/extras/forms/filtersets.py:60
+#: netbox/extras/forms/bulk_import.py:406 netbox/extras/forms/filtersets.py:60
 #: netbox/extras/forms/filtersets.py:171 netbox/extras/forms/filtersets.py:267
 #: netbox/extras/forms/filtersets.py:298 netbox/extras/forms/model_forms.py:89
 #: netbox/extras/forms/model_forms.py:347
@@ -10595,7 +10595,7 @@ msgstr ""
 #: netbox/extras/forms/bulk_import.py:180
 #: netbox/extras/forms/bulk_import.py:293
 #: netbox/extras/forms/bulk_import.py:317
-#: netbox/extras/forms/bulk_import.py:404
+#: netbox/extras/forms/bulk_import.py:408
 #: netbox/tenancy/forms/bulk_import.py:106
 msgid "One or more assigned object types"
 msgstr ""
@@ -10705,52 +10705,52 @@ msgstr ""
 msgid "Must specify either local content or a data file"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:322
+#: netbox/extras/forms/bulk_import.py:321
 msgid "The event type(s) which will trigger this rule"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:325
+#: netbox/extras/forms/bulk_import.py:324
 msgid "Action object"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:328
+#: netbox/extras/forms/bulk_import.py:327
 msgid ""
 "The target object for the action, if it requires one. The expected format "
 "depends on the action type (e.g. a webhook or notification group name, or a "
 "script as dotted path module.Class)."
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:351
+#: netbox/extras/forms/bulk_import.py:355
 #, python-brace-format
 msgid "\"{action_type}\" is not a registered action type."
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:357
+#: netbox/extras/forms/bulk_import.py:361
 msgid "This action type requires a target object."
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:367
+#: netbox/extras/forms/bulk_import.py:371
 msgid "This action type does not operate against a target object."
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:374
+#: netbox/extras/forms/bulk_import.py:378
 #, python-brace-format
 msgid "{name} not found"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:378
+#: netbox/extras/forms/bulk_import.py:382
 msgid "This action type does not support bulk import."
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:418
+#: netbox/extras/forms/bulk_import.py:422
 msgid "Assigned object type"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:423
+#: netbox/extras/forms/bulk_import.py:427
 msgid "The classification of entry"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:426 netbox/extras/tables/tables.py:793
+#: netbox/extras/forms/bulk_import.py:430 netbox/extras/tables/tables.py:793
 #: netbox/netbox/tables/tables.py:406 netbox/netbox/tables/tables.py:421
 #: netbox/netbox/tables/tables.py:444 netbox/netbox/ui/panels.py:243
 #: netbox/templates/dcim/htmx/cable_edit.html:110
@@ -10760,7 +10760,7 @@ msgstr ""
 msgid "Comments"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:445
+#: netbox/extras/forms/bulk_import.py:449
 #: netbox/extras/forms/model_forms.py:543 netbox/extras/ui/panels.py:324
 #: netbox/netbox/navigation/menu.py:440 netbox/users/forms/filtersets.py:181
 #: netbox/users/forms/model_forms.py:275 netbox/users/forms/model_forms.py:287
@@ -10770,11 +10770,11 @@ msgstr ""
 msgid "Users"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:449
+#: netbox/extras/forms/bulk_import.py:453
 msgid "User names separated by commas, encased with double quotes"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:452
+#: netbox/extras/forms/bulk_import.py:456
 #: netbox/extras/forms/model_forms.py:538 netbox/extras/ui/panels.py:319
 #: netbox/netbox/navigation/menu.py:309 netbox/netbox/navigation/menu.py:441
 #: netbox/tenancy/forms/bulk_edit.py:121 netbox/tenancy/forms/filtersets.py:107
@@ -10787,7 +10787,7 @@ msgstr ""
 msgid "Groups"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:456
+#: netbox/extras/forms/bulk_import.py:460
 msgid "Group names separated by commas, encased with double quotes"
 msgstr ""
 
@@ -14875,50 +14875,50 @@ msgid ""
 "set to None."
 msgstr ""
 
-#: netbox/netbox/models/features.py:325
+#: netbox/netbox/models/features.py:343
 #, python-brace-format
 msgid "Invalid value for custom field '{name}': {error}"
 msgstr ""
 
-#: netbox/netbox/models/features.py:334
+#: netbox/netbox/models/features.py:352
 #, python-brace-format
 msgid "Custom field '{name}' must have a unique value."
 msgstr ""
 
-#: netbox/netbox/models/features.py:341
+#: netbox/netbox/models/features.py:359
 #, python-brace-format
 msgid "Missing required custom field '{name}'."
 msgstr ""
 
-#: netbox/netbox/models/features.py:581
+#: netbox/netbox/models/features.py:599
 msgid "Remote data source"
 msgstr ""
 
-#: netbox/netbox/models/features.py:591
+#: netbox/netbox/models/features.py:609
 msgid "data path"
 msgstr ""
 
-#: netbox/netbox/models/features.py:595
+#: netbox/netbox/models/features.py:613
 msgid "Path to remote file (relative to data source root)"
 msgstr ""
 
-#: netbox/netbox/models/features.py:598
+#: netbox/netbox/models/features.py:616
 msgid "auto sync enabled"
 msgstr ""
 
-#: netbox/netbox/models/features.py:600
+#: netbox/netbox/models/features.py:618
 msgid "Enable automatic synchronization of data when the data file is updated"
 msgstr ""
 
-#: netbox/netbox/models/features.py:603
+#: netbox/netbox/models/features.py:621
 msgid "date synced"
 msgstr ""
 
-#: netbox/netbox/models/features.py:686
+#: netbox/netbox/models/features.py:704
 msgid "The selected data file is empty or its content could not be read."
 msgstr ""
 
-#: netbox/netbox/models/features.py:716
+#: netbox/netbox/models/features.py:739
 #, python-brace-format
 msgid "{class_name} must implement a sync_data() method."
 msgstr ""
