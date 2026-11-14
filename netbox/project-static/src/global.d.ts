@@ -96,5 +96,10 @@ interface HTMLElementEventMap {
     parameters: Record<string, string>;
     formData: FormData;
     headers: Record<string, string>;
+    elt: Element;
   }>;
+}
+
+interface DocumentEventMap {
+  'htmx:configRequest': HTMLElementEventMap['htmx:configRequest'];
 }

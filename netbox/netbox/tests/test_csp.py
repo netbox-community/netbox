@@ -34,6 +34,20 @@ class ScriptCollector(HTMLParser):
                 self.handlers.append(f'<{tag} {name}="{attrs[name]}">')
 
 
+class HxTriggerCollector(HTMLParser):
+    """
+    Record the attributes of every <input> element that has an hx-trigger attribute.
+    """
+    def __init__(self):
+        super().__init__()
+        self.inputs = []
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag == 'input' and 'hx-trigger' in attrs:
+            self.inputs.append(attrs)
+
+
 @override_settings(SECURE_CSP=CSP_POLICY, DEBUG=False)
 class ScriptNonceTestCase(TestCase):
     """
@@ -94,3 +108,15 @@ class ScriptNonceTestCase(TestCase):
 
     def test_graphiql(self):
         self.assertScriptsNonced(self.client.get(reverse('graphql'), HTTP_ACCEPT='text/html'))
+
+    def test_search_has_no_runtime_eval(self):
+        # A trigger filter such as keyup[...] is compiled with eval by htmx, which a policy without
+        # 'unsafe-eval' blocks (htmx then fires with no filter at all).
+        response = self.client.get(reverse('search'))
+        self.assertHttpStatus(response, 200)
+        collector = HxTriggerCollector()
+        collector.feed(response.content.decode())
+        self.assertEqual(len(collector.inputs), 1)
+        attrs = collector.inputs[0]
+        self.assertEqual(attrs['hx-trigger'], 'netbox:search-input changed delay:500ms')
+        self.assertEqual(attrs['data-search-min-length'], '3')

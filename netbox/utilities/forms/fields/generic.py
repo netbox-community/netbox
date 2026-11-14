@@ -195,9 +195,8 @@ class GenericObjectChoiceField(forms.MultiValueField):
 
         # Clear the paired object selection client-side when the content type changes, so a stale object_id
         # cannot cross model boundaries on the HTMX re-render (a Site pk must not resurface as a Region pk).
-        self.content_type_field.widget.attrs['hx-on::config-request'] = (
-            f"event.detail.parameters['{field_name}_object_id'] = ''"
-        )
+        # The htmx:configRequest listener in htmx.ts blanks the parameter named here.
+        self.content_type_field.widget.attrs['data-htmx-clear-param'] = f'{field_name}_object_id'
 
         content_type_value = self._resolve_subvalue(form, field_name, 'content_type')
         object_value = self._resolve_subvalue(form, field_name, 'object_id')
