@@ -261,9 +261,6 @@ class LoginRequiredMiddlewareTestCase(TestCase):
 class ContentSecurityPolicyTestCase(TestCase):
     """
     SECURE_CSP and SECURE_CSP_REPORT_ONLY are passed through to Django's CSP middleware.
-
-    Django adds the nonce to the header only when the rendered page reads csp_nonce. The nonce
-    tests set DEBUG=True because {% django_htmx_script %} in base.html then does.
     """
 
     def setUp(self):
@@ -276,7 +273,7 @@ class ContentSecurityPolicyTestCase(TestCase):
         self.assertIsNotNone(match, f'No nonce in {header}: {response[header]}')
         return match.group(1)
 
-    @override_settings(SECURE_CSP=CSP_POLICY, DEBUG=True)
+    @override_settings(SECURE_CSP=CSP_POLICY)
     def test_policy_sends_header_with_nonce(self):
         response = self.anonymous_client.get(reverse('login'))
         self.assertHttpStatus(response, 200)
@@ -284,13 +281,13 @@ class ContentSecurityPolicyTestCase(TestCase):
         nonce = self.get_nonce(response)
         self.assertIn(f'nonce="{nonce}"', response.content.decode())
 
-    @override_settings(SECURE_CSP=CSP_POLICY, DEBUG=True)
+    @override_settings(SECURE_CSP=CSP_POLICY)
     def test_nonce_differs_between_requests(self):
         nonce1 = self.get_nonce(self.anonymous_client.get(reverse('login')))
         nonce2 = self.get_nonce(self.anonymous_client.get(reverse('login')))
         self.assertNotEqual(nonce1, nonce2)
 
-    @override_settings(SECURE_CSP_REPORT_ONLY=CSP_POLICY, DEBUG=True)
+    @override_settings(SECURE_CSP_REPORT_ONLY=CSP_POLICY)
     def test_report_only_policy(self):
         response = self.anonymous_client.get(reverse('login'))
         self.assertHttpStatus(response, 200)

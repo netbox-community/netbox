@@ -24,19 +24,29 @@
     {# Page title #}
     <title>{% block title %}{% trans "Home" %}{% endblock %} | NetBox</title>
 
+    {# Redirect to the media failure page if a core static asset fails to load. Must precede those assets. #}
+    <script type="text/javascript" nonce="{{ csp_nonce }}">
+      window.addEventListener('error', function (event) {
+        if (event.target instanceof Element && event.target.dataset.mediaFailure) {
+          window.location = '{% url 'media_failure' %}?filename=' + event.target.dataset.mediaFailure;
+        }
+      }, true);
+    </script>
+
     {# Initialize color mode and sidebar folding #}
     <script
       type="text/javascript"
       src="{% static_with_params 'setmode.js' v=settings.RELEASE.version %}"
-      onerror="window.location='{% url 'media_failure' %}?filename=setmode.js'">
+      data-media-failure="setmode.js"
+      nonce="{{ csp_nonce }}">
     </script>
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ csp_nonce }}">
       (function () {
         initMode()
       })();
       window.CSRF_TOKEN = "{{ csrf_token }}";
     </script>
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ csp_nonce }}">
       initSidebar();
     </script>
 
@@ -44,12 +54,12 @@
     <link
       rel="stylesheet"
       href="{% static_with_params 'netbox-external.css' v=settings.RELEASE.version %}"
-      onerror="window.location='{% url 'media_failure' %}?filename=netbox-external.css'"
+      data-media-failure="netbox-external.css"
     />
     <link
       rel="stylesheet"
       href="{% static_with_params 'netbox.css' v=settings.RELEASE.version %}"
-      onerror="window.location='{% url 'media_failure' %}?filename=netbox.css'"
+      data-media-failure="netbox.css"
     />
     <link rel="icon" type="image/png" href="{% static 'netbox.ico' %}" />
     <link rel="apple-touch-icon" type="image/png" href="{% static 'netbox_touch-icon-180.png' %}" />
@@ -58,7 +68,8 @@
     <script
       type="text/javascript"
       src="{% static_with_params 'netbox.js' v=settings.RELEASE.version %}"
-      onerror="window.location='{% url 'media_failure' %}?filename=netbox.js'">
+      data-media-failure="netbox.js"
+      nonce="{{ csp_nonce }}">
     </script>
     {% django_htmx_script %}
 
@@ -74,7 +85,7 @@
 
     {# Additional Javascript #}
     {% if copilot_enabled and request.user.is_authenticated %}
-      <script src="{{ settings.NETBOX_COPILOT_URL }}" defer></script>
+      <script src="{{ settings.NETBOX_COPILOT_URL }}" defer nonce="{{ csp_nonce }}"></script>
     {% endif %}
     {% block javascript %}{% endblock %}
 
