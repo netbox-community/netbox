@@ -3,6 +3,7 @@ import importlib.util
 import logging
 import os
 import sys
+import warnings
 from collections import defaultdict
 
 from django.core.exceptions import ValidationError
@@ -253,6 +254,13 @@ class RenderTemplateMixin(models.Model):
                 type(self).__name__, self.pk,
             )
             return {key: value for key, value in params.items() if key != 'finalize'}
+        # The pk makes each template's text unique, so the default filter warns once per template.
+        # Do not set stacklevel: a caller's line would repeat the warning for each caller.
+        warnings.warn(
+            f'The "finalize" environment parameter stored on {type(self).__name__} (pk={self.pk}) is deprecated and '
+            'will be removed in NetBox v5.0. Move its logic into the template code.',
+            FutureWarning,
+        )
         return {**params, 'finalize': stored_finalize}
 
     def get_environment_params(self):
