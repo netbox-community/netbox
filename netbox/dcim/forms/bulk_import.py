@@ -510,6 +510,12 @@ class ModuleTypeProfileImportForm(PrimaryModelImportForm):
 
 
 class ModuleTypeImportForm(PrimaryModelImportForm):
+    module_bay_types = CSVModelMultipleChoiceField(
+        label=_('Module bay types'),
+        queryset=ModuleBayType.objects.all(),
+        to_field_name='name',
+        required=False,
+    )
     profile = forms.ModelChoiceField(
         label=_('Profile'),
         queryset=ModuleTypeProfile.objects.all(),
@@ -554,7 +560,7 @@ class ModuleTypeImportForm(PrimaryModelImportForm):
         model = ModuleType
         fields = [
             'manufacturer', 'model', 'part_number', 'description', 'cooling_method', 'airflow', 'weight', 'weight_unit',
-            'end_of_life', 'profile', 'attribute_data', 'owner', 'comments', 'tags',
+            'end_of_life', 'profile', 'attribute_data', 'module_bay_types', 'owner', 'comments', 'tags',
         ]
 
     def clean(self):
@@ -567,6 +573,40 @@ class ModuleTypeImportForm(PrimaryModelImportForm):
         # Default attribute_data to an empty dictionary if a profile is specified (to enforce schema validation)
         if self.cleaned_data.get('profile') and not self.cleaned_data.get('attribute_data'):
             self.cleaned_data['attribute_data'] = {}
+
+        module_bay_types = self.cleaned_data.get('module_bay_types')
+        manufacturer = self.cleaned_data.get('manufacturer')
+
+        # If importing an update to an existing module type and the manufacturer is not in
+        # the import data, use the existing manufacturer.
+        if manufacturer is None and self.instance.pk:
+            manufacturer = self.instance.manufacturer
+        if not module_bay_types or manufacturer is None:
+            return
+
+        # Match the module's manufacturer or a global bay type, preferring the former
+        # when a name is shared, as with module bay template imports.
+        by_name = {}
+        for module_bay_type in module_bay_types:
+            if module_bay_type.manufacturer_id not in (None, manufacturer.pk):
+                continue
+            existing = by_name.get(module_bay_type.name)
+            if existing is None or module_bay_type.manufacturer_id is not None:
+                by_name[module_bay_type.name] = module_bay_type
+
+        # A name matching only some other manufacturer's bay type is rejected rather than
+        # resolved to it.
+        for module_bay_type in module_bay_types:
+            if module_bay_type.name not in by_name:
+                raise forms.ValidationError({
+                    'module_bay_types': forms.ValidationError(
+                        self.fields['module_bay_types'].error_messages['invalid_choice'],
+                        code='invalid_choice',
+                        params={'value': module_bay_type.name},
+                    )
+                })
+
+        self.cleaned_data['module_bay_types'] = list(by_name.values())
 
 
 class DeviceRoleImportForm(NestedGroupModelImportForm):
