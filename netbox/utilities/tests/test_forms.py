@@ -766,7 +766,7 @@ class DynamicModelChoiceFieldTestCase(TestCase):
         )
         Rack.objects.bulk_create(cls.racks)
 
-    def _make_form(self, site_field_class, data=None, rack_context=None):
+    def _make_form(self, site_field_class, data=None, rack_context=None, rack_initial=None):
         class TestForm(forms.Form):
             rack = DynamicModelMultipleChoiceField(queryset=Rack.objects.all(), required=False, context=rack_context)
             site = site_field_class(
@@ -774,7 +774,9 @@ class DynamicModelChoiceFieldTestCase(TestCase):
                 required=False,
                 initial_params={'racks__in': '$rack'},
             )
-        return TestForm(data=data, initial={'rack': [rack.pk for rack in self.racks]})
+        if rack_initial is None:
+            rack_initial = [rack.pk for rack in self.racks]
+        return TestForm(data=data, initial={'rack': rack_initial})
 
     def test_multiple_choice_field_selects_every_matching_object(self):
         """A multiple-choice parent field selects every distinct object matched by initial_params."""
@@ -800,6 +802,12 @@ class DynamicModelChoiceFieldTestCase(TestCase):
 
         self.assertIn(field.initial, self.sites)
         self.assertEqual(field.queryset.count(), 1)
+
+    def test_invalid_child_value_leaves_initial_unset(self):
+        """An invalid child value leaves a parent field without an initial value."""
+        field = self._make_form(DynamicModelMultipleChoiceField, rack_initial=[''])['site'].field
+
+        self.assertFalse(field.initial)
 
     def test_options_name_their_parent(self):
         """Each rendered option names its parent object."""
