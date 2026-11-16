@@ -3984,6 +3984,15 @@ class InterfaceView(generic.ObjectView):
                 filters={'interface_id': lambda ctx: ctx['object'].pk},
                 title=_('IP Addresses'),
                 exclude_columns=['assigned', 'assigned_object', 'assigned_object_parent'],
+                actions=[
+                    actions.AddObject(
+                        'ipam.IPAddress',
+                        url_params={
+                            'device': lambda ctx: ctx['object'].device.pk,
+                            'interface': lambda ctx: ctx['object'].pk,
+                        },
+                    ),
+                ],
             ),
             ObjectsTablePanel(
                 model='dcim.MACAddress',
