@@ -180,23 +180,25 @@ def arc_slot(cx, cy, radius, start, end, width):
 #
 
 class Transform:
-    def __init__(self, scale, mirror):
+    def __init__(self, scale, mirror, centre):
         self.scale = scale
         self.mirror = mirror
+        self.centre = centre
 
     def point(self, x, y):
-        x *= self.scale
-        return SIZE / 2 + (-x if self.mirror else x), SIZE / 2 + y * self.scale
+        x = (x - self.centre[0]) * self.scale
+        return SIZE / 2 + (-x if self.mirror else x), SIZE / 2 + (y - self.centre[1]) * self.scale
 
 
 class Drawing:
     """
-    The face of a connector. width and height give the extent of the face (in mm) about its centre, which is
-    scaled to fill the frame.
+    The face of a connector. width and height give the extent of the face (in mm) about centre (by default the
+    origin), which is scaled to fill the frame.
     """
-    def __init__(self, width, height):
+    def __init__(self, width, height, centre=(0, 0)):
         self.width = width
         self.height = height
+        self.centre = centre
         self.elements = []
 
     def outline(self, *shapes):
@@ -212,7 +214,7 @@ class Drawing:
         return self
 
     def svg(self, mirror=False):
-        tx = Transform(CONTENT / max(self.width, self.height), mirror)
+        tx = Transform(CONTENT / max(self.width, self.height), mirror, self.centre)
         groups = {
             'outline': f'<g fill="none" stroke="#000" stroke-width="{OUTLINE}" stroke-linejoin="round">',
             'detail': f'<g fill="none" stroke="#000" stroke-width="{DETAIL}" stroke-linejoin="round">',
@@ -329,13 +331,15 @@ IEC_60309_SIZES = {
 def iec_60309(contacts, hour, male=False):
     radius, key_offset, pin_circle, shroud = IEC_60309_SIZES[contacts]
     if male:
-        outer = shroud[1]
-        drawing = Drawing(2 * outer, 2 * outer).outline(keyed_circle(outer, 3, outer + 0.2))
-        drawing.detail(Circle(0, 0, shroud[0]))
-        earth_r, line_r = 3.5, 2.5
+        radius, key_offset, key_r, earth_r, line_r = shroud[1], shroud[1] + 0.2, 3, 3.5, 2.5
     else:
-        drawing = Drawing(2 * radius, 2 * radius).outline(keyed_circle(radius, 3.5, key_offset))
-        earth_r, line_r = 4.0, 3.0
+        key_r, earth_r, line_r = 3.5, 4.0, 3.0
+    # The key projects below the circle
+    bottom = key_offset + key_r
+    drawing = Drawing(2 * radius, radius + bottom, centre=(0, (bottom - radius) / 2))
+    drawing.outline(keyed_circle(radius, key_r, key_offset))
+    if male:
+        drawing.detail(Circle(0, 0, shroud[0]))
     for i in range(contacts):
         x, y = polar(0, 0, pin_circle, hour * 30 + i * 360 / contacts)
         drawing.fill(Circle(x, y, earth_r if i == 0 else line_r))
@@ -425,6 +429,13 @@ NEMA_STRAIGHT = {
     '15-60': lambda: nema(
         nema_v(-0.52, -0.04, 0.66), nema_h(0.45, 0, 0.65), nema_h(0.03, 0.56, 0.65), ground=-0.63
     ),
+}
+
+# Plugs whose blades don't match their receptacle's slots: the T-shaped slots of 5-20R and 6-20R also accept
+# 15 A plugs. Drawn in receptacle orientation (and mirrored like the other plugs).
+NEMA_STRAIGHT_PLUGS = {
+    '5-20': lambda: nema(nema_h(0.52, 0.1, 0.46), nema_v(-0.38, 0.12, 0.47)),
+    '6-20': lambda: nema(nema_v(0.25, 0.13, 0.47), nema_h(-0.42, 0.15, 0.47)),
 }
 
 
@@ -1174,7 +1185,8 @@ def iec_60309_types(male=False):
 def nema_types(male=False):
     """Return a drawing function for each NEMA (straight-blade and locking) and California Style type."""
     suffix = 'p' if male else 'r'
-    types = {f'nema-{name}{suffix}': func for name, func in {**NEMA_STRAIGHT, **NEMA_LOCKING}.items()}
+    faces = {**NEMA_STRAIGHT, **NEMA_LOCKING, **(NEMA_STRAIGHT_PLUGS if male else {})}
+    types = {f'nema-{name}{suffix}': func for name, func in faces.items()}
     if male:
         types = {value: mirrored(func) for value, func in types.items()}
     for (female_value, male_value), (slots, lugs, recess) in CALIFORNIA_STYLE.items():

@@ -1043,56 +1043,58 @@ class HTMXSelectTestCase(TestCase):
         self.assertEqual(widget.attrs['hx-include'], '#form_fields')
 
 
-class DescriptionSelectTestCase(TestCase):
+class StaticSelectTestCase(TestCase):
     """
-    Validate the rendering of option descriptions in static select fields.
+    Validate the rendering of option descriptions and images in static select fields.
     """
     class ExampleChoices(ChoiceSet):
         FOO = 'foo'
         BAR = 'bar'
         CHOICES = (
-            Choice(FOO, 'Foo', description='Description of foo'),
+            Choice(FOO, 'Foo', description='Description of foo', image='foo.svg'),
             Choice(BAR, 'Bar'),
         )
 
-    def test_choiceset_descriptions_populate_widget(self):
-        field = ChoiceField(choices=self.ExampleChoices)
-        self.assertEqual(field.widget.descriptions, {self.ExampleChoices.FOO: 'Description of foo'})
-
-    def test_multiplechoicefield_descriptions_populate_widget(self):
-        field = MultipleChoiceField(choices=self.ExampleChoices)
-        self.assertEqual(field.widget.descriptions, {self.ExampleChoices.FOO: 'Description of foo'})
+    def test_choiceset_populates_widget(self):
+        for field_class in (ChoiceField, MultipleChoiceField, TypedChoiceField):
+            with self.subTest(field_class=field_class.__name__):
+                field = field_class(choices=self.ExampleChoices)
+                self.assertEqual(field.widget.descriptions, {self.ExampleChoices.FOO: 'Description of foo'})
+                self.assertEqual(field.widget.images, {self.ExampleChoices.FOO: 'foo.svg'})
 
     def test_show_descriptions_false_suppresses_descriptions(self):
         field = ChoiceField(choices=self.ExampleChoices, show_descriptions=False)
         self.assertEqual(field.widget.descriptions, {})
 
-    def test_add_blank_choice_preserves_descriptions(self):
+    def test_add_blank_choice_preserves_attrs(self):
         field = ChoiceField(choices=add_blank_choice(self.ExampleChoices))
         self.assertEqual(field.widget.descriptions, {self.ExampleChoices.FOO: 'Description of foo'})
+        self.assertEqual(field.widget.images, {self.ExampleChoices.FOO: 'foo.svg'})
 
-    def test_data_description_rendered_on_option(self):
+    @override_settings(STATIC_URL='/static/')
+    def test_data_attrs_rendered_on_option(self):
         field = ChoiceField(choices=self.ExampleChoices)
         html = field.widget.render('test', None)
         self.assertInHTML(
-            '<option value="foo" data-description="Description of foo">Foo</option>',
+            '<option value="foo" data-description="Description of foo" data-image="/static/foo.svg">Foo</option>',
             html
         )
-        # Options without a description should not receive the attribute
+        # Options without a description or image should not receive the attributes
         self.assertInHTML('<option value="bar">Bar</option>', html)
 
-    def test_choiceset_without_descriptions(self):
-        class NoDescriptions(ChoiceSet):
+    def test_choiceset_without_attrs(self):
+        class NoAttrs(ChoiceSet):
             CHOICES = (('a', 'A'),)
 
-        field = ChoiceField(choices=NoDescriptions)
+        field = ChoiceField(choices=NoAttrs)
         self.assertEqual(field.widget.descriptions, {})
+        self.assertEqual(field.widget.images, {})
 
-    def test_descriptions_refresh_when_choices_reassigned(self):
-        """Reassigning a field's choices after construction should refresh the widget's description map."""
+    def test_attrs_refresh_when_choices_reassigned(self):
+        """Reassigning a field's choices after construction should refresh the widget's description and image maps."""
         class OtherChoices(ChoiceSet):
             CHOICES = (
-                Choice('baz', 'Baz', description='Description of baz'),
+                Choice('baz', 'Baz', description='Description of baz', image='baz.svg'),
             )
 
         field = ChoiceField(choices=self.ExampleChoices)
@@ -1100,15 +1102,12 @@ class DescriptionSelectTestCase(TestCase):
 
         field.choices = OtherChoices
         self.assertEqual(field.widget.descriptions, {'baz': 'Description of baz'})
+        self.assertEqual(field.widget.images, {'baz': 'baz.svg'})
 
     def test_show_descriptions_false_suppresses_on_reassignment(self):
         field = ChoiceField(choices=self.ExampleChoices, show_descriptions=False)
         field.choices = self.ExampleChoices
         self.assertEqual(field.widget.descriptions, {})
-
-    def test_typedchoicefield_populates_descriptions(self):
-        field = TypedChoiceField(choices=self.ExampleChoices)
-        self.assertEqual(field.widget.descriptions, {self.ExampleChoices.FOO: 'Description of foo'})
 
     def test_typedchoicefield_empty_value_defaults_to_none(self):
         """A blank selection on a TypedChoiceField resolves to None (for storage as NULL) rather than ''."""
@@ -1122,10 +1121,11 @@ class DescriptionSelectTestCase(TestCase):
         self.assertInHTML('<option value="x" data-description="Description X">X</option>', html)
         self.assertInHTML('<option value="y">Y</option>', html)
 
-    def test_deepcopy_does_not_share_descriptions(self):
-        widget = Select(choices=[('x', 'X')], descriptions={'x': 'Description X'})
+    def test_deepcopy_does_not_share_attrs(self):
+        widget = Select(choices=[('x', 'X')], descriptions={'x': 'Description X'}, images={'x': 'x.svg'})
         clone = copy.deepcopy(widget)
         self.assertIsNot(widget.descriptions, clone.descriptions)
+        self.assertIsNot(widget.images, clone.images)
         widget.descriptions['y'] = 'leaked'
         self.assertNotIn('y', clone.descriptions)
 
@@ -1155,49 +1155,3 @@ class DescriptionSelectTestCase(TestCase):
         self.assertTrue(calls)
         # And descriptions are still collected as normal
         self.assertEqual(field.widget.descriptions, {self.ExampleChoices.FOO: 'Description of foo'})
-
-
-class ImageSelectTestCase(TestCase):
-    """
-    Validate the rendering of option images in static select fields.
-    """
-    class ExampleChoices(ChoiceSet):
-        FOO = 'foo'
-        BAR = 'bar'
-        CHOICES = (
-            Choice(FOO, 'Foo', image='foo.svg'),
-            Choice(BAR, 'Bar'),
-        )
-
-    def test_choiceset_images_populate_widget(self):
-        for field_class in (ChoiceField, MultipleChoiceField, TypedChoiceField):
-            with self.subTest(field_class=field_class.__name__):
-                field = field_class(choices=self.ExampleChoices)
-                self.assertEqual(field.widget.images, {self.ExampleChoices.FOO: 'foo.svg'})
-
-    def test_add_blank_choice_preserves_images(self):
-        field = ChoiceField(choices=add_blank_choice(self.ExampleChoices))
-        self.assertEqual(field.widget.images, {self.ExampleChoices.FOO: 'foo.svg'})
-
-    def test_images_refresh_when_choices_reassigned(self):
-        class OtherChoices(ChoiceSet):
-            CHOICES = (
-                Choice('baz', 'Baz', image='baz.svg'),
-            )
-
-        field = ChoiceField(choices=self.ExampleChoices)
-        field.choices = OtherChoices
-        self.assertEqual(field.widget.images, {'baz': 'baz.svg'})
-
-    @override_settings(STATIC_URL='/static/')
-    def test_data_image_rendered_on_option(self):
-        field = ChoiceField(choices=self.ExampleChoices)
-        html = field.widget.render('test', None)
-        self.assertInHTML('<option value="foo" data-image="/static/foo.svg">Foo</option>', html)
-        # Options without an image should not receive the attribute
-        self.assertInHTML('<option value="bar">Bar</option>', html)
-
-    def test_deepcopy_does_not_share_images(self):
-        widget = Select(choices=[('x', 'X')], images={'x': 'x.svg'})
-        clone = copy.deepcopy(widget)
-        self.assertIsNot(widget.images, clone.images)

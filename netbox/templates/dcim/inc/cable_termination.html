@@ -24,6 +24,14 @@
             {{ term.device|linkify }}
             <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
             {{ term|linkify }}
+            {% if term.type %}
+              <span class="text-secondary ms-1">
+                {% if term.get_type_image %}
+                  <img src="{% static term.get_type_image %}" class="choice-image" alt="" />
+                {% endif %}
+                {{ term.get_type_display }}
+              </span>
+            {% endif %}
             <a href="{% action_url term 'trace' pk=term.pk %}" class="btn btn-sm btn-primary" title="{% trans "Trace" %}">
               <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
             </a>
@@ -31,23 +39,6 @@
           {% endfor %}
         </td>
       </tr>
-      {% if terminations.0.type %}
-        <tr>
-          <th scope="row">{% trans "Type" %}</th>
-          <td>
-            {% for term in terminations %}
-              {% ifchanged term.type %}
-                <div>
-                  {% if term.get_type_image %}
-                    <img src="{% static term.get_type_image %}" class="choice-image choice-image-lg me-2" alt="" />
-                  {% endif %}
-                  {{ term.get_type_display|placeholder }}
-                </div>
-              {% endifchanged %}
-            {% endfor %}
-          </td>
-        </tr>
-      {% endif %}
     {% elif terminations.0.power_panel %}
       {# Power feed #}
       <tr>
