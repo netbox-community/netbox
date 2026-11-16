@@ -211,7 +211,7 @@ class IPRangeType(ContactsMixin, PrimaryObjectType):
 
 @register_type(
     models.Prefix,
-    exclude=['scope_type', 'scope_id', '_location', '_region', '_site', '_site_group'],
+    exclude=['scope_type', 'scope_id', '_classification', '_location', '_region', '_site', '_site_group'],
     filters=PrefixFilter,
     pagination=True
 )
@@ -226,6 +226,10 @@ class PrefixType(ContactsMixin, PrimaryObjectType):
     @strawberry_django.field(only=['prefix'])
     def family(self) -> IPAddressFamilyType:
         return IPAddressFamilyType(value=self.family, label=f'IPv{self.family}')
+
+    @strawberry_django.field(only=['prefix'])
+    def classification(self) -> str:
+        return self.classification
 
     @strawberry_django.field(
         prefetch_related=build_gfk_prefetch(

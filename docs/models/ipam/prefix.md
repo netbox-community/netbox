@@ -8,6 +8,27 @@ A prefix is an IPv4 or IPv6 network and mask expressed in CIDR notation (e.g. 19
 
 The IPv4 or IPv6 network this prefix represents.
 
+### Classification
+
+Classification describes the address space covered by a prefix and is read-only. It does not indicate ownership, route advertisement, or reachability.
+
+The most specific containing range determines the classification, and adjacent ranges of the same classification are treated as one. For example, `192.0.0.0/24` is special-purpose and `192.0.0.9/32` is public. Prefixes that do not fit another classification, such as `10.0.0.0/7`, are public.
+
+| Classification  | Address space                                                                                             |
+|-----------------|-----------------------------------------------------------------------------------------------------------|
+| Public          | All other space, including globally reachable blocks such as 192.0.0.9/32 and 64:ff9b::/96                 |
+| Private         | 10.0.0.0/8, 172.16.0.0/12 and 192.168.0.0/16 (RFC 1918), fc00::/7 (RFC 4193)                               |
+| Shared          | 100.64.0.0/10 (RFC 6598)                                                                                  |
+| Loopback        | 127.0.0.0/8, ::1/128                                                                                      |
+| Link-local      | 169.254.0.0/16, fe80::/10                                                                                 |
+| Documentation   | 192.0.2.0/24, 198.51.100.0/24, 203.0.113.0/24, 2001:db8::/32, 3fff::/20                                   |
+| Multicast       | 224.0.0.0/4, ff00::/8                                                                                     |
+| Benchmarking    | 198.18.0.0/15, 2001:2::/48                                                                                |
+| Special-purpose | Other blocks of the IANA special-purpose registries which are not marked globally reachable (including deprecated blocks, TEREDO and 6to4), and IPv6 space reserved by the IETF |
+
+!!! note
+    Custom validators use `classification`, which reflects the current prefix. Object permission constraints and direct ORM queries use the stored copy, `_classification`.
+
 ### Status
 
 The prefix's operational status. Note that the status of a prefix does _not_ have any impact on its member [IP addresses](./ipaddress.md), which may have their statuses defined independently. The "container" status indicates that the prefix exists merely as a container for organizing child prefixes.

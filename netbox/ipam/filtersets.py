@@ -434,6 +434,11 @@ class PrefixFilterSet(PrimaryModelFilterSet, ScopedFilterSet, TenancyFilterSet, 
         distinct=False,
         null_value=None
     )
+    classification = django_filters.MultipleChoiceFilter(
+        field_name='_classification',
+        choices=PrefixClassificationChoices,
+        distinct=False,
+    )
 
     class Meta:
         model = Prefix

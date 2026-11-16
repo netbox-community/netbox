@@ -187,6 +187,12 @@ class PrefixTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
         verbose_name=_('Status'),
         default=AVAILABLE_LABEL
     )
+    # Read the property so unsaved prefixes display and sort correctly
+    classification = columns.ChoiceFieldColumn(
+        verbose_name=_('Classification'),
+        accessor='get_classification_display',
+        order_by=('classification',)
+    )
     vrf = tables.TemplateColumn(
         template_code=VRF_LINK,
         verbose_name=_('VRF')
@@ -236,9 +242,9 @@ class PrefixTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
     class Meta(PrimaryModelTable.Meta):
         model = Prefix
         fields = (
-            'pk', 'id', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'tenant_group',
-            'scope', 'scope_type', 'vlan_group', 'vlan', 'role', 'is_pool', 'mark_utilized', 'description', 'contacts',
-            'comments', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'prefix', 'prefix_flat', 'status', 'classification', 'children', 'vrf', 'utilization',
+            'tenant', 'tenant_group', 'scope', 'scope_type', 'vlan_group', 'vlan', 'role', 'is_pool', 'mark_utilized',
+            'description', 'contacts', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'prefix', 'status', 'children', 'vrf', 'utilization', 'tenant', 'scope', 'vlan', 'role',
@@ -247,6 +253,10 @@ class PrefixTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
         row_attrs = {
             'class': lambda record: 'success' if not record.pk else '',
         }
+
+    def order_classification(self, queryset, is_descending):
+        # Querysets sort by the stored field; list data sorts by the property
+        return queryset.order_by('-_classification' if is_descending else '_classification'), True
 
 
 #

@@ -13,7 +13,14 @@ from ipam.choices import *
 from ipam.models import *
 from tenancy.models import Tenant
 from utilities.data import string_to_ranges
-from utilities.testing import APITestCase, APIViewTestCases, create_tags, create_test_device, disable_logging
+from utilities.testing import (
+    APITestCase,
+    APIViewTestCases,
+    GraphQLFilterTest,
+    create_tags,
+    create_test_device,
+    disable_logging,
+)
 
 
 class AppTestCase(APITestCase):
@@ -565,6 +572,13 @@ class PrefixTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_invalid_data = {
         'status': 'not-a-valid-status',
     }
+    graphql_filter_tests = (
+        GraphQLFilterTest(
+            name='classification',
+            filters='classification: {exact: CLASSIFICATION_PUBLIC}',
+            expected=lambda qs: qs.filter(prefix='2001:4860::/32'),
+        ),
+    )
 
     @classmethod
     def setUpTestData(cls):
@@ -573,6 +587,7 @@ class PrefixTestCase(APIViewTestCases.APIViewTestCase):
             Prefix(prefix=IPNetwork('192.168.1.0/24')),
             Prefix(prefix=IPNetwork('192.168.2.0/24')),
             Prefix(prefix=IPNetwork('192.168.3.0/24')),
+            Prefix(prefix=IPNetwork('2001:4860::/32')),
         )
         Prefix.objects.bulk_create(prefixes)
 
@@ -600,6 +615,39 @@ class PrefixTestCase(APIViewTestCases.APIViewTestCase):
 
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
+
+    def test_classification_is_read_only(self):
+        """The classification follows the prefix and ignores a submitted value."""
+        self.add_permissions('ipam.add_prefix', 'ipam.change_prefix')
+        url = reverse('ipam-api:prefix-list')
+        data = {'prefix': '10.10.0.0/16', 'classification': PrefixClassificationChoices.CLASSIFICATION_PUBLIC}
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['classification']['value'], PrefixClassificationChoices.CLASSIFICATION_PRIVATE)
+
+        url = reverse('ipam-api:prefix-detail', kwargs={'pk': response.data['id']})
+        response = self.client.patch(url, {'prefix': '8.8.8.0/24'}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['classification']['value'], PrefixClassificationChoices.CLASSIFICATION_PUBLIC)
+
+    def test_graphql_classification(self):
+        """GraphQL returns the classification of each prefix."""
+        self.add_permissions('ipam.view_prefix')
+        url = reverse('graphql')
+        query = '{ prefix_list { prefix classification } }'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = response.json()
+        self.assertNotIn('errors', data)
+        self.assertEqual(
+            {row['prefix']: row['classification'] for row in data['data']['prefix_list']},
+            {
+                '192.168.1.0/24': PrefixClassificationChoices.CLASSIFICATION_PRIVATE,
+                '192.168.2.0/24': PrefixClassificationChoices.CLASSIFICATION_PRIVATE,
+                '192.168.3.0/24': PrefixClassificationChoices.CLASSIFICATION_PRIVATE,
+                '2001:4860::/32': PrefixClassificationChoices.CLASSIFICATION_PUBLIC,
+            },
+        )
 
     def test_list_available_prefixes(self):
         """
@@ -685,6 +733,9 @@ class PrefixTestCase(APIViewTestCases.APIViewTestCase):
             self.assertEqual(response.data['is_pool'], True)
             self.assertEqual(response.data['tenant']['id'], tenant.pk)
             self.assertEqual(response.data['role']['id'], role.pk)
+            self.assertEqual(
+                response.data['classification']['value'], PrefixClassificationChoices.CLASSIFICATION_DOCUMENTATION
+            )
 
         # Try to create one more prefix
         response = self.client.post(url, {'prefix_length': 30}, format='json', **self.header)
