@@ -12,12 +12,14 @@ from dcim.forms import SiteForm
 from dcim.models import Site
 from extras.choices import CustomFieldTypeChoices, EventRuleActionChoices
 from extras.forms import SavedFilterForm, TableConfigBulkEditForm, TableConfigForm
+from extras.forms.bulk_edit import EventRuleBulkEditForm
 from extras.forms.bulk_import import EventRuleImportForm
 from extras.forms.filtersets import EventRuleFilterForm
 from extras.forms.model_forms import CustomFieldChoiceSetForm, EventRuleForm
 from extras.forms.scripts import ScriptFileForm
 from extras.models import CustomField, CustomFieldChoiceSet, EventRule, NotificationGroup, Script, ScriptModule, Webhook
 from netbox.event_rules import EventRuleAction, register_event_rule_action
+from netbox.events import EventType
 from netbox.registry import registry
 from utilities.forms.widgets import HTMXSelect
 
@@ -520,6 +522,41 @@ class EventRuleFilterFormTestCase(TestCase):
         choices = dict(EventRuleFilterForm().fields['action_type'].choices)
         self.assertEqual(choices.get(FilterFormAction.slug), 'Filter Form Action')
         self.assertIn(None, choices)  # The blank choice is retained
+
+
+class EventRuleEventTypeChoicesTestCase(TestCase):
+    """
+    Event types registered after the forms module is imported (e.g. in a plugin's ready()) must be
+    offered by every event rule form.
+    """
+
+    def setUp(self):
+        EventType('test_late_event', 'Late event').register()
+        self.addCleanup(registry['event_types'].pop, 'test_late_event', None)
+
+    def test_model_form_offers_late_event_type(self):
+        choices = dict(EventRuleForm().fields['event_types'].choices)
+        self.assertEqual(choices.get('test_late_event'), 'Late event')
+
+    def test_bulk_edit_form_offers_late_event_type(self):
+        choices = dict(EventRuleBulkEditForm().fields['event_types'].choices)
+        self.assertEqual(choices.get('test_late_event'), 'Late event')
+
+    def test_filter_form_offers_late_event_type(self):
+        choices = dict(EventRuleFilterForm().fields['event_type'].choices)
+        self.assertEqual(choices.get('test_late_event'), 'Late event')
+
+    def test_import_form_accepts_late_event_type(self):
+        webhook = Webhook.objects.create(name='Late Event Webhook', payload_url='http://localhost:9000/')
+        form = EventRuleImportForm(data={
+            'name': 'Late Event Rule',
+            'object_types': 'dcim.site',
+            'event_types': 'test_late_event',
+            'action_type': EventRuleActionChoices.WEBHOOK,
+            'action_object': webhook.name,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data['event_types'], ['test_late_event'])
 
 
 class EventRuleImportFormTestCase(TestCase):

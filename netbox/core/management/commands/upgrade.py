@@ -60,6 +60,13 @@ class Command(BaseCommand):
             out.write("Checking for missing cable paths...")
             call_command('trace_paths', no_input=options['no_input'], stdout=out, stderr=self.stderr)
 
+        # Config context cache (writes to the database)
+        if options['readonly']:
+            out.write("Skipping config context cache rebuild.")
+        else:
+            out.write("Caching config context data...")
+            call_command('rebuild_config_context_cache', stdout=out)
+
         # Documentation (filesystem; needs the documentation source tree)
         if options['readonly'] and options['build_docs']:
             out.write("Skipping documentation build.")

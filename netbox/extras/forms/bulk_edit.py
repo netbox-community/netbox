@@ -302,7 +302,7 @@ class EventRuleBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
         widget=BulkEditNullBooleanSelect()
     )
     event_types = forms.MultipleChoiceField(
-        choices=get_event_type_choices(),
+        choices=get_event_type_choices,
         required=False,
         label=_('Event types')
     )

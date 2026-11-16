@@ -5,6 +5,7 @@
 
 <head>
   <title>{% trans "Server Error" %}</title>
+  <link rel="stylesheet" href="{% static 'netbox-external.css' %}" />
   <link rel="stylesheet" href="{% static 'netbox.css'%}" />
   <meta charset="UTF-8">
 </head>
@@ -15,7 +16,7 @@
       <div class="col col-md-6 offset-md-3">
         <div class="card border-danger mt-5">
           <h2 class="card-header text-bg-danger">
-            <i class="mdi mdi-alert"></i> {% trans "Server Error" %}
+            <i class="mdi mdi-alert me-1"></i> {% trans "Server Error" %}
           </h2>
           <div class="card-body">
             {% block message %}

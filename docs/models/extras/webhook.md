@@ -85,7 +85,9 @@ Controls whether validation of the receiver's SSL certificate is enforced when H
 
 ### CA File Path
 
-The file path to a particular certificate authority (CA) file to use when validating the receiver's SSL certificate (if not using the system defaults).
+The file path to a particular certificate authority (CA) file to use when validating the receiver's SSL certificate. If left blank (and SSL verification is enabled), validation uses NetBox's built-in CA bundle. The host's system trust store and the `REQUESTS_CA_BUNDLE` environment variable are ignored, so a receiver whose certificate is signed by a private CA must have that CA specified here.
+
+The file replaces the built-in bundle for this webhook. To keep trusting public CAs as well, provide a bundle that includes them.
 
 ### Timeout
 
