@@ -4,6 +4,8 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import DEFAULT_DB_ALIAS, connection
 from django.db.models import Exists
+from django.db.models.expressions import NegatedExpression
+from django.db.models.sql import Query
 from django.test import TestCase, tag
 
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
@@ -3468,25 +3470,42 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     @tag('performance', 'regression')
-    def test_interfaces_query_uses_interface_subquery(self):
+    def test_interfaces_query_reads_only_interface_table(self):
         """
         Regression test for #23721: the interfaces filter must query the Interface table directly
         rather than self-joining Device, which PostgreSQL can plan very poorly on large inventories.
         """
-        def find_exists(node):
-            # An EXISTS condition compiles to an exact lookup with the Exists (or its negation) as lhs
-            lhs = getattr(node, 'lhs', None)
-            lhs = getattr(lhs, 'expression', lhs)
-            if isinstance(lhs, Exists):
-                return [lhs]
-            return [found for child in getattr(node, 'children', []) for found in find_exists(child)]
+        def walk(node):
+            yield node
+            for child in getattr(node, 'children', []):
+                yield from walk(child)
 
-        for value in ('true', 'false'):
+        def tables_read(query):
+            # Django keeps joins it trimmed in alias_map with a zero refcount, so count only live aliases,
+            # and follow nested subqueries on either side of a lookup so a self-join can't hide in one
+            tables = set()
+            for alias, join in query.alias_map.items():
+                if query.alias_refcount[alias]:
+                    tables.add(join.table_name)
+            for node in walk(query.where):
+                for side in (getattr(node, 'lhs', None), getattr(node, 'rhs', None)):
+                    side = getattr(side, 'expression', side)
+                    side = getattr(side, 'query', side)
+                    if isinstance(side, Query):
+                        tables |= tables_read(side)
+            return tables
+
+        for value, negated in (('true', False), ('false', True)):
             with self.subTest(interfaces=value):
                 qs = self.filterset({'interfaces': value}, self.queryset).qs
-                subqueries = find_exists(qs.query.where)
-                self.assertEqual(len(subqueries), 1)
-                self.assertIs(subqueries[0].query.model, Interface)
+                # The filter adds a single condition, stored with the Exists (or ~Exists) as its lhs
+                self.assertEqual(len(qs.query.where.children), 1)
+                exists = getattr(qs.query.where.children[0], 'lhs', None)
+                if negated:
+                    self.assertIsInstance(exists, NegatedExpression)
+                    exists = exists.expression
+                self.assertIsInstance(exists, Exists)
+                self.assertEqual(tables_read(exists.query), {Interface._meta.db_table})
 
     def test_pass_through_ports(self):
         params = {'pass_through_ports': 'true'}
