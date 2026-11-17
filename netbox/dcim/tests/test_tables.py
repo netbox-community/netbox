@@ -1,3 +1,5 @@
+from django.test import tag
+
 from dcim.choices import CableEndChoices, CableProfileChoices, InterfaceTypeChoices
 from dcim.models import (
     Cable,
@@ -5,13 +7,19 @@ from dcim.models import (
     Device,
     DeviceRole,
     DeviceType,
+    FrontPort,
+    FrontPortTemplate,
     Interface,
     Manufacturer,
+    PortMapping,
+    PortTemplateMapping,
     PowerPort,
+    RearPort,
+    RearPortTemplate,
     Site,
 )
 from dcim.tables import *
-from utilities.testing import TableTestCases
+from utilities.testing import TableTestCases, create_test_device
 
 #
 # Sites
@@ -68,6 +76,132 @@ class ManufacturerTableTestCase(TableTestCases.StandardTableTestCase):
 
 class DeviceTypeTableTestCase(TableTestCases.StandardTableTestCase):
     table = DeviceTypeTable
+
+
+class FrontPortTemplateTableTestCase(TableTestCases.StandardTableTestCase):
+    table = FrontPortTemplateTable
+    queryset_sources = [
+        ('DeviceTypeFrontPortsView', FrontPortTemplate.objects.all()),
+    ]
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        rear_ports = (
+            RearPortTemplate(device_type=device_type, name='Rear Port 1'),
+            RearPortTemplate(device_type=device_type, name='Rear Port 2'),
+            RearPortTemplate(device_type=device_type, name='Rear Port 3'),
+        )
+        RearPortTemplate.objects.bulk_create(rear_ports)
+        front_ports = (
+            FrontPortTemplate(device_type=device_type, name='Front Port 1'),
+            FrontPortTemplate(device_type=device_type, name='Front Port 2'),
+            FrontPortTemplate(device_type=device_type, name='Front Port 3'),
+        )
+        FrontPortTemplate.objects.bulk_create(front_ports)
+        PortTemplateMapping.objects.bulk_create((
+            PortTemplateMapping(device_type=device_type, front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortTemplateMapping(device_type=device_type, front_port=front_ports[1], rear_port=rear_ports[1]),
+        ))
+
+    @tag('regression')  # Ref: #23349
+    def test_mappings_column(self):
+        """The mappings column lists the rear port of each mapping without further queries."""
+        table = FrontPortTemplateTable(FrontPortTemplate.objects.all())
+        table.configure(self.get_request())
+        rows = list(table.rows)
+
+        with self.assertNumQueries(0):
+            cells = {row.record.name: row.get_cell('mappings') for row in rows}
+
+        self.assertEqual(cells, {
+            'Front Port 1': 'Rear Port 1:1',
+            'Front Port 2': 'Rear Port 2:1',
+            'Front Port 3': table.columns['mappings'].default,
+        })
+
+    @tag('regression')  # Ref: #23349
+    def test_mappings_export(self):
+        """An export lists the rear port of each mapping without further queries."""
+        self.user.config.set('tables.FrontPortTemplateTable.columns', ['name'], commit=True)
+        table = FrontPortTemplateTable(FrontPortTemplate.objects.all())
+        table.configure(self.get_request())
+        # An "All Data" export prefetches for every column, hidden or not
+        table._apply_prefetching(columns=table.columns.names())
+        rows = list(table.rows)
+
+        with self.assertNumQueries(0):
+            values = {row.record.name: row.get_cell_value('mappings') for row in rows}
+
+        self.assertEqual(values, {
+            'Front Port 1': 'Rear Port 1:1',
+            'Front Port 2': 'Rear Port 2:1',
+            'Front Port 3': None,
+        })
+
+
+class RearPortTemplateTableTestCase(TableTestCases.StandardTableTestCase):
+    table = RearPortTemplateTable
+    queryset_sources = [
+        ('DeviceTypeRearPortsView', RearPortTemplate.objects.all()),
+    ]
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        rear_ports = (
+            RearPortTemplate(device_type=device_type, name='Rear Port 1'),
+            RearPortTemplate(device_type=device_type, name='Rear Port 2'),
+            RearPortTemplate(device_type=device_type, name='Rear Port 3'),
+        )
+        RearPortTemplate.objects.bulk_create(rear_ports)
+        front_ports = (
+            FrontPortTemplate(device_type=device_type, name='Front Port 1'),
+            FrontPortTemplate(device_type=device_type, name='Front Port 2'),
+            FrontPortTemplate(device_type=device_type, name='Front Port 3'),
+        )
+        FrontPortTemplate.objects.bulk_create(front_ports)
+        PortTemplateMapping.objects.bulk_create((
+            PortTemplateMapping(device_type=device_type, front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortTemplateMapping(device_type=device_type, front_port=front_ports[1], rear_port=rear_ports[1]),
+        ))
+
+    @tag('regression')  # Ref: #23349
+    def test_mappings_column(self):
+        """The mappings column lists the front port of each mapping without further queries."""
+        table = RearPortTemplateTable(RearPortTemplate.objects.all())
+        table.configure(self.get_request())
+        rows = list(table.rows)
+
+        with self.assertNumQueries(0):
+            cells = {row.record.name: row.get_cell('mappings') for row in rows}
+
+        self.assertEqual(cells, {
+            'Rear Port 1': 'Front Port 1:1',
+            'Rear Port 2': 'Front Port 2:1',
+            'Rear Port 3': table.columns['mappings'].default,
+        })
+
+    @tag('regression')  # Ref: #23349
+    def test_mappings_export(self):
+        """An export lists the front port of each mapping without further queries."""
+        self.user.config.set('tables.RearPortTemplateTable.columns', ['name'], commit=True)
+        table = RearPortTemplateTable(RearPortTemplate.objects.all())
+        table.configure(self.get_request())
+        # An "All Data" export prefetches for every column, hidden or not
+        table._apply_prefetching(columns=table.columns.names())
+        rows = list(table.rows)
+
+        with self.assertNumQueries(0):
+            values = {row.record.name: row.get_cell_value('mappings') for row in rows}
+
+        self.assertEqual(values, {
+            'Rear Port 1': 'Front Port 1:1',
+            'Rear Port 2': 'Front Port 2:1',
+            'Rear Port 3': None,
+        })
 
 
 #
@@ -136,9 +270,119 @@ class InterfaceTableTestCase(TableTestCases.StandardTableTestCase):
 class FrontPortTableTestCase(TableTestCases.StandardTableTestCase):
     table = FrontPortTable
 
+    @classmethod
+    def setUpTestData(cls):
+        device = create_test_device('Device 1')
+        rear_ports = (
+            RearPort(device=device, name='Rear Port 1'),
+            RearPort(device=device, name='Rear Port 2'),
+            RearPort(device=device, name='Rear Port 3'),
+        )
+        RearPort.objects.bulk_create(rear_ports)
+        front_ports = (
+            FrontPort(device=device, name='Front Port 1'),
+            FrontPort(device=device, name='Front Port 2'),
+            FrontPort(device=device, name='Front Port 3'),
+        )
+        FrontPort.objects.bulk_create(front_ports)
+        PortMapping.objects.bulk_create((
+            PortMapping(device=device, front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortMapping(device=device, front_port=front_ports[1], rear_port=rear_ports[1]),
+        ))
+
+    @tag('regression')  # Ref: #23349
+    def test_mappings_column(self):
+        """The mappings column lists the rear port of each mapping without further queries."""
+        table = FrontPortTable(FrontPort.objects.all())
+        table.configure(self.get_request())
+        rows = list(table.rows)
+
+        with self.assertNumQueries(0):
+            cells = {row.record.name: row.get_cell('mappings') for row in rows}
+
+        self.assertEqual(cells, {
+            'Front Port 1': 'Rear Port 1:1',
+            'Front Port 2': 'Rear Port 2:1',
+            'Front Port 3': table.columns['mappings'].default,
+        })
+
+    @tag('regression')  # Ref: #23349
+    def test_mappings_export(self):
+        """An export lists the rear port of each mapping without further queries."""
+        self.user.config.set('tables.FrontPortTable.columns', ['name'], commit=True)
+        table = FrontPortTable(FrontPort.objects.all())
+        table.configure(self.get_request())
+        # An "All Data" export prefetches for every column, hidden or not
+        table._apply_prefetching(columns=table.columns.names())
+        rows = list(table.rows)
+
+        with self.assertNumQueries(0):
+            values = {row.record.name: row.get_cell_value('mappings') for row in rows}
+
+        self.assertEqual(values, {
+            'Front Port 1': 'Rear Port 1:1',
+            'Front Port 2': 'Rear Port 2:1',
+            'Front Port 3': None,
+        })
+
 
 class RearPortTableTestCase(TableTestCases.StandardTableTestCase):
     table = RearPortTable
+
+    @classmethod
+    def setUpTestData(cls):
+        device = create_test_device('Device 1')
+        rear_ports = (
+            RearPort(device=device, name='Rear Port 1'),
+            RearPort(device=device, name='Rear Port 2'),
+            RearPort(device=device, name='Rear Port 3'),
+        )
+        RearPort.objects.bulk_create(rear_ports)
+        front_ports = (
+            FrontPort(device=device, name='Front Port 1'),
+            FrontPort(device=device, name='Front Port 2'),
+            FrontPort(device=device, name='Front Port 3'),
+        )
+        FrontPort.objects.bulk_create(front_ports)
+        PortMapping.objects.bulk_create((
+            PortMapping(device=device, front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortMapping(device=device, front_port=front_ports[1], rear_port=rear_ports[1]),
+        ))
+
+    @tag('regression')  # Ref: #23349
+    def test_mappings_column(self):
+        """The mappings column lists the front port of each mapping without further queries."""
+        table = RearPortTable(RearPort.objects.all())
+        table.configure(self.get_request())
+        rows = list(table.rows)
+
+        with self.assertNumQueries(0):
+            cells = {row.record.name: row.get_cell('mappings') for row in rows}
+
+        self.assertEqual(cells, {
+            'Rear Port 1': 'Front Port 1:1',
+            'Rear Port 2': 'Front Port 2:1',
+            'Rear Port 3': table.columns['mappings'].default,
+        })
+
+    @tag('regression')  # Ref: #23349
+    def test_mappings_export(self):
+        """An export lists the front port of each mapping without further queries."""
+        self.user.config.set('tables.RearPortTable.columns', ['name'], commit=True)
+        table = RearPortTable(RearPort.objects.all())
+        table.configure(self.get_request())
+        # An "All Data" export prefetches for every column, hidden or not
+        table._apply_prefetching(columns=table.columns.names())
+        rows = list(table.rows)
+
+        with self.assertNumQueries(0):
+            values = {row.record.name: row.get_cell_value('mappings') for row in rows}
+
+        self.assertEqual(values, {
+            'Rear Port 1': 'Front Port 1:1',
+            'Rear Port 2': 'Front Port 2:1',
+            'Rear Port 3': None,
+        })
 
 
 class ModuleBayTableTestCase(TableTestCases.StandardTableTestCase):

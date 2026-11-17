@@ -821,7 +821,8 @@ class FrontPortTable(ModularDeviceComponentTable, CableTerminationTable):
     )
     mappings = columns.ManyToManyColumn(
         verbose_name=_('Mappings'),
-        transform=lambda obj: f'{obj.rear_port}:{obj.rear_port_position}'
+        transform=lambda obj: f'{obj.rear_port}:{obj.rear_port_position}',
+        prefetch_related=('mappings__rear_port',)
     )
     tags = columns.TagColumn(
         url_name='dcim:frontport_list'
@@ -874,7 +875,8 @@ class RearPortTable(ModularDeviceComponentTable, CableTerminationTable):
     )
     mappings = columns.ManyToManyColumn(
         verbose_name=_('Mappings'),
-        transform=lambda obj: f'{obj.front_port}:{obj.front_port_position}'
+        transform=lambda obj: f'{obj.front_port}:{obj.front_port_position}',
+        prefetch_related=('mappings__front_port',)
     )
     tags = columns.TagColumn(
         url_name='dcim:rearport_list'

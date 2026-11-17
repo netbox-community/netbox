@@ -133,6 +133,7 @@ class BaseTable(tables.Table):
             elif not column.visible:
                 # Skip hidden columns
                 continue
+            prefetch_fields.extend(getattr(column.column, 'prefetch_related', ()))
             model = getattr(self.Meta, 'model')  # Must be called *after* resolving columns
             accessor = column.accessor
             if accessor.startswith('custom_field_data__'):
