@@ -1298,14 +1298,14 @@ class ObjectRenderConfigView(generic.ObjectView):
         )
 
     def get_extra_context_data(self, request, instance):
-        return {
-            f'{instance._meta.model_name}': instance,
-        }
+        """
+        Return additional context for rendering the config template. The object itself is always included.
+        """
+        return {}
 
     def get_extra_context(self, request, instance):
         # Compile context data
-        context_data = instance.get_config_context()
-        context_data.update(self.get_extra_context_data(request, instance))
+        context_data = instance.get_render_context(self.get_extra_context_data(request, instance))
 
         # Check for an optional config_template_id override in the query params
         config_template = None

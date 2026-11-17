@@ -11,6 +11,7 @@ from django.db.models.signals import post_save
 from django.test import RequestFactory, TestCase, override_settings, tag
 from django.test.utils import CaptureQueriesContext
 from django.utils.text import slugify
+from jinja2 import TemplateSyntaxError
 from netaddr import EUI
 
 from circuits.models import *
@@ -20,7 +21,7 @@ from dcim.choices import *
 from dcim.models import *
 from dcim.utils import resolve_module_placeholder
 from extras.events import serialize_for_event
-from extras.models import CustomField
+from extras.models import ConfigTemplate, CustomField
 from ipam.models import IPAddress, Prefix
 from netbox.choices import DiameterUnitChoices, FlowRateUnitChoices, WeightUnitChoices
 from netbox.context_managers import event_tracking
@@ -1436,6 +1437,52 @@ class DeviceTestCase(TestCase):
         with self.assertRaises(ValidationError) as cm:
             Device(**common_kwargs, primary_ip4=mgmt_ip4).full_clean()
         self.assertIn('primary_ip4', cm.exception.message_dict)
+
+
+class DeviceRenderConfigTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.device = create_test_device('Device 1', local_context_data={'foo': 'context', 'bar': 'context'})
+
+    def test_render_config_without_template(self):
+        self.assertIsNone(self.device.render_config())
+
+    def test_render_config_resolves_template(self):
+        role = self.device.role
+        role.config_template = ConfigTemplate.objects.create(
+            name='Role Template', template_code='Role config for {{ device.name }}'
+        )
+        role.save()
+        self.device.config_template = ConfigTemplate.objects.create(
+            name='Device Template', template_code='Device config for {{ device.name }}'
+        )
+        self.device.save()
+        self.assertEqual(self.device.render_config(), 'Device config for Device 1')
+
+        self.device.config_template = None
+        self.device.save()
+        self.assertEqual(self.device.render_config(), 'Role config for Device 1')
+
+    def test_render_config_with_template_and_extra_context(self):
+        config_template = ConfigTemplate.objects.create(
+            name='Template 1', template_code='{{ device.name }} {{ foo }} {{ bar }} {{ baz }}'
+        )
+        self.assertEqual(
+            self.device.render_config(config_template, extra_context={'bar': 'extra', 'baz': 'extra'}),
+            'Device 1 context extra extra'
+        )
+
+    def test_get_render_context(self):
+        context = self.device.get_render_context({'bar': 'extra', 'device': 'spoofed'})
+        self.assertEqual(context['foo'], 'context')
+        self.assertEqual(context['bar'], 'extra')
+        self.assertEqual(context['device'], self.device)
+
+    def test_render_config_error_propagates(self):
+        config_template = ConfigTemplate.objects.create(name='Template 1', template_code='{{ device.name ')
+        with self.assertRaises(TemplateSyntaxError):
+            self.device.render_config(config_template)
 
 
 class DeviceBayTestCase(TestCase):
