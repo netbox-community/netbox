@@ -69,9 +69,9 @@ class MultiValueCharFilter(django_filters.MultipleChoiceFilter):
     field_class = multivalue_field_factory(forms.CharField)
 
     def get_filter_predicate(self, v):
-        # Only exact lookups accept None (IS NULL); treat the null value as a literal string otherwise
-        if v is None and self.lookup_expr not in ('exact', 'iexact'):
-            v = self.null_value
+        # If filtering for null values, ignore lookup_expr (only exact lookups accept None)
+        if v is None:
+            return {self.field_name: None}
         return super().get_filter_predicate(v)
 
 

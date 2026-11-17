@@ -715,30 +715,6 @@ class DynamicFilterLookupExpressionTestCase(TestCase):
         params = {'slug__iregex': ['^DEF-[a-z]*-2$']}
         self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 1)
 
-    def test_site_null_string_partial_lookups(self):
-        """
-        The null choice value must be treated as a literal string for lookups which cannot take None (#23632).
-        """
-        Site.objects.filter(name='Site 1').update(description='Null Site')
-        lookups = {
-            'description__ic': 1,
-            'description__nic': 2,
-            'description__isw': 1,
-            'description__nisw': 2,
-            'description__iew': 0,
-            'description__niew': 3,
-            'description__regex': 0,
-            'description__iregex': 1,
-        }
-        for lookup, count in lookups.items():
-            with self.subTest(lookup=lookup):
-                params = {lookup: ['null']}
-                self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), count)
-
-        # Exact lookups still translate the null choice value to IS NULL
-        self.assertEqual(SiteFilterSet({'name': ['null']}, Site.objects.all()).qs.count(), 0)
-        self.assertEqual(SiteFilterSet({'name__n': ['null']}, Site.objects.all()).qs.count(), 3)
-
     def test_provider_asn_lt(self):
         params = {'asn__lt': [65101]}
         self.assertEqual(ASNFilterSet(params, ASN.objects.all()).qs.count(), 1)
@@ -794,6 +770,28 @@ class DynamicFilterLookupExpressionTestCase(TestCase):
     def test_device_name_icontains_negation(self):
         params = {'name__nic': [' ']}
         self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 0)
+
+    def test_device_name_null_lookups(self):
+        """
+        The null choice value must match null values for every lookup, as with exact lookups (#23632).
+        """
+        Device.objects.filter(name='Device 1').update(name=None)
+        lookups = {
+            'name': 1,
+            'name__n': 2,
+            'name__ic': 1,
+            'name__nic': 2,
+            'name__isw': 1,
+            'name__nisw': 2,
+            'name__iew': 1,
+            'name__niew': 2,
+            'name__regex': 1,
+            'name__iregex': 1,
+        }
+        for lookup, count in lookups.items():
+            with self.subTest(lookup=lookup):
+                params = {lookup: ['null']}
+                self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), count)
 
     def test_device_mac_address_negation(self):
         params = {'mac_address__n': ['00-00-00-00-00-01', 'aa-00-00-00-00-01']}
