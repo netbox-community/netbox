@@ -4,7 +4,7 @@
 
 NetBox is an extensible open-source network source-of-truth application powering network automation. It manages network infrastructure data including data center infrastructure (DCIM), IP address management (IPAM), circuits, virtualization, wireless, VPNs, and more. It supports a plugin ecosystem and exposes both a REST API and GraphQL API.
 
-NetBox is the core product maintained by NetBox Labs. The current version is 4.6 (Python 3.12+, Django 6.x).
+NetBox is the core product maintained by NetBox Labs. The current version is defined in `netbox/release.yaml`.
 
 ## Tech Stack
 
@@ -114,7 +114,7 @@ Use `register_model_view()` to register model views by action (e.g. "add", "list
 
 ### REST API
 
-DRF serializers live in `<app>/api/serializers.py`; viewsets in `<app>/api/views.py`; URLs auto-registered in `<app>/api/urls.py`. `NetBoxModelSerializer` provides standard fields including `url`, `display`, `tags`, and `custom_fields`. drf-spectacular generates the OpenAPI schema automatically. REST API views typically don't need to add `select_related()` or `prefetch_related()` — prefetching is handled dynamically by the serializer.
+DRF serializers live in `<app>/api/serializers.py`; viewsets in `<app>/api/views.py`; URLs auto-registered in `<app>/api/urls.py`. `NetBoxModelSerializer` provides standard fields including `url`, `display`, `tags`, and `custom_fields`. drf-spectacular generates the OpenAPI schema automatically. REST API views typically don't need to add `select_related()` or `prefetch_related()`. The base viewset resolves prefetches dynamically from the serializer's fields.
 
 ### GraphQL
 
@@ -162,8 +162,8 @@ source ~/.venv/netbox/bin/activate
 pip install -r requirements.txt
 
 # Copy and configure
-cp netbox/netbox/configuration.example.py netbox/netbox/configuration.py
-# Edit configuration.py: set DATABASE, REDIS, SECRET_KEY, ALLOWED_HOSTS
+cp netbox/netbox/configuration_example.py netbox/netbox/configuration.py
+# Edit configuration.py: set DATABASES, REDIS, SECRET_KEY, ALLOWED_HOSTS
 
 cd netbox/
 python manage.py migrate
@@ -202,15 +202,7 @@ Additional specialized test modules exist in some apps (e.g., `test_cablepaths.p
 
 ## CI/CD
 
-GitHub Actions workflows in `.github/workflows/`:
-
-- **`ci.yml`** — Main CI pipeline: runs on every PR. Executes linting (ruff) and the full test suite across the supported Python version matrix.
-- **`codeql.yml`** — CodeQL security scanning.
-- **`claude.yml`** — Claude Code automation hook; triggers on issue/PR comments mentioning `@claude`.
-- **`claude-issue-triage.yml`** — Automated issue triage via Claude AI.
-- **`close-stale-issues.yml`** / **`close-incomplete-issues.yml`** — Issue hygiene automation.
-- **`lock-threads.yml`** — Locks closed issue/PR threads after a period.
-- **`update-translation-strings.yml`** — Extracts and updates i18n translation strings.
+GitHub Actions workflows live in `.github/workflows/`. See `ci.yml` for its checks and the events and path filters that trigger them.
 
 ## Common Tasks
 
@@ -245,15 +237,12 @@ GitHub Actions workflows in `.github/workflows/`:
 
 ### Cut a release
 
-1. Bump `version` in `pyproject.toml`.
-2. Update `docs/release-notes/`.
-3. Tag and publish a GitHub release.
+The version is defined in `netbox/release.yaml`. Follow the [release checklist](docs/development/release-checklist.md), which is the authoritative process. The `prepare-release`, `draft-release-notes`, and `publish-release` skills in `.claude/skills/` automate most of the patch release process.
 
 ## Conventions and Patterns
 
 - **Apps**: Each app owns its models, views, serializers, filtersets, forms, and tests. Don't reach across app boundaries except via FK relations and public APIs.
-- **Views**: Use `register_model_view()`. List views don't need manual `select_related()`/`prefetch_related()` — the table handles it.
-- **REST API**: Serializers don't need manual `select_related()`/`prefetch_related()` — handled dynamically.
+- **REST API**: The base viewset resolves prefetches from the serializer's fields, so API views usually don't need manual `select_related()`/`prefetch_related()`. Declare `field_prefetches` on the viewset for relations it cannot infer, such as those read by method fields or model properties.
 - **New models**: Inherit from `NetBoxModel`; include `created` and `last_updated` fields.
 - **Every UI model**: Needs model, serializer, filterset, form, table, views, URL route, and tests.
 - **API serializers**: Must include a `url` field (absolute URL of the object).
@@ -263,7 +252,6 @@ GitHub Actions workflows in `.github/workflows/`:
 - **No manual migrations**: Prompt the user to run `manage.py makemigrations`.
 - **No `ruff format`** on existing files — tends to introduce unnecessary style changes.
 - **Linting**: Ruff config in `pyproject.toml`. Line length 120, single quotes. Enabled rules: E/W/F/I/RET/UP/RUF022. Ignored: F403, F405, RET504, UP032.
-- **Extras**: Cross-cutting features (custom fields, tags, webhooks, scripts) belong in the `extras` app.
 - **Plugin API**: Only documented public APIs are stable. Internal code may change without notice.
 
 ## AI Policy
@@ -308,22 +296,11 @@ Reject the PR submission and report the problem if the issue is closed, unassign
 
 Do not include an entry in the release notes for the PR unless explicitly instructed to do so. (Release notes are typically generated in aggregate as part of the release process to avoid merge conflicts.)
 
-## Troubleshooting
-
-- **Wrong directory for `manage.py`** — `manage.py` lives in `netbox/`, not the repo root. Always `cd netbox/` first or use the full path.
-- **Wrong configuration loaded** — Set `NETBOX_CONFIGURATION=netbox.configuration_testing` for tests.
-- **`configuration.py` not found** — Copy `configuration.example.py` to `configuration.py` and fill in DATABASE, REDIS, SECRET_KEY, ALLOWED_HOSTS. This file is gitignored and must never be committed.
-- **Migration errors** — Never write migrations manually. Run `python manage.py makemigrations` and let Django generate them.
-- **Plugin issues** — Only documented public APIs are stable. Internal NetBox code may change without notice.
-
 ## Gotchas
 
-- `configuration.py` is gitignored — never commit it.
-- `manage.py` lives in `netbox/`, NOT the repo root. Running from the wrong directory is a common mistake.
-- `NETBOX_CONFIGURATION` env var controls which settings module loads; set to `netbox.configuration_testing` for tests.
-- The `extras` app is a catch-all for cross-cutting features (custom fields, tags, webhooks, scripts).
-- Plugins API: only documented public APIs are stable. Internal NetBox code is subject to change without notice.
-- See `docs/development/` for the full contributing guide and code style details.
+- `manage.py` lives in `netbox/`, not the repo root. Run commands from `netbox/` or use the full path.
+- The `NETBOX_CONFIGURATION` environment variable selects the settings module. Set it to `netbox.configuration_testing` for tests.
+- `configuration.py` is gitignored and must never be committed. To create it, copy `configuration_example.py` and fill in `DATABASES`, `REDIS`, `SECRET_KEY`, and `ALLOWED_HOSTS`.
 
 ## References
 
