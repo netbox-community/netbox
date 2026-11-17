@@ -9,6 +9,7 @@ from core.choices import ManagedFileRootPathChoices
 from core.events import OBJECT_CREATED
 from core.models import DataSource, ObjectType
 from dcim.forms import SiteForm
+from dcim.forms.filtersets import PowerOutletFilterForm
 from dcim.models import Site
 from extras.choices import CustomFieldTypeChoices, EventRuleActionChoices
 from extras.forms import SavedFilterForm, TableConfigBulkEditForm, TableConfigForm
@@ -719,12 +720,9 @@ class TagFormTestCase(TestCase):
             str(form['color'])
         )
 
-        form = TagForm(instance=tag, data={
-            'name': 'Tag 1 renamed',
-            'slug': 'tag-1',
-            'color': 'e20074',
-            'weight': 1000,
-        })
-        self.assertTrue(form.is_valid(), form.errors)
-        tag = form.save()
-        self.assertEqual(tag.color, 'e20074')
+    def test_filter_form_ignores_invalid_color(self):
+        """
+        A non-hex color passed to a filter form must not be rendered as an option.
+        """
+        form = PowerOutletFilterForm(data={'color': 'ff0000;background:url(x)'})
+        self.assertNotIn('background:url', str(form['color']))

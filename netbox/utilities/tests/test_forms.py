@@ -1172,3 +1172,9 @@ class ColorSelectTestCase(TestCase):
         widget = ColorSelect()
         html = widget.render('color', None)
         self.assertEqual(html.count('<option'), len(widget.choices))
+
+    def test_invalid_color_adds_no_option(self):
+        widget = ColorSelect()
+        html = widget.render('color', 'ff0000;background:url(x)')
+        self.assertNotIn('background:url', html)
+        self.assertEqual(html.count('<option'), len(widget.choices))

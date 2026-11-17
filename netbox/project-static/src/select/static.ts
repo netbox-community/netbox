@@ -35,8 +35,10 @@ export function initStaticSelects(): void {
 // Initialize color selection fields
 export function initColorSelects(): void {
   function renderColor(item: TomOption, escape: typeof escape_html) {
+    // Only hex RGB values are safe to inject into the inline style
+    const color = /^[0-9a-f]{6}$/i.test(item.value) ? item.value : '';
     return `<div><span class="dropdown-item-indicator color-label" style="background-color: #${escape(
-      item.value,
+      color,
     )}"></span> ${escape(item.text)}</div>`;
   }
 
