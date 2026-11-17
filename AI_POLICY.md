@@ -4,9 +4,10 @@ This project **welcomes the thoughtful use of AI tools** when contributing, yet 
 
 ## Never let an LLM speak for you
 
-When maintainers read a comment, an issue, or a pull request from you, they want to know they are hearing your words. Grammar and spelling do not matter. What matters is real connection.
+When maintainers read a comment or an issue from you, they want to know they are hearing your words. Grammar and spelling do not matter. What matters is real connection.
 
-- All comments, issues, and pull request descriptions should be written in your own voice
+- All comments and issues should be written in your own voice
+- Pull request descriptions may be AI-generated, as long as you review them and they follow our [description guidelines](docs/development/getting-started.md#pull-request-descriptions)
 - We value clear, human communication over perfect grammar or spelling
 - Avoid copy-pasting AI-generated summaries that don't reflect your own understanding
 
@@ -27,7 +28,8 @@ Our aim is ensuring quality and maintaining the joy of collaborating and communi
 ## Summary
 
 - AI may be used to generate code or explore ideas
-- Comments, issues, and pull request descriptions must be written in your own voice
+- Comments and issues must be written in your own voice
+- AI-generated pull request descriptions must be reviewed by the contributor
 - Contributions must be fully understood and explainable by the contributor
 - Contribution guidelines must still be followed
 
