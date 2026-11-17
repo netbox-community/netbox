@@ -65,3 +65,13 @@ select.tomselected[aria-invalid='true']:not(.is-invalid) + div.ts-wrapper {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
+
+// Shrink choice images to fit selected items within the control
+.ts-control img.choice-image {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.ts-wrapper.multi .ts-control img.choice-image {
+  width: 1rem;
+  height: 1rem;
+}

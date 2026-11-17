@@ -1,5 +1,6 @@
 {% load helpers %}
 {% load i18n %}
+{% load static %}
 {% if terminations.0 %}
   <table class="table table-hover attr-table">
     {% if terminations.0.device %}
@@ -23,6 +24,14 @@
             {{ term.device|linkify }}
             <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
             {{ term|linkify }}
+            {% if term.type %}
+              <span class="text-secondary ms-1">
+                {% if term.get_type_image %}
+                  <img src="{% static term.get_type_image %}" class="choice-image" alt="" />
+                {% endif %}
+                {{ term.get_type_display }}
+              </span>
+            {% endif %}
             <a href="{% action_url term 'trace' pk=term.pk %}" class="btn btn-sm btn-primary" title="{% trans "Trace" %}">
               <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
             </a>

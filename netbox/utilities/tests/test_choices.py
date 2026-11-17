@@ -1,3 +1,4 @@
+from django.contrib.staticfiles import finders
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings
 
@@ -47,18 +48,20 @@ class ChoiceDataclassTestCase(TestCase):
         choice = Choice('a', 'A')
         self.assertIsNone(choice.color)
         self.assertIsNone(choice.description)
+        self.assertIsNone(choice.image)
 
     def test_choice_is_copyable_and_picklable(self):
         """A Choice must survive copy/deepcopy/pickle with all of its attributes intact."""
         import copy
         import pickle
 
-        choice = Choice('a', 'A', color='red', description='desc')
+        choice = Choice('a', 'A', color='red', description='desc', image='a.svg')
         for clone in (copy.copy(choice), copy.deepcopy(choice), pickle.loads(pickle.dumps(choice))):
             self.assertIsInstance(clone, Choice)
             self.assertEqual(tuple(clone), ('a', 'A'))
             self.assertEqual(clone.color, 'red')
             self.assertEqual(clone.description, 'desc')
+            self.assertEqual(clone.image, 'a.svg')
 
 
 class ChoiceSetTestCase(TestCase):
@@ -82,11 +85,24 @@ class ChoiceSetTestCase(TestCase):
         self.assertEqual(entries[0].description, 'First')
         self.assertEqual(ChoiceObjectChoices.colors, {'a': 'red', 'b': 'green'})
 
+    def test_choice_objects_populate_images(self):
+        """Images defined on Choice objects (flat or grouped) populate the images map."""
+        class ImageChoices(ChoiceSet):
+            CHOICES = (
+                Choice('a', 'A', image='a.svg'),
+                ('Group 1', (
+                    Choice('b', 'B', image='b.svg'),
+                    Choice('c', 'C'),
+                )),
+            )
+
+        self.assertEqual(ImageChoices.images, {'a': 'a.svg', 'b': 'b.svg'})
+
     def test_dict_choices_normalized_to_choice(self):
         """A ChoiceSet may define choices as dicts (e.g. from config), which normalize to Choice objects."""
         class DictChoices(ChoiceSet):
             CHOICES = [
-                {'value': 'a', 'label': 'A', 'color': 'red', 'description': 'First'},
+                {'value': 'a', 'label': 'A', 'color': 'red', 'description': 'First', 'image': 'a.svg'},
                 {'value': 'b', 'label': 'B'},
             ]
 
@@ -95,6 +111,7 @@ class ChoiceSetTestCase(TestCase):
         self.assertEqual([tuple(c) for c in entries], [('a', 'A'), ('b', 'B')])
         self.assertEqual(entries[0].description, 'First')
         self.assertEqual(DictChoices.colors, {'a': 'red'})
+        self.assertEqual(DictChoices.images, {'a': 'a.svg'})
 
     def test_dict_choice_with_invalid_key_raises(self):
         """A choice dict with an unrecognized key raises a clear error."""
@@ -129,6 +146,20 @@ class ChoiceSetTestCase(TestCase):
         self.assertEqual(members[0].description, 'First')
         self.assertEqual(GroupedChoices.colors, {'a': 'red'})
         self.assertEqual(GroupedChoices.values(), ['a', 'b'])
+
+    def test_choice_images_exist(self):
+        """Every image referenced by an application ChoiceSet resolves to a static file."""
+        def subclasses(cls):
+            for subclass in cls.__subclasses__():
+                yield subclass
+                yield from subclasses(subclass)
+
+        for choice_set in subclasses(ChoiceSet):
+            if not choice_set.__module__.endswith('.choices'):
+                continue
+            for value, image in choice_set.images.items():
+                with self.subTest(choice_set=choice_set.__name__, value=value):
+                    self.assertIsNotNone(finders.find(image), f'Static file not found: {image}')
 
     def test_key_with_non_list_choices_raises(self):
         """A ChoiceSet declaring a key must define CHOICES as a list."""

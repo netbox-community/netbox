@@ -1722,8 +1722,14 @@ class ComponentBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
 
 class ConsolePortBulkEditForm(
     ComponentBulkEditForm,
-    form_from_model(ConsolePort, ['label', 'type', 'speed', 'mark_connected', 'description'])
+    form_from_model(ConsolePort, ['label', 'speed', 'mark_connected', 'description'])
 ):
+    type = ChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(ConsolePortTypeChoices),
+        required=False,
+        help_text=_('Physical port type')
+    )
     mark_connected = forms.NullBooleanField(
         label=_('Mark connected'),
         required=False,
@@ -1739,8 +1745,14 @@ class ConsolePortBulkEditForm(
 
 class ConsoleServerPortBulkEditForm(
     ComponentBulkEditForm,
-    form_from_model(ConsoleServerPort, ['label', 'type', 'speed', 'mark_connected', 'description'])
+    form_from_model(ConsoleServerPort, ['label', 'speed', 'mark_connected', 'description'])
 ):
+    type = ChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(ConsolePortTypeChoices),
+        required=False,
+        help_text=_('Physical port type')
+    )
     mark_connected = forms.NullBooleanField(
         label=_('Mark connected'),
         required=False,
@@ -1756,8 +1768,14 @@ class ConsoleServerPortBulkEditForm(
 
 class PowerPortBulkEditForm(
     ComponentBulkEditForm,
-    form_from_model(PowerPort, ['label', 'type', 'maximum_draw', 'allocated_draw', 'mark_connected', 'description'])
+    form_from_model(PowerPort, ['label', 'maximum_draw', 'allocated_draw', 'mark_connected', 'description'])
 ):
+    type = ChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(PowerPortTypeChoices),
+        required=False,
+        help_text=_('Physical port type')
+    )
     mark_connected = forms.NullBooleanField(
         label=_('Mark connected'),
         required=False,
@@ -1776,9 +1794,15 @@ class PowerOutletBulkEditForm(
     ComponentBulkEditForm,
     form_from_model(
         PowerOutlet,
-        ['label', 'type', 'status', 'color', 'feed_leg', 'power_port', 'mark_connected', 'description']
+        ['label', 'status', 'color', 'feed_leg', 'power_port', 'mark_connected', 'description']
     )
 ):
+    type = ChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(PowerOutletTypeChoices),
+        required=False,
+        help_text=_('Physical port type')
+    )
     mark_connected = forms.NullBooleanField(
         label=_('Mark connected'),
         required=False,
@@ -2109,8 +2133,13 @@ class InterfaceBulkEditForm(
 
 class FrontPortBulkEditForm(
     ComponentBulkEditForm,
-    form_from_model(FrontPort, ['label', 'type', 'color', 'mark_connected', 'description'])
+    form_from_model(FrontPort, ['label', 'color', 'mark_connected', 'description'])
 ):
+    type = ChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(PortTypeChoices),
+        required=False
+    )
     mark_connected = forms.NullBooleanField(
         label=_('Mark connected'),
         required=False,
@@ -2126,8 +2155,13 @@ class FrontPortBulkEditForm(
 
 class RearPortBulkEditForm(
     ComponentBulkEditForm,
-    form_from_model(RearPort, ['label', 'type', 'color', 'mark_connected', 'description'])
+    form_from_model(RearPort, ['label', 'color', 'mark_connected', 'description'])
 ):
+    type = ChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(PortTypeChoices),
+        required=False
+    )
     mark_connected = forms.NullBooleanField(
         label=_('Mark connected'),
         required=False,

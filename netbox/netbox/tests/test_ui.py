@@ -91,7 +91,7 @@ class ChoiceAttrTestCase(TestCase):
         )
         self.assertEqual(
             attr.get_context(self.termination, 'role', attr.get_value(self.termination), {}),
-            {'bg_color': self.termination.get_role_color()},
+            {'bg_color': self.termination.get_role_color(), 'image': None},
         )
 
     def test_choice_attr_related_accessor(self):
@@ -103,7 +103,7 @@ class ChoiceAttrTestCase(TestCase):
         )
         self.assertEqual(
             attr.get_context(self.termination, 'interface.type', attr.get_value(self.termination), {}),
-            {'bg_color': None},
+            {'bg_color': None, 'image': None},
         )
 
     def test_choice_attr_related_accessor_with_color(self):
@@ -117,8 +117,22 @@ class ChoiceAttrTestCase(TestCase):
             attr.get_context(
                 self.termination, 'virtual_circuit.status', attr.get_value(self.termination), {}
             ),
-            {'bg_color': self.termination.virtual_circuit.get_status_color()},
+            {'bg_color': self.termination.virtual_circuit.get_status_color(), 'image': None},
         )
+
+    def test_choice_attr_with_image(self):
+        attr = attrs.ChoiceAttr('type')
+        obj = SimpleNamespace(
+            type='foo',
+            get_type_display=lambda: 'Foo',
+            get_type_image=lambda: 'foo.svg',
+        )
+
+        self.assertEqual(
+            attr.get_context(obj, 'type', attr.get_value(obj), {}),
+            {'bg_color': None, 'image': 'foo.svg'},
+        )
+        self.assertIn('foo.svg', attr.render(obj, {'name': 'type'}))
 
 
 class RelatedObjectListAttrTestCase(TestCase):

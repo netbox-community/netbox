@@ -51,8 +51,8 @@ def _parent_choices_property(cls):
 
 class AttrChoiceMixin:
     """
-    Reads option descriptions from the Choice objects among a field's choices and passes them to a
-    description-aware Select widget for rendering as option subtitles. Set `show_descriptions=False` to suppress.
+    Reads option descriptions and images from the Choice objects among a field's choices and passes them to an
+    attribute-aware Select widget for rendering. Set `show_descriptions=False` to suppress descriptions.
     """
     def __init__(self, *, choices=(), show_descriptions=True, **kwargs):
         self.show_descriptions = show_descriptions
@@ -63,19 +63,20 @@ class AttrChoiceMixin:
 
     def _set_choices(self, value):
         # Delegate to the parent setter (updates self._choices and self.widget.choices), then refresh the widget's
-        # description map from the same choices. Collecting descriptions here (rather than once in __init__) keeps
-        # them in sync should the field's choices be reassigned after construction. Descriptions are read from the
-        # raw choices, where the Choice objects are still intact, before Django normalizes them to (value, label).
+        # description and image maps from the same choices. Collecting them here (rather than once in __init__) keeps
+        # them in sync should the field's choices be reassigned after construction. They are read from the raw
+        # choices, where the Choice objects are still intact, before Django normalizes them to (value, label).
         _parent_choices_property(type(self)).fset(self, value)
         if getattr(self, 'show_descriptions', True):
             self.widget.descriptions = _map_choice_attr(value, 'description')
+        self.widget.images = _map_choice_attr(value, 'image')
 
     choices = property(_get_choices, _set_choices)
 
 
 class ChoiceField(AttrChoiceMixin, forms.ChoiceField):
     """
-    Extends Django's ChoiceField to render the description defined on each Choice as an option subtitle.
+    Extends Django's ChoiceField to render the description and image defined on each Choice.
     """
     widget = widgets.Select
 
@@ -85,7 +86,7 @@ class TypedChoiceField(AttrChoiceMixin, forms.TypedChoiceField):
     A description-aware ChoiceField for use on nullable model choice fields. Like Django's TypedChoiceField, an empty
     selection is coerced to `empty_value` (which defaults to None here) so that a blank submission is stored as NULL
     rather than an empty string. This mirrors the form field Django generates automatically for a nullable choice
-    field, while also rendering the description defined on each Choice as an option subtitle.
+    field, while also rendering the description and image defined on each Choice.
     """
     widget = widgets.Select
 
@@ -95,6 +96,6 @@ class TypedChoiceField(AttrChoiceMixin, forms.TypedChoiceField):
 
 class MultipleChoiceField(AttrChoiceMixin, forms.MultipleChoiceField):
     """
-    Extends Django's MultipleChoiceField to render the description defined on each Choice as an option subtitle.
+    Extends Django's MultipleChoiceField to render the description and image defined on each Choice.
     """
     widget = widgets.SelectMultiple

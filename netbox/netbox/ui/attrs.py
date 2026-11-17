@@ -193,7 +193,8 @@ class ChoiceAttr(ObjectAttribute):
     to retrieve the human-friendly choice label. For example, accessor="interface.type"
     will call interface.get_type_display().
     If a get_FOO_color() method exists on that object, it will be used to render a
-    background color for the attribute value.
+    background color for the attribute value. Likewise, if a get_FOO_image() method exists,
+    the static image it returns will be displayed beside the value.
     """
     template_name = 'ui/attrs/choice.html'
 
@@ -218,13 +219,16 @@ class ChoiceAttr(ObjectAttribute):
     def get_context(self, obj, attr, value, context):
         target, field_name = self._resolve_target(obj)
         if target is None:
-            return {'bg_color': None}
+            return {'bg_color': None, 'image': None}
 
         get_color = getattr(target, f'get_{field_name}_color', None)
         bg_color = get_color() if callable(get_color) else None
+        get_image = getattr(target, f'get_{field_name}_image', None)
+        image = get_image() if callable(get_image) else None
 
         return {
             'bg_color': bg_color,
+            'image': image,
         }
 
 

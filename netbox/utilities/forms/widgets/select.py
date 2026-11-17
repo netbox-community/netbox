@@ -1,4 +1,5 @@
 from django import forms
+from django.templatetags.static import static
 
 from netbox.choices import ColorChoices
 
@@ -19,16 +20,19 @@ __all__ = (
 class AttrSelectMixin:
     """
     Annotates each rendered <option> with a `data-description` attribute, which is displayed as subtitle text
-    beneath the option's label. Descriptions are sourced from an explicit value-to-description mapping set on
-    `descriptions`.
+    beneath the option's label, and a `data-image` attribute holding the URL of an image displayed beside it. These
+    are sourced from explicit value-to-description and value-to-image (static file path) mappings set on
+    `descriptions` and `images`.
     """
-    def __init__(self, *args, descriptions=None, **kwargs):
+    def __init__(self, *args, descriptions=None, images=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.descriptions = descriptions or {}
+        self.images = images or {}
 
     def __deepcopy__(self, memo):
         obj = super().__deepcopy__(memo)
         obj.descriptions = self.descriptions.copy()
+        obj.images = self.images.copy()
         return obj
 
     def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
@@ -36,19 +40,21 @@ class AttrSelectMixin:
 
         if description := self.descriptions.get(value, ''):
             option['attrs']['data-description'] = description
+        if image := self.images.get(value):
+            option['attrs']['data-image'] = static(image)
 
         return option
 
 
 class Select(AttrSelectMixin, forms.Select):
     """
-    A Select widget which renders an optional description beneath each option's label.
+    A Select widget which renders an optional description and image with each option's label.
     """
 
 
 class SelectMultiple(AttrSelectMixin, forms.SelectMultiple):
     """
-    A SelectMultiple widget which renders an optional description beneath each option's label.
+    A SelectMultiple widget which renders an optional description and image with each option's label.
     """
 
 
