@@ -368,8 +368,8 @@ class ConfigContextModel(models.Model):
         (`_config_context_data`), return a copy of it unless copy_data is False. Otherwise, fall
         back to rendering on demand.
 
-        By default, the returned dict is safe for callers to mutate (e.g. ObjectRenderConfigView merges
-        in additional context with .update()): the cached blob is deep-copied so mutations cannot
+        By default, the returned dict is safe for callers to mutate (e.g. RenderConfigMixin.get_render_context()
+        merges in additional context): the cached blob is deep-copied so mutations cannot
         leak back into this instance's in-memory cache, matching the fresh-dict guarantee of the
         on-demand render path. Read-only callers may pass copy_data=False to skip the copy. The
         cached blob is then returned as is and must not be modified.

@@ -141,8 +141,6 @@ class RenderConfigMixin(ConfigTemplateRenderMixin):
                 }, status=HTTP_400_BAD_REQUEST)
 
         # Compile context data
-        context_data = instance.get_config_context()
-        context_data.update({k: v for k, v in request.data.items() if k != 'config_template_id'})
-        context_data.update({object_type: instance})
+        context_data = instance.get_render_context({k: v for k, v in request.data.items() if k != 'config_template_id'})
 
         return self.render_configtemplate(request, configtemplate, context_data)

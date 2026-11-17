@@ -3295,6 +3295,24 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.remove_permissions('dcim.view_device')
         self.assertHttpStatus(self.client.get(url), 403)
 
+    def test_device_renderconfig_matches_model(self):
+        """
+        The rendered config exported from the UI matches the output of Device.render_config().
+        """
+        device = Device.objects.first()
+        device.config_template = ConfigTemplate.objects.create(
+            name='Test Config Template',
+            template_code='hostname {{ device.name }}\nntp server {{ ntp_server }}\n'
+        )
+        device.local_context_data = {'ntp_server': '192.0.2.1'}
+        device.save()
+
+        self.add_permissions('dcim.view_device', 'dcim.render_config_device')
+        url = reverse('dcim:device_render-config', kwargs={'pk': device.pk})
+        response = self.client.get(url, {'export': 1})
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(response.content.decode(), Device.objects.get(pk=device.pk).render_config())
+
     def test_device_renderconfig_with_config_template_id(self):
         default_template = ConfigTemplate.objects.create(
             name='Default Template',

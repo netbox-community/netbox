@@ -3200,6 +3200,32 @@ class DeviceTestCase(Mixins.FieldPrefetchMixin, APIViewTestCases.APIViewTestCase
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data['content'], f'Config for device {device.name}')
 
+    def test_render_config_matches_model(self):
+        """
+        The rendered config returned by the REST API matches the output of Device.render_config().
+        """
+        device = Device.objects.first()
+        device.config_template = ConfigTemplate.objects.create(
+            name='Config Template 1',
+            template_code='hostname {{ device.name }}\nntp server {{ ntp_server }}\nsyslog {{ syslog_server }}\n'
+        )
+        device.local_context_data = {'ntp_server': '192.0.2.1'}
+        device.save()
+
+        self.add_permissions('dcim.render_config_device', 'dcim.view_device')
+        url = reverse('dcim-api:device-render-config', kwargs={'pk': device.pk})
+        data = {'syslog_server': '192.0.2.2', 'device': 'spoofed'}
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(
+            response.data['content'],
+            f'hostname {device.name}\nntp server 192.0.2.1\nsyslog 192.0.2.2'
+        )
+        self.assertEqual(
+            response.data['content'],
+            Device.objects.get(pk=device.pk).render_config(extra_context=data)
+        )
+
     def test_render_config_leaves_config_context_cache_unchanged(self):
         """
         A config template which mutates nested context data leaves the cached config context unchanged.

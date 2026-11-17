@@ -5,6 +5,7 @@ from django.test import TestCase, tag
 from netaddr import IPNetwork
 
 from dcim.models import Platform, Region, Site, SiteGroup
+from extras.models import ConfigTemplate
 from ipam.models import IPAddress
 from tenancy.models import Tenant
 from utilities.testing import create_test_device, create_test_virtualmachine
@@ -745,3 +746,23 @@ class VirtualMachineTestCase(TestCase):
                 with self.assertRaises(ValidationError) as context:
                     VirtualMachine(name='vm2', cluster=vm.cluster, **{field: ip}).full_clean()
                 self.assertIn(field, context.exception.message_dict)
+
+
+class VirtualMachineRenderConfigTestCase(TestCase):
+
+    def test_render_config(self):
+        vm = create_test_virtualmachine('VM 1')
+        vm.local_context_data = {'foo': 'context'}
+        vm.save()
+        self.assertIsNone(vm.render_config())
+
+        vm.platform = Platform.objects.create(
+            name='Platform 1',
+            slug='platform-1',
+            config_template=ConfigTemplate.objects.create(
+                name='Template 1', template_code='{{ virtualmachine.name }} {{ foo }} {{ bar }}'
+            ),
+        )
+        vm.save()
+        self.assertEqual(vm.render_config(extra_context={'bar': 'extra'}), 'VM 1 context extra')
+        self.assertEqual(vm.get_render_context({'virtualmachine': 'spoofed'})['virtualmachine'], vm)
