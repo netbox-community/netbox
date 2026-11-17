@@ -287,7 +287,8 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
         blank=True,
         verbose_name=_('CA File Path'),
         help_text=_(
-            "The specific CA certificate file to use for SSL verification. Leave blank to use the system defaults."
+            "The specific CA certificate file to use for SSL verification. If blank, verification uses NetBox's "
+            "built-in CA bundle, not the system trust store. A private CA must be specified here."
         )
     )
     timeout = models.PositiveSmallIntegerField(

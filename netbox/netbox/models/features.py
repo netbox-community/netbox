@@ -1,4 +1,5 @@
 import json
+import logging
 from collections import defaultdict
 from functools import cached_property
 
@@ -49,6 +50,8 @@ __all__ = (
     'model_is_public',
     'register_models',
 )
+
+logger = logging.getLogger('netbox.models.features')
 
 
 #
@@ -101,6 +104,21 @@ class ChangeLoggingMixin(DeleteMixin, models.Model):
 
         self._prechange_snapshot = self.serialize_object(exclude=exclude_fields)
     snapshot.alters_data = True
+
+    def snapshot_from_db(self, using=None):
+        """
+        Snapshot the stored copy of an object being saved without a snapshot. The snapshot is discarded once the
+        save has been logged.
+        """
+        model = self.__class__
+        db = using or router.db_for_write(model, instance=self)
+        if (original := model._base_manager.using(db).filter(pk=self.pk).first()) is None:
+            return
+        logger.warning(f"No pre-change snapshot taken for {model._meta.label} {self.pk}; reading it from the database")
+        original.snapshot()
+        self._prechange_snapshot = original._prechange_snapshot
+        self._prechange_snapshot_from_db = True
+    snapshot_from_db.alters_data = True
 
     def to_objectchange(self, action):
         """
@@ -702,10 +720,15 @@ class SyncedDataMixin(models.Model):
 
         :param save: If true, save() will be called after data has been synchronized
         """
+        # ManagedFile is not change-logged and so has no snapshot(); keep any snapshot already taken
+        if save and hasattr(self, 'snapshot') and not hasattr(self, '_prechange_snapshot'):
+            self.snapshot()
         self.sync_data()
         self.data_synced = timezone.now()
         if save:
             self.save()
+            # Discard the snapshot so that a later save of this object takes a fresh one
+            self.__dict__.pop('_prechange_snapshot', None)
     sync.alters_data = True
 
     def sync_data(self):

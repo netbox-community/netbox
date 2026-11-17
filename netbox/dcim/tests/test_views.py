@@ -4,7 +4,7 @@ import json
 from decimal import Decimal
 from io import StringIO
 from unittest.mock import patch
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 from zoneinfo import ZoneInfo
 
 import yaml
@@ -15,6 +15,7 @@ from django.http import QueryDict, StreamingHttpResponse
 from django.test import override_settings, tag
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
+from django.utils.html import escape
 from netaddr import EUI
 
 from core.choices import ObjectChangeActionChoices
@@ -34,6 +35,7 @@ from netbox.choices import (
 )
 from tenancy.models import Tenant
 from users.models import ObjectPermission, Owner, User
+from utilities.exceptions import PermissionsViolation
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
 
@@ -4223,6 +4225,23 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         response = self.client.get(reverse('dcim:interface_trace', kwargs={'pk': interface1.pk}))
         self.assertHttpStatus(response, 200)
 
+    @tag('regression')  # Issue #23711
+    def test_ip_addresses_panel_add_action(self):
+        """
+        The interface's IP addresses panel links to add an IP address assigned to the interface.
+        """
+        self.add_permissions('dcim.view_interface', 'ipam.view_ipaddress', 'ipam.add_ipaddress')
+        interface = Interface.objects.first()
+        url_params = urlencode({
+            'device': interface.device.pk,
+            'interface': interface.pk,
+            'return_url': interface.get_absolute_url(),
+        })
+
+        response = self.client.get(interface.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, escape(f"{reverse('ipam:ipaddress_add')}?{url_params}"))
+
     def test_bulk_delete_child_interfaces(self):
         interface1 = Interface.objects.get(name='Interface 1')
         device = interface1.device
@@ -5798,7 +5817,7 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @tag('regression')  # Ref: #23212
     def test_add_member_blocked_by_cross_chassis_lag(self):
-        self.add_permissions('dcim.change_virtualchassis')
+        self.add_permissions('dcim.change_virtualchassis', 'dcim.change_device')
         vc1_member = Device.objects.get(name='Device 1')
         device = Device.objects.get(name='Device 10')
         lag = Interface.objects.create(device=vc1_member, name='lag0', type=InterfaceTypeChoices.TYPE_LAG)
@@ -5813,6 +5832,72 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         device.refresh_from_db()
         self.assertIsNone(device.virtual_chassis)
         self.assertIsNone(device.vc_position)
+
+    def test_add_member(self):
+        self.add_permissions('dcim.change_virtualchassis', 'dcim.change_device')
+        device = Device.objects.get(name='Device 10')
+        vc = VirtualChassis.objects.get(name='VC1')
+
+        url = reverse('dcim:virtualchassis_add_member', kwargs={'pk': vc.pk})
+        response = self.client.post(url, {'device': device.pk, 'vc_position': 4, 'vc_priority': ''})
+        self.assertHttpStatus(response, 302)
+
+        device.refresh_from_db()
+        self.assertEqual(device.virtual_chassis, vc)
+        self.assertEqual(device.vc_position, 4)
+
+    @tag('regression')  # Ref: #23199
+    def test_add_member_requires_change_device_permission(self):
+        """
+        The add member form only displays and accepts devices the user can change.
+        """
+        self.add_permissions('dcim.change_virtualchassis')
+        device = Device.objects.get(name='Device 10')
+        vc = VirtualChassis.objects.get(name='VC1')
+        url = reverse('dcim:virtualchassis_add_member', kwargs={'pk': vc.pk})
+
+        # Adding the device is rejected
+        response = self.client.post(url, {'device': device.pk, 'vc_position': 4, 'vc_priority': ''})
+        self.assertHttpStatus(response, 200)
+        self.assertTrue(response.context['member_select_form'].has_error('device', code='invalid_choice'))
+        self.assertNotContains(response, device.name)
+
+        device.refresh_from_db()
+        self.assertIsNone(device.virtual_chassis)
+        self.assertIsNone(device.vc_position)
+
+        # The form does not display the device
+        response = self.client.get(url, {'device': device.pk})
+        self.assertHttpStatus(response, 200)
+        self.assertNotContains(response, device.name)
+
+    @tag('regression')  # Ref: #23199
+    def test_add_member_blocked_by_constrained_change_device_permission(self):
+        """
+        A device which would no longer satisfy the user's permission constraints once added is not saved.
+        """
+        self.add_permissions('dcim.change_virtualchassis')
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['change'],
+            constraints={'virtual_chassis__isnull': True},
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Device))
+        device = Device.objects.get(name='Device 10')
+        vc = VirtualChassis.objects.get(name='VC1')
+
+        url = reverse('dcim:virtualchassis_add_member', kwargs={'pk': vc.pk})
+        response = self.client.post(url, {'device': device.pk, 'vc_position': 4, 'vc_priority': ''})
+        self.assertHttpStatus(response, 200)
+        self.assertIn(PermissionsViolation.message, response.context['membership_form'].non_field_errors())
+
+        # The change is rolled back
+        device.refresh_from_db()
+        self.assertIsNone(device.virtual_chassis)
+        self.assertIsNone(device.vc_position)
+        self.assertFalse(self._get_member_changes(device).exists())
 
     @tag('regression')  # Ref: #23212
     def test_create_with_members_blocked_by_cross_chassis_lag(self):

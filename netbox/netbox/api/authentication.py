@@ -110,7 +110,11 @@ class TokenAuthentication(BaseAuthentication):
 
             # Load from LDAP if FIND_GROUP_PERMS is active
             # Always query LDAP when user is not active, otherwise it is never activated again
-            if ldap_backend.settings.FIND_GROUP_PERMS or not token.user.is_active:
+            # Skip this in maintenance mode, as it updates the user in the database
+            if get_config().MAINTENANCE_MODE:
+                logger = logging.getLogger('netbox.auth.login')
+                logger.debug("Maintenance mode enabled: Disabling update of user from LDAP directory")
+            elif ldap_backend.settings.FIND_GROUP_PERMS or not token.user.is_active:
                 ldap_user = ldap_backend.populate_user(token.user.username)
                 # If the user is found in the LDAP directory use it, if not fallback to the local user
                 if ldap_user:

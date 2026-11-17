@@ -1175,6 +1175,7 @@ class Device(
         # Update Site and Rack assignment for any child Devices
         devices = Device.objects.filter(parent_bay__device=self)
         for device in devices:
+            device.snapshot()
             device.site = self.site
             device.rack = self.rack
             device.location = self.location

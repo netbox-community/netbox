@@ -145,7 +145,11 @@ class DynamicModelChoiceMixin:
                 if value:
                     filter_kwargs[kwarg] = value
             if filter_kwargs:
-                queryset = self.queryset.filter(**filter_kwargs)
+                try:
+                    queryset = self.queryset.filter(**filter_kwargs)
+                except (TypeError, ValueError):
+                    # Catch any error caused by invalid initial data passed from the user
+                    queryset = self.queryset.none()
                 if isinstance(self, forms.ModelMultipleChoiceField):
                     # A lookup across a reverse relation yields one row per matching child
                     self.initial = list(queryset.distinct())

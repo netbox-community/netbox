@@ -208,18 +208,18 @@ index 000000000..e69de29bb
 The `git commit` command records your changes to the current branch. Specify a commit message with the `-m` argument. (If omitted, a file editor will be opened to provide a message.
 
 ``` title="Command"
-git commit -m "Fixes #123: Fixed the thing that was broken"
+git commit -m "Fixes #123: Validate device names"
 ```
 
 ``` title="Example"
-$ git commit -m "Fixes #123: Fixed the thing that was broken"
-[123-fix-foo 9a12b5b5f] Fixes #123: Fixed the thing that was broken
+$ git commit -m "Fixes #123: Validate device names"
+[123-fix-foo 9a12b5b5f] Fixes #123: Validate device names
  2 files changed, 5 insertions(+)
  create mode 100644 foo.py
 ```
 
 !!! tip "Automatically Closing Issues"
-    GitHub will [automatically close](https://github.blog/2013-01-22-closing-issues-via-commit-messages/) any issues referenced in a commit message by `Fixes:` or `Closes:` when the commit is merged into the repository's default branch. Contributors are strongly encouraged to follow this convention when forming commit messages. (Use "Closes" for feature requests and "Fixes" for bugs.)
+    GitHub will [automatically close](https://github.blog/2013-01-22-closing-issues-via-commit-messages/) any issues referenced in a commit message by `Fixes` or `Closes` when the commit is merged into the repository's default branch. See the [commit message conventions](getting-started.md#commit-messages-and-pr-titles) for NetBox's subject format and examples.
 
 ### Push a Commit Upstream
 

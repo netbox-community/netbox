@@ -334,7 +334,7 @@ class UpgradeCommandTest(TestCase):
     def test_full_sequence_order(self):
         seq, _, sub, _ = self._run()
         self.assertEqual(seq, [
-            'migrate', 'trace_paths',
+            'migrate', 'trace_paths', 'rebuild_config_context_cache',
             'collectstatic', 'remove_stale_contenttypes', 'reindex', 'clearsessions',
         ])
         sub.assert_not_called()  # docs not built by default
@@ -346,6 +346,7 @@ class UpgradeCommandTest(TestCase):
         sub.assert_not_called()
         self.assertIn('Skipping database migrations.', out)
         self.assertIn('Skipping cable path check.', out)
+        self.assertIn('Skipping config context cache rebuild.', out)
         self.assertIn('Skipping static file collection.', out)
         self.assertIn('Skipping stale content type removal.', out)
         self.assertIn('Skipping search index rebuild.', out)
@@ -355,7 +356,7 @@ class UpgradeCommandTest(TestCase):
         seq, _, _, _ = self._run(skip_migrations=True, skip_static=True, skip_reindex=True)
         self.assertEqual(
             seq,
-            ['trace_paths', 'remove_stale_contenttypes', 'clearsessions'],
+            ['trace_paths', 'rebuild_config_context_cache', 'remove_stale_contenttypes', 'clearsessions'],
         )
 
     def test_build_docs_invokes_zensical_when_sources_present(self):

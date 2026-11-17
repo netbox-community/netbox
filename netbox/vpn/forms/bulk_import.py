@@ -123,11 +123,11 @@ class TunnelTerminationImportForm(NetBoxModelImportForm):
             # Limit termination queryset by assigned device/VM
             if data.get('device'):
                 self.fields['termination'].queryset = Interface.objects.filter(
-                    **{f"device__{self.fields['device'].to_field_name}": data['device']}
+                    **self.get_related_filter('device', 'device', data['device'])
                 )
             elif data.get('virtual_machine'):
                 self.fields['termination'].queryset = VMInterface.objects.filter(
-                    **{f"virtual_machine__{self.fields['virtual_machine'].to_field_name}": data['virtual_machine']}
+                    **self.get_related_filter('virtual_machine', 'virtual_machine', data['virtual_machine'])
                 )
 
     def save(self, *args, **kwargs):
@@ -325,11 +325,11 @@ class L2VPNTerminationImportForm(NetBoxModelImportForm):
             # Limit interface queryset by device or VM
             if data.get('device'):
                 self.fields['interface'].queryset = Interface.objects.filter(
-                    **{f"device__{self.fields['device'].to_field_name}": data['device']}
+                    **self.get_related_filter('device', 'device', data['device'])
                 )
             elif data.get('virtual_machine'):
                 self.fields['interface'].queryset = VMInterface.objects.filter(
-                    **{f"virtual_machine__{self.fields['virtual_machine'].to_field_name}": data['virtual_machine']}
+                    **self.get_related_filter('virtual_machine', 'virtual_machine', data['virtual_machine'])
                 )
 
     def clean(self):
