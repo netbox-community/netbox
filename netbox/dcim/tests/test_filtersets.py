@@ -5859,6 +5859,20 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLogge
         # Wireless links
         WirelessLink(interface_a=interfaces[7], interface_b=interfaces[8]).save()
 
+        # LAG attributes (set directly; validation is covered in test_models)
+        Interface.objects.filter(pk=interfaces[0].pk).update(
+            lag_mode=InterfaceLAGModeChoices.MODE_LACP,
+            lag_hash_policy=InterfaceLAGHashPolicyChoices.POLICY_LAYER2,
+        )
+        Interface.objects.filter(pk=interfaces[1].pk).update(
+            lag_mode=InterfaceLAGModeChoices.MODE_ACTIVE_BACKUP,
+            lag_hash_policy=InterfaceLAGHashPolicyChoices.POLICY_LAYER2_3,
+        )
+        Interface.objects.filter(pk=interfaces[2].pk).update(
+            lag_mode=InterfaceLAGModeChoices.MODE_BALANCE_RR,
+            lag_hash_policy=InterfaceLAGHashPolicyChoices.POLICY_LAYER3_4,
+        )
+
     def test_name(self):
         params = {'name': ['Interface 1', 'Interface 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -5898,6 +5912,16 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLogge
     def test_poe_type(self):
         params = {'poe_type': [InterfacePoETypeChoices.TYPE_1_8023AF, InterfacePoETypeChoices.TYPE_2_8023AT]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_lag_mode(self):
+        params = {'lag_mode': [InterfaceLAGModeChoices.MODE_LACP, InterfaceLAGModeChoices.MODE_ACTIVE_BACKUP]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_lag_hash_policy(self):
+        params = {'lag_hash_policy': [
+            InterfaceLAGHashPolicyChoices.POLICY_LAYER2, InterfaceLAGHashPolicyChoices.POLICY_LAYER2_3,
+        ]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_mode(self):
         params = {'mode': [InterfaceModeChoices.MODE_ACCESS]}

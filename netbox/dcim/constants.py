@@ -2,7 +2,7 @@ import re
 
 from django.db.models import Q
 
-from .choices import InterfaceTypeChoices
+from .choices import InterfaceLAGModeChoices, InterfaceTypeChoices
 
 # Exclude SVG images (unsupported by PIL)
 DEVICETYPE_IMAGE_FORMATS = 'image/bmp,image/gif,image/jpeg,image/png,image/tiff,image/webp'
@@ -83,6 +83,13 @@ NONCONNECTABLE_IFACE_TYPES = VIRTUAL_IFACE_TYPES + WIRELESS_IFACE_TYPES + [
     # Channel subinterfaces derive their cable from the (channelized) parent interface and cannot be cabled directly
     InterfaceTypeChoices.TYPE_CHANNEL,
 ]
+
+# LAG modes which select a member interface by transmit hash (Linux bonding xmit_hash_policy)
+LAG_HASH_MODES = (
+    InterfaceLAGModeChoices.MODE_LACP,
+    InterfaceLAGModeChoices.MODE_STATIC,
+    InterfaceLAGModeChoices.MODE_BALANCE_TLB,
+)
 
 
 #

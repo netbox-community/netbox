@@ -597,6 +597,8 @@ class InterfacePanel(panels.ObjectAttributesPanel):
     description = attrs.TextAttr('description')
     poe_mode = attrs.ChoiceAttr('poe_mode', label=_('PoE mode'))
     poe_type = attrs.ChoiceAttr('poe_type', label=_('PoE type'))
+    lag_mode = attrs.ChoiceAttr('lag_mode', label=_('LAG mode'))
+    lag_hash_policy = attrs.ChoiceAttr('lag_hash_policy', label=_('LAG hash policy'))
     mode = attrs.ChoiceAttr('mode', label=_('802.1Q mode'))
     qinq_svlan = attrs.RelatedObjectAttr('qinq_svlan', linkify=True, label=_('Q-in-Q SVLAN'))
     untagged_vlan = attrs.RelatedObjectAttr('untagged_vlan', linkify=True, label=_('Untagged VLAN'))

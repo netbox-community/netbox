@@ -10,6 +10,8 @@ from dcim.choices import (
     CableProfileChoices,
     DeviceFaceChoices,
     DeviceStatusChoices,
+    InterfaceLAGHashPolicyChoices,
+    InterfaceLAGModeChoices,
     InterfaceModeChoices,
     InterfaceTypeChoices,
     LinkStatusChoices,
@@ -1298,6 +1300,70 @@ class InterfaceTestCase(TestCase):
         self.assertNotIn('untagged_vlan', form.cleaned_data.keys())
         self.assertNotIn('tagged_vlans', form.cleaned_data.keys())
         self.assertNotIn('qinq_svlan', form.cleaned_data.keys())
+
+    def test_lag_hash_policy_hidden_for_non_hash_mode(self):
+        """A LAG hash policy is offered only for hashing LAG modes, and is cleared when switching away from one."""
+        lag = Interface.objects.create(
+            device=self.device,
+            name='bond0',
+            type=InterfaceTypeChoices.TYPE_LAG,
+            lag_mode=InterfaceLAGModeChoices.MODE_LACP,
+            lag_hash_policy=InterfaceLAGHashPolicyChoices.POLICY_LAYER3_4,
+        )
+        self.assertIn('lag_hash_policy', InterfaceForm(instance=lag).fields)
+
+        data = {
+            'device': self.device.pk,
+            'name': 'bond0',
+            'type': InterfaceTypeChoices.TYPE_LAG,
+            'lag_mode': InterfaceLAGModeChoices.MODE_ACTIVE_BACKUP,
+            'lag_hash_policy': InterfaceLAGHashPolicyChoices.POLICY_LAYER3_4,
+        }
+        form = InterfaceForm(data, instance=lag)
+        self.assertNotIn('lag_hash_policy', form.fields)
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+
+        lag.refresh_from_db()
+        self.assertEqual(lag.lag_mode, InterfaceLAGModeChoices.MODE_ACTIVE_BACKUP)
+        self.assertIsNone(lag.lag_hash_policy)
+
+    def test_lag_attributes_cleared_when_changing_from_lag_type(self):
+        """Changing a LAG interface to another type clears its LAG mode and hash policy."""
+        lag = Interface.objects.create(
+            device=self.device,
+            name='bond0',
+            type=InterfaceTypeChoices.TYPE_LAG,
+            lag_mode=InterfaceLAGModeChoices.MODE_LACP,
+            lag_hash_policy=InterfaceLAGHashPolicyChoices.POLICY_LAYER3_4,
+        )
+        data = {
+            'device': self.device.pk,
+            'name': 'bond0',
+            'type': InterfaceTypeChoices.TYPE_1GE_FIXED,
+            'lag_mode': InterfaceLAGModeChoices.MODE_LACP,
+            'lag_hash_policy': InterfaceLAGHashPolicyChoices.POLICY_LAYER3_4,
+        }
+        form = InterfaceForm(data, instance=lag)
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+
+        lag.refresh_from_db()
+        self.assertEqual(lag.type, InterfaceTypeChoices.TYPE_1GE_FIXED)
+        self.assertIsNone(lag.lag_mode)
+        self.assertIsNone(lag.lag_hash_policy)
+
+    def test_lag_mode_on_non_lag_interface_rejected(self):
+        """A LAG mode chosen for a non-LAG interface is rejected rather than silently dropped."""
+        data = {
+            'device': self.device.pk,
+            'name': 'eth9',
+            'type': InterfaceTypeChoices.TYPE_1GE_FIXED,
+            'lag_mode': InterfaceLAGModeChoices.MODE_LACP,
+        }
+        form = InterfaceForm(data)
+        self.assertFalse(form.is_valid())
+        self.assertIn('lag_mode', form.errors)
 
     def test_child_interface_preselects_every_parent_vdc(self):
         """A child interface's form pre-selects every virtual device context of its parent."""
