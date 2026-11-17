@@ -58,6 +58,16 @@ class DeviceSerializer(PrimaryModelSerializer):
         min_value=decimal.Decimal(0.5),
         default=None
     )
+    mercator_x = serializers.FloatField(
+        read_only=True,
+        allow_null=True,
+        help_text=_('Web Mercator (EPSG:3857) X coordinate, in meters')
+    )
+    mercator_y = serializers.FloatField(
+        read_only=True,
+        allow_null=True,
+        help_text=_('Web Mercator (EPSG:3857) Y coordinate, in meters')
+    )
     status = ChoiceField(choices=DeviceStatusChoices, required=False)
     airflow = ChoiceField(choices=DeviceAirflowChoices, allow_blank=True, required=False)
     cooling_method = ChoiceField(choices=CoolingMethodChoices, allow_blank=True, required=False, allow_null=True)
@@ -110,8 +120,6 @@ class DeviceSerializer(PrimaryModelSerializer):
     device_bay_count = serializers.IntegerField(read_only=True)
     module_bay_count = serializers.IntegerField(read_only=True)
     inventory_item_count = serializers.IntegerField(read_only=True)
-    mercator_x = serializers.FloatField(read_only=True, allow_null=True)
-    mercator_y = serializers.FloatField(read_only=True, allow_null=True)
 
     class Meta:
         model = Device

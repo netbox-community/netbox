@@ -54,7 +54,7 @@ GPS coordinates of the site for geolocation. These are assumed to use the WGS84 
 
 !!! info "This field was introduced in NetBox v4.8."
 
-The site's coordinates in the [Web Mercator](https://epsg.io/3857) (EPSG:3857) projection, in meters. These read-only values are calculated from the latitude and longitude (they are not stored in the database), and are useful for integrating with mapping tools that expect projected X/Y coordinates rather than latitude and longitude. They are calculated as:
+The site's [Web Mercator](https://epsg.io/3857) (EPSG:3857) coordinates, in meters. These read-only values are calculated from its latitude and longitude for use with mapping tools:
 
 ```
 X = longitude × (π / 180) × 6378137

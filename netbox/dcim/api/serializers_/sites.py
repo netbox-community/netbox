@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from timezone_field.rest_framework import TimeZoneSerializerField
 
@@ -48,13 +49,21 @@ class SiteGroupSerializer(NestedGroupModelSerializer):
 
 
 class SiteSerializer(PrimaryModelSerializer):
-    mercator_x = serializers.FloatField(read_only=True, allow_null=True)
-    mercator_y = serializers.FloatField(read_only=True, allow_null=True)
     status = ChoiceField(choices=SiteStatusChoices, required=False)
     region = RegionSerializer(nested=True, required=False, allow_null=True)
     group = SiteGroupSerializer(nested=True, required=False, allow_null=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     time_zone = TimeZoneSerializerField(required=False, allow_null=True)
+    mercator_x = serializers.FloatField(
+        read_only=True,
+        allow_null=True,
+        help_text=_('Web Mercator (EPSG:3857) X coordinate, in meters')
+    )
+    mercator_y = serializers.FloatField(
+        read_only=True,
+        allow_null=True,
+        help_text=_('Web Mercator (EPSG:3857) Y coordinate, in meters')
+    )
     asns = SerializedPKRelatedField(
         queryset=ASN.objects.all(),
         serializer=ASNSerializer,

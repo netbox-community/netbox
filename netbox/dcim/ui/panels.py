@@ -45,8 +45,12 @@ class SiteLocationPanel(panels.ObjectAttributesPanel):
     physical_address = attrs.AddressAttr('physical_address', map_url=True, copy_button=True)
     shipping_address = attrs.AddressAttr('shipping_address', map_url=True, copy_button=True)
     gps_coordinates = attrs.GPSCoordinatesAttr()
-    mercator_x = attrs.NumericAttr('mercator_x', label=_('Web Mercator X'), copy_button=True, localize=False)
-    mercator_y = attrs.NumericAttr('mercator_y', label=_('Web Mercator Y'), copy_button=True, localize=False)
+    mercator_x = attrs.NumericAttr(
+        'mercator_x', label=_('Web Mercator X (EPSG:3857, meters)'), copy_button=True, localize=False
+    )
+    mercator_y = attrs.NumericAttr(
+        'mercator_y', label=_('Web Mercator Y (EPSG:3857, meters)'), copy_button=True, localize=False
+    )
 
 
 class LocationPanel(panels.NestedGroupObjectPanel):
@@ -139,8 +143,12 @@ class DeviceLocationPanel(panels.ObjectAttributesPanel):
     location = attrs.NestedObjectAttr('location', linkify=True)
     rack = attrs.TemplatedAttr('rack', template_name='dcim/device/attrs/rack.html')
     gps_coordinates = attrs.GPSCoordinatesAttr()
-    mercator_x = attrs.NumericAttr('mercator_x', label=_('Web Mercator X'), copy_button=True, localize=False)
-    mercator_y = attrs.NumericAttr('mercator_y', label=_('Web Mercator Y'), copy_button=True, localize=False)
+    mercator_x = attrs.NumericAttr(
+        'mercator_x', label=_('Web Mercator X (EPSG:3857, meters)'), copy_button=True, localize=False
+    )
+    mercator_y = attrs.NumericAttr(
+        'mercator_y', label=_('Web Mercator Y (EPSG:3857, meters)'), copy_button=True, localize=False
+    )
 
 
 class DeviceManagementPanel(panels.ObjectAttributesPanel):
