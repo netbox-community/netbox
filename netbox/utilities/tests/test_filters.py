@@ -776,6 +776,8 @@ class DynamicFilterLookupExpressionTestCase(TestCase):
         The null choice value must match null values for every lookup, as with exact lookups (#23632).
         """
         Device.objects.filter(name='Device 1').update(name=None)
+        # A name containing the literal string "null" must not match
+        Device.objects.filter(name='Device 2').update(name='Device null')
         lookups = {
             'name': 1,
             'name__n': 2,
@@ -785,6 +787,8 @@ class DynamicFilterLookupExpressionTestCase(TestCase):
             'name__nisw': 2,
             'name__iew': 1,
             'name__niew': 2,
+            'name__ie': 1,
+            'name__nie': 2,
             'name__regex': 1,
             'name__iregex': 1,
         }

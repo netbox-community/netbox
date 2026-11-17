@@ -107,6 +107,11 @@ Here is an example of a lookup expression on a string field that will return all
 GET /api/dcim/devices/?name__ic=switch
 ```
 
+!!! note "Filtering for null values"
+    The value `null` always matches a NULL value, regardless of the lookup expression. For
+    example, `name__ic=null` returns devices with no name, not devices whose name contains the
+    string "null".
+
 !!! note "Case-insensitive matching depends on the field's collation"
     Most `name` fields use a database collation which sorts them in natural order, so that
     `device-2` precedes `device-10`. Case-insensitive matching on those fields follows the
