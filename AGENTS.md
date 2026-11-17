@@ -260,7 +260,8 @@ All contributions must comply with the project's [AI policy](AI_POLICY.md). In s
 
 - AI tools may be used to explore the codebase and to generate code.
 - The contributor must fully understand, and be able to explain, every change submitted.
-- Issues, pull request descriptions, and comments must be written in the contributor's own voice. Anything you draft for these is a starting point for the contributor to review and rewrite: keep it brief and plain, and say so when handing it over.
+- Issues and comments must be written in the contributor's own voice. Anything you draft for these is a starting point for the contributor to review and rewrite: keep it brief and plain, and say so when handing it over.
+- Pull request descriptions may be AI-generated, as long as the contributor reviews them and they follow the [PR description guidance](#pr-descriptions).
 - Never open a GitHub issue on the contributor's behalf (e.g. via `gh issue create` or the API). The contributor must submit it themselves using one of the [issue forms](https://github.com/netbox-community/netbox/issues/new/choose); issues opened any other way are closed automatically.
 
 ## Branch & PR Conventions
@@ -269,6 +270,29 @@ All contributions must comply with the project's [AI policy](AI_POLICY.md). In s
 - Use the `main` branch for patch releases; `feature` tracks work for the upcoming minor/major release.
 - Every PR must reference an approved GitHub issue.
 - PRs must include tests for new functionality.
+
+### PR Descriptions
+
+Follow [the PR template](.github/PULL_REQUEST_TEMPLATE.md). Summarize what changes and the resulting behavior, usually in one or two short paragraphs. Include only the context needed to understand the change, and leave the full problem statement in the linked issue. Avoid repeating the issue, narrating the diff, or listing every test. Include design decisions, compatibility notes, and meaningful validation results where they help reviewers.
+
+### Commit Messages and PR Titles
+
+For issue-linked changes, use the [commit message conventions](docs/development/getting-started.md#commit-messages-and-pr-titles). They follow the traditional [Git commit-message guidelines](https://cbea.ms/git-commit/) with NetBox's issue-prefixed subject format:
+
+- Use `Fixes #<issue-id>: <summary>` for bug fixes and `Closes #<issue-id>: <summary>` for all other issue types, such as features, housekeeping, and documentation. Use the same wording for the PR title and final commit subject.
+- Write the summary in the imperative, starting with a capital letter and without a trailing period. It should work as a release note entry. Aim for about 50 characters for the whole subject, including the issue prefix, while keeping the meaning clear.
+- When a body is needed, separate it from the subject with a blank line. Briefly explain what changes and why, rather than walking through the implementation. Wrap prose at 72 characters.
+- Omit a duplicate `Fixes` or `Closes` reference from the commit footer. Keep the required `Closes: #<issue-id>` line in the PR description.
+- When applicable, add a `Co-authored-by: Name <email>` trailer for each co-author, using their preferred attribution details. Separate the trailer block from the body with a blank line.
+
+For example:
+
+```text
+Fixes #1234: Keep cleared fields empty on refresh
+
+Refreshing an edit form restored the saved value of any field the user
+had cleared, discarding that edit. Cleared fields now stay empty.
+```
 
 ## PR Submission Requirements
 
