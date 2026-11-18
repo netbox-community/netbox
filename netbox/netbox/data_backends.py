@@ -57,6 +57,20 @@ class DataBackend:
         """
         raise NotImplementedError()
 
+    def get_revision(self, local_path):
+        """
+        Return a dictionary describing the revision of the data fetched to `local_path`, or None if the backend has no
+        concept of revisions. Called during synchronization while the fetched data is still present at `local_path`.
+
+        The dictionary may include any of the following keys:
+
+        - `revision`: A unique identifier for the revision, such as a commit hash (max 64 characters)
+        - `message`: A message describing the revision
+        - `author`: The author of the revision (max 200 characters)
+        - `time`: A timezone-aware datetime indicating when the revision was made
+        """
+        return
+
 
 def get_data_backend_choices():
     return [

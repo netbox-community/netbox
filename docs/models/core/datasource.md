@@ -54,3 +54,12 @@ The interval at which the data source should automatically synchronize. If not s
 ### Last Synced
 
 The date and time at which the source was most recently synchronized successfully.
+
+### Revision
+
+The revision of the data retrieved by the most recent successful synchronization, if the source's backend can determine one. For git data sources, this is the hash of the head commit. These fields are updated automatically on each synchronization and cannot be set manually.
+
+* **Revision**: The unique identifier of the revision (e.g. a git commit hash)
+* **Revision message**: The message describing the revision
+* **Revision author**: The author of the revision
+* **Revision time**: The date and time at which the revision was made

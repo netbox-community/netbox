@@ -1,7 +1,7 @@
 import tempfile
 import uuid
 from contextlib import contextmanager
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 from io import StringIO
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -276,6 +276,101 @@ class DataSourceTestCase(TestCase):
             self.datasource.sync()
 
         self.assertEqual(dict(self.datasource.datafiles.values_list('path', 'data')), {'a.txt': b'new\n'})
+
+    def test_sync_records_revision(self):
+        """The revision reported by the backend is saved and available to post_sync receivers."""
+        revision = {
+            'revision': '0123456789abcdef0123456789abcdef01234567',
+            'message': 'Update files',
+            'author': 'Jane Doe <jane@example.com>',
+            'time': datetime(2026, 1, 1, 12, 0, tzinfo=UTC),
+        }
+        expected = {
+            'revision': revision['revision'],
+            'revision_message': revision['message'],
+            'revision_author': revision['author'],
+            'revision_time': revision['time'],
+        }
+        received = {}
+
+        def receiver(sender, instance, **kwargs):
+            received.update({field: getattr(instance, field) for field in expected})
+
+        post_sync.connect(receiver)
+        self.addCleanup(post_sync.disconnect, receiver)
+        with patch.object(LocalBackend, 'get_revision', return_value=revision):
+            self.datasource.sync()
+
+        self.assertEqual(received, expected)
+        self.assert_files_synced()
+        for field, value in expected.items():
+            self.assertEqual(getattr(self.datasource, field), value)
+
+    def test_sync_clears_revision_when_backend_reports_none(self):
+        """A backend which reports no revision leaves the revision fields empty."""
+        DataSource.objects.filter(pk=self.datasource.pk).update(
+            revision='abc123', revision_message='Old', revision_author='Jane Doe', revision_time=timezone.now()
+        )
+
+        self.datasource.sync()
+
+        self.assert_files_synced()
+        for field in ('revision', 'revision_message', 'revision_author', 'revision_time'):
+            self.assertIsNone(getattr(self.datasource, field))
+
+    def test_sync_revision_failure_does_not_fail_sync(self):
+        """An error reading the revision is logged, and the sync completes without one."""
+        with patch.object(LocalBackend, 'get_revision', side_effect=ValueError('Simulated revision error')):
+            with self.assertLogs('netbox.core.data', level='WARNING') as logs:
+                self.datasource.sync()
+
+        self.assertIn('Simulated revision error', logs.output[0])
+        self.assert_files_synced()
+        self.assertIsNone(self.datasource.revision)
+
+    def test_sync_discards_invalid_revision(self):
+        """A revision which can't be stored is logged and discarded, and the sync completes without one."""
+        for revision in (['not', 'a', 'dict'], {'revision': 'abc123', 'time': 'not a time'}):
+            with self.subTest(revision=revision):
+                with patch.object(LocalBackend, 'get_revision', return_value=revision):
+                    with self.assertLogs('netbox.core.data', level='WARNING'):
+                        self.datasource.sync()
+
+                self.assert_files_synced()
+                self.assertIsNone(self.datasource.revision)
+
+    def test_sync_strips_nul_characters_from_revision(self):
+        """NUL characters, which PostgreSQL can't store, are removed from the revision values."""
+        revision = {'revision': 'abc\x00123', 'message': 'Update\x00 files', 'author': 'Jane\x00 Doe'}
+        with patch.object(LocalBackend, 'get_revision', return_value=revision):
+            self.datasource.sync()
+
+        self.assert_files_synced()
+        self.assertEqual(self.datasource.revision, 'abc123')
+        self.assertEqual(self.datasource.revision_message, 'Update files')
+        self.assertEqual(self.datasource.revision_author, 'Jane Doe')
+
+    def test_short_revision(self):
+        """Only hash revisions are abbreviated."""
+        for revision, expected in (
+            (None, None),
+            ('0123456789abcdef0123456789abcdef01234567', '0123456'),
+            ('0123456789abcdef' * 4, '0123456'),
+            ('release-2026-01', 'release-2026-01'),
+            ('0123456789ABCDEF0123456789ABCDEF01234567', '0123456789ABCDEF0123456789ABCDEF01234567'),
+        ):
+            with self.subTest(revision=revision):
+                self.assertEqual(DataSource(revision=revision).short_revision, expected)
+
+    def test_sync_truncates_long_revision_values(self):
+        """Revision values longer than their fields are truncated rather than failing the sync."""
+        revision = {'revision': 'a' * 100, 'author': 'b' * 300}
+        with patch.object(LocalBackend, 'get_revision', return_value=revision):
+            self.datasource.sync()
+
+        self.assert_files_synced()
+        self.assertEqual(self.datasource.revision, 'a' * 64)
+        self.assertEqual(self.datasource.revision_author, 'b' * 200)
 
     def test_sync_keeps_paths_repeating_source_root(self):
         """A file below a directory repeating the source root syncs under its full path."""

@@ -38,7 +38,11 @@ class DataSourceTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 status=DataSourceStatusChoices.SYNCING,
                 enabled=True,
                 description='foobar2',
-                sync_interval=JobIntervalChoices.INTERVAL_DAILY
+                sync_interval=JobIntervalChoices.INTERVAL_DAILY,
+                revision='abcdef0123456789abcdef0123456789abcdef01',
+                revision_message='Add templates',
+                revision_author='John Doe <john@example.com>',
+                revision_time=datetime(2026, 1, 1, 12, 0, tzinfo=UTC),
             ),
             DataSource(
                 name='Data Source 3',
@@ -46,6 +50,10 @@ class DataSourceTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 source_url='https://example.com/git/source3',
                 status=DataSourceStatusChoices.COMPLETED,
                 enabled=False,
+                revision='0123456789abcdef0123456789abcdef01234567',
+                revision_message='Update templates',
+                revision_author='Jane Doe <jane@example.com>',
+                revision_time=datetime(2026, 2, 1, 12, 0, tzinfo=UTC),
             ),
         )
         DataSource.objects.bulk_create(data_sources)
@@ -75,6 +83,30 @@ class DataSourceTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     def test_status(self):
         params = {'status': [DataSourceStatusChoices.NEW, DataSourceStatusChoices.SYNCING]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_revision(self):
+        params = {'revision': ['0123456789abcdef0123456789abcdef01234567']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_revision_message(self):
+        params = {'revision_message': 'Update templates'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'revision_message__ic': 'templates'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_revision_author(self):
+        params = {'revision_author': ['Jane Doe <jane@example.com>']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'revision_author__ic': ['doe']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_revision_time(self):
+        params = {'revision_time': ['2026-01-01T12:00:00Z']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'revision_time__gte': ['2026-01-15T00:00:00Z']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'revision_time__empty': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_sync_interval(self):
         params = {'sync_interval': [JobIntervalChoices.INTERVAL_HOURLY, JobIntervalChoices.INTERVAL_DAILY]}

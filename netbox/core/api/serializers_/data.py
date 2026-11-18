@@ -27,7 +27,8 @@ class DataSourceSerializer(PrimaryModelSerializer):
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'type', 'source_url', 'enabled', 'status', 'description',
             'sync_interval', 'parameters', 'ignore_rules', 'owner', 'comments', 'tags', 'custom_fields', 'created',
-            'last_updated', 'last_synced', 'file_count',
+            'last_updated', 'last_synced', 'revision', 'revision_message', 'revision_author', 'revision_time',
+            'file_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
