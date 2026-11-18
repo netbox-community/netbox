@@ -20,6 +20,7 @@ from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import ASN, VLAN, IPAddress, Prefix, VLANGroup
 from ipam.tables import VLANTranslationRuleTable
 from ipam.ui.panels import FHRPGroupAssignmentsPanel
+from ndx.ui.panels import ImportRecordPanel
 from netbox.object_actions import *
 from netbox.ui import actions, layout
 from netbox.ui.breadcrumbs import Breadcrumb, filtered_list_url, object_view_url
@@ -1004,6 +1005,7 @@ class RackTypeView(GetRelatedModelsMixin, generic.ObjectView):
             panels.RackWeightPanel(title=_('Weight'), exclude=['total_weight']),
             CustomFieldsPanel(),
             RelatedObjectsPanel(),
+            ImportRecordPanel(),
             ImageAttachmentsPanel(),
         ],
     )
@@ -1463,6 +1465,7 @@ class DeviceTypeView(GetRelatedModelsMixin, generic.ObjectView):
         ],
         right_panels=[
             RelatedObjectsPanel(),
+            ImportRecordPanel(),
             CustomFieldsPanel(),
             CommentsPanel(),
             ImageAttachmentsPanel(),
@@ -1690,21 +1693,7 @@ class DeviceTypeImportView(generic.BulkImportView):
     ]
     queryset = DeviceType.objects.all()
     model_form = forms.DeviceTypeImportForm
-    related_object_forms = {
-        'console-ports': forms.ConsolePortTemplateImportForm,
-        'console-server-ports': forms.ConsoleServerPortTemplateImportForm,
-        'power-ports': forms.PowerPortTemplateImportForm,
-        'power-outlets': forms.PowerOutletTemplateImportForm,
-        'cooling-intakes': forms.CoolingIntakeTemplateImportForm,
-        'cooling-outflows': forms.CoolingOutflowTemplateImportForm,
-        'interfaces': forms.InterfaceTemplateImportForm,
-        'rear-ports': forms.RearPortTemplateImportForm,
-        'front-ports': forms.FrontPortTemplateImportForm,
-        'port-mappings': forms.PortTemplateMappingImportForm,
-        'module-bays': forms.ModuleBayTemplateImportForm,
-        'device-bays': forms.DeviceBayTemplateImportForm,
-        'inventory-items': forms.InventoryItemTemplateImportForm,
-    }
+    related_object_forms = forms.DEVICE_TYPE_COMPONENT_IMPORT_FORMS
 
     def prep_related_object_data(self, parent, data):
         data.update({'device_type': parent})
@@ -1928,6 +1917,7 @@ class ModuleTypeView(GetRelatedModelsMixin, generic.ObjectView):
                 template_name='dcim/panels/module_type_attributes.html',
             ),
             RelatedObjectsPanel(),
+            ImportRecordPanel(),
             CustomFieldsPanel(),
             ImageAttachmentsPanel(),
         ],
@@ -2149,19 +2139,7 @@ class ModuleTypeImportView(generic.BulkImportView):
     ]
     queryset = ModuleType.objects.all()
     model_form = forms.ModuleTypeImportForm
-    related_object_forms = {
-        'console-ports': forms.ConsolePortTemplateImportForm,
-        'console-server-ports': forms.ConsoleServerPortTemplateImportForm,
-        'power-ports': forms.PowerPortTemplateImportForm,
-        'power-outlets': forms.PowerOutletTemplateImportForm,
-        'cooling-intakes': forms.CoolingIntakeTemplateImportForm,
-        'cooling-outflows': forms.CoolingOutflowTemplateImportForm,
-        'interfaces': forms.InterfaceTemplateImportForm,
-        'rear-ports': forms.RearPortTemplateImportForm,
-        'front-ports': forms.FrontPortTemplateImportForm,
-        'port-mappings': forms.PortTemplateMappingImportForm,
-        'module-bays': forms.ModuleBayTemplateImportForm,
-    }
+    related_object_forms = forms.MODULE_TYPE_COMPONENT_IMPORT_FORMS
 
     def prep_related_object_data(self, parent, data):
         data.update({'module_type': parent})

@@ -32,6 +32,7 @@ registry = Registry({
     'job_result_urls': dict(),
     'model_actions': collections.defaultdict(set),
     'model_features': dict(),
+    'ndx_importers': dict(),
     'pk_allocators': list(),
     'plugins': dict(),
     'request_processors': list(),

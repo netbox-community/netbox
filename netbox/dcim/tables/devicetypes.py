@@ -2,6 +2,7 @@ import django_tables2 as tables
 from django.utils.translation import gettext_lazy as _
 
 from dcim import models
+from ndx.tables.columns import ImportRecordColumn
 from netbox.tables import NetBoxTable, OrganizationalModelTable, PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin
 
@@ -155,6 +156,7 @@ class DeviceTypeTable(PrimaryModelTable):
     cooling_method = columns.ChoiceFieldColumn(
         verbose_name=_('Cooling Method'),
     )
+    ndx = ImportRecordColumn()
 
     class Meta(PrimaryModelTable.Meta):
         model = models.DeviceType
@@ -162,7 +164,7 @@ class DeviceTypeTable(PrimaryModelTable):
             'pk', 'id', 'model', 'manufacturer', 'default_platform', 'slug', 'part_number', 'u_height',
             'exclude_from_utilization', 'is_full_depth', 'subdevice_role', 'airflow', 'cooling_method', 'weight',
             'end_of_life',
-            'description', 'comments', 'device_count', 'tags', 'created', 'last_updated',
+            'description', 'comments', 'device_count', 'ndx', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'device_count',

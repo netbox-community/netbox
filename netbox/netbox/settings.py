@@ -167,6 +167,10 @@ LOGIN_FORM_HIDDEN = param('LOGIN_FORM_HIDDEN', False, types=bool)
 LOGOUT_REDIRECT_URL = param('LOGOUT_REDIRECT_URL', 'home', types=str)
 MEDIA_ROOT = param('MEDIA_ROOT', os.path.join(NETBOX_ROOT, 'media'), types=str).rstrip('/')
 METRICS_ENABLED = param('METRICS_ENABLED', False, types=bool)
+NDX_API_TOKEN = param('NDX_API_TOKEN', None, types=str, allow_none=True)
+NDX_API_URL = param('NDX_API_URL', 'https://netboxlabs.com/ndx/api/v1', types=str)
+NDX_IMPORT_IMAGES = param('NDX_IMPORT_IMAGES', True, types=bool)
+NDX_SYNC_INTERVAL = param('NDX_SYNC_INTERVAL', 1440, types=int, min_value=0)
 PLUGINS = param('PLUGINS', [], types=(list, tuple))
 PLUGINS_CONFIG = param('PLUGINS_CONFIG', {}, types=dict)
 PLUGINS_CATALOG_CONFIG = param('PLUGINS_CATALOG_CONFIG', {}, types=dict)
@@ -252,6 +256,20 @@ if RELEASE_CHECK_URL:
         raise ImproperlyConfigured(
             "RELEASE_CHECK_URL must be a valid URL. Example: https://api.github.com/repos/netbox-community/netbox"
         )
+
+# Validate NDX API URL
+try:
+    URLValidator()(NDX_API_URL)
+except ValidationError:
+    raise ImproperlyConfigured("NDX_API_URL must be a valid URL. Example: https://netboxlabs.com/ndx/api/v1")
+
+# Fall back to the API token configured for the NDX plugin, which was integrated into NetBox v4.8
+if not NDX_API_TOKEN and (_ndx_plugin_token := (PLUGINS_CONFIG.get('netbox_ndx') or {}).get('api_token')):
+    NDX_API_TOKEN = _ndx_plugin_token
+    warnings.warn(
+        "NDX_API_TOKEN is not set; using the API token configured for the netbox_ndx plugin in PLUGINS_CONFIG. The "
+        "NDX plugin was integrated into NetBox v4.8: Set NDX_API_TOKEN and remove the plugin's configuration."
+    )
 
 # Validate configured proxy routers
 for path in PROXY_ROUTERS:
@@ -505,6 +523,7 @@ INSTALLED_APPS = [
     'dcim',
     'ipam',
     'extras',
+    'ndx',
     'tenancy',
     'users',
     'utilities',
@@ -947,12 +966,24 @@ STRAWBERRY_DJANGO = {
 
 PLUGIN_CATALOG_URL = 'https://api.netbox.oss.netboxlabs.com/v1/plugins'
 
+# Plugins whose functionality has been integrated into NetBox, mapped to the release that absorbed them
+INTEGRATED_PLUGINS = {
+    'netbox_ndx': 'v4.8',
+}
+
 EVENTS_PIPELINE = list(EVENTS_PIPELINE)
 if 'extras.events.process_event_queue' not in EVENTS_PIPELINE:
     EVENTS_PIPELINE.insert(0, 'extras.events.process_event_queue')
 
 # Register any configured plugins
 for plugin_name in PLUGINS:
+    if plugin_name in INTEGRATED_PLUGINS:
+        warnings.warn(
+            f"Skipping plugin {plugin_name}: its functionality was integrated into NetBox "
+            f"{INTEGRATED_PLUGINS[plugin_name]}. Remove it from PLUGINS."
+        )
+        continue
+
     try:
         # Import the plugin module
         plugin = importlib.import_module(plugin_name)

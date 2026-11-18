@@ -1,0 +1,130 @@
+{% extends 'generic/_base.html' %}
+{% load helpers %}
+{% load i18n %}
+
+{% block title %}{% trans "NDX Sync Status" %}{% endblock %}
+
+{% block controls %}
+  <div class="btn-list">
+    {% if perms.ndx.sync_importrecord %}
+      <form action="{% url 'ndx:sync' %}" method="post" class="d-inline">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary"{% if running_job %} disabled{% endif %}>
+          <i class="mdi mdi-sync" aria-hidden="true"></i> {% trans "Sync Now" %}
+        </button>
+      </form>
+    {% endif %}
+    {% if can_import and updates_available %}
+      <form action="{% url 'ndx:apply_updates' %}" method="post" class="d-inline">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-warning">
+          <i class="mdi mdi-download" aria-hidden="true"></i> {% trans "Apply Updates" %}
+        </button>
+      </form>
+    {% endif %}
+  </div>
+{% endblock controls %}
+
+{% block content %}
+  <div class="row">
+    <div class="col col-12 col-md-6">
+      <div class="card">
+        <h2 class="card-header">{% trans "Connection" %}</h2>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "API URL" %}</th>
+            <td class="font-monospace">{{ api_url }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Token" %}</th>
+            <td>
+              {% if not auth_error %}
+                <span class="badge text-bg-green">{% trans "Valid" %}</span>
+              {% elif auth_error.is_auth %}
+                <span class="badge text-bg-red">{% trans "Invalid" %}</span>
+              {% else %}
+                <span class="badge text-bg-gray">{% trans "Unknown" %}</span>
+              {% endif %}
+              {% if auth_error %}
+                <div class="text-secondary small mt-1">{{ auth_error.message }}</div>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Tier" %}</th>
+            <td>{{ tier|placeholder }}</td>
+          </tr>
+        </table>
+      </div>
+      <div class="card">
+        <h2 class="card-header">{% trans "Imported Types" %}</h2>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Imported" %}</th>
+            <td><a href="{% url 'ndx:importrecord_list' %}">{{ imported_count }}</a></td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Updates available" %}</th>
+            <td><a href="{% url 'ndx:importrecord_list' %}?update_available=true">{{ updates_available }}</a></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="col col-12 col-md-6">
+      <div class="card">
+        <h2 class="card-header">{% trans "Last Sync" %}</h2>
+        {% if job %}
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "Job" %}</th>
+              <td><a href="{{ job.get_absolute_url }}">#{{ job.pk }}</a></td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Status" %}</th>
+              <td>{% badge job.get_status_display bg_color=job.get_status_color %}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Completed" %}</th>
+              <td>{{ job.completed|isodatetime }}</td>
+            </tr>
+            {% if sync_error %}
+              <tr>
+                <th scope="row">{% trans "Error" %}</th>
+                <td>{{ sync_error }}</td>
+              </tr>
+            {% endif %}
+            <tr>
+              <th scope="row">{% trans "Catalog entries" %}</th>
+              <td>{{ catalog_count|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Flagged for update" %}</th>
+              <td>{{ flagged_count|placeholder }}</td>
+            </tr>
+          </table>
+        {% else %}
+          <div class="card-body text-muted">{% trans "The catalog has not been synchronized yet." %}</div>
+        {% endif %}
+      </div>
+      {% if running_job or next_job %}
+        <div class="card">
+          <h2 class="card-header">{% trans "Scheduled" %}</h2>
+          <table class="table table-hover attr-table">
+            {% if running_job %}
+              <tr>
+                <th scope="row">{% trans "In progress" %}</th>
+                <td><a href="{{ running_job.get_absolute_url }}">#{{ running_job.pk }}</a> {% badge running_job.get_status_display bg_color=running_job.get_status_color %}</td>
+              </tr>
+            {% endif %}
+            {% if next_job %}
+              <tr>
+                <th scope="row">{% trans "Next sync" %}</th>
+                <td><a href="{{ next_job.get_absolute_url }}">{{ next_job.scheduled|isodatetime }}</a></td>
+              </tr>
+            {% endif %}
+          </table>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock content %}

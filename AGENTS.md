@@ -44,6 +44,7 @@ NetBox is the core product maintained by NetBox Labs. The current version is 4.6
 │   ├── dcim/                  — Data center infrastructure (devices, racks, cables, etc.)
 │   ├── extras/                — Cross-cutting features (custom fields, tags, webhooks, scripts)
 │   ├── ipam/                  — IP address management (prefixes, addresses, VLANs, etc.)
+│   ├── ndx/                   — NetBox Data Exchange catalog integration (import records, enrichment)
 │   ├── tenancy/               — Tenancy and organization
 │   ├── users/                 — User management and tokens
 │   ├── utilities/             — Shared utilities (no models)
@@ -79,7 +80,7 @@ NetBox is the core product maintained by NetBox Labs. The current version is 4.6
 
 ### App Structure
 
-Each Django app (account, circuits, core, dcim, extras, ipam, tenancy, users, virtualization, vpn, wireless) follows a standard layout:
+Each Django app (account, circuits, core, dcim, extras, ipam, ndx, tenancy, users, virtualization, vpn, wireless) follows a standard layout:
 
 ```text
 <app>/

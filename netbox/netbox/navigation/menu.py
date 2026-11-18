@@ -2,6 +2,7 @@ from functools import cache
 
 from django.utils.translation import gettext_lazy as _
 
+from ndx.utils import is_enabled as ndx_enabled
 from netbox.registry import registry
 
 from . import *
@@ -74,6 +75,26 @@ RACKS_MENU = Menu(
     ),
 )
 
+
+def get_ndx_menu_items():
+    items = [
+        get_model_item('ndx', 'importrecord', _('Imported Types'), actions=()),
+    ]
+    # Catalog views are available only when the NDX integration is enabled
+    if ndx_enabled():
+        items.insert(0, MenuItem(
+            link='ndx:catalog',
+            link_text=_('Catalog'),
+            permissions=['ndx.view_importrecord'],
+        ))
+        items.append(MenuItem(
+            link='ndx:sync_status',
+            link_text=_('Sync Status'),
+            permissions=['ndx.view_importrecord'],
+        ))
+    return tuple(items)
+
+
 DEVICES_MENU = Menu(
     label=_('Devices'),
     icon_class='mdi mdi-server',
@@ -98,6 +119,10 @@ DEVICES_MENU = Menu(
                 get_model_item('dcim', 'modulebaytype', _('Module Bay Types')),
                 get_model_item('dcim', 'manufacturer', _('Manufacturers')),
             ),
+        ),
+        MenuGroup(
+            label=_('Data Exchange'),
+            items=get_ndx_menu_items(),
         ),
         MenuGroup(
             label=_('Device Components'),

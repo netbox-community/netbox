@@ -1,0 +1,70 @@
+{% extends "ui/panels/_base.html" %}
+{% load i18n %}
+
+{% block panel_content %}
+  <table class="table table-hover attr-table">
+    <tr>
+      <th scope="row">{% trans "NDX ID" %}</th>
+      <td>
+        <a href="{{ record.get_absolute_url }}" class="font-monospace">{{ record.ndx_id }}</a>
+        {% if record.update_available %}
+          <span class="badge text-bg-warning ms-1">{% trans "Update available" %}</span>
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th scope="row">{% trans "Source" %}</th>
+      <td>{% badge record.get_source_display bg_color=record.get_source_color %}</td>
+    </tr>
+    <tr>
+      <th scope="row">{% trans "Last imported" %}</th>
+      <td>{{ record.last_imported|isodatetime }}</td>
+    </tr>
+    {% if enrichment.last_support_date %}
+      <tr>
+        <th scope="row">{% trans "Last date of support" %}</th>
+        <td>{{ enrichment.last_support_date }}</td>
+      </tr>
+    {% endif %}
+    {% if enrichment.eos_date %}
+      <tr>
+        <th scope="row">{% trans "End of sale" %}</th>
+        <td>{{ enrichment.eos_date }}</td>
+      </tr>
+    {% endif %}
+    {% if enrichment.typical_power_draw_watts is not None %}
+      <tr>
+        <th scope="row">{% trans "Typical power draw" %}</th>
+        <td>{{ enrichment.typical_power_draw_watts }} W</td>
+      </tr>
+    {% endif %}
+    {% if enrichment.max_power_draw_watts is not None %}
+      <tr>
+        <th scope="row">{% trans "Maximum power draw" %}</th>
+        <td>{{ enrichment.max_power_draw_watts }} W</td>
+      </tr>
+    {% endif %}
+    {% if enrichment.power_capacity_watts is not None %}
+      <tr>
+        <th scope="row">{% trans "Power capacity" %}</th>
+        <td>{{ enrichment.power_capacity_watts }} W</td>
+      </tr>
+    {% endif %}
+    {% if ndx_web_url %}
+      <tr>
+        <th scope="row">{% trans "Catalog" %}</th>
+        <td>
+          <a href="{{ ndx_web_url }}/{{ record.ndx_id }}" target="_blank" rel="noopener noreferrer">
+            {% trans "View on NDX" %} <i class="mdi mdi-open-in-new"></i>
+          </a>
+        </td>
+      </tr>
+    {% endif %}
+  </table>
+  {% if free_tier %}
+    <div class="card-body text-secondary">
+      {% trans "Enrichment data (such as lifecycle, power, thermal, and environmental specifications) is not included with the free NDX tier." %}
+      <a href="{{ upgrade_url }}" target="_blank" rel="noopener noreferrer">{% trans "Upgrade" %} <i class="mdi mdi-open-in-new"></i></a>
+    </div>
+  {% endif %}
+{% endblock panel_content %}

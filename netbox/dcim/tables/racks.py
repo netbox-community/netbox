@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from django_tables2.utils import Accessor
 
 from dcim.models import Rack, RackGroup, RackReservation, RackRole, RackType
+from ndx.tables.columns import ImportRecordColumn
 from netbox.tables import OrganizationalModelTable, PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 
@@ -112,6 +113,7 @@ class RackTypeTable(PrimaryModelTable):
     cooling_capacity = tables.Column(
         verbose_name=_('Cooling Capacity (kW)')
     )
+    ndx = ImportRecordColumn()
     tags = columns.TagColumn(
         url_name='dcim:rack_list'
     )
@@ -121,7 +123,7 @@ class RackTypeTable(PrimaryModelTable):
         fields = (
             'pk', 'id', 'model', 'manufacturer', 'form_factor', 'u_height', 'starting_unit', 'width', 'outer_width',
             'outer_height', 'outer_depth', 'mounting_depth', 'weight', 'max_weight', 'cooling_capability',
-            'cooling_capacity', 'description', 'comments', 'rack_count', 'tags', 'created', 'last_updated',
+            'cooling_capacity', 'description', 'comments', 'rack_count', 'ndx', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'model', 'manufacturer', 'type', 'u_height', 'description', 'rack_count',

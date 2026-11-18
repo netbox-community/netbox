@@ -11,6 +11,7 @@ from core.graphql.schema import CoreQuery
 from dcim.graphql.schema import DCIMQuery
 from extras.graphql.schema import ExtrasQuery
 from ipam.graphql.schema import IPAMQuery
+from ndx.graphql.schema import NDXQuery
 from netbox.plugins import _load_plugin_graphql_schemas
 from netbox.registry import registry
 from tenancy.graphql.schema import TenancyQuery
@@ -37,6 +38,7 @@ class Query(
     DCIMQuery,
     ExtrasQuery,
     IPAMQuery,
+    NDXQuery,
     TenancyQuery,
     VirtualizationQuery,
     VPNQuery,

@@ -1,0 +1,181 @@
+{% extends 'generic/_base.html' %}
+{% load helpers %}
+{% load i18n %}
+
+{% block title %}{{ entry.manufacturer }} {{ entry.model }}{% endblock %}
+
+{% block subtitle %}
+  <div class="text-secondary fs-5 font-monospace">{{ entry.ndx_id }}</div>
+{% endblock subtitle %}
+
+{% block controls %}
+  <div class="btn-list">
+    {% if can_import %}
+      <form action="{% url 'ndx:catalog_import' %}" method="post" class="d-inline">
+        {% csrf_token %}
+        <input type="hidden" name="pk" value="{{ entry.ndx_id }}" />
+        <input type="hidden" name="return_url" value="{{ request.path }}" />
+        {% if entry.import_record %}
+          <button type="submit" class="btn btn-warning">
+            <i class="mdi mdi-refresh" aria-hidden="true"></i> {% trans "Re-import" %}
+          </button>
+        {% else %}
+          <button type="submit" class="btn btn-primary">
+            <i class="mdi mdi-download" aria-hidden="true"></i> {% trans "Import" %}
+          </button>
+        {% endif %}
+      </form>
+    {% endif %}
+    {% if ndx_web_url %}
+      <a href="{{ ndx_web_url }}/{{ entry.ndx_id }}" class="btn btn-outline-secondary" target="_blank" rel="noopener noreferrer">
+        <i class="mdi mdi-open-in-new" aria-hidden="true"></i> {% trans "View on NDX" %}
+      </a>
+    {% endif %}
+  </div>
+{% endblock controls %}
+
+{% block content %}
+  {% if not importer %}
+    <div class="alert alert-warning" role="alert">
+      {% blocktrans trimmed with type=entry.type %}
+        Entries of type <strong>{{ type }}</strong> cannot be imported.
+      {% endblocktrans %}
+    </div>
+  {% endif %}
+  <div class="row">
+    <div class="col col-12 col-md-6">
+      <div class="card">
+        <h2 class="card-header">{% trans "Catalog Entry" %}</h2>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Type" %}</th>
+            <td>{{ importer.label|default:entry.type }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Manufacturer" %}</th>
+            <td>{{ entry.manufacturer|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Model" %}</th>
+            <td>{{ entry.model|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Slug" %}</th>
+            <td class="font-monospace">{{ entry.slug|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Part number" %}</th>
+            <td>{{ entry.part_number|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Vendor" %}</th>
+            <td>{{ entry.vendor_name|default:entry.vendor_slug|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Source" %}</th>
+            <td>
+              {% if entry.source == 'netbox_labs' or entry.source == 'both' %}
+                <span class="badge text-bg-green">{% trans "NetBox Labs" %}</span>
+              {% endif %}
+              {% if entry.source != 'netbox_labs' %}
+                <span class="badge text-bg-gray">{% trans "Community" %}</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% if dtl.u_height is not None %}
+            <tr>
+              <th scope="row">{% trans "Height (U)" %}</th>
+              <td>{{ dtl.u_height }}</td>
+            </tr>
+          {% endif %}
+          {% if dtl.is_full_depth is not None %}
+            <tr>
+              <th scope="row">{% trans "Full depth" %}</th>
+              <td>{% checkmark dtl.is_full_depth %}</td>
+            </tr>
+          {% endif %}
+          {% if dtl.airflow %}
+            <tr>
+              <th scope="row">{% trans "Airflow" %}</th>
+              <td>{{ dtl.airflow }}</td>
+            </tr>
+          {% endif %}
+          {% if dtl.weight %}
+            <tr>
+              <th scope="row">{% trans "Weight" %}</th>
+              <td>{{ dtl.weight }} {{ dtl.weight_unit }}</td>
+            </tr>
+          {% endif %}
+          <tr>
+            <th scope="row">{% trans "Imported" %}</th>
+            <td>
+              {% if entry.import_record %}
+                <a href="{{ entry.import_record.get_absolute_url }}">{{ entry.import_record.last_imported|isodatetime }}</a>
+                {% if entry.import_record.update_available %}
+                  <span class="badge text-bg-warning ms-1">{% trans "Update available" %}</span>
+                {% endif %}
+              {% else %}
+                {{ ''|placeholder }}
+              {% endif %}
+            </td>
+          </tr>
+        </table>
+      </div>
+      {% if components %}
+        <div class="card">
+          <h2 class="card-header">{% trans "Components" %}</h2>
+          <table class="table table-hover attr-table">
+            {% for key, count in components %}
+              <tr>
+                <th scope="row" class="font-monospace">{{ key }}</th>
+                <td>{{ count }}</td>
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
+      {% endif %}
+    </div>
+    <div class="col col-12 col-md-6">
+      <div class="card">
+        <h2 class="card-header">{% trans "Enrichment Coverage" %}</h2>
+        <table class="table table-hover attr-table">
+          {% for label, percentage in coverage %}
+            <tr>
+              <th scope="row">{{ label }}</th>
+              <td>{% utilization_graph percentage warning_threshold=0 danger_threshold=0 %}</td>
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+  </div>
+  {% if interfaces %}
+    <div class="row">
+      <div class="col col-12">
+        <div class="card">
+          <h2 class="card-header">{% trans "Interfaces" %}</h2>
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>{% trans "Name" %}</th>
+                <th>{% trans "Type" %}</th>
+                <th>{% trans "Label" %}</th>
+                <th>{% trans "Management only" %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for interface in interfaces %}
+                <tr>
+                  <td>{{ interface.name }}</td>
+                  <td>{{ interface.type|placeholder }}</td>
+                  <td>{{ interface.label|placeholder }}</td>
+                  <td>{% checkmark interface.mgmt_only|default:False %}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endblock content %}
