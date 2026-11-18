@@ -2,7 +2,7 @@ import decimal
 from functools import cached_property
 
 from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -57,6 +57,16 @@ class DeviceSerializer(PrimaryModelSerializer):
         label=_('Position (U)'),
         min_value=decimal.Decimal(0.5),
         default=None
+    )
+    mercator_x = serializers.FloatField(
+        read_only=True,
+        allow_null=True,
+        help_text=_('Web Mercator (EPSG:3857) X coordinate, in meters')
+    )
+    mercator_y = serializers.FloatField(
+        read_only=True,
+        allow_null=True,
+        help_text=_('Web Mercator (EPSG:3857) Y coordinate, in meters')
     )
     status = ChoiceField(choices=DeviceStatusChoices, required=False)
     airflow = ChoiceField(choices=DeviceAirflowChoices, allow_blank=True, required=False)
@@ -115,10 +125,11 @@ class DeviceSerializer(PrimaryModelSerializer):
         model = Device
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'device_type', 'role', 'tenant', 'platform', 'serial',
-            'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent_device',
-            'status', 'airflow', 'cooling_method', 'primary_ip', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster',
-            'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'owner', 'comments', 'config_template',
-            'config_context', 'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
+            'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'mercator_x',
+            'mercator_y', 'parent_device', 'status', 'airflow', 'cooling_method', 'primary_ip', 'primary_ip4',
+            'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'owner',
+            'comments', 'config_template', 'config_context', 'local_context_data', 'tags', 'custom_fields', 'created',
+            'last_updated',
             'console_port_count', 'console_server_port_count', 'power_port_count', 'power_outlet_count',
             'cooling_intake_count', 'cooling_outflow_count', 'interface_count', 'front_port_count', 'rear_port_count',
             'device_bay_count', 'module_bay_count', 'inventory_item_count', 'replicate_components',
