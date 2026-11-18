@@ -50,12 +50,15 @@ class CircuitTableTestCase(TableTestCases.StandardTableTestCase):
 
     @tag('regression')  # Ref: #23342
     def test_assignments_column(self):
-        """The assignments column links the group assignments of each circuit."""
+        """The assignments column links the group assignments of each circuit without further queries."""
         url1, url2, url3 = (assignment.get_absolute_url() for assignment in self.assignments)
         self.user.config.set('tables.CircuitTable.columns', ['cid', 'assignments'], commit=True)
         table = CircuitTable(Circuit.objects.all())
         table.configure(self.get_request())
-        cells = {row.record.cid: row.get_cell('assignments') for row in table.rows}
+        rows = list(table.rows)
+
+        with self.assertNumQueries(0):
+            cells = {row.record.cid: row.get_cell('assignments') for row in rows}
 
         self.assertHTMLEqual(
             cells['Circuit 1'],
@@ -66,12 +69,15 @@ class CircuitTableTestCase(TableTestCases.StandardTableTestCase):
 
     @tag('regression')  # Ref: #23342
     def test_assignments_export(self):
-        """An export lists the group assignments of each circuit."""
+        """An export lists the group assignments of each circuit without further queries."""
         table = CircuitTable(Circuit.objects.all())
         table.configure(self.get_request())
         # An "All Data" export prefetches for every column, hidden or not
         table._apply_prefetching(columns=table.columns.names())
-        values = {row.record.cid: row.get_cell_value('assignments') for row in table.rows}
+        rows = list(table.rows)
+
+        with self.assertNumQueries(0):
+            values = {row.record.cid: row.get_cell_value('assignments') for row in rows}
 
         self.assertEqual(values, {
             'Circuit 1': 'Circuit Group 1 (Primary), Circuit Group 2',
@@ -140,13 +146,17 @@ class VirtualCircuitTableTestCase(TableTestCases.StandardTableTestCase):
         )
         CircuitGroupAssignment.objects.bulk_create(cls.assignments)
 
+    @tag('regression')  # Ref: #23349
     def test_assignments_column(self):
-        """The assignments column links the group assignments of each virtual circuit."""
+        """The assignments column links the group assignments of each virtual circuit without further queries."""
         url1, url2, url3 = (assignment.get_absolute_url() for assignment in self.assignments)
         self.user.config.set('tables.VirtualCircuitTable.columns', ['cid', 'assignments'], commit=True)
         table = VirtualCircuitTable(VirtualCircuit.objects.all())
         table.configure(self.get_request())
-        cells = {row.record.cid: row.get_cell('assignments') for row in table.rows}
+        rows = list(table.rows)
+
+        with self.assertNumQueries(0):
+            cells = {row.record.cid: row.get_cell('assignments') for row in rows}
 
         self.assertHTMLEqual(
             cells['Virtual Circuit 1'],
@@ -155,13 +165,17 @@ class VirtualCircuitTableTestCase(TableTestCases.StandardTableTestCase):
         self.assertHTMLEqual(cells['Virtual Circuit 2'], f'<a href="{url3}">Circuit Group 1 (Secondary)</a>')
         self.assertEqual(cells['Virtual Circuit 3'], table.columns['assignments'].default)
 
+    @tag('regression')  # Ref: #23349
     def test_assignments_export(self):
-        """An export lists the group assignments of each virtual circuit."""
+        """An export lists the group assignments of each virtual circuit without further queries."""
         table = VirtualCircuitTable(VirtualCircuit.objects.all())
         table.configure(self.get_request())
         # An "All Data" export prefetches for every column, hidden or not
         table._apply_prefetching(columns=table.columns.names())
-        values = {row.record.cid: row.get_cell_value('assignments') for row in table.rows}
+        rows = list(table.rows)
+
+        with self.assertNumQueries(0):
+            values = {row.record.cid: row.get_cell_value('assignments') for row in rows}
 
         self.assertEqual(values, {
             'Virtual Circuit 1': 'Circuit Group 1 (Primary), Circuit Group 2',

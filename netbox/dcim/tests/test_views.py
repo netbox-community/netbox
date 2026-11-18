@@ -4,7 +4,7 @@ import json
 from decimal import Decimal
 from io import StringIO
 from unittest.mock import patch
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 from zoneinfo import ZoneInfo
 
 import yaml
@@ -15,6 +15,7 @@ from django.http import QueryDict, StreamingHttpResponse
 from django.test import override_settings, tag
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
+from django.utils.html import escape
 from netaddr import EUI
 
 from core.choices import ObjectChangeActionChoices
@@ -4264,6 +4265,23 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         response = self.client.get(reverse('dcim:interface_trace', kwargs={'pk': interface1.pk}))
         self.assertHttpStatus(response, 200)
+
+    @tag('regression')  # Issue #23711
+    def test_ip_addresses_panel_add_action(self):
+        """
+        The interface's IP addresses panel links to add an IP address assigned to the interface.
+        """
+        self.add_permissions('dcim.view_interface', 'ipam.view_ipaddress', 'ipam.add_ipaddress')
+        interface = Interface.objects.first()
+        url_params = urlencode({
+            'device': interface.device.pk,
+            'interface': interface.pk,
+            'return_url': interface.get_absolute_url(),
+        })
+
+        response = self.client.get(interface.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, escape(f"{reverse('ipam:ipaddress_add')}?{url_params}"))
 
     def test_bulk_delete_child_interfaces(self):
         interface1 = Interface.objects.get(name='Interface 1')

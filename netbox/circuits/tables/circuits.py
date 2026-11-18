@@ -84,7 +84,8 @@ class CircuitTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
     assignments = columns.ManyToManyColumn(
         accessor='group_assignments',
         verbose_name=_('Assignments'),
-        linkify_item=True
+        linkify_item=True,
+        prefetch_related=('group_assignments__group',)
     )
 
     class Meta(PrimaryModelTable.Meta):

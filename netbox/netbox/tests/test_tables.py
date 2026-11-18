@@ -22,6 +22,11 @@ class BaseTableTestCase(TestCase):
         create_test_device('Test Device 1')
         cls.user = create_test_user('testuser')
 
+    def get_table_with_declared_lookup(self, data, **kwargs):
+        """Return a DeviceTable with a column declaring the lookup interfaces__cable."""
+        column = columns.ManyToManyColumn(accessor='interfaces', prefetch_related=('interfaces__cable',))
+        return DeviceTable(data, extra_columns=[('interface_cables', column)], **kwargs)
+
     def test_prefetch_visible_columns(self):
         """
         Verify that the table queryset's prefetch_related lookups correspond to the user's
@@ -92,6 +97,53 @@ class BaseTableTestCase(TestCase):
         table = ASNTable(ASN.objects.all(), extra_columns=[('site_regions', tables.Column(accessor='sites__region'))])
         table._apply_prefetching(columns=['site_regions'])
         self.assertEqual(table.data.data._prefetch_related_lookups, ('sites__region',))
+
+    @tag('regression')  # Ref: #23349
+    def test_prefetch_declared_lookups(self):
+        """A column's declared lookups are prefetched while it is visible or requested for an export."""
+        table = self.get_table_with_declared_lookup(Device.objects.all())
+        table._apply_prefetching()
+        self.assertIn('interfaces__cable', table.data.data._prefetch_related_lookups)
+        self.assertIn('interfaces', table.data.data._prefetch_related_lookups)
+
+        table = self.get_table_with_declared_lookup(Device.objects.all())
+        table.columns.hide('interface_cables')
+        table._apply_prefetching()
+        self.assertNotIn('interfaces__cable', table.data.data._prefetch_related_lookups)
+
+        # An export requests the hidden column
+        table._apply_prefetching(columns=['interface_cables'])
+        self.assertIn('interfaces__cable', table.data.data._prefetch_related_lookups)
+
+    @tag('regression')  # Ref: #23349
+    def test_prefetch_declared_lookups_skipped(self):
+        """A column's declared lookups are skipped when an export omits it or the table excludes it."""
+        table = self.get_table_with_declared_lookup(Device.objects.all())
+        table._apply_prefetching(columns=['name'])
+        self.assertEqual(table.data.data._prefetch_related_lookups, ())
+
+        table = self.get_table_with_declared_lookup(Device.objects.all(), exclude=('interface_cables',))
+        table._apply_prefetching(columns=['interface_cables'])
+        self.assertEqual(table.data.data._prefetch_related_lookups, ())
+
+        # List-backed data has no queryset to prefetch on
+        self.get_table_with_declared_lookup([])._apply_prefetching(columns=['interface_cables'])
+
+    @tag('regression')  # Ref: #23349
+    def test_prefetch_declared_lookup_string(self):
+        """A column can declare a single lookup as a string."""
+        column = columns.ManyToManyColumn(accessor='interfaces', prefetch_related='interfaces__cable')
+        table = DeviceTable(Device.objects.all(), extra_columns=[('interface_cables', column)])
+        table._apply_prefetching(columns=['interface_cables'])
+        self.assertEqual(table.data.data._prefetch_related_lookups, ('interfaces__cable', 'interfaces'))
+
+    @tag('regression')  # Ref: #23349
+    def test_prefetch_declared_lookups_non_field_accessor(self):
+        """A column's declared lookups are prefetched when its accessor is not a model field."""
+        column = columns.ManyToManyColumn(accessor='non_field_attribute', prefetch_related=('interfaces__cable',))
+        table = DeviceTable(Device.objects.all(), extra_columns=[('interface_cables', column)])
+        table._apply_prefetching(columns=['interface_cables'])
+        self.assertEqual(table.data.data._prefetch_related_lookups, ('interfaces__cable',))
 
     def test_configure_anonymous_user_with_ordering(self):
         """

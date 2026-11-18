@@ -133,6 +133,17 @@ class ManyToManyColumn(tables.ManyToManyColumn):
     """
     Overrides django-tables2's stock ManyToManyColumn to ensure that value() returns only plaintext data.
     """
+    def __init__(self, *args, prefetch_related=(), **kwargs):
+        """
+        Args:
+            prefetch_related: Additional lookup strings (one string or an iterable), relative to the table's model,
+                              needed to render or export the items
+        """
+        super().__init__(*args, **kwargs)
+        if isinstance(prefetch_related, str):
+            prefetch_related = (prefetch_related,)
+        self.prefetch_related = tuple(prefetch_related)
+
     def value(self, value):
         items = [self.transform(item) for item in self.filter(value)]
         return self.separator.join(items)

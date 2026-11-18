@@ -1317,6 +1317,214 @@ class CablePathTestCase(BaseCablePathTestCase):
         self.assertEqual(interface4.cable_connector, 2)
         self.assertEqual(interface4.cable_positions, [1])
 
+    def test_111_partially_populated_breakout(self):
+        """
+        Tests that an interface on a partially populated 1C4P:4C1P breakout traces to the
+        connected legs as a complete, unsplit path, ignoring the unpopulated connector.
+
+        [IF1] --C1(1C4P:4C1P)-- [IF2]
+                                [IF3]
+                                [IF4]
+                                (connector 4 empty)
+
+        Cable profile: C1=Breakout 1C4P:4C1P, B side connectors 1-3 terminated
+        """
+        interfaces = [
+            Interface.objects.create(device=self.device, name='Interface 1'),
+            Interface.objects.create(device=self.device, name='Interface 2'),
+            Interface.objects.create(device=self.device, name='Interface 3'),
+            Interface.objects.create(device=self.device, name='Interface 4'),
+        ]
+
+        # Create cables
+        cable1 = Cable(
+            profile=CableProfileChoices.BREAKOUT_1C4P_4C1P,
+            a_terminations=[interfaces[0]],
+            b_terminations=interfaces[1:4],
+        )
+        cable1.clean()
+        cable1.save()
+
+        # Verify forward path: IF1 -> IF2, IF3, IF4 (the empty connector must not split the path)
+        path1 = self.assertPathExists(
+            (interfaces[0], cable1, interfaces[1:4]),
+            is_complete=True,
+            is_active=True,
+            is_split=False,
+        )
+
+        # Verify reverse paths: IF2, IF3, IF4 -> IF1
+        paths = [
+            self.assertPathExists(
+                (interface, cable1, interfaces[0]),
+                is_complete=True,
+                is_active=True,
+                is_split=False,
+            )
+            for interface in interfaces[1:4]
+        ]
+        self.assertEqual(CablePath.objects.count(), 4)
+        for interface in interfaces:
+            interface.refresh_from_db()
+        self.assertPathIsSet(interfaces[0], path1)
+        for interface, path in zip(interfaces[1:4], paths):
+            self.assertPathIsSet(interface, path)
+
+        # Verify cable positions
+        self.assertEqual(interfaces[0].cable_connector, 1)
+        self.assertEqual(interfaces[0].cable_positions, [1, 2, 3, 4])
+        for connector, interface in enumerate(interfaces[1:4], start=1):
+            self.assertEqual(interface.cable_connector, connector)
+            self.assertEqual(interface.cable_positions, [1])
+
+        # Test SVG generation
+        CableTraceSVG(interfaces[0]).render()
+
+        # Now attach the missing fourth leg and verify the existing path from IF1
+        # is rebuilt to include it.
+        interface5 = Interface.objects.create(device=self.device, name='Interface 5')
+        cable1.b_terminations = [*interfaces[1:4], interface5]
+        cable1.clean()
+        cable1.save()
+
+        path1 = self.assertPathExists(
+            (interfaces[0], cable1, [*interfaces[1:4], interface5]),
+            is_complete=True,
+            is_active=True,
+            is_split=False,
+        )
+        path5 = self.assertPathExists(
+            (interface5, cable1, interfaces[0]),
+            is_complete=True,
+            is_active=True,
+            is_split=False,
+        )
+        self.assertEqual(CablePath.objects.count(), 5)
+        interfaces[0].refresh_from_db()
+        interface5.refresh_from_db()
+        self.assertPathIsSet(interfaces[0], path1)
+        self.assertPathIsSet(interface5, path5)
+        self.assertEqual(interface5.cable_connector, 4)
+        self.assertEqual(interface5.cable_positions, [1])
+
+        # Detach two legs and verify the path from IF1 is rebuilt to the remaining
+        # legs, and the detached interfaces no longer have a cable or a path.
+        cable1.b_terminations = [interfaces[1], interface5]
+        cable1.clean()
+        cable1.save()
+
+        path1 = self.assertPathExists(
+            (interfaces[0], cable1, [interfaces[1], interface5]),
+            is_complete=True,
+            is_active=True,
+            is_split=False,
+        )
+        self.assertEqual(CablePath.objects.count(), 3)
+        interfaces[0].refresh_from_db()
+        self.assertPathIsSet(interfaces[0], path1)
+        for interface in interfaces[2:4]:
+            interface.refresh_from_db()
+            self.assertIsNone(interface.cable)
+            self.assertIsNone(interface._path_id)
+
+    def test_112_partially_populated_breakout_to_pass_throughs(self):
+        """
+        Tests that a partially populated 1C4P:4C1P breakout landing on front ports continues
+        the trace through the pass-throughs to the far-end interfaces, ignoring the unpopulated
+        connectors.
+
+        [IF1] --C1(1C4P:4C1P)-- [FP1][RP1] --C2-- [IF2]
+                                [FP2][RP2] --C3-- [IF3]
+                                (connectors 3-4 empty)
+
+        Cable profiles: C1=Breakout 1C4P:4C1P, C2/C3=unprofiled
+        PortMappings: FP1p1->RP1p1, FP2p1->RP2p1
+        """
+        interfaces = [
+            Interface.objects.create(device=self.device, name='Interface 1'),
+            Interface.objects.create(device=self.device, name='Interface 2'),
+            Interface.objects.create(device=self.device, name='Interface 3'),
+        ]
+        rear_ports = [
+            RearPort.objects.create(device=self.device, name='Rear Port 1', positions=1),
+            RearPort.objects.create(device=self.device, name='Rear Port 2', positions=1),
+        ]
+        front_ports = [
+            FrontPort.objects.create(device=self.device, name='Front Port 1', positions=1),
+            FrontPort.objects.create(device=self.device, name='Front Port 2', positions=1),
+        ]
+        # Panel: FP1 -> RP1, FP2 -> RP2
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device,
+                front_port=front_port,
+                front_port_position=1,
+                rear_port=rear_port,
+                rear_port_position=1,
+            )
+            for front_port, rear_port in zip(front_ports, rear_ports)
+        ])
+
+        # Create cables
+        cable1 = Cable(
+            profile=CableProfileChoices.BREAKOUT_1C4P_4C1P,
+            a_terminations=[interfaces[0]],
+            b_terminations=front_ports,
+        )
+        cable1.clean()
+        cable1.save()
+        cable2 = Cable(a_terminations=[rear_ports[0]], b_terminations=[interfaces[1]])
+        cable2.clean()
+        cable2.save()
+        cable3 = Cable(a_terminations=[rear_ports[1]], b_terminations=[interfaces[2]])
+        cable3.clean()
+        cable3.save()
+
+        # Verify forward path: IF1 -> IF2, IF3 (the empty connectors must not split the path)
+        path1 = self.assertPathExists(
+            (interfaces[0], cable1, front_ports, rear_ports, [cable2, cable3], interfaces[1:3]),
+            is_complete=True,
+            is_active=True,
+            is_split=False,
+        )
+
+        # Verify reverse paths: IF2 -> IF1, IF3 -> IF1
+        path2 = self.assertPathExists(
+            (interfaces[1], cable2, rear_ports[0], front_ports[0], cable1, interfaces[0]),
+            is_complete=True,
+            is_active=True,
+            is_split=False,
+        )
+        path3 = self.assertPathExists(
+            (interfaces[2], cable3, rear_ports[1], front_ports[1], cable1, interfaces[0]),
+            is_complete=True,
+            is_active=True,
+            is_split=False,
+        )
+        self.assertEqual(CablePath.objects.count(), 3)
+        for interface in interfaces:
+            interface.refresh_from_db()
+        self.assertPathIsSet(interfaces[0], path1)
+        self.assertPathIsSet(interfaces[1], path2)
+        self.assertPathIsSet(interfaces[2], path3)
+
+        # Verify cable positions
+        self.assertEqual(interfaces[0].cable_connector, 1)
+        self.assertEqual(interfaces[0].cable_positions, [1, 2, 3, 4])
+        for connector, front_port in enumerate(front_ports, start=1):
+            front_port.refresh_from_db()
+            self.assertEqual(front_port.cable_connector, connector)
+            self.assertEqual(front_port.cable_positions, [1])
+
+        # Verify cable positions are not set (unprofiled cables)
+        for port in (*rear_ports, interfaces[1], interfaces[2]):
+            port.refresh_from_db()
+            self.assertIsNone(port.cable_connector)
+            self.assertIsNone(port.cable_positions)
+
+        # Test SVG generation
+        CableTraceSVG(interfaces[0]).render()
+
     def test_202_single_path_via_pass_through_with_breakouts(self):
         """
         [IF1] --C1-- [FP1] [RP1] --C2-- [IF3]
