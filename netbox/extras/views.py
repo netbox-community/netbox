@@ -8,7 +8,7 @@ from django.core.paginator import EmptyPage
 from django.db.models import Count, Q
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
+from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.http import content_disposition_header
@@ -28,6 +28,7 @@ from extras.scripts import prepare_script_form
 from extras.utils import SharedObjectViewMixin
 from netbox.config import get_config
 from netbox.object_actions import *
+from netbox.registry import registry
 from netbox.ui import layout
 from netbox.ui.panels import (
     CommentsPanel,
@@ -86,15 +87,29 @@ class CustomFieldView(generic.ObjectView):
     )
 
     def get_extra_context(self, request, instance):
-        related_models = ()
+        related_models = []
+        filter_name = f'cf_{instance.name}__empty'
 
         for object_type in instance.object_types.all():
-            related_models += (
-                object_type.model_class().objects.restrict(request.user, 'view').exclude(
-                    Q(**{f'custom_field_data__{instance.name}': ''}) |
-                    Q(**{f'custom_field_data__{instance.name}': None})
-                ),
+            model = object_type.model_class()
+            queryset = model.objects.restrict(request.user, 'view').exclude(
+                Q(**{f'custom_field_data__{instance.name}': ''}) |
+                Q(**{f'custom_field_data__{instance.name}': None})
             )
+
+            # Link to the model's list view filtered on this custom field, if the filter is available
+            url = None
+            filterset_class = registry['filtersets'].get(f'{object_type.app_label}.{object_type.model}')
+            if filterset_class is not None and filter_name in filterset_class().filters:
+                try:
+                    url = f'{get_action_url(model, "list")}?{filter_name}=false'
+                except NoReverseMatch:
+                    pass
+
+            related_models.append({
+                'queryset': queryset,
+                'url': url,
+            })
 
         return {
             'related_models': related_models
