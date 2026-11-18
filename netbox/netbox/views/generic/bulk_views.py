@@ -489,8 +489,31 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
     related_object_forms = dict()
     related_object_permissions = dict()
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._related_object_permissions = self._get_related_object_permissions()
+
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
+
+    def _get_related_object_permissions(self):
+        """
+        Map each related object field to the permissions required to import it. Private models (e.g.
+        PortTemplateMapping) can't be assigned permissions, so the view must declare a stand-in for them.
+        """
+        permissions = {}
+        for field_name, related_object_form in self.related_object_forms.items():
+            model = related_object_form.Meta.model
+            if field_name in self.related_object_permissions:
+                perms = self.related_object_permissions[field_name]
+                permissions[field_name] = (perms,) if isinstance(perms, str) else tuple(perms)
+            elif model_is_public(model):
+                permissions[field_name] = (get_permission_for_model(model, 'add'),)
+            else:
+                raise ImproperlyConfigured(
+                    f"{self.__class__.__name__} must declare related_object_permissions for {field_name}."
+                )
+        return permissions
 
     def prep_related_object_data(self, parent, data):
         """
@@ -544,20 +567,11 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     )
                 )
 
-            # Require permission to create each type of related object being imported. Private models (e.g.
-            # PortTemplateMapping) can't be assigned permissions, so the view must declare a stand-in for them.
+            # Require permission to create each type of related object being imported
             model = related_object_form.Meta.model
             enforce_permissions = model_is_public(model)
-            if field_name in self.related_object_permissions:
-                permissions = self.related_object_permissions[field_name]
-            elif enforce_permissions:
-                permissions = (get_permission_for_model(model, 'add'),)
-            else:
-                raise ImproperlyConfigured(
-                    f"{self.__class__.__name__} must declare related_object_permissions for {field_name}."
-                )
             if related_objects:
-                for permission in permissions:
+                for permission in self._related_object_permissions[field_name]:
                     if not request.user.has_perm(permission):
                         raise ValidationError(
                             self._compile_form_errors(
