@@ -771,6 +771,32 @@ class DynamicFilterLookupExpressionTestCase(TestCase):
         params = {'name__nic': [' ']}
         self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 0)
 
+    def test_device_name_null_lookups(self):
+        """
+        The null choice value must match null values for every lookup, as with exact lookups (#23632).
+        """
+        Device.objects.filter(name='Device 1').update(name=None)
+        # A name containing the literal string "null" must not match
+        Device.objects.filter(name='Device 2').update(name='Device null')
+        lookups = {
+            'name': 1,
+            'name__n': 2,
+            'name__ic': 1,
+            'name__nic': 2,
+            'name__isw': 1,
+            'name__nisw': 2,
+            'name__iew': 1,
+            'name__niew': 2,
+            'name__ie': 1,
+            'name__nie': 2,
+            'name__regex': 1,
+            'name__iregex': 1,
+        }
+        for lookup, count in lookups.items():
+            with self.subTest(lookup=lookup):
+                params = {lookup: ['null']}
+                self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), count)
+
     def test_device_mac_address_negation(self):
         params = {'mac_address__n': ['00-00-00-00-00-01', 'aa-00-00-00-00-01']}
         self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 2)
