@@ -1,4 +1,6 @@
+import hashlib
 import json
+import logging
 import re
 from types import SimpleNamespace
 from unittest import mock, skipIf
@@ -13,6 +15,7 @@ from django.test import override_settings
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
+from graphql import parse
 from rest_framework import status
 from strawberry.extensions import QueryDepthLimiter
 from strawberry.schema.config import StrawberryConfig
@@ -38,6 +41,12 @@ from dcim.models import (
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField, ExportTemplate, JournalEntry, TableConfig, Tag
 from ipam.models import ASN, RIR, VLAN, Aggregate, IPAddress, Prefix
+from netbox.graphql.extensions import (
+    MAX_LOGGED_LENGTH,
+    _normalize_query_text,
+    _normalized_queries,
+    normalize_query,
+)
 from netbox.graphql.pagination import apply_distinct_window_pagination
 from netbox.graphql.scalars import BigInt, BigIntScalar
 from netbox.graphql.schema import Query, get_schema_extensions, schema
@@ -1510,6 +1519,266 @@ class GraphQLAPITestCase(APITestCase):
         data = json.loads(response.content)
         self.assertIn('errors', data)
         self.assertEqual(data['errors'][0]['message'], 'Cannot specify both `start` and `offset` in pagination.')
+
+
+class GraphQLQueryLoggerTestCase(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        Site.objects.create(name='Site 1', slug='site-1')
+
+    def setUp(self):
+        super().setUp()
+        self.add_permissions('dcim.view_site')
+
+    def _post(self, data, **kwargs):
+        return self.client.post(reverse('graphql'), data=data, format='json', **kwargs)
+
+    def test_operation_logged(self):
+        """
+        Each operation is logged with the user, token, client, normalized query and result summary.
+        """
+        query = (
+            'query SiteNames($limit: Int) { '
+            'site_list(filters: {name: {exact: "Site 1"}}, pagination: {limit: $limit}) { name } }'
+        )
+        with self.assertLogs('netbox.graphql.query', level='INFO') as cm:
+            response = self._post({'query': query, 'variables': {'limit': 5}}, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(len(cm.records), 1)
+        data = cm.records[0].graphql
+        expected_query = (
+            'query SiteNames($limit:Int){site_list(filters:{name:{exact:""}}pagination:{limit:$limit}){name}}'
+        )
+        self.assertEqual(data['user'], self.user.username)
+        self.assertEqual(data['token_id'], self.token.pk)
+        self.assertEqual(data['client_ip'], '127.0.0.1')
+        self.assertEqual(data['operation_name'], 'SiteNames')
+        self.assertEqual(data['query'], expected_query)
+        self.assertEqual(data['query_hash'], hashlib.sha256(expected_query.encode()).hexdigest())
+        self.assertEqual(data['variables'], {'limit': 5})
+        self.assertEqual(data['error_count'], 0)
+        self.assertEqual(data['response_size'], len(response.content))
+        self.assertGreaterEqual(data['duration_ms'], 0)
+        self.assertIn(f'user={json.dumps(self.user.username)}', cm.output[0])
+        self.assertIn('operation_name="SiteNames"', cm.output[0])
+        self.assertNotIn('Site 1', cm.output[0])
+
+    def test_session_authentication_has_no_token(self):
+        """
+        Operations from a session-authenticated user are logged without a token ID.
+        """
+        self.client.force_login(self.user)
+        with self.assertLogs('netbox.graphql.query', level='INFO') as cm:
+            self._post({'query': '{ site_list { name } }'})
+
+        data = cm.records[0].graphql
+        self.assertEqual(data['user'], self.user.username)
+        self.assertIsNone(data['token_id'])
+        self.assertIsNone(data['operation_name'])
+
+    def test_errors_counted(self):
+        """
+        Errors raised before execution (e.g. validation failures) are counted.
+        """
+        with self.assertLogs('netbox.graphql.query', level='INFO') as cm:
+            response = self._post({'query': '{ site_list { name invalid_field } }'}, **self.header)
+
+        data = cm.records[0].graphql
+        self.assertEqual(data['error_count'], 1)
+        self.assertEqual(data['response_size'], len(response.content))
+        self.assertEqual(data['query'], '{site_list{name invalid_field}}')
+
+    def test_unparseable_query(self):
+        """
+        A query which can't be parsed is logged without a normalized query.
+        """
+        with self.assertLogs('netbox.graphql.query', level='INFO') as cm:
+            self._post({'query': '{ site_list {'}, **self.header)
+
+        data = cm.records[0].graphql
+        self.assertEqual(data['error_count'], 1)
+        self.assertIsNone(data['query'])
+        self.assertIsNone(data['query_hash'])
+
+    def test_operation_name_encoded(self):
+        """
+        A client-supplied operation name can't inject additional lines into the log.
+        """
+        operation_name = 'x\nuser=admin token_id=1 operation_name=ok'
+        with self.assertLogs('netbox.graphql.query', level='INFO') as cm:
+            # The supplied operation name is reported as-is when the query can't be parsed
+            self._post({'query': '{ site_list {', 'operationName': operation_name}, **self.header)
+
+        self.assertEqual(cm.records[0].graphql['operation_name'], operation_name)
+        self.assertNotIn('\n', cm.output[0])
+        self.assertIn(f'operation_name={json.dumps(operation_name)}', cm.output[0])
+
+    def test_unknown_operation_name(self):
+        """
+        An operation which can't be executed (here, because the named operation doesn't exist) is still logged.
+        """
+        with self.assertLogs('netbox.graphql.query', level='INFO') as cm:
+            response = self._post({'query': 'query A { site_list { name } }', 'operationName': 'B'}, **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        data = cm.records[0].graphql
+        self.assertEqual(data['operation_name'], 'B')
+        self.assertEqual(data['query'], 'query A{site_list{name}}')
+        self.assertEqual(data['error_count'], 1)
+        self.assertEqual(data['response_size'], len(response.content))
+
+    def test_long_values_truncated(self):
+        """
+        Long queries and variables are truncated in the log message.
+        """
+        name = 'x' * (MAX_LOGGED_LENGTH * 2)
+        query = f'query ($name: [String!]) {{ site_list(filters: {{name: {{in_list: $name}}}}) {{ {name}: name }} }}'
+        with self.assertLogs('netbox.graphql.query', level='INFO') as cm:
+            self._post({'query': query, 'variables': {'name': [name]}}, **self.header)
+
+        data = cm.records[0].graphql
+        self.assertEqual(len(data['query']), MAX_LOGGED_LENGTH + 3)
+        self.assertTrue(data['query'].endswith('...'))
+        self.assertLess(len(cm.output[0]), MAX_LOGGED_LENGTH * 3)
+
+    def test_normalization_cached(self):
+        """
+        Repeated queries are normalized once.
+        """
+        query = '{ site_list(filters: {name: {exact: "cache test"}}) { name } }'
+        with self.assertLogs('netbox.graphql.query', level='INFO'):
+            self._post({'query': query}, **self.header)
+            with mock.patch('netbox.graphql.extensions.normalize_query') as normalize_query:
+                self._post({'query': query}, **self.header)
+        normalize_query.assert_not_called()
+
+    def test_operation_without_request(self):
+        """
+        Operations executed without a request are logged immediately, without a response size.
+        """
+        with self.assertLogs('netbox.graphql.query', level='INFO') as cm:
+            schema.execute_sync('{ __typename }', context_value=SimpleNamespace())
+
+        data = cm.records[0].graphql
+        self.assertEqual(data['query'], '{__typename}')
+        self.assertIsNone(data['response_size'])
+        self.assertIsNotNone(data['duration_ms'])
+
+    def test_disabled_logger_does_nothing(self):
+        """
+        The extension does no work when the logger isn't enabled for INFO messages.
+        """
+        logger = logging.getLogger('netbox.graphql.query')
+        level = logger.level
+        logger.setLevel(logging.WARNING)
+        try:
+            with (
+                mock.patch('netbox.graphql.extensions._normalize_query_text') as normalize_query_text,
+                mock.patch('netbox.graphql.extensions.get_client_ip') as get_client_ip,
+            ):
+                response = self._post({'query': '{ site_list { name } }'}, **self.header)
+        finally:
+            logger.setLevel(level)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        normalize_query_text.assert_not_called()
+        get_client_ip.assert_not_called()
+
+    def test_logging_failure_does_not_affect_operation(self):
+        """
+        An error while logging an operation is logged, and doesn't affect the response.
+        """
+        with (
+            self.assertLogs('netbox.graphql.query', level='INFO') as cm,
+            mock.patch('netbox.graphql.extensions._normalize_query_text', side_effect=RuntimeError),
+        ):
+            response = self._post({'query': '{ site_list { name } }'}, **self.header)
+            # An operation which fails keeps its own error
+            failed_response = self._post(
+                {'query': 'query A { site_list { name } }', 'operationName': 'B'}, **self.header
+            )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.json()['data'], {'site_list': [{'name': 'Site 1'}]})
+        self.assertHttpStatus(failed_response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            [record.getMessage() for record in cm.records],
+            ['Failed to log GraphQL operation', 'Failed to log GraphQL operation'],
+        )
+
+    def test_emit_failure_does_not_affect_response(self):
+        with (
+            self.assertLogs('netbox.graphql.query', level='INFO') as cm,
+            mock.patch('netbox.graphql.extensions._emit', side_effect=RuntimeError),
+        ):
+            response = self._post({'query': '{ site_list { name } }'}, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(cm.records[0].getMessage(), 'Failed to log GraphQL operation')
+
+
+class NormalizeQueryTestCase(TestCase):
+
+    def test_literals_replaced(self):
+        query = (
+            '{ site_list(filters: {name: {exact: "Site 1"}, id: {in_list: [1, 2, 3]}, status: STATUS_ACTIVE}, '
+            'pagination: {limit: 10, offset: 2}) { id } }'
+        )
+        self.assertEqual(
+            normalize_query(parse(query)),
+            '{site_list(filters:{name:{exact:""}id:{in_list:[]}status:STATUS_ACTIVE}'
+            'pagination:{limit:0 offset:0}){id}}',
+        )
+
+    def test_values_do_not_affect_shape(self):
+        query_a = '{ site_list(filters: {name: {exact: "Site 1"}, id: {in_list: [1, 2, 3]}}) { id } }'
+        query_b = '{ site_list(filters: {name: {exact: "Site 2"}, id: {in_list: [4]}}) { id } }'
+        self.assertEqual(normalize_query(parse(query_a)), normalize_query(parse(query_b)))
+
+    def test_structure_affects_shape(self):
+        query_a = '{ site_list(filters: {name: {exact: "Site 1"}}) { id } }'
+        query_b = '{ site_list(filters: {slug: {exact: "Site 1"}}) { id } }'
+        self.assertNotEqual(normalize_query(parse(query_a)), normalize_query(parse(query_b)))
+
+    def test_lists_of_objects_kept(self):
+        query = '{ site_list(filters: {OR: [{name: {exact: "a"}}, {slug: {exact: "b"}}]}) { id } }'
+        self.assertEqual(
+            normalize_query(parse(query)),
+            '{site_list(filters:{OR:[{name:{exact:""}}{slug:{exact:""}}]}){id}}',
+        )
+
+    def test_lists_of_variables_and_enums_kept(self):
+        query = (
+            'query ($status: String) { site_list(filters: {status: {in_list: [$status]}}) { id } '
+            'location_list(filters: {status: {in_list: [STATUS_ACTIVE, STATUS_PLANNED]}}) { id } }'
+        )
+        self.assertEqual(
+            normalize_query(parse(query)),
+            'query($status:String){site_list(filters:{status:{in_list:[$status]}}){id}'
+            'location_list(filters:{status:{in_list:[STATUS_ACTIVE STATUS_PLANNED]}}){id}}',
+        )
+
+    def test_cache_bounded(self):
+        queries = [f'{{ {alias}: site_list {{ id }} }}' for alias in ('a', 'b', 'c')]
+        with (
+            mock.patch('netbox.graphql.extensions.NORMALIZED_QUERY_CACHE_SIZE', 2),
+            mock.patch.dict(_normalized_queries, clear=True),
+        ):
+            for query in queries:
+                _normalize_query_text(query, parse(query))
+            self.assertEqual(
+                list(_normalized_queries), [hashlib.sha256(query.encode()).digest() for query in queries[1:]]
+            )
+
+    def test_cache_holds_truncated_query(self):
+        """
+        The cache holds the normalized query truncated for logging, and the hash of the full normalized query.
+        """
+        query = f'{{ site_list {{ {"x" * MAX_LOGGED_LENGTH * 2}: name }} }}'
+        with mock.patch.dict(_normalized_queries, clear=True):
+            normalized, query_hash = _normalize_query_text(query, parse(query))
+            self.assertEqual(len(normalized), MAX_LOGGED_LENGTH + 3)
+            self.assertEqual(query_hash, hashlib.sha256(normalize_query(parse(query)).encode()).hexdigest())
+            self.assertEqual(list(_normalized_queries.values()), [(normalized, query_hash)])
 
 
 class GraphQLDeferredColumnTestCase(APITestCase):

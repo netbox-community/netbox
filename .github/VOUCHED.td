@@ -19,6 +19,7 @@
 
 991jo
 9er-tom
+aaronaxvig
 abhirupmandal
 abrahamvegh
 abubnalitic-nbl
@@ -69,6 +70,7 @@ guibi1
 haeki
 harryajc
 hblandford
+himanchalkaushale
 ianb-mp
 ifoughal
 ipb-devops

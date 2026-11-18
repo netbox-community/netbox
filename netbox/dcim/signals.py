@@ -501,5 +501,10 @@ def update_mac_address_interface(instance, created, raw, **kwargs):
     assign the MACAddress to the interface.
     """
     if created and not raw and instance.primary_mac_address:
+        # Keep any snapshot the caller took before making unsaved changes to the MAC address
+        if not hasattr(instance.primary_mac_address, '_prechange_snapshot'):
+            instance.primary_mac_address.snapshot()
         instance.primary_mac_address.assigned_object = instance
         instance.primary_mac_address.save()
+        # Discard the snapshot so that a later save of the MAC address takes a fresh one
+        instance.primary_mac_address.__dict__.pop('_prechange_snapshot', None)

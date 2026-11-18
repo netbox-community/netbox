@@ -1181,6 +1181,7 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         with event_tracking(request):
             site = Site(name='Site 1', slug='site-1')
             site.save()
+            site.snapshot()
             site.description = 'foo'
             site.save()
         self.assertEqual(self.queue.count, 1, msg="Duplicate jobs found in queue")
@@ -1191,8 +1192,10 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         # Test multiple updates
         site = Site.objects.create(name='Site 2', slug='site-2')
         with event_tracking(request):
+            site.snapshot()
             site.description = 'foo'
             site.save()
+            site.snapshot()
             site.description = 'bar'
             site.save()
         self.assertEqual(self.queue.count, 1, msg="Duplicate jobs found in queue")
@@ -1203,6 +1206,7 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         # Test update & delete
         site = Site.objects.create(name='Site 3', slug='site-3')
         with event_tracking(request):
+            site.snapshot()
             site.description = 'foo'
             site.save()
             site.delete()

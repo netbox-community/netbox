@@ -171,19 +171,19 @@ class WirelessLinkImportForm(PrimaryModelImportForm):
 
         if data:
             # Limit choices for interface_a to the assigned device_a
-            interface_a_params = {f'device__{self.fields["device_a"].to_field_name}': data.get('device_a')}
+            interface_a_params = self.get_related_filter('device', 'device_a', data.get('device_a'))
             # Limit choices for device_a to the assigned site_a
             if site_a := data.get('site_a'):
-                device_a_params = {f'site__{self.fields["site_a"].to_field_name}': site_a}
+                device_a_params = self.get_related_filter('site', 'site_a', site_a)
                 self.fields['device_a'].queryset = self.fields['device_a'].queryset.filter(**device_a_params)
-                interface_a_params.update({f'device__site__{self.fields["site_a"].to_field_name}': site_a})
+                interface_a_params.update(self.get_related_filter('device__site', 'site_a', site_a))
             self.fields['interface_a'].queryset = self.fields['interface_a'].queryset.filter(**interface_a_params)
 
             # Limit choices for interface_b to the assigned device_b
-            interface_b_params = {f'device__{self.fields["device_b"].to_field_name}': data.get('device_b')}
+            interface_b_params = self.get_related_filter('device', 'device_b', data.get('device_b'))
             # Limit choices for device_b to the assigned site_b
             if site_b := data.get('site_b'):
-                device_b_params = {f'site__{self.fields["site_b"].to_field_name}': site_b}
+                device_b_params = self.get_related_filter('site', 'site_b', site_b)
                 self.fields['device_b'].queryset = self.fields['device_b'].queryset.filter(**device_b_params)
-                interface_b_params.update({f'device__site__{self.fields["site_b"].to_field_name}': site_b})
+                interface_b_params.update(self.get_related_filter('device__site', 'site_b', site_b))
             self.fields['interface_b'].queryset = self.fields['interface_b'].queryset.filter(**interface_b_params)

@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.db.backends.postgresql.psycopg_any import NumericRange
+from django.db.models import ProtectedError
 from django.test import RequestFactory, TestCase, TransactionTestCase, override_settings, tag
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
@@ -17,7 +18,7 @@ from rest_framework.test import APIClient
 
 from core.models import DataFile, DataSource, ObjectType
 from dcim.api.serializers import InterfaceSerializer, RackSerializer
-from dcim.api.views import SiteViewSet
+from dcim.api.views import DeviceTypeViewSet, SiteViewSet
 from dcim.models import Device, Rack, Site
 from extras.models import ExportTemplate
 from ipam.api.serializers import RouteTargetSerializer, VRFSerializer
@@ -28,7 +29,7 @@ from netbox.api.pagination import NetBoxPagination
 from netbox.api.serializers import ValidatedModelSerializer, WritableNestedSerializer
 from netbox.api.viewsets.mixins import BulkUpdateModelMixin
 from users.constants import TOKEN_PREFIX
-from users.models import Token, User
+from users.models import ObjectPermission, Token, User
 from utilities.api import get_serializer_for_model
 from utilities.testing import APITestCase, create_test_device
 from vpn.api.serializers import L2VPNSerializer
@@ -706,3 +707,51 @@ class ObjectUpdateLockingTestCase(APITestCase):
                 with viewset.lock_object():
                     self.assertEqual(viewset.locked_pks, locked_pks)
                 self.assertEqual(viewset.locked_pks, set())
+
+
+class ProtectedObjectsMessageTestCase(APITestCase):
+    """
+    The error for a deletion prevented by dependent objects must name only those dependent objects which the user is
+    permitted to view. (Ref: #23398)
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.devices = (
+            create_test_device('Device 1'),
+            create_test_device('Device 2'),
+        )
+        cls.device_type = cls.devices[0].device_type
+        cls.expected_message = (
+            f'Unable to delete object. 2 dependent objects were found: Device 1 ({cls.devices[0].pk}), '
+            '1 object you do not have permission to view'
+        )
+
+    def setUp(self):
+        super().setUp()
+        self.add_permissions('dcim.delete_devicetype')
+
+        # Permit viewing only the first Device
+        obj_perm = ObjectPermission.objects.create(
+            name='View Device 1', actions=['view'], constraints={'pk': self.devices[0].pk}
+        )
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Device))
+
+    def test_delete_object(self):
+        url = reverse('dcim-api:devicetype-detail', kwargs={'pk': self.device_type.pk})
+        with self.assertLogs('netbox.api.views.DeviceTypeViewSet', 'WARNING') as logs:
+            response = self.client.delete(url, **self.header)
+        self.assertHttpStatus(response, 409)
+        self.assertEqual(response.data['detail'], self.expected_message)
+
+        # The log lists all dependent objects
+        self.assertIn(f'Device 2 ({self.devices[1].pk})', logs.output[0])
+
+    def test_exception_to_response(self):
+        viewset = DeviceTypeViewSet()
+        viewset.request = Request(RequestFactory().delete('/'))
+        viewset.request.user = self.user
+        response = viewset.exception_to_response(ProtectedError('', set(self.devices)))
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.data['detail'], self.expected_message)

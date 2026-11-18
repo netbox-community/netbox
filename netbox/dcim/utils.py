@@ -82,24 +82,31 @@ def resolve_module_placeholder(value, positions):
     Multiple tokens must match the tree depth and resolve level-by-level.
 
     Returns the resolved string.
-    Raises ValueError if token count is greater than 1 and doesn't match tree depth.
+    Raises ValueError if token count is greater than 1 and doesn't match tree depth,
+    or if a position a token resolves to is missing or empty.
     """
     if MODULE_TOKEN not in value:
         return value
 
     token_count = value.count(MODULE_TOKEN)
     if token_count == 1:
-        return value.replace(MODULE_TOKEN, positions[-1])
-    if token_count == len(positions):
-        for pos in positions:
-            value = value.replace(MODULE_TOKEN, pos, 1)
-        return value
-    raise ValueError(
-        _("Cannot install module with placeholder values in a module bay tree "
-          "{level} levels deep but {tokens} placeholders given.").format(
-            level=len(positions), tokens=token_count
+        referenced = positions[-1:]
+    elif token_count == len(positions):
+        referenced = positions
+    else:
+        raise ValueError(
+            _("Cannot install module with placeholder values in a module bay tree "
+              "{level} levels deep but {tokens} placeholders given.").format(
+                level=len(positions), tokens=token_count
+            )
         )
-    )
+    if not referenced or not all(referenced):
+        raise ValueError(
+            _("Cannot install module with placeholder values in a module bay with no position defined.")
+        )
+    for pos in referenced:
+        value = value.replace(MODULE_TOKEN, pos, 1)
+    return value
 
 
 def compile_path_node(ct_id, object_id):

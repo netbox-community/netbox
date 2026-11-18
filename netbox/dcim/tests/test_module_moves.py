@@ -1059,6 +1059,15 @@ class ModuleMoveRenameTestCase(TestCase):
         with self.assertRaises(ValidationError):
             pos_module.full_clean()
 
+    def test_move_to_bay_without_position_rejects_templated_values(self):
+        """A move whose template-derived values would need a missing bay position is rejected."""
+        bare_slot = ModuleBay.objects.create(device=self.device, name='Bare Slot')
+
+        self.line_card.module_bay = bare_slot
+        with self.assertRaises(ValidationError) as cm:
+            self.line_card.full_clean()
+        self.assertIn('cannot be resolved for the destination', str(cm.exception))
+
 
 class ModuleCrossDeviceBlockerTestCase(TestCase):
 
@@ -1568,7 +1577,8 @@ class ModuleCrossDeviceMoveTestCase(TestCase):
         ModuleBay.objects.bulk_create([
             ModuleBay(device=big_device, name=f'Storage Bay {i}') for i in range(1, 201)
         ])
-        target_bay = ModuleBay.objects.create(device=big_device, name='Target Bay')
+        # Mirrors slot_2_b, the SFP name template needs a bay position
+        target_bay = ModuleBay.objects.create(device=big_device, name='Target Bay', position='2')
         big_count = move_and_count(big_device, target_bay)
         self.assertEqual(small_count, big_count)
 

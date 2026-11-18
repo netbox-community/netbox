@@ -2746,6 +2746,528 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
         cablepath.delete()
         self.assertIsNone(CablePath.objects.filter(pk=cablepath.pk).first())
 
+    def test_226_multiposition_frontport_to_converging_rear_ports(self):
+        """
+        [IF1] --C1-- [FP1:1] [RP1] --C2-- [RP3] [FP2] --C4-- [IF2]
+                     [FP1:2] [RP2] --C3-- [RP4] [FP3]
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
+        rearport3 = RearPort.objects.create(device=self.device, name='Rear Port 3')
+        rearport4 = RearPort.objects.create(device=self.device, name='Rear Port 4')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1', positions=2)
+        frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
+        frontport3 = FrontPort.objects.create(device=self.device, name='Front Port 3')
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device, front_port=frontport1, front_port_position=1,
+                rear_port=rearport1, rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device, front_port=frontport1, front_port_position=2,
+                rear_port=rearport2, rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device, front_port=frontport2, front_port_position=1,
+                rear_port=rearport3, rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device, front_port=frontport3, front_port_position=1,
+                rear_port=rearport4, rear_port_position=1,
+            ),
+        ])
+
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[frontport1])
+        cable1.save()
+        cable2 = Cable(a_terminations=[rearport1], b_terminations=[rearport3])
+        cable2.save()
+        cable3 = Cable(a_terminations=[rearport2], b_terminations=[rearport4])
+        cable3.save()
+        cable4 = Cable(a_terminations=[frontport2, frontport3], b_terminations=[interface2])
+        cable4.save()
+
+        path1 = self.assertPathExists(
+            (
+                interface1, cable1, frontport1, (rearport1, rearport2), (cable2, cable3),
+                (rearport3, rearport4), (frontport2, frontport3), cable4, interface2
+            ),
+            is_complete=True,
+            is_active=True,
+            is_split=False
+        )
+        path2 = self.assertPathExists(
+            (
+                interface2, cable4, (frontport2, frontport3), (rearport3, rearport4), (cable2, cable3),
+                (rearport1, rearport2), frontport1, cable1, interface1
+            ),
+            is_complete=True,
+            is_active=True,
+            is_split=False
+        )
+        self.assertEqual(CablePath.objects.count(), 2)
+        interface1.refresh_from_db()
+        interface2.refresh_from_db()
+        self.assertPathIsSet(interface1, path1)
+        self.assertPathIsSet(interface2, path2)
+
+    def test_227_multiposition_frontport_to_diverging_rear_ports(self):
+        """
+        [IF1] --C1-- [FP1:1] [RP1] --C2-- [IF2]
+                     [FP1:2] [RP2] --C3-- [IF3]
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        interface3 = Interface.objects.create(device=self.device, name='Interface 3')
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1', positions=2)
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device, front_port=frontport1, front_port_position=1,
+                rear_port=rearport1, rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device, front_port=frontport1, front_port_position=2,
+                rear_port=rearport2, rear_port_position=1,
+            ),
+        ])
+
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[frontport1])
+        cable1.save()
+        cable2 = Cable(a_terminations=[rearport1], b_terminations=[interface2])
+        cable2.save()
+        cable3 = Cable(a_terminations=[rearport2], b_terminations=[interface3])
+        cable3.save()
+
+        # Branches reaching different endpoints are still treated as a split
+        path1 = self.assertPathExists(
+            (
+                interface1, cable1, frontport1, (rearport1, rearport2), (cable2, cable3),
+                (interface2, interface3)
+            ),
+            is_complete=False,
+            is_split=True
+        )
+        self.assertEqual(path1.get_split_nodes(), [interface2, interface3])
+        self.assertPathExists(
+            (interface2, cable2, rearport1, frontport1, cable1, interface1),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertPathExists(
+            (interface3, cable3, rearport2, frontport1, cable1, interface1),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 3)
+
+    def test_228_multiposition_frontport_to_crossed_rear_ports_on_remote_device(self):
+        """
+        Device A                                    Device B
+        [IF1] --C1-- [FP1:1] [RP1] --C2-- [RP4] [FP3] --C4-- [IF2]
+                     [FP1:2] [RP2] --C3-- [RP3] [FP2] --C4--
+        """
+        device_b = Device.objects.create(
+            site=self.site, device_type=self.device.device_type, role=self.device.role, name='Device B'
+        )
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=device_b, name='Interface 2')
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
+        rearport3 = RearPort.objects.create(device=device_b, name='Rear Port 3')
+        rearport4 = RearPort.objects.create(device=device_b, name='Rear Port 4')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1', positions=2)
+        frontport2 = FrontPort.objects.create(device=device_b, name='Front Port 2')
+        frontport3 = FrontPort.objects.create(device=device_b, name='Front Port 3')
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device, front_port=frontport1, front_port_position=1,
+                rear_port=rearport1, rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device, front_port=frontport1, front_port_position=2,
+                rear_port=rearport2, rear_port_position=1,
+            ),
+            PortMapping(
+                device=device_b, front_port=frontport2, front_port_position=1,
+                rear_port=rearport3, rear_port_position=1,
+            ),
+            PortMapping(
+                device=device_b, front_port=frontport3, front_port_position=1,
+                rear_port=rearport4, rear_port_position=1,
+            ),
+        ])
+
+        # TX/RX crossed between the two devices
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[frontport1])
+        cable1.save()
+        cable2 = Cable(a_terminations=[rearport1], b_terminations=[rearport4])
+        cable2.save()
+        cable3 = Cable(a_terminations=[rearport2], b_terminations=[rearport3])
+        cable3.save()
+        cable4 = Cable(a_terminations=[frontport2, frontport3], b_terminations=[interface2])
+        cable4.save()
+
+        path1 = self.assertPathExists(
+            (
+                interface1, cable1, frontport1, (rearport1, rearport2), (cable2, cable3),
+                (rearport4, rearport3), (frontport2, frontport3), cable4, interface2
+            ),
+            is_complete=True,
+            is_active=True,
+            is_split=False
+        )
+        path2 = self.assertPathExists(
+            (
+                interface2, cable4, (frontport2, frontport3), (rearport3, rearport4), (cable3, cable2),
+                (rearport1, rearport2), frontport1, cable1, interface1
+            ),
+            is_complete=True,
+            is_active=True,
+            is_split=False
+        )
+        self.assertEqual(CablePath.objects.count(), 2)
+        interface1.refresh_from_db()
+        interface2.refresh_from_db()
+        self.assertPathIsSet(interface1, path1)
+        self.assertPathIsSet(interface2, path2)
+        self.assertEqual(interface1.connected_endpoints, [interface2])
+        self.assertEqual(interface2.connected_endpoints, [interface1])
+
+    def test_229_multiposition_frontport_to_rear_ports_on_different_devices(self):
+        """
+        [IF1] --C1-- [FP1:1] [RP1] --C2-- [RP3] [FP2]  (Device A)
+                     [FP1:2] [RP2] --C3-- [RP4] [FP3]  (Device B)
+        """
+        device_a = Device.objects.create(
+            site=self.site, device_type=self.device.device_type, role=self.device.role, name='Device A'
+        )
+        device_b = Device.objects.create(
+            site=self.site, device_type=self.device.device_type, role=self.device.role, name='Device B'
+        )
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
+        rearport3 = RearPort.objects.create(device=device_a, name='Rear Port 3')
+        rearport4 = RearPort.objects.create(device=device_b, name='Rear Port 4')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1', positions=2)
+        frontport2 = FrontPort.objects.create(device=device_a, name='Front Port 2')
+        frontport3 = FrontPort.objects.create(device=device_b, name='Front Port 3')
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device, front_port=frontport1, front_port_position=1,
+                rear_port=rearport1, rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device, front_port=frontport1, front_port_position=2,
+                rear_port=rearport2, rear_port_position=1,
+            ),
+            PortMapping(
+                device=device_a, front_port=frontport2, front_port_position=1,
+                rear_port=rearport3, rear_port_position=1,
+            ),
+            PortMapping(
+                device=device_b, front_port=frontport3, front_port_position=1,
+                rear_port=rearport4, rear_port_position=1,
+            ),
+        ])
+
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[frontport1])
+        cable1.save()
+        cable2 = Cable(a_terminations=[rearport1], b_terminations=[rearport3], status=LinkStatusChoices.STATUS_PLANNED)
+        cable2.save()
+        cable3 = Cable(a_terminations=[rearport2], b_terminations=[rearport4])
+        cable3.save()
+
+        # Branches crossing different devices are not followed past the remote rear ports
+        path1 = self.assertPathExists(
+            (interface1, cable1, frontport1, (rearport1, rearport2), (cable2, cable3), (rearport3, rearport4)),
+            is_complete=False,
+            is_active=False,
+            is_split=True
+        )
+        self.assertEqual(CablePath.objects.count(), 1)
+        interface1.refresh_from_db()
+        self.assertPathIsSet(interface1, path1)
+
+    def test_230_multiposition_frontport_with_uncabled_rear_port(self):
+        """
+        [IF1] --C1-- [FP1:1] [RP1] --C2-- [RP3] [FP2] --C3-- [IF2]
+                     [FP1:2] [RP2]
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
+        rearport3 = RearPort.objects.create(device=self.device, name='Rear Port 3')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1', positions=2)
+        frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device, front_port=frontport1, front_port_position=1,
+                rear_port=rearport1, rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device, front_port=frontport1, front_port_position=2,
+                rear_port=rearport2, rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device, front_port=frontport2, front_port_position=1,
+                rear_port=rearport3, rear_port_position=1,
+            ),
+        ])
+
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[frontport1])
+        cable1.save()
+        cable2 = Cable(a_terminations=[rearport1], b_terminations=[rearport3])
+        cable2.save()
+        cable3 = Cable(a_terminations=[frontport2], b_terminations=[interface2])
+        cable3.save()
+
+        # The uncabled branch is flagged as split (asymmetric), as for multi-termination cables
+        path1 = self.assertPathExists(
+            (
+                interface1, cable1, frontport1, (rearport1, rearport2), cable2, rearport3, frontport2, cable3,
+                interface2
+            ),
+            is_complete=True,
+            is_active=True,
+            is_split=True
+        )
+        path2 = self.assertPathExists(
+            (interface2, cable3, frontport2, rearport3, cable2, rearport1, frontport1, cable1, interface1),
+            is_complete=True,
+            is_active=True,
+            is_split=False
+        )
+        self.assertEqual(CablePath.objects.count(), 2)
+        interface1.refresh_from_db()
+        interface2.refresh_from_db()
+        self.assertPathIsSet(interface1, path1)
+        self.assertPathIsSet(interface2, path2)
+        self.assertEqual(interface1.connected_endpoints, [interface2])
+
+    def test_231_multiposition_frontport_rewire_diverged_to_converged(self):
+        """
+        [IF1] --C1-- [FP1:1] [RP1] --C2-- [RP3] [FP2] --C4-- [IF2]
+                     [FP1:2] [RP2] --C3-- [RP4] [FP3] --C5-- [IF3]
+        Rewired so that FP2 and FP3 both connect to IF2, then back again.
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        interface3 = Interface.objects.create(device=self.device, name='Interface 3')
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
+        rearport3 = RearPort.objects.create(device=self.device, name='Rear Port 3')
+        rearport4 = RearPort.objects.create(device=self.device, name='Rear Port 4')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1', positions=2)
+        frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
+        frontport3 = FrontPort.objects.create(device=self.device, name='Front Port 3')
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device, front_port=frontport1, front_port_position=1,
+                rear_port=rearport1, rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device, front_port=frontport1, front_port_position=2,
+                rear_port=rearport2, rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device, front_port=frontport2, front_port_position=1,
+                rear_port=rearport3, rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device, front_port=frontport3, front_port_position=1,
+                rear_port=rearport4, rear_port_position=1,
+            ),
+        ])
+
+        def assert_path_is_current(interface):
+            interface.refresh_from_db()
+            stored = interface.path
+            traced = CablePath.from_origin([interface])
+            self.assertEqual(
+                (stored.path, stored.is_complete, stored.is_active, stored.is_split),
+                (traced.path, traced.is_complete, traced.is_active, traced.is_split),
+            )
+            return stored
+
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[frontport1])
+        cable1.save()
+        cable2 = Cable(a_terminations=[rearport1], b_terminations=[rearport3])
+        cable2.save()
+        cable3 = Cable(a_terminations=[rearport2], b_terminations=[rearport4])
+        cable3.save()
+        cable4 = Cable(a_terminations=[frontport2], b_terminations=[interface2])
+        cable4.save()
+        cable5 = Cable(a_terminations=[frontport3], b_terminations=[interface3])
+        cable5.save()
+        path1 = assert_path_is_current(interface1)
+        self.assertTrue(path1.is_split)
+        self.assertFalse(path1.is_complete)
+
+        # Removing one branch's endpoint leaves the other branch complete (and asymmetric)
+        cable5.delete()
+        path1 = assert_path_is_current(interface1)
+        self.assertTrue(path1.is_complete)
+
+        # Converge both branches on a single endpoint
+        cable4.delete()
+        cable6 = Cable(a_terminations=[frontport2, frontport3], b_terminations=[interface2])
+        cable6.save()
+        path1 = assert_path_is_current(interface1)
+        self.assertTrue(path1.is_complete)
+        self.assertFalse(path1.is_split)
+        self.assertEqual(Interface.objects.get(pk=interface1.pk).connected_endpoints, [interface2])
+        self.assertEqual(Interface.objects.get(pk=interface2.pk).connected_endpoints, [interface1])
+
+        # Diverge the branches again
+        cable6.delete()
+        cable7 = Cable(a_terminations=[frontport2], b_terminations=[interface2])
+        cable7.save()
+        cable8 = Cable(a_terminations=[frontport3], b_terminations=[interface3])
+        cable8.save()
+        path1 = assert_path_is_current(interface1)
+        self.assertTrue(path1.is_split)
+        self.assertFalse(path1.is_complete)
+        self.assertEqual(Interface.objects.get(pk=interface1.pk).connected_endpoints, [])
+
+    def test_232_multiposition_frontport_reconverged_to_multiple_interfaces(self):
+        """
+        [IF1] --C1-- [FP1:1] [RP1:1] --C2-- [RP2:1] [FP2:1] --C3-- [IF2]
+                     [FP1:2] [RP1:2]        [RP2:2] [FP2:2]        [IF3]
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        interface3 = Interface.objects.create(device=self.device, name='Interface 3')
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=2)
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=2)
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1', positions=2)
+        frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2', positions=2)
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device, front_port=frontport, front_port_position=position,
+                rear_port=rearport, rear_port_position=position,
+            )
+            for frontport, rearport in ((frontport1, rearport1), (frontport2, rearport2))
+            for position in (1, 2)
+        ])
+
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[frontport1])
+        cable1.save()
+        cable2 = Cable(a_terminations=[rearport1], b_terminations=[rearport2])
+        cable2.save()
+        cable3 = Cable(a_terminations=[frontport2], b_terminations=[interface2, interface3])
+        cable3.save()
+
+        # Branches reconverge on RP1, so the final multi-termination cable is not a split
+        self.assertPathExists(
+            (
+                interface1, cable1, frontport1, rearport1, cable2, rearport2, frontport2, cable3,
+                (interface2, interface3)
+            ),
+            is_complete=True,
+            is_active=True,
+            is_split=False
+        )
+
+    def test_233_mixed_position_frontports_to_diverging_rear_ports(self):
+        """
+        [IF1] --C1-- [FP1]   [RP1] --C2-- [IF3]
+        [IF2]        [FP2:1] [RP2] --C3-- [IF4]
+                     [FP2:2] [RP3] --C4-- [IF5]
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        interface3 = Interface.objects.create(device=self.device, name='Interface 3')
+        interface4 = Interface.objects.create(device=self.device, name='Interface 4')
+        interface5 = Interface.objects.create(device=self.device, name='Interface 5')
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
+        rearport3 = RearPort.objects.create(device=self.device, name='Rear Port 3')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2', positions=2)
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device, front_port=frontport1, front_port_position=1,
+                rear_port=rearport1, rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device, front_port=frontport2, front_port_position=1,
+                rear_port=rearport2, rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device, front_port=frontport2, front_port_position=2,
+                rear_port=rearport3, rear_port_position=1,
+            ),
+        ])
+
+        # The single-position front port is the first termination on the cable
+        cable1 = Cable(a_terminations=[interface1, interface2], b_terminations=[frontport1, frontport2])
+        cable1.save()
+        for rearport, interface in ((rearport1, interface3), (rearport2, interface4), (rearport3, interface5)):
+            Cable(a_terminations=[rearport], b_terminations=[interface]).save()
+
+        interface1.refresh_from_db()
+        self.assertFalse(interface1.path.is_complete)
+        self.assertTrue(interface1.path.is_split)
+
+    def test_234_multiposition_frontport_reconverged_then_diverging(self):
+        """
+        [IF1] --C1-- [FP1:1] [RP1:1] --C2-- [RP2:1] [FP2] --C3-- [IF2]
+                     [FP1:2] [RP1:2]        [RP2:2] [FP3] --C4-- [IF3]
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        interface3 = Interface.objects.create(device=self.device, name='Interface 3')
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=2)
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=2)
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1', positions=2)
+        frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
+        frontport3 = FrontPort.objects.create(device=self.device, name='Front Port 3')
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device, front_port=frontport1, front_port_position=1,
+                rear_port=rearport1, rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device, front_port=frontport1, front_port_position=2,
+                rear_port=rearport1, rear_port_position=2,
+            ),
+            PortMapping(
+                device=self.device, front_port=frontport2, front_port_position=1,
+                rear_port=rearport2, rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device, front_port=frontport3, front_port_position=1,
+                rear_port=rearport2, rear_port_position=2,
+            ),
+        ])
+
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[frontport1])
+        cable1.save()
+        cable2 = Cable(a_terminations=[rearport1], b_terminations=[rearport2])
+        cable2.save()
+        cable3 = Cable(a_terminations=[frontport2], b_terminations=[interface2])
+        cable3.save()
+        cable4 = Cable(a_terminations=[frontport3], b_terminations=[interface3])
+        cable4.save()
+
+        # Reconverging on RP1 does not hide the branches diverging again at RP2
+        path1 = self.assertPathExists(
+            (
+                interface1, cable1, frontport1, rearport1, cable2, rearport2, (frontport2, frontport3),
+                (cable3, cable4), (interface2, interface3)
+            ),
+            is_complete=False,
+            is_split=True
+        )
+        self.assertEqual(path1.get_split_nodes(), [interface2, interface3])
+        interface1.refresh_from_db()
+        self.assertEqual(interface1.connected_endpoints, [])
+
     def test_301_create_path_via_existing_cable(self):
         """
         [IF1] --C1-- [FP1] [RP1] --C2-- [RP2] [FP2] --C3-- [IF2]

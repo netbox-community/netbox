@@ -1074,6 +1074,18 @@ class SSOLoginButtonTestCase(DjangoTestCase):
             self.assertEqual(auth_backend['params'].get('next'), '/dcim/sites/')
 
 
+class LoginViewTestCase(DjangoTestCase):
+
+    def test_login_missing_username(self):
+        """
+        A login form submission which omits the username field must be rejected as invalid (see #23665).
+        """
+        response = self.client.post(reverse('login'), {'password': 'wrongpassword'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['form'].errors.get('username'))
+
+
 class SocialAuthBeginViewTestCase(DjangoTestCase):
     """
     Verify the view which initiates an SSO login. Chromium-based browsers evaluate the CSP

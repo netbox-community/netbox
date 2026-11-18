@@ -286,8 +286,10 @@ class NotifyObjectChangedSignalTestCase(TestCase):
         # Trigger two updates within a single request; only one Notification should remain.
         request = _build_request(user=self.user)
         with event_tracking(request):
+            site.snapshot()
             site.description = 'first'
             site.save()
+            site.snapshot()
             site.description = 'second'
             site.save()
 

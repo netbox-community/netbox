@@ -415,6 +415,7 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         ObjectChange.objects.all().delete()
 
         def _move():
+            termination.snapshot()
             termination.circuit = self.circuits[1]
             termination.save()
 
@@ -440,6 +441,7 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         ObjectChange.objects.all().delete()
 
         def _flip():
+            termination.snapshot()
             termination.term_side = 'Z'
             termination.save()
 
@@ -486,6 +488,7 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         ))
         ObjectChange.objects.all().delete()
 
+        termination.snapshot()
         self._tracked(termination.save)
 
         self.assertFalse(self._circuit_changes(self.circuits[0]).exists())
@@ -499,6 +502,7 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         ObjectChange.objects.all().delete()
 
         def _move():
+            termination.snapshot()
             termination.circuit = self.circuits[1]
             termination.save(update_fields=('circuit',))
 

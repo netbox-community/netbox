@@ -14,5 +14,12 @@
 ### Closes: #1234
 
 <!--
-    Please include a summary of the proposed changes below.
+    Briefly explain what this PR changes and the resulting behavior. One or
+    two short paragraphs are usually enough. Include only the context needed
+    to understand the change. Leave the full problem statement in the linked
+    issue.
+
+    Avoid repeating the issue, narrating the diff, or listing every test.
+    Include design decisions, compatibility notes, and meaningful validation
+    results where they help reviewers.
 -->

@@ -8,8 +8,6 @@ from django.contrib.auth import logout as auth_logout
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import update_last_login
-from django.contrib.auth.signals import user_logged_in
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, resolve_url
 from django.urls import reverse, reverse_lazy
@@ -117,12 +115,6 @@ class LoginView(View):
         if form.is_valid():
             logger.debug("Login form validation was successful")
 
-            # If maintenance mode is enabled, assume the database is read-only, and disable updating the user's
-            # last_login time upon authentication.
-            if get_config().MAINTENANCE_MODE:
-                logger.warning("Maintenance mode enabled: disabling update of most recent login time")
-                user_logged_in.disconnect(update_last_login, dispatch_uid='update_last_login')
-
             # Authenticate user
             auth_login(request, form.get_user())
             logger.info(f"User {request.user} successfully authenticated")
@@ -147,7 +139,7 @@ class LoginView(View):
 
             return response
 
-        username = form['username'].value()
+        username = form['username'].value() or ''
         logger.debug(f"Login form validation failed for username: {remove_linebreaks(username)}")
 
         return render(request, self.template_name, {

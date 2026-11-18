@@ -3901,6 +3901,7 @@ class ModuleTestCase(APIViewTestCases.APIViewTestCase):
         # eth1 should have been created
         self.assertTrue(device.interfaces.filter(name='eth1').exists())
 
+    @tag('regression')  # Issue #23478
     def test_module_token_no_position(self):
         """
         Installing a module whose type has a template with a MODULE_TOKEN placeholder into a
@@ -3909,46 +3910,158 @@ class ModuleTestCase(APIViewTestCases.APIViewTestCase):
         self.add_permissions('dcim.add_module')
         manufacturer = Manufacturer.objects.get(name='Generic')
         device = create_test_device('Device for Token No-Position Test')
-        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Token No-Position Module Type')
-        # Template name contains the MODULE_TOKEN placeholder
-        InterfaceTemplate.objects.create(
-            module_type=module_type, name=f'{MODULE_TOKEN}-eth0', type='1000base-t'
-        )
-        # Module bay has no position
-        module_bay = ModuleBay.objects.create(device=device, name='No-Position Bay')
-
         url = reverse('dcim-api:module-list')
-        data = {
-            'device': device.pk,
-            'module_bay': module_bay.pk,
-            'module_type': module_type.pk,
-        }
-        response = self.client.post(url, data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        # One placeholder in each field that installation resolves, each on its own module type
+        templates = (
+            (InterfaceTemplate, {'name': f'{MODULE_TOKEN}-eth0', 'type': '1000base-t'}),
+            (InterfaceTemplate, {'name': 'eth0', 'label': f'Port {MODULE_TOKEN}', 'type': '1000base-t'}),
+            (ModuleBayTemplate, {'name': f'Bay {MODULE_TOKEN}'}),
+            (ModuleBayTemplate, {'name': 'Bay', 'label': f'Bay {MODULE_TOKEN}'}),
+            (ModuleBayTemplate, {'name': 'Bay', 'position': MODULE_TOKEN}),
+        )
+        for i, (template_model, attrs) in enumerate(templates, start=1):
+            with self.subTest(template=template_model.__name__, attrs=attrs):
+                module_type = ModuleType.objects.create(
+                    manufacturer=manufacturer, model=f'Token No-Position Module Type {i}'
+                )
+                template_model.objects.create(module_type=module_type, **attrs)
+                module_bay = ModuleBay.objects.create(device=device, name=f'No-Position Bay {i}')
 
+                data = {
+                    'device': device.pk,
+                    'module_bay': module_bay.pk,
+                    'module_type': module_type.pk,
+                }
+                response = self.client.post(url, data, format='json', **self.header)
+                self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+                self.assertIn('no position defined', str(response.data.get('__all__')))
+                self.assertFalse(Module.objects.filter(module_bay=module_bay).exists())
+
+    @tag('regression')  # Issue #23478
     def test_module_token_depth_mismatch(self):
         """
-        Installing a module whose template name has more MODULE_TOKEN placeholders than the
+        Installing a module whose template has more MODULE_TOKEN placeholders in a field than the
         depth of the module bay tree should return a validation error.
         """
         self.add_permissions('dcim.add_module')
         manufacturer = Manufacturer.objects.get(name='Generic')
         device = create_test_device('Device for Token Depth Mismatch Test')
-        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Token Depth Mismatch Module Type')
-        # Template name has two placeholders but the bay is at depth 1
-        InterfaceTemplate.objects.create(
-            module_type=module_type, name=f'{MODULE_TOKEN}-{MODULE_TOKEN}-eth0', type='1000base-t'
+        url = reverse('dcim-api:module-list')
+        # Two placeholders in each field that installation resolves, while every bay is one level deep
+        tokens = f'{MODULE_TOKEN}/{MODULE_TOKEN}'
+        templates = (
+            (InterfaceTemplate, {'name': f'{MODULE_TOKEN}-{MODULE_TOKEN}-eth0', 'type': '1000base-t'}),
+            (InterfaceTemplate, {'name': 'eth0', 'label': tokens, 'type': '1000base-t'}),
+            (ModuleBayTemplate, {'name': tokens}),
+            (ModuleBayTemplate, {'name': 'Bay', 'label': tokens}),
+            (ModuleBayTemplate, {'name': 'Bay', 'position': tokens}),
         )
-        module_bay = ModuleBay.objects.create(device=device, name='Depth 1 Bay', position='1')
+        for i, (template_model, attrs) in enumerate(templates, start=1):
+            with self.subTest(template=template_model.__name__, attrs=attrs):
+                module_type = ModuleType.objects.create(
+                    manufacturer=manufacturer, model=f'Token Depth Mismatch Module Type {i}'
+                )
+                template_model.objects.create(module_type=module_type, **attrs)
+                module_bay = ModuleBay.objects.create(device=device, name=f'Depth 1 Bay {i}', position='1')
+
+                data = {
+                    'device': device.pk,
+                    'module_bay': module_bay.pk,
+                    'module_type': module_type.pk,
+                }
+                response = self.client.post(url, data, format='json', **self.header)
+                self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+                # Rejected by validation, not by the AbortRequest that component creation would raise
+                self.assertIn('2 placeholders given', str(response.data.get('__all__')))
+                self.assertFalse(Module.objects.filter(module_bay=module_bay).exists())
+
+    @tag('regression')  # Issue #23478
+    def test_module_token_empty_ancestor_position(self):
+        """One placeholder per level needs every bay position, a single placeholder only the immediate one."""
+        self.add_permissions('dcim.add_module')
+        manufacturer = Manufacturer.objects.get(name='Generic')
+        device = create_test_device('Device for Token Ancestor Test')
+        parent_type = ModuleType.objects.create(manufacturer=manufacturer, model='Token Ancestor Parent Type')
+        parent_bay = ModuleBay.objects.create(device=device, name='Parent Bay')
+        parent_module = Module.objects.create(device=device, module_bay=parent_bay, module_type=parent_type)
+        child_bay = ModuleBay.objects.create(device=device, module=parent_module, name='Child Bay', position='2')
+        url = reverse('dcim-api:module-list')
+
+        level_type = ModuleType.objects.create(manufacturer=manufacturer, model='Token Ancestor Level Type')
+        InterfaceTemplate.objects.create(
+            module_type=level_type, name='eth0', label=f'{MODULE_TOKEN}/{MODULE_TOKEN}', type='1000base-t'
+        )
+        data = {
+            'device': device.pk,
+            'module_bay': child_bay.pk,
+            'module_type': level_type.pk,
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('no position defined', str(response.data.get('__all__')))
+
+        leaf_type = ModuleType.objects.create(manufacturer=manufacturer, model='Token Ancestor Leaf Type')
+        InterfaceTemplate.objects.create(
+            module_type=leaf_type, name='eth0', label=f'Port {MODULE_TOKEN}', type='1000base-t'
+        )
+        data['module_type'] = leaf_type.pk
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        module = Module.objects.get(pk=response.data['id'])
+        self.assertEqual(module.interfaces.get().label, 'Port 2')
+
+    def test_module_token_resolves_in_label_and_module_bay(self):
+        """Placeholders in a label and in each module bay template field resolve against a nested bay."""
+        self.add_permissions('dcim.add_module')
+        manufacturer = Manufacturer.objects.get(name='Generic')
+        device = create_test_device('Device for Token Resolution Test')
+        parent_type = ModuleType.objects.create(manufacturer=manufacturer, model='Token Resolution Parent Type')
+        parent_bay = ModuleBay.objects.create(device=device, name='Parent Bay', position='1')
+        parent_module = Module.objects.create(device=device, module_bay=parent_bay, module_type=parent_type)
+        child_bay = ModuleBay.objects.create(device=device, module=parent_module, name='Child Bay', position='2')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Token Resolution Module Type')
+        InterfaceTemplate.objects.create(
+            module_type=module_type, name='eth0', label=f'Port {MODULE_TOKEN}/{MODULE_TOKEN}', type='1000base-t'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=module_type,
+            name=f'SFP {MODULE_TOKEN}',
+            label=f'{MODULE_TOKEN}/{MODULE_TOKEN}',
+            position=f'{MODULE_TOKEN}/1',
+        )
 
         url = reverse('dcim-api:module-list')
         data = {
             'device': device.pk,
-            'module_bay': module_bay.pk,
+            'module_bay': child_bay.pk,
             'module_type': module_type.pk,
         }
         response = self.client.post(url, data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        module = Module.objects.get(pk=response.data['id'])
+        self.assertEqual(module.interfaces.get().label, 'Port 1/2')
+        module_bay = module.modulebays.get()
+        self.assertEqual((module_bay.name, module_bay.label, module_bay.position), ('SFP 2', '1/2', '2/1'))
+
+    def test_module_bay_template_names_repeat_across_modules(self):
+        """Child module bays from one template may share a name across modules on a device."""
+        self.add_permissions('dcim.add_module')
+        manufacturer = Manufacturer.objects.get(name='Generic')
+        device = create_test_device('Device for Repeated Child Bay Test')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Repeated Child Bay Module Type')
+        ModuleBayTemplate.objects.create(module_type=module_type, name='SFP 1')
+
+        url = reverse('dcim-api:module-list')
+        for name in ('Repeated Bay 1', 'Repeated Bay 2'):
+            module_bay = ModuleBay.objects.create(device=device, name=name)
+            data = {
+                'device': device.pk,
+                'module_bay': module_bay.pk,
+                'module_type': module_type.pk,
+            }
+            response = self.client.post(url, data, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(device.modulebays.filter(name='SFP 1').count(), 2)
 
     def test_list_objects_by_profile_id(self):
         profiles = ModuleTypeProfile.objects.filter(name__startswith='Test').order_by('name')

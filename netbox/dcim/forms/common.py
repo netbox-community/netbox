@@ -123,10 +123,16 @@ class ModuleCommonForm(forms.Form):
         if adopt_components:
             self.instance._adopt_components = True
 
-        # Bail out if we are not installing a new module or if we are not replicating components (or if
-        # validation has already failed)
-        if self.errors or self.instance.pk or not replicate_components:
+        # Bail out if we are not installing a new module (or if validation has already failed)
+        if self.errors or self.instance.pk:
             self.instance._disable_replication = True
+            return
+
+        if not replicate_components:
+            self.instance._disable_replication = True
+
+        # Adoption also instantiates every template, so skip the checks only when neither operation is requested
+        if not replicate_components and not adopt_components:
             return
 
         try:
@@ -152,16 +158,11 @@ class ModuleCommonForm(forms.Form):
 
             # Get the templates for the module type.
             for template in getattr(module_type, templates).all():
-                resolved_name = template.name
-                if MODULE_TOKEN in template.name:
-                    if not module_bay.position:
-                        raise forms.ValidationError(
-                            _("Cannot install module with placeholder values in a module bay with no position defined.")
-                        )
-                    try:
-                        resolved_name = resolve_module_placeholder(template.name, positions)
-                    except ValueError as e:
-                        raise forms.ValidationError(str(e))
+                try:
+                    resolved_name = resolve_module_placeholder(template.name, positions)
+                    resolve_module_placeholder(template.label, positions)
+                except ValueError as e:
+                    raise forms.ValidationError(str(e)) from e
 
                 existing_item = installed_components.get(resolved_name)
 
@@ -182,3 +183,11 @@ class ModuleCommonForm(forms.Form):
                             name=resolved_name
                         )
                     )
+
+        # Module bay names are unique per module, not per device, so only their placeholders are checked
+        for template in module_type.modulebaytemplates.all():
+            try:
+                for value in (template.name, template.label, template.position):
+                    resolve_module_placeholder(value, positions)
+            except ValueError as e:
+                raise forms.ValidationError(str(e)) from e

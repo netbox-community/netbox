@@ -63,6 +63,9 @@
 
 ## v4.6.8 (2026-08-11)
 
+!!! warning "Custom Script REST API Changes"
+    Custom scripts can no longer be created, modified, or deleted directly via the `/api/extras/scripts/` endpoint: `POST` requests to `/api/extras/scripts/` and `PUT`, `PATCH`, and `DELETE` requests to `/api/extras/scripts/{id}/` now return a 405 response. Scripts are managed through their modules instead; upload a new module to `/api/extras/scripts/upload/` or replace an existing one at `/api/extras/scripts/upload/{id}/`, and NetBox will add or remove scripts to match the classes it defines. Running a script via a `POST` request to `/api/extras/scripts/{id}/` is unaffected. See [#22745](https://github.com/netbox-community/netbox/issues/22745) for details.
+
 ### Performance Improvements
 
 * [#22787](https://github.com/netbox-community/netbox/issues/22787) - Avoid N+1 queries when resolving generic relations (e.g. assigned objects) via the GraphQL API

@@ -200,6 +200,36 @@ This will return up to 20 records with an ID greater than or equal to 124.
 
 NetBox's GraphQL API uses the same API authentication tokens as its REST API. See the [REST API authentication](./rest-api.md#authentication) documentation for further detail.
 
+## Logging
+
+NetBox can log each GraphQL request to the `netbox.graphql.query` logger at the `INFO` level. This logger is not enabled by default; to enable it, configure it under the [`LOGGING`](../configuration/system.md#logging) configuration parameter:
+
+```python
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'graphql': {
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/netbox/graphql.log',
+        },
+    },
+    'loggers': {
+        'netbox.graphql.query': {
+            'handlers': ['graphql'],
+            'level': 'INFO',
+        },
+    },
+}
+```
+
+Each record includes the user, the API token ID (if a token was used), the client IP address, the operation name, the query, the query variables, the time taken, the number of errors, and the size of the response in bytes. The query is logged with its literal values replaced by placeholders (e.g. `name: "foo"` becomes `name: ""`), along with a hash of the result, so that identical queries can be grouped. The query and variables are each truncated to 4096 characters. These fields are also attached to each log record as a dictionary named `graphql`, for use by structured log formatters.
+
+!!! warning
+    Query variables are logged as submitted. If clients pass sensitive values as variables, those values will be written to the log.
+
+!!! tip
+    Log records are written as part of each request. On busy installations, consider using a [`QueueHandler`](https://docs.python.org/3/library/logging.handlers.html#queuehandler) so that slow log destinations don't delay API responses.
+
 ## Disabling the GraphQL API
 
 If not needed, the GraphQL API can be disabled by setting the [`GRAPHQL_ENABLED`](../configuration/graphql-api.md#graphql_enabled) configuration parameter to False and restarting NetBox.

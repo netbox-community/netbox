@@ -27,12 +27,20 @@ def update_connected_interfaces(instance, created, raw=False, **kwargs):
 
     if instance.interface_a.wireless_link != instance:
         logger.debug(f"Updating interface A for wireless link {instance}")
+        # Keep any snapshot the caller took before making unsaved changes to the interface
+        if not hasattr(instance.interface_a, '_prechange_snapshot'):
+            instance.interface_a.snapshot()
         instance.interface_a.wireless_link = instance
         instance.interface_a.save()
+        # Discard the snapshot so that a later save of the interface takes a fresh one
+        instance.interface_a.__dict__.pop('_prechange_snapshot', None)
     if instance.interface_b.wireless_link != instance:
         logger.debug(f"Updating interface B for wireless link {instance}")
+        if not hasattr(instance.interface_b, '_prechange_snapshot'):
+            instance.interface_b.snapshot()
         instance.interface_b.wireless_link = instance
         instance.interface_b.save()
+        instance.interface_b.__dict__.pop('_prechange_snapshot', None)
 
     # Create/update cable paths
     if created:

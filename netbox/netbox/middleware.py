@@ -6,10 +6,11 @@ from django.contrib import auth, messages
 from django.contrib.auth.middleware import RemoteUserMiddleware as RemoteUserMiddleware_
 from django.core.exceptions import ImproperlyConfigured
 from django.core.signals import got_request_exception
-from django.db import ProgrammingError, connection
+from django.db import Error, ProgrammingError, connection
 from django.db.utils import InternalError
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.middleware.common import CommonMiddleware as DjangoCommonMiddleware
+from django.template import loader
 from django.utils.translation import gettext_lazy as _
 from django_prometheus import middleware
 from social_django.middleware import SocialAuthExceptionMiddleware as SocialAuthExceptionMiddleware_
@@ -40,6 +41,8 @@ class CommonMiddleware(DjangoCommonMiddleware):
     body (clients downgrade to GET on a 302) or raise a RuntimeError when
     DEBUG is enabled. Letting the original 404 propagate gives the caller a
     clear, actionable error instead.
+
+    Also reports 404 responses to Sentry after APPEND_SLASH handling.
     """
     UNSAFE_METHODS = frozenset(('DELETE', 'PATCH', 'POST', 'PUT'))
 
@@ -47,6 +50,15 @@ class CommonMiddleware(DjangoCommonMiddleware):
         if request.method in self.UNSAFE_METHODS and is_api_request(request):
             return False
         return super().should_redirect_with_slash(request)
+
+    def process_response(self, request, response):
+        response = super().process_response(request, response)
+
+        if settings.SENTRY_ENABLED and response.status_code == 404 and getattr(request, '_sentry_report_404', False):
+            from sentry_sdk import capture_message
+            capture_message("Page not found", level="error")
+
+        return response
 
 
 class CoreMiddleware:
@@ -256,12 +268,20 @@ class MaintenanceModeMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if get_config().MAINTENANCE_MODE:
-            self._set_session_type(
-                allow_write=request.path_info.startswith(settings.MAINTENANCE_EXEMPT_PATHS)
-            )
+        if not get_config().MAINTENANCE_MODE or request.path_info.startswith(settings.MAINTENANCE_EXEMPT_PATHS):
+            return self.get_response(request)
 
-        return self.get_response(request)
+        # The read-only setting persists on the connection, so restore read/write access once the request has been
+        # handled. This also lets outer middleware (e.g. saving the session) write to the database.
+        self._set_session_type(allow_write=False)
+        try:
+            return self.get_response(request)
+        finally:
+            try:
+                self._set_session_type(allow_write=True)
+            except Error:
+                # Never leave a read-only connection to be reused by a later request
+                connection.close()
 
     @staticmethod
     def _set_session_type(allow_write):
@@ -285,6 +305,10 @@ class MaintenanceModeMiddleware:
 
             if is_api_request(request) or is_graphql_request(request):
                 return handle_rest_api_exception(request, error=error_message)
+
+            # Redirecting a read-only request (e.g. GET) back to the same URL would fail the same way again
+            if request.method in ('GET', 'HEAD', 'OPTIONS'):
+                return HttpResponse(loader.render_to_string('exceptions/maintenance_mode.html'), status=503)
 
             messages.error(request, error_message)
             return HttpResponseRedirect(request.path_info)

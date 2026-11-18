@@ -307,7 +307,8 @@ class ModuleMovePlan:
     def _resolve(template, value, positions, device):
         """
         Resolve {module} and {vc_position} tokens in a template value against an explicit
-        position chain and device. Raises ValueError on a token-count mismatch.
+        position chain and device. Raises ValueError on a token-count mismatch or a missing
+        bay position.
         """
         if MODULE_TOKEN in value:
             value = resolve_module_placeholder(value, positions)

@@ -8,6 +8,12 @@ import { initMessages } from './messages';
 import { initQuickAdd } from './quickAdd';
 import { focusFirstFormError } from './forms/errors';
 
+type HtmxConfigRequestDetail = {
+  elt: Element;
+  verb: string;
+  formData: FormData;
+};
+
 type HtmxSettleDetail = {
   elt?: Element;
   target?: Element;
@@ -26,6 +32,30 @@ function initDepedencies(): void {
   initQuickAdd();
   initBootstrap();
   initMessages();
+}
+
+/**
+ * On an object edit form refresh (see HTMXSelect), send each cleared multiple select as an empty
+ * value, so the server does not render its saved selection again.
+ */
+function includeClearedMultipleSelects(event: Event): void {
+  const { elt, verb, formData } = (event as CustomEvent<HtmxConfigRequestDetail>).detail;
+  const include = elt.getAttribute('hx-include');
+  if (verb !== 'get' || !include?.startsWith('#') || !elt.closest('form.object-edit')) return;
+
+  // htmx applies hx-params before this event, so leave filtered requests as they are
+  const params = elt.closest('[hx-params], [data-hx-params]');
+  const filter = params?.getAttribute('hx-params') ?? params?.getAttribute('data-hx-params');
+  if (params && filter !== '*') return;
+
+  const container = document.getElementById(include.slice(1));
+  const selects = container?.querySelectorAll<HTMLSelectElement>('select[multiple]');
+  for (const select of selects ?? []) {
+    const empty = !select.selectedOptions.length;
+    if (select.name && empty && !select.matches(':disabled') && !formData.has(select.name)) {
+      formData.append(select.name, '');
+    }
+  }
 }
 
 /**
@@ -48,10 +78,11 @@ function revealSubmissionErrors(event: Event): void {
 }
 
 /**
- * Hook into HTMX's event system to reinitialize specific native event listeners when HTMX swaps
- * elements.
+ * Hook into HTMX's event system to complete object edit form refreshes, and to reinitialize specific
+ * native event listeners when HTMX swaps elements.
  */
 export function initHtmx(): void {
+  document.addEventListener('htmx:configRequest', includeClearedMultipleSelects);
   document.addEventListener('htmx:afterSettle', event => {
     initDepedencies();
     revealSubmissionErrors(event);

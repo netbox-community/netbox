@@ -55,5 +55,6 @@ class ContactsColumnMixin(tables.Table):
     contacts = columns.ManyToManyColumn(
         verbose_name=_('Contacts'),
         linkify_item=True,
-        transform=lambda obj: obj.contact.name
+        transform=lambda obj: obj.contact.name,
+        prefetch_related=('contacts__contact',)
     )
