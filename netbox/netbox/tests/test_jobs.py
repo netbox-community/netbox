@@ -95,17 +95,29 @@ class JobRunnerTestCase(BaseJobRunnerTestCase):
 
         self.assertEqual(job.status, JobStatusChoices.STATUS_FAILED)
 
-    def test_handle_aborted(self):
-        class AbortedJobRunner(TestJobRunner):
+    def test_handle_refused(self):
+        """AbortRequest raised by a request processor fails the job."""
+        class RefusedJobRunner(TestJobRunner):
             def run(self, *args, **kwargs):
-                raise AbortRequest('Refused')
+                with self._fail_on_refusal():
+                    raise AbortRequest('Refused')
 
         with disable_warnings('netbox.jobs'):
-            job = AbortedJobRunner.enqueue(immediate=True)
+            job = RefusedJobRunner.enqueue(immediate=True)
 
         self.assertEqual(job.status, JobStatusChoices.STATUS_FAILED)
         self.assertEqual(job.error, 'Refused')
-        self.assertEqual(job.log_entries, [])
+
+    def test_handle_abort_request_outside_processors(self):
+        """AbortRequest raised by the job itself still errors the job."""
+        class AbortingJobRunner(TestJobRunner):
+            def run(self, *args, **kwargs):
+                raise AbortRequest('Refused')
+
+        job = AbortingJobRunner.enqueue(immediate=True)
+
+        self.assertEqual(job.status, JobStatusChoices.STATUS_ERRORED)
+        self.assertIn('Traceback', job.log_entries[0]['message'])
 
     def test_handle_existing_notification(self):
         """A Job whose owner already has a notification for it completes."""
