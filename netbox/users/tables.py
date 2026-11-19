@@ -1,5 +1,5 @@
 import django_tables2 as tables
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from netbox.tables import NetBoxTable, columns
 from users.models import Group, ObjectPermission, Owner, OwnerGroup, Token, User
