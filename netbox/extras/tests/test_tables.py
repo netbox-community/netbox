@@ -1,10 +1,13 @@
-from django.test import TestCase
+from django.test import TestCase, tag
+from django.utils import translation
+from django.utils.functional import Promise
+from django.utils.translation import gettext
 
 from core.events import OBJECT_CREATED
 from core.models import ObjectType
 from dcim.models import Site
 from extras.choices import CustomFieldStatusChoices, CustomFieldTypeChoices
-from extras.models import Bookmark, CustomField, EventRule, Notification, Subscription
+from extras.models import Bookmark, CustomField, EventRule, JournalEntry, Notification, Subscription
 from extras.tables import *
 from utilities.testing import TableTestCases
 
@@ -190,3 +193,17 @@ class ImageAttachmentTableTestCase(TableTestCases.StandardTableTestCase):
 
 class JournalEntryTableTestCase(TableTestCases.StandardTableTestCase):
     table = JournalEntryTable
+
+
+class JournalEntryTableColumnTranslationTestCase(TestCase):
+    """
+    The created_by column previously relied on the model field's auto-generated verbose name,
+    which never passes through gettext.
+    """
+
+    @tag('regression')  # Ref: #23753
+    def test_created_by_verbose_name_translated(self):
+        with translation.override('nl'):
+            table = JournalEntryTable(JournalEntry.objects.none())
+            self.assertIsInstance(table.columns['created_by'].verbose_name, Promise)
+            self.assertEqual(str(table.columns['created_by'].verbose_name), gettext('Created by'))
