@@ -203,6 +203,26 @@ This template is used by the `BulkDeleteView` generic view to delete multiple ob
 | `table`      | Yes      | The table class used for rendering the list of objects          |
 | `return_url` | Yes      | The URL to which the user is redirect after submitting the form |
 
+## Content Security Policy
+
+Administrators can send a [Content Security Policy](../../administration/content-security-policy.md) (CSP) that only allows scripts carrying a per-request nonce.
+
+!!! warning
+    NetBox is planning to turn a CSP on by default in v5.0 ([#23503](https://github.com/netbox-community/netbox/issues/23503)), so plugin templates should work under one now.
+
+* **Nonce every script.** Add `nonce="{{ csp_nonce }}"` to every `<script>` element, inline or with a `src`. The `csp_nonce` template variable is public plugin API from NetBox v4.8. A `<script>` inside a fragment that htmx swaps into the page does not run under a nonce policy, so use a static JavaScript listener instead.
+* **No inline event handler attributes.** Attributes such as `onclick=` or `onerror=` are blocked and the handler silently does not run. Attach a listener from a script file under your plugin's static directory instead.
+* **No runtime evaluation of strings as code.** This includes htmx's `hx-on` attributes, `hx-trigger` filter expressions such as `keyup[event.target.value.length > 2]`, and `js:` values in `hx-vals` or `hx-headers`. Without `'unsafe-eval'`, `hx-on` handlers and `js:` values throw an error, which shows in the browser console as a CSP violation, and they do not work. A trigger filter fails open instead: htmx drops the filter, so the request fires on every event. Use a listener that dispatches a custom event or sets a request parameter in `htmx:configRequest`.
+* **Inline styles are fine.** The [example policy](../../administration/content-security-policy.md#example-policy) allows inline `style=` attributes and `<style>` elements, and `style-src` takes no nonce.
+
+```jinja2
+{% load static %}
+<script nonce="{{ csp_nonce }}">
+  window.myPluginConfig = { endpoint: "{% url 'plugins:my_plugin:endpoint' %}" };
+</script>
+<script nonce="{{ csp_nonce }}" src="{% static 'my_plugin/widget.js' %}"></script>
+```
+
 ## Tags
 
 The following custom template tags are available in NetBox.

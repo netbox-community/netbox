@@ -28,6 +28,7 @@ __all__ = (
     'CoreMiddleware',
     'LoginRequiredMiddleware',
     'MaintenanceModeMiddleware',
+    'PermissionsPolicyMiddleware',
     'PrometheusAfterMiddleware',
     'PrometheusBeforeMiddleware',
     'RemoteUserMiddleware',
@@ -50,6 +51,39 @@ class CommonMiddleware(DjangoCommonMiddleware):
         if request.method in self.UNSAFE_METHODS and is_api_request(request):
             return False
         return super().should_redirect_with_slash(request)
+
+
+class PermissionsPolicyMiddleware:
+    """
+    Send a Permissions-Policy header built from the PERMISSIONS_POLICY setting on HTML responses only, since only a
+    browser rendering a document uses it. 3XX responses get none, as the browser never renders their body. Each feature
+    maps to a list of allowed origins, where an empty list denies the feature. An empty setting sends no header, and
+    a header already set by a view is left alone. The header is built once, when the middleware is instantiated.
+    """
+    def __init__(self, get_response):
+        self.get_response = get_response
+        self.header = self.build_header(settings.PERMISSIONS_POLICY) if settings.PERMISSIONS_POLICY else None
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        if (
+            self.header is not None
+            and 'Permissions-Policy' not in response
+            and not 300 <= response.status_code < 400
+            and response.get('Content-Type', '').lower().startswith('text/html')
+        ):
+            response['Permissions-Policy'] = self.header
+        return response
+
+    @staticmethod
+    def build_header(policy):
+        directives = []
+        for feature, origins in policy.items():
+            # "self" and "*" are structured-field tokens. Anything else is an origin, sent as a quoted string.
+            items = ' '.join(origin if origin in ('self', '*') else f'"{origin}"' for origin in origins)
+            # A lone wildcard is sent as a bare token, which the spec treats the same as "(*)".
+            directives.append(f'{feature}=*' if list(origins) == ['*'] else f'{feature}=({items})')
+        return ', '.join(directives)
 
 
 class CoreMiddleware:

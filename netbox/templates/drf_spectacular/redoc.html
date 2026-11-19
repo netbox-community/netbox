@@ -1,0 +1,16 @@
+{# Extends the upstream drf_spectacular template of the same name. The body block copies upstream to add CSP nonces: re-sync it when drf-spectacular is upgraded. #}
+{% extends 'drf_spectacular/redoc.html' %}
+
+{% block body %}
+  {% if settings %}
+    <div id="redoc-container"></div>
+    <script src="{{ redoc_standalone }}" nonce="{{ csp_nonce }}"></script>
+    <script nonce="{{ csp_nonce }}">
+      const redocSettings = {{ settings|safe }};
+      Redoc.init("{{ schema_url }}", redocSettings, document.getElementById('redoc-container'))
+    </script>
+  {% else %}
+    <redoc spec-url="{{ schema_url }}"></redoc>
+    <script src="{{ redoc_standalone }}" nonce="{{ csp_nonce }}"></script>
+  {% endif %}
+{% endblock body %}

@@ -7,6 +7,23 @@
   <link rel="icon" type="image/png" href="{% static 'rest-api.ico' %}" />
 {% endblock head %}
 
+{% block script %}
+  {# Copies the upstream DRF script block to add CSP nonces: re-sync it when djangorestframework is upgraded. #}
+  <script type="application/json" id="drf_csrf" nonce="{{ csp_nonce }}">
+    {
+      "csrfHeaderName": "{{ csrf_header_name|default:'X-CSRFToken' }}",
+      "csrfToken": "{% if request %}{{ csrf_token }}{% endif %}"
+    }
+  </script>
+  <script src="{% static 'rest_framework/js/jquery-3.7.1.min.js' %}" nonce="{{ csp_nonce }}"></script>
+  <script src="{% static 'rest_framework/js/ajax-form.js' %}" nonce="{{ csp_nonce }}"></script>
+  <script src="{% static 'rest_framework/js/csrf.js' %}" nonce="{{ csp_nonce }}"></script>
+  <script src="{% static 'rest_framework/js/bootstrap.min.js' %}" nonce="{{ csp_nonce }}"></script>
+  <script src="{% static 'rest_framework/js/prettify-min.js' %}" nonce="{{ csp_nonce }}"></script>
+  <script src="{% static 'rest_framework/js/default.js' %}" nonce="{{ csp_nonce }}"></script>
+  <script src="{% static 'rest_framework/js/load-ajax-form.js' %}" nonce="{{ csp_nonce }}"></script>
+{% endblock script %}
+
 {% block title %}{% if name %}{{ name }} | {% endif %}NetBox {% trans "REST API" %}{% endblock %}
 
 {% block branding %}

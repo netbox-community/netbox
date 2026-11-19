@@ -909,10 +909,10 @@ class GenericObjectChoiceFieldTestCase(TestCase):
         form = self._make_form(initial={'obj': self.site})
         field = form.fields['obj']
         field.get_bound_field(form, 'obj')
-        self.assertEqual(
-            field.content_type_field.widget.attrs.get('hx-on::config-request'),
-            "event.detail.parameters['obj_object_id'] = ''",
-        )
+        attrs = field.content_type_field.widget.attrs
+        self.assertEqual(attrs.get('data-htmx-clear-param'), 'obj_object_id')
+        # The clearing is done by a listener in the static bundle, not by htmx runtime eval.
+        self.assertNotIn('hx-on::config-request', attrs)
 
     def test_content_type_lookup_is_cached(self):
         """Repeated content-type resolution hits the database only once per field instance."""

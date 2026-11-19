@@ -724,7 +724,7 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         data = {
             'pk': [prefix.pk],
             'scope_content_type': ContentType.objects.get_for_model(Site).pk,
-            # The client-side hx-on::config-request clears the paired object id on a type change.
+            # The client-side data-htmx-clear-param listener clears the paired object id on a type change.
             'scope_object_id': '',
         }
         response = self.client.post(self._get_url('bulk_edit'), data, headers={'HX-Request': 'true'})

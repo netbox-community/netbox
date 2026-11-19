@@ -323,6 +323,7 @@ Do not include an entry in the release notes for the PR unless explicitly instru
 - `NETBOX_CONFIGURATION` env var controls which settings module loads; set to `netbox.configuration_testing` for tests.
 - The `extras` app is a catch-all for cross-cutting features (custom fields, tags, webhooks, scripts).
 - Plugins API: only documented public APIs are stable. Internal NetBox code is subject to change without notice.
+- `netbox/templates/rest_framework/api.html`, `netbox/templates/drf_spectacular/swagger_ui.html` and `netbox/templates/drf_spectacular/redoc.html` copy upstream script blocks to add CSP nonces. Re-sync them whenever djangorestframework or drf-spectacular is upgraded.
 - See `docs/development/` for the full contributing guide and code style details.
 
 ## References

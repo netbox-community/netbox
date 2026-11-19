@@ -26,6 +26,7 @@ from netbox.settings_utils import (
     parse_job_timeout,
     resolve_install_paths,
     secret_key_hint,
+    validate_permissions_policy,
     validate_webhook_default_timeout,
 )
 from utilities.release import load_release_data
@@ -167,6 +168,16 @@ LOGIN_FORM_HIDDEN = param('LOGIN_FORM_HIDDEN', False, types=bool)
 LOGOUT_REDIRECT_URL = param('LOGOUT_REDIRECT_URL', 'home', types=str)
 MEDIA_ROOT = param('MEDIA_ROOT', os.path.join(NETBOX_ROOT, 'media'), types=str).rstrip('/')
 METRICS_ENABLED = param('METRICS_ENABLED', False, types=bool)
+PERMISSIONS_POLICY = param('PERMISSIONS_POLICY', {
+    'camera': [],
+    'microphone': [],
+    'geolocation': [],
+    'payment': [],
+    'usb': [],
+    'hid': [],
+    'serial': [],
+    'bluetooth': [],
+}, types=dict, validators=[validate_permissions_policy])
 PLUGINS = param('PLUGINS', [], types=(list, tuple))
 PLUGINS_CONFIG = param('PLUGINS_CONFIG', {}, types=dict)
 PLUGINS_CATALOG_CONFIG = param('PLUGINS_CATALOG_CONFIG', {}, types=dict)
@@ -205,6 +216,8 @@ RQ_RETRY_MAX = param('RQ_RETRY_MAX', 0, types=int, min_value=0)
 SCRIPTS_ROOT = param('SCRIPTS_ROOT', os.path.join(NETBOX_ROOT, 'scripts'), types=str).rstrip('/')
 SEARCH_BACKEND = param('SEARCH_BACKEND', 'netbox.search.backends.CachedValueSearchBackend', types=str)
 SECRET_KEY = param('SECRET_KEY', types=str)  # Required
+SECURE_CSP = param('SECURE_CSP', {}, types=dict)
+SECURE_CSP_REPORT_ONLY = param('SECURE_CSP_REPORT_ONLY', {}, types=dict)
 SECURE_HSTS_INCLUDE_SUBDOMAINS = param('SECURE_HSTS_INCLUDE_SUBDOMAINS', False, types=bool)
 SECURE_HSTS_PRELOAD = param('SECURE_HSTS_PRELOAD', False, types=bool)
 SECURE_HSTS_SECONDS = param('SECURE_HSTS_SECONDS', 0, types=int, min_value=0)
@@ -529,6 +542,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.csp.ContentSecurityPolicyMiddleware',
+    'netbox.middleware.PermissionsPolicyMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
     'netbox.middleware.RemoteUserMiddleware',
     'netbox.middleware.LoginRequiredMiddleware',
@@ -570,6 +585,7 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.template.context_processors.media',
+                'django.template.context_processors.csp',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'netbox.context_processors.settings',

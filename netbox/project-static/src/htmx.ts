@@ -46,10 +46,45 @@ function revealSubmissionErrors(event: Event): void {
 }
 
 /**
+ * Dispatch `netbox:search-input` on an input once its value reaches the length in
+ * `data-search-min-length`. The input's `hx-trigger` listens for this event instead of using a
+ * `keyup[...]` filter, which htmx compiles with runtime eval.
+ */
+function dispatchSearchInput(event: KeyboardEvent): void {
+  const input = event.target;
+  if (!(input instanceof HTMLInputElement)) return;
+  const rawMinLength = input.dataset.searchMinLength;
+  if (!rawMinLength) return;
+  const minLength = Number(rawMinLength);
+  if (Number.isNaN(minLength)) return;
+  if (input.value.length >= minLength) {
+    input.dispatchEvent(new CustomEvent('netbox:search-input', { bubbles: true }));
+  }
+}
+
+/**
+ * Blank the request parameter named by `data-htmx-clear-param` on the requesting element. The
+ * generic object selector uses this so a stale object ID can't cross content types. It replaces
+ * an `hx-on::config-request` attribute, which htmx evaluates at runtime.
+ */
+function clearConfiguredParam(event: HTMLElementEventMap['htmx:configRequest']): void {
+  const { elt, parameters } = event.detail;
+  const param = elt.getAttribute('data-htmx-clear-param');
+  if (param) {
+    parameters[param] = '';
+  }
+}
+
+/**
  * Hook into HTMX's event system to reinitialize specific native event listeners when HTMX swaps
  * elements.
  */
 export function initHtmx(): void {
+  // htmx.config.allowEval stays at its default: a CSP without 'unsafe-eval' already blocks eval,
+  // and disabling it would break plugins that use hx-on or trigger filters. See #23503.
+  document.addEventListener('keyup', dispatchSearchInput);
+  document.addEventListener('htmx:configRequest', clearConfiguredParam);
+
   document.addEventListener('htmx:afterSettle', event => {
     initDepedencies();
     revealSubmissionErrors(event);
