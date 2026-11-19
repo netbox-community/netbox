@@ -894,3 +894,33 @@ class AsyncViewJobTestCase(TestCase):
         AsyncViewJob(job).run(view_cls=SiteBulkEditView, request=copy_safe_request(request))
 
         self.assertEqual(Site.objects.filter(description='Edited in a background job').count(), len(sites))
+
+    def test_refused_by_request_processor(self):
+        """A request processor raising AbortRequest fails the job before the view runs."""
+        user = User.objects.create_superuser(username='testuser')
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        request = RequestFactory().post(reverse('dcim:site_bulk_edit'), data={
+            '_apply': True,
+            'pk': [site.pk],
+            'description': 'Edited in a background job',
+            'background_job': True,
+        })
+        request.user = user
+        request.id = uuid.uuid4()
+        job = Job.objects.create(name='Bulk edit', user=user, job_id=uuid.uuid4())
+
+        @contextmanager
+        def refusing_processor(request):
+            raise AbortRequest('Refused')
+            yield
+
+        with (
+            patch('utilities.request.registry', {'request_processors': [refusing_processor]}),
+            disable_warnings('netbox.jobs'),
+        ):
+            AsyncViewJob.handle(job, view_cls=SiteBulkEditView, request=copy_safe_request(request))
+
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_FAILED)
+        self.assertEqual(job.error, 'Refused')
+        self.assertFalse(Site.objects.filter(description='Edited in a background job').exists())
