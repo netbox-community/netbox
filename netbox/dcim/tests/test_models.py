@@ -4208,6 +4208,31 @@ class VCPositionTokenTestCase(TestCase):
         self.assertEqual(mapping.front_port_position, 1)
         self.assertEqual(mapping.rear_port_position, 1)
 
+    @tag('regression')  # Ref: #23493
+    def test_vc_position_token_inventory_item_component_device_type_template(self):
+        site = Site.objects.first()
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        interface_template = InterfaceTemplate.objects.create(
+            device_type=device_type,
+            name='eth{vc_position}',
+            type='1000base-t',
+        )
+        InventoryItemTemplate.objects.create(
+            device_type=device_type,
+            name='NIC',
+            component=interface_template,
+        )
+        vc = VirtualChassis.objects.create(name='Test VC 7')
+        device = Device.objects.create(
+            name='Device VC 7', device_type=device_type, role=device_role,
+            site=site, virtual_chassis=vc, vc_position=7,
+        )
+
+        inventory_item = device.inventoryitems.get(name='NIC')
+        self.assertEqual(inventory_item.component, device.interfaces.get(name='eth7'))
+
 
 class SiteSignalTestCase(TestCase):
 
