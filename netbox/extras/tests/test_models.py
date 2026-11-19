@@ -1718,6 +1718,10 @@ class StoredFinalizeDeprecationWarningTestCase(TestCase):
     TEMPLATE_CODE = '{{ "netbox" }}'
     SHARED_PK = 9001
 
+    def setUp(self):
+        # Start each test with no templates marked as already warned
+        self.enterContext(patch('extras.models.mixins._stored_finalize_warned', set()))
+
     def _create(self, model, name, **kwargs):
         # create() does not call clean(). This matches a value stored before clean() blocked it.
         return model.objects.create(name=name, template_code=self.TEMPLATE_CODE, **kwargs)
@@ -1727,10 +1731,10 @@ class StoredFinalizeDeprecationWarningTestCase(TestCase):
 
     def _render_recording(self, *templates):
         """
-        Use the default filter, not 'always', so the once-per-template dedupe is exercised.
+        Use the 'always' filter so any dedupe comes from the template mixin, not from the warnings registry.
         """
         with warnings.catch_warnings(record=True) as caught:
-            warnings.simplefilter('default')
+            warnings.simplefilter('always')
             for template in templates:
                 template.render()
         return [w for w in caught if issubclass(w.category, FutureWarning)]
@@ -1767,27 +1771,16 @@ class StoredFinalizeDeprecationWarningTestCase(TestCase):
         self.assertIn(f'pk={first.pk}', str(caught[0].message))
         self.assertIn(f'pk={second.pk}', str(caught[1].message))
 
-    def test_warns_once_across_different_callers(self):
+    def test_warns_once_when_warning_filters_change_between_renders(self):
         """
-        Callers render from different source lines (views, API, scripts). The warning must be attributed to the
-        same site regardless, or the default filter would warn once per caller instead of once per template.
+        Changing the warning filters (catch_warnings(), filterwarnings(), urllib3.disable_warnings()) clears the
+        warnings registry. The once-per-template dedupe must not depend on it.
         """
         t = self._create_stored(ExportTemplate)
-
-        def render_a():
-            t.render()
-
-        def render_b():
-            t.render()
-
-        with warnings.catch_warnings(record=True) as caught:
-            warnings.simplefilter('default')
-            render_a()
-            render_b()
-            render_a()
-        caught = [w for w in caught if issubclass(w.category, FutureWarning)]
+        caught = []
+        for _ in range(3):
+            caught += self._render_recording(t)
         self.assertEqual(len(caught), 1)
-        self.assertTrue(caught[0].filename.endswith('extras/models/mixins.py'), caught[0].filename)
 
     def test_warns_separately_for_models_sharing_a_pk(self):
         params = {'finalize': 'builtins.len'}
