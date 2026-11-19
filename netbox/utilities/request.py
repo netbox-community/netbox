@@ -136,7 +136,7 @@ def safe_for_redirect(url):
 @contextmanager
 def apply_request_processors(request):
     """
-    A context manager with applies all registered request processors (such as event_tracking). A processor may raise
+    A context manager which applies all registered request processors (such as event_tracking). A processor may raise
     AbortRequest to refuse the request outright; any other exception it raises is reported as a warning and skipped.
     """
     with ExitStack() as stack:

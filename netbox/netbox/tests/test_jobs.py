@@ -21,6 +21,7 @@ from dcim.models import Site
 from dcim.views import SiteBulkEditView
 from extras.models import Notification
 from users.models import User
+from utilities.exceptions import AbortRequest
 from utilities.request import copy_safe_request
 from utilities.testing import disable_logging, disable_warnings
 from utilities.testing.mixins import RQQueueTestMixin
@@ -93,6 +94,18 @@ class JobRunnerTestCase(BaseJobRunnerTestCase):
             job = TestJobRunner.enqueue(immediate=True, make_fail=True)
 
         self.assertEqual(job.status, JobStatusChoices.STATUS_FAILED)
+
+    def test_handle_aborted(self):
+        class AbortedJobRunner(TestJobRunner):
+            def run(self, *args, **kwargs):
+                raise AbortRequest('Refused')
+
+        with disable_warnings('netbox.jobs'):
+            job = AbortedJobRunner.enqueue(immediate=True)
+
+        self.assertEqual(job.status, JobStatusChoices.STATUS_FAILED)
+        self.assertEqual(job.error, 'Refused')
+        self.assertEqual(job.log_entries, [])
 
     def test_handle_existing_notification(self):
         """A Job whose owner already has a notification for it completes."""

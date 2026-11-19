@@ -132,6 +132,12 @@ class JobRunner(ABC):
             status = JobStatusChoices.STATUS_FAILED
             logger.warning(f"Job {job} failed")
 
+        # A deliberate refusal (e.g. by a request processor), not a crash
+        except AbortRequest as e:
+            status = JobStatusChoices.STATUS_FAILED
+            error = str(e.message)
+            logger.warning(f"Job {job} aborted: {error}")
+
         except Exception as e:
             status = JobStatusChoices.STATUS_ERRORED
             error = repr(e)
