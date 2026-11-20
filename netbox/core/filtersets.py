@@ -167,6 +167,18 @@ class JobFilterSet(BaseFilterSet):
         to_field_name='username',
         label=_('User name'),
     )
+    parent_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='parent',
+        queryset=Job.objects.all(),
+        distinct=False,
+        label=_('Parent job (ID)'),
+    )
+    has_parent = django_filters.BooleanFilter(
+        field_name='parent',
+        lookup_expr='isnull',
+        exclude=True,
+        label=_('Has a parent job'),
+    )
 
     class Meta:
         model = Job

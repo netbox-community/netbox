@@ -259,6 +259,7 @@ class JobView(generic.ObjectView):
             panels.JobSchedulingPanel(),
         ],
         bottom_panels=[
+            panels.ChildJobsPanel(),
             JSONPanel('data', title=_('Data')),
         ],
     )

@@ -1,0 +1,10 @@
+{% extends 'ui/panels/objects_table.html' %}
+
+{% block panel_content %}
+  <div class="card-body">
+    {% for status in status_counts %}
+      {% badge status.text bg_color=status.color url=status.url %}
+    {% endfor %}
+  </div>
+  {{ block.super }}
+{% endblock panel_content %}

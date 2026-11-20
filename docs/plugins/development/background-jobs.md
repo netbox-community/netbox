@@ -93,6 +93,28 @@ class MyModel(JobsMixin, NetBoxModel):
 ```
 
 
+### Child Jobs
+
+!!! info "This feature was introduced in NetBox v4.8."
+
+A job which fans out work into many other jobs can record itself as their parent by passing its `Job` as the `parent` argument to `enqueue()` (or `enqueue_once()`). The children are then listed together on the parent's page in the UI, and can be filtered by `parent_id` in the UI and REST API. Later runs of a recurring child keep its parent, and when `enqueue_once()` returns an existing job, that job is assigned to the given parent.
+
+This records only where a job came from: a parent does not wait for its children, and its status is not affected by theirs. Deleting a parent leaves its children in place, without a parent.
+
+#### Example
+
+```python title="jobs.py"
+from netbox.jobs import JobRunner
+from .models import MyModel
+
+
+class NightlySweepJob(JobRunner):
+
+    def run(self, *args, **kwargs):
+        for obj in MyModel.objects.all():
+            PerObjectJob.enqueue(instance=obj, parent=self.job)
+```
+
 ### Result URLs
 
 Use `core.utils.register_job_result_url()` to link jobs to your plugin's result page. Pass a model class or an `<app_label>.<model_name>` string, and optionally a `job_name`. The function receives a `Job` and returns a URL, or `None` to try the next fallback.

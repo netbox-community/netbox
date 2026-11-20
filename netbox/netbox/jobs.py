@@ -198,6 +198,7 @@ class JobRunner(ABC):
                 schedule_at=new_scheduled_time,
                 interval=job.interval,
                 notifications=job.notifications,
+                parent=Job.objects.filter(pk=job.parent_id).first() if job.parent_id else None,
                 **kwargs,
             )
         except ValidationError as e:
@@ -272,6 +273,9 @@ class JobRunner(ABC):
                 not job._is_rq_job_present()
             )
             if not is_stale and (not schedule_at or job.scheduled == schedule_at) and (job.interval == interval):
+                if (parent := kwargs.get('parent')) and job.parent_id != parent.pk:
+                    job.parent = parent
+                    job.save(update_fields=['parent'])
                 return job
             job.delete()
 

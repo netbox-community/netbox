@@ -1,5 +1,9 @@
+from django.db.models import Count
+from django.urls import reverse
+from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
 
+from core.choices import JobStatusChoices
 from netbox.ui import attrs, panels
 
 
@@ -54,6 +58,44 @@ class JobPanel(panels.ObjectAttributesPanel):
     status = attrs.ChoiceAttr('status')
     error = attrs.TextAttr('error')
     user = attrs.TextAttr('user', label=_('Created by'))
+    parent = attrs.RelatedObjectAttr('parent', linkify=True, label=_('Parent job'))
+
+
+class ChildJobsPanel(panels.ObjectsTablePanel):
+    """
+    Lists a job's direct children, with a count of them per status. Hidden if there are none.
+    """
+    template_name = 'core/panels/child_jobs.html'
+    title = _('Child jobs')
+
+    def __init__(self, **kwargs):
+        super().__init__(
+            model='core.job',
+            filters={'parent_id': lambda ctx: ctx['object'].pk},
+            exclude_columns=['parent'],
+            **kwargs,
+        )
+
+    def get_context(self, context):
+        ctx = super().get_context(context)
+        job = ctx['object']
+        children = job.children.all()
+        if request := ctx['request']:
+            children = children.restrict(request.user, 'view')
+        counts = dict(children.order_by().values_list('status').annotate(count=Count('pk')))
+        list_url = reverse('core:job_list')
+        ctx['status_counts'] = [
+            {
+                'text': f'{counts[status]} {label}',
+                'color': JobStatusChoices.colors.get(status),
+                'url': f'{list_url}?{urlencode({"parent_id": job.pk, "status": status})}',
+            }
+            for status, label in JobStatusChoices if status in counts
+        ]
+        return ctx
+
+    def should_render(self, context):
+        return bool(context['status_counts']) and super().should_render(context)
 
 
 class JobSchedulingPanel(panels.ObjectAttributesPanel):

@@ -76,6 +76,7 @@ class JobFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id'),
         FieldSet('object_type_id', 'status', 'queue_name', 'user_id', name=_('Attributes')),
+        FieldSet('parent_id', 'has_parent', name=_('Hierarchy')),
         FieldSet(
             'created__before', 'created__after', 'scheduled__before', 'scheduled__after', 'started__before',
             'started__after', 'completed__before', 'completed__after', name=_('Scheduling')
@@ -150,6 +151,18 @@ class JobFilterForm(SavedFiltersMixin, FilterForm):
         label=_('Execution time (maximum)'),
         required=False,
         help_text=_('Seconds, or HH:MM:SS')
+    )
+    parent_id = DynamicModelMultipleChoiceField(
+        queryset=Job.objects.all(),
+        required=False,
+        label=_('Parent job')
+    )
+    has_parent = forms.NullBooleanField(
+        required=False,
+        label=_('Has a parent job'),
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
     )
 
 
