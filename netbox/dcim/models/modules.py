@@ -1,4 +1,5 @@
 from collections.abc import Iterable, Mapping
+from functools import partial
 
 import jsonschema
 import yaml
@@ -165,6 +166,14 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         null=True,
         help_text=_('The date after which this module type is no longer supported by the manufacturer')
     )
+    front_image = models.ImageField(
+        upload_to='moduletype-images',
+        blank=True
+    )
+    rear_image = models.ImageField(
+        upload_to='moduletype-images',
+        blank=True
+    )
     attribute_data = models.JSONField(
         blank=True,
         null=True,
@@ -318,6 +327,41 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
                 raise ValidationError(_("Invalid schema: {error}").format(error=e))
         else:
             self.attribute_data = None
+
+    def save(self, *args, **kwargs):
+        update_fields = normalize_update_fields(kwargs)
+        using = kwargs.get('using') or router.db_for_write(self.__class__, instance=self)
+        deferred_fields = self.get_deferred_fields()
+        image_fields = [
+            name for name in ('front_image', 'rear_image')
+            if name not in deferred_fields and (update_fields is None or name in update_fields)
+        ]
+
+        # Read persisted filenames only for image fields included in this save.
+        original_images = {}
+        if self.pk is not None and image_fields:
+            original_images = (
+                ModuleType.objects.using(using).filter(pk=self.pk).order_by().values(*image_fields).first() or {}
+            )
+
+        kwargs['using'] = using
+        ret = super().save(*args, **kwargs)
+
+        for field_name, name in original_images.items():
+            if name and getattr(self, field_name).name != name:
+                transaction.on_commit(
+                    partial(self._delete_image_file, field_name, name, using), using=using, robust=True
+                )
+
+        return ret
+
+    @classmethod
+    def _delete_image_file(cls, field_name, name, using):
+        """
+        Delete an image file only when no module type still references it.
+        """
+        if not cls.objects.using(using).filter(models.Q(front_image=name) | models.Q(rear_image=name)).exists():
+            cls._meta.get_field(field_name).storage.delete(name)
 
     def get_cooling_method_color(self):
         return CoolingMethodChoices.colors.get(self.cooling_method)

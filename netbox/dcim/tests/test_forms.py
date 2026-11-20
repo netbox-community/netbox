@@ -1,8 +1,9 @@
+import tempfile
 from unittest.mock import patch
 
 from django import forms
 from django.template.loader import render_to_string
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from circuits.models import CircuitTermination
 from dcim.choices import (
@@ -23,7 +24,7 @@ from dcim.tests.test_module_moves import fail_after
 from ipam.models import ASN, RIR, VLAN
 from utilities.exceptions import AbortRequest
 from utilities.forms.rendering import M2MAddRemoveFields
-from utilities.testing import create_test_device
+from utilities.testing import create_test_device, create_test_image
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 
@@ -279,6 +280,52 @@ class ModuleTypeFormTestCase(TestCase):
                 },
             },
         )
+
+    def test_upload_and_clear_images(self):
+        """
+        Upload images through the form, then clear the front image, which should delete only its file.
+        """
+        data = {
+            'manufacturer': self.manufacturer.pk,
+            'model': 'Module Type 1',
+            'profile': self.profile.pk,
+            'attr_media': ['copper', 'qsfp28'],
+        }
+        form = ModuleTypeForm(data=data, files={
+            'front_image': create_test_image('front.png'),
+            'rear_image': create_test_image('rear.png'),
+        })
+        # A profile change re-renders only the profile-attributes fieldset, which must not hold a picked file
+        profile_fieldset = next(fieldset for fieldset in form.fieldsets if fieldset.html_id == 'profile-attributes')
+        self.assertNotIn('front_image', profile_fieldset.items)
+        self.assertNotIn('rear_image', profile_fieldset.items)
+        self.assertTrue(form.is_multipart())
+
+        with (
+            tempfile.TemporaryDirectory() as media_root,
+            override_settings(MEDIA_ROOT=media_root),
+            patch('utilities.forms.fields.dynamic.get_action_url', return_value='/'),
+        ):
+            self.assertTrue(form.is_valid(), form.errors)
+            module_type = form.save()
+            front_image_name = module_type.front_image.name
+            rear_image_name = module_type.rear_image.name
+            storage = module_type.front_image.storage
+            self.assertTrue(storage.exists(front_image_name))
+            self.assertTrue(storage.exists(rear_image_name))
+            self.assertEqual(module_type.attribute_data, {'media': ['copper', 'qsfp28']})
+
+            form = ModuleTypeForm(data={**data, 'front_image-clear': True}, instance=module_type)
+            self.assertTrue(form.is_valid(), form.errors)
+            with self.captureOnCommitCallbacks(execute=True):
+                form.save()
+
+            module_type.refresh_from_db()
+            self.assertFalse(module_type.front_image)
+            self.assertEqual(module_type.rear_image.name, rear_image_name)
+            self.assertFalse(storage.exists(front_image_name))
+            self.assertTrue(storage.exists(rear_image_name))
+            self.assertEqual(module_type.attribute_data, {'media': ['copper', 'qsfp28']})
 
     def test_enum_array_attribute_uses_multiselect_field(self):
         form = ModuleTypeForm(data={

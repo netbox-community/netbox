@@ -250,6 +250,8 @@ class ModuleTypePanel(panels.ObjectAttributesPanel):
     module_bay_types = attrs.RelatedObjectListAttr(
         'module_bay_types', label=_('Bay Type Compatibility'), linkify=True
     )
+    front_image = attrs.ImageAttr('front_image')
+    rear_image = attrs.ImageAttr('rear_image')
 
 
 class PlatformPanel(panels.NestedGroupObjectPanel):

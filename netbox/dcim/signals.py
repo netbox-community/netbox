@@ -1,8 +1,9 @@
 import logging
+from functools import partial
 
 from django.db import transaction
 from django.db.models import Q
-from django.db.models.signals import post_delete, post_save, pre_save
+from django.db.models.signals import post_delete, post_save, pre_delete, pre_save
 from django.dispatch import receiver
 
 from dcim.choices import CableEndChoices, LinkStatusChoices
@@ -17,6 +18,7 @@ from .models import (
     Device,
     Interface,
     Location,
+    ModuleType,
     PathEndpoint,
     PortMapping,
     PowerPanel,
@@ -503,3 +505,20 @@ def update_mac_address_interface(instance, created, raw, **kwargs):
     if created and not raw and instance.primary_mac_address:
         instance.primary_mac_address.assigned_object = instance
         instance.primary_mac_address.save()
+
+
+#
+# Module types
+#
+
+@receiver(pre_delete, sender=ModuleType)
+def delete_module_type_images(sender, instance, using, **kwargs):
+    """
+    Remove stored module type images after the deletion commits.
+    """
+    images = (
+        sender.objects.using(using).filter(pk=instance.pk).order_by().values('front_image', 'rear_image').first() or {}
+    )
+    for field_name, name in images.items():
+        if name:
+            transaction.on_commit(partial(sender._delete_image_file, field_name, name, using), using=using, robust=True)

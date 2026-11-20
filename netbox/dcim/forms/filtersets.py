@@ -772,6 +772,7 @@ class ModuleTypeFilterForm(PrimaryModelFilterSetForm):
             'module_bay_type_id', name=_('Hardware')
         ),
         FieldSet('cooling_method', 'airflow', name=_('Cooling')),
+        FieldSet('has_front_image', 'has_rear_image', name=_('Images')),
         FieldSet(
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces',
             'pass_through_ports', 'module_bays', name=_('Components')
@@ -806,6 +807,20 @@ class ModuleTypeFilterForm(PrimaryModelFilterSetForm):
         label=_('Module count'),
         required=False,
         min_value=0,
+    )
+    has_front_image = forms.NullBooleanField(
+        required=False,
+        label=_('Has a front image'),
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    has_rear_image = forms.NullBooleanField(
+        required=False,
+        label=_('Has a rear image'),
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
     )
     console_ports = forms.NullBooleanField(
         required=False,
