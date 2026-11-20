@@ -54,6 +54,7 @@ class JobPanel(panels.ObjectAttributesPanel):
     status = attrs.ChoiceAttr('status')
     error = attrs.TextAttr('error')
     user = attrs.TextAttr('user', label=_('Created by'))
+    access = attrs.ChoiceAttr('access')
 
 
 class JobSchedulingPanel(panels.ObjectAttributesPanel):

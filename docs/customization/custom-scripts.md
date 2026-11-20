@@ -555,6 +555,9 @@ Optionally `schedule_at` can be passed in the form data with a datetime string t
 !!! note "Changed in NetBox v4.7.4"
     A script's `result` in the REST API reports only jobs the requesting user is permitted to view (`core.view_job`), and is `null` when there are none. The response to running a script always includes the job just created. To let users poll the results of their own script runs, grant them `core.view_job` with the constraint `{"user": "$user"}`.
 
+!!! note "Changed in NetBox v4.8"
+    A script's jobs are accessible only to users who are permitted to view the script (`extras.view_script`), in addition to `core.view_job`. Permission to run a script (`extras.run_script`) is not sufficient: a user who runs a script via the REST API must also be permitted to view it in order to poll the job for its results.
+
 ### Via the CLI
 
 Scripts can be run on the CLI by invoking the management command:

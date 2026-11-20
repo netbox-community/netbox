@@ -39,6 +39,31 @@ You can schedule the background job from within your code (e.g. from a model's `
 
 This is the human-friendly names of your background job. If omitted, the class name will be used.
 
+#### `access`
+
+The default [access class](../../models/core/job.md#access) for jobs created by this runner, which determines which users may access them in addition to the permissions assigned for jobs. Choices are defined in `core.choices.JobAccessChoices`:
+
+| Access class | Who can access the job |
+|---|---|
+| `requester` | Only the user who created the job |
+| `object` | Only users permitted to view the job's assigned object |
+| `shared` | Any user permitted to view jobs (default) |
+
+A job with the `object` access class must be assigned to an object: calling `enqueue()` without an `instance` raises a `ValueError`. The default may be overridden for an individual job by passing `access` to `enqueue()`.
+
+!!! warning
+    A subclass of a job runner which declares its own `Meta` class does not inherit the parent's `access`, and falls back to `shared`. Either subclass the parent's `Meta` (e.g. `class Meta(ScriptJob.Meta)`) or declare `access` again.
+
+```python
+from core.choices import JobAccessChoices
+from netbox.jobs import JobRunner
+
+class MyTestJob(JobRunner):
+    class Meta:
+        name = "My Test Job"
+        access = JobAccessChoices.ACCESS_OBJECT
+```
+
 ### Logging
 
 A Python logger is instantiated by the runner for each job. It can be utilized within a job's `run()` method as needed:

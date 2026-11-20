@@ -84,6 +84,18 @@ class JobNotificationChoices(ChoiceSet):
     )
 
 
+class JobAccessChoices(ChoiceSet):
+    ACCESS_REQUESTER = 'requester'
+    ACCESS_OBJECT = 'object'
+    ACCESS_SHARED = 'shared'
+
+    CHOICES = (
+        Choice(ACCESS_REQUESTER, _('Requester'), description=_('Only the user who created the job')),
+        Choice(ACCESS_OBJECT, _('Object'), description=_("Users permitted to view the job's assigned object")),
+        Choice(ACCESS_SHARED, _('Shared'), description=_('Any user permitted to view jobs')),
+    )
+
+
 class JobIntervalChoices(ChoiceSet):
     INTERVAL_MINUTELY = 1
     INTERVAL_HOURLY = 60

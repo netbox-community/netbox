@@ -6,6 +6,7 @@ from io import StringIO
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import call_command
@@ -15,7 +16,13 @@ from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 
-from core.choices import DataSourceStatusChoices, JobNotificationChoices, JobStatusChoices, ObjectChangeActionChoices
+from core.choices import (
+    DataSourceStatusChoices,
+    JobAccessChoices,
+    JobNotificationChoices,
+    JobStatusChoices,
+    ObjectChangeActionChoices,
+)
 from core.data_backends import LocalBackend
 from core.events import JOB_COMPLETED, JOB_FAILED
 from core.exceptions import SyncError
@@ -24,7 +31,7 @@ from core.signals import post_sync
 from dcim.models import Device, Location, Site
 from extras.models import ConfigTemplate, Notification, Script
 from netbox.constants import CENSOR_TOKEN, CENSOR_TOKEN_CHANGED
-from users.models import User
+from users.models import ObjectPermission, User
 from utilities.querysets import RestrictedQuerySet
 from utilities.testing import PinnedConnectionRouter
 
@@ -672,3 +679,82 @@ class JobTestCase(TestCase):
         # Jobs for custom scripts link to the script result view
         job = Job(pk=123, name='Test Job', object_type=ObjectType.objects.get_for_model(Script), object_id=1)
         self.assertEqual(job.get_absolute_url(), reverse('extras:script_result', kwargs={'job_pk': 123}))
+
+
+class JobAccessTestCase(TestCase):
+    """
+    Job.objects.restrict() must limit jobs to those permitted by their access class.
+    """
+    ALL_JOBS = {'shared', 'own', 'other', 'unowned', 'source1', 'source2', 'stale'}
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user(username='user1')
+        other_user = User.objects.create_user(username='user2')
+        datasources = [
+            DataSource.objects.create(name=f'Data Source {i}', type='local', source_url=f'file:///var/tmp/source{i}/')
+            for i in (1, 2)
+        ]
+        datasource_type = ContentType.objects.get_for_model(DataSource)
+        # An object type for a model which is no longer installed (e.g. that of a removed plugin)
+        stale_type = ContentType.objects.create(app_label='removed_plugin', model='widget')
+
+        Job.objects.bulk_create([
+            Job(name=name, job_id=uuid.uuid4(), access=access, **kwargs)
+            for name, access, kwargs in (
+                ('shared', JobAccessChoices.ACCESS_SHARED, {}),
+                ('own', JobAccessChoices.ACCESS_REQUESTER, {'user': cls.user}),
+                ('other', JobAccessChoices.ACCESS_REQUESTER, {'user': other_user}),
+                ('unowned', JobAccessChoices.ACCESS_REQUESTER, {}),
+                ('source1', JobAccessChoices.ACCESS_OBJECT, {
+                    'object_type': datasource_type, 'object_id': datasources[0].pk,
+                }),
+                ('source2', JobAccessChoices.ACCESS_OBJECT, {
+                    'object_type': datasource_type, 'object_id': datasources[1].pk,
+                }),
+                ('stale', JobAccessChoices.ACCESS_OBJECT, {'object_type': stale_type, 'object_id': 1}),
+            )
+        ])
+
+    def _grant(self, model, actions=('view',), constraints=None):
+        permission = ObjectPermission.objects.create(
+            name=f'{model._meta.model_name} {actions}', actions=list(actions), constraints=constraints
+        )
+        permission.users.add(self.user)
+        permission.object_types.add(ObjectType.objects.get_for_model(model))
+
+    def _visible_jobs(self, user=None, action='view'):
+        # Re-fetch the user so that its permissions cache reflects any permissions granted
+        user = user or User.objects.get(pk=self.user.pk)
+        return set(Job.objects.restrict(user, action).values_list('name', flat=True))
+
+    def test_superuser_can_access_all_jobs(self):
+        superuser = User.objects.create_user(username='superuser', is_superuser=True)
+        self.assertEqual(self._visible_jobs(superuser), self.ALL_JOBS)
+
+    def test_no_job_permission(self):
+        self._grant(DataSource)
+        self.assertEqual(self._visible_jobs(), set())
+
+    def test_requester_and_shared_jobs(self):
+        self._grant(Job)
+        self.assertEqual(self._visible_jobs(), {'shared', 'own'})
+
+    def test_object_jobs_require_permission_to_view_object(self):
+        self._grant(Job)
+        self._grant(DataSource, constraints={'name': 'Data Source 1'})
+        self.assertEqual(self._visible_jobs(), {'shared', 'own', 'source1'})
+
+    def test_job_permission_constraints_still_apply(self):
+        self._grant(Job, constraints={'name__in': ['shared', 'other', 'source1']})
+        self._grant(DataSource)
+        self.assertEqual(self._visible_jobs(), {'shared', 'source1'})
+
+    def test_access_applies_to_other_actions(self):
+        self._grant(Job, actions=('delete',))
+        self._grant(DataSource)
+        self.assertEqual(self._visible_jobs(action='delete'), {'shared', 'own', 'source1', 'source2'})
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['core.job', 'core.datasource'])
+    def test_exempt_view_permissions(self):
+        self.assertEqual(self._visible_jobs(AnonymousUser()), {'shared', 'source1', 'source2'})
