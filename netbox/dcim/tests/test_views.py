@@ -1839,7 +1839,7 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         incompatible_bay = ModuleBay.objects.create(device=device, name='Incompatible Bay')
         incompatible_bay.module_bay_types.add(other_type)
 
-        # Create modules with no bay type constraints and installs them in module bays with different bay type constraints.
+        # Install modules with no bay type constraints in bays with differing bay type constraints.
         Module.objects.create(device=device, module_bay=compatible_bay, module_type=module_type)
         installed_module = Module.objects.create(device=device, module_bay=incompatible_bay, module_type=module_type)
 
