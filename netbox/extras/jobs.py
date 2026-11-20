@@ -396,8 +396,9 @@ class ScriptJob(JobRunner):
             self.logger.warning("Executing script (commit disabled)")
 
         with ExitStack() as stack:
-            for request_processor in registry['request_processors']:
-                if not commit and request_processor is event_tracking:
-                    continue
-                stack.enter_context(request_processor(request))
+            with self._fail_on_refusal():
+                for request_processor in registry['request_processors']:
+                    if not commit and request_processor is event_tracking:
+                        continue
+                    stack.enter_context(request_processor(request))
             self.run_script(script, request, data, commit)

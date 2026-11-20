@@ -25,6 +25,7 @@ from dcim.models import DeviceType, Manufacturer, Region
 from netbox.jobs import AsyncAPIJob
 from netbox.registry import registry
 from users.models import ObjectPermission
+from utilities.exceptions import AbortRequest
 from utilities.request import copy_safe_request
 from utilities.testing.api import APITestCase
 from utilities.testing.mixins import RQQueueTestMixin
@@ -461,6 +462,36 @@ class BackgroundBulkWriteTests(RQQueueTestMixin, APITestCase):
         self.assertEqual(job.status, JobStatusChoices.STATUS_FAILED)
         self.assertEqual(job.data['status_code'], status.HTTP_400_BAD_REQUEST)
         self.assertEqual(job.error, 'Background processing is not supported for this endpoint.')
+        self.assertFalse(Region.objects.filter(slug='region-a').exists())
+
+    def test_refused_by_request_processor(self):
+        self.grant('add', 'view')
+
+        factory = RequestFactory()
+        raw_request = factory.post('/api/dcim/regions/', data=[], content_type='application/json')
+        raw_request.user = self.user
+        request_copy = copy_safe_request(raw_request)
+
+        @contextmanager
+        def refusing_processor(request):
+            raise AbortRequest('Refused')
+            yield
+
+        job = Job.objects.create(name='Bulk create regions', user=self.user, job_id=uuid.uuid4())
+        with patch.dict(registry, {'request_processors': [refusing_processor]}):
+            AsyncAPIJob.handle(
+                job=job,
+                viewset_class='dcim.api.views.RegionViewSet',
+                action='bulk_create',
+                payload=[{'name': 'Region A', 'slug': 'region-a'}],
+                user_pk=self.user.pk,
+                request=request_copy,
+                scheme='http',
+            )
+
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_FAILED)
+        self.assertEqual(job.error, 'Refused')
         self.assertFalse(Region.objects.filter(slug='region-a').exists())
 
     def test_ipv6_host_builds_correct_request(self):

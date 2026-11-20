@@ -3,7 +3,7 @@ import logging
 import os
 import traceback
 from abc import ABC, abstractmethod
-from contextlib import ExitStack
+from contextlib import ExitStack, contextmanager
 from datetime import timedelta
 from io import BytesIO
 from pathlib import Path
@@ -97,6 +97,17 @@ class JobRunner(ABC):
     @classproperty
     def name(cls):
         return getattr(cls.Meta, 'name', cls.__name__)
+
+    @contextmanager
+    def _fail_on_refusal(self):
+        """
+        Mark the job as failed (rather than errored) if a request processor entered within raises AbortRequest.
+        """
+        try:
+            yield
+        except AbortRequest as e:
+            self.job.error = str(e.message)
+            raise JobFailed()
 
     @abstractmethod
     def run(self, *args, **kwargs):
@@ -290,7 +301,9 @@ class AsyncViewJob(JobRunner):
         request.job = self
 
         # Apply all registered request processors (e.g. event_tracking)
-        with apply_request_processors(request):
+        with ExitStack() as stack:
+            with self._fail_on_refusal():
+                stack.enter_context(apply_request_processors(request))
             view(request)
 
         if self.job.error:
@@ -412,7 +425,9 @@ class AsyncAPIJob(JobRunner):
         # so the captured result matches what the synchronous API would have returned:
         #   - APIException (incl. ValidationError, PermissionDenied, Http404) -> handle_exception()
         #   - AbortRequest / ProtectedError / RestrictedError -> exception_to_response()
-        with apply_request_processors(drf_request):
+        with ExitStack() as stack:
+            with self._fail_on_refusal():
+                stack.enter_context(apply_request_processors(drf_request))
             try:
                 # A job queued before the endpoint opted out carries no query parameter to catch.
                 # Optional because run() accepts any importable viewset, not only mixin subclasses.
