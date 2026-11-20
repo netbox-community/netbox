@@ -88,6 +88,14 @@ class HandleChangedObjectSignalTestCase(TestCase):
         ).order_by('-pk')
         self.assertEqual(ocs.first().action, ObjectChangeActionChoices.ACTION_UPDATE)
 
+    def test_update_without_snapshot_fails_under_test(self):
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        request = _build_request(self.user)
+
+        with event_tracking(request), self.assertRaisesMessage(AssertionError, 'No pre-change snapshot taken'):
+            site.description = 'updated'
+            site.save()
+
     def test_update_without_snapshot_records_prechange_from_database(self):
         """An update saved without a snapshot records its pre-change data from the database. Ref: #23617"""
         site = Site.objects.create(name='Site 1', slug='site-1')

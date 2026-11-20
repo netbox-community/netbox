@@ -3,6 +3,8 @@
 #  only. It is not intended for production use.                   #
 ###################################################################
 
+import logging
+
 ALLOWED_HOSTS = ['*']
 
 DATABASES = {
@@ -52,7 +54,30 @@ API_TOKEN_PEPPERS = {
     1: 'TEST-VALUE-DO-NOT-USE-TEST-VALUE-DO-NOT-USE-TEST-VALUE-DO-NOT-USE',
 }
 
+
+class MissingSnapshotHandler(logging.Handler):
+    """
+    Fail any update saved without calling snapshot() first, which would otherwise fall back to reading the
+    pre-change data from the database.
+    """
+    def emit(self, record):
+        if record.funcName == 'snapshot_from_db':
+            raise AssertionError(record.getMessage())
+
+
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': True
+    'disable_existing_loggers': True,
+    'handlers': {
+        'missing_snapshot': {
+            '()': MissingSnapshotHandler,
+        },
+    },
+    'loggers': {
+        'netbox.models.features': {
+            'handlers': ['missing_snapshot'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+    },
 }
