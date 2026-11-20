@@ -12,7 +12,7 @@ from rq.job import Job as RQ_Job
 from rq.job import JobStatus
 from rq.registry import FailedJobRegistry, StartedJobRegistry
 
-from core.api.serializers import DataSourceSerializer
+from core.api.serializers import DataSourceSerializer, JobSerializer
 from dcim.choices import PortTypeChoices
 from dcim.models import FrontPort, PortMapping, RearPort, Site
 from users.constants import TOKEN_PREFIX
@@ -287,7 +287,7 @@ class JobTestCase(
     APIViewTestCases.ListObjectsViewTestCase,
 ):
     model = Job
-    brief_fields = ['completed', 'created', 'status', 'url', 'user']
+    brief_fields = ['completed', 'created', 'display', 'id', 'name', 'status', 'url', 'user']
 
     @classmethod
     def setUpTestData(cls):
@@ -341,6 +341,31 @@ class JobTestCase(
         response = self.client.get(f'{url}?ordering=execution_time', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], 3)
+
+    def test_parent_and_child_count(self):
+        """Jobs expose their parent and a count of their children, and can be filtered by parent."""
+        self.add_permissions('core.view_job')
+        parent = Job.objects.get(name='Job 1')
+        Job.objects.filter(name__in=['Job 2', 'Job 3']).update(parent=parent)
+        url = reverse('core-api:job-list')
+
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        jobs = {job['name']: job for job in response.data['results']}
+        self.assertIsNone(jobs['Job 1']['parent'])
+        self.assertEqual(jobs['Job 1']['child_count'], 2)
+        self.assertEqual(jobs['Job 2']['parent']['id'], parent.pk)
+        self.assertEqual(jobs['Job 2']['parent']['name'], 'Job 1')
+        self.assertEqual(jobs['Job 2']['child_count'], 0)
+
+        response = self.client.get(f'{url}?parent_id={parent.pk}', **self.header)
+        self.assertEqual({job['name'] for job in response.data['results']}, {'Job 2', 'Job 3'})
+        response = self.client.get(f'{url}?has_parent=false', **self.header)
+        self.assertEqual({job['name'] for job in response.data['results']}, {'Job 1'})
+
+        # Serialized without the viewset's annotation (e.g. as a script's result), the count is queried
+        data = JobSerializer(parent, context={'request': response.wsgi_request}).data
+        self.assertEqual(data['child_count'], 2)
 
     def test_list_objects_reuse_object_serializer(self):
         """Jobs share one nested serializer per object type per request."""

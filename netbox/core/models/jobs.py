@@ -125,6 +125,15 @@ class Job(models.Model):
         blank=True,
         help_text=_('Name of the queue in which this job was enqueued')
     )
+    parent = models.ForeignKey(
+        verbose_name=_('parent'),
+        to='self',
+        on_delete=models.SET_NULL,
+        related_name='children',
+        blank=True,
+        null=True,
+        help_text=_('The job which enqueued this job')
+    )
     notifications = models.CharField(
         verbose_name=_('notifications'),
         max_length=30,
@@ -181,6 +190,12 @@ class Job(models.Model):
             raise ValidationError(
                 _("Jobs cannot be assigned to this object type ({type}).").format(type=self.object_type)
             )
+
+    def save(self, *args, **kwargs):
+        # A parent deleted since this instance was loaded (e.g. while it was queued) would be written back over SET_NULL
+        if self.parent_id and not self._state.adding and not Job.objects.filter(pk=self.parent_id).exists():
+            self.parent = None
+        super().save(*args, **kwargs)
 
     @property
     def duration(self):
@@ -320,6 +335,7 @@ class Job(models.Model):
             immediate=False,
             queue_name=None,
             notifications=None,
+            parent=None,
             **kwargs
     ):
         """
@@ -335,6 +351,7 @@ class Job(models.Model):
             immediate: Run the job immediately without scheduling it in the background. Should be used for interactive
                 management commands only.
             notifications: Notification behavior on job completion (always, on_failure, or never)
+            parent: The Job which is enqueuing this job (optional)
         """
         if schedule_at and immediate:
             raise ValueError(_("enqueue() cannot be called with values for both schedule_at and immediate."))
@@ -357,6 +374,8 @@ class Job(models.Model):
             user=user,
             job_id=uuid.uuid4(),
             queue_name=rq_queue_name,
+            # Assigned by ID, so the parent instance isn't pickled into the RQ payload
+            parent_id=parent.pk if parent else None,
             notifications=notifications if notifications is not None else JobNotificationChoices.NOTIFICATION_ALWAYS
         )
         job.full_clean()

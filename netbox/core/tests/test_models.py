@@ -385,6 +385,56 @@ class JobTestCase(TestCase):
             **kwargs,
         )
 
+    def test_enqueue_with_parent(self):
+        """
+        A job enqueued with a parent records it, and the parent is not passed to the job's callable.
+        """
+        received = {}
+
+        def func(**kwargs):
+            received.update(kwargs)
+
+        parent = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER)
+        job = Job.enqueue(func, name='Child Job', immediate=True, parent=parent, foo='bar')
+
+        # The parent instance is not cached on the job, and so not pickled into its RQ payload
+        self.assertFalse(Job.parent.is_cached(job))
+        job.refresh_from_db()
+        self.assertEqual(job.parent, parent)
+        self.assertEqual(received['foo'], 'bar')
+        self.assertNotIn('parent', received)
+
+    @patch('core.models.jobs.django_rq.get_queue')
+    def test_delete_parent_retains_children(self, mock_get_queue):
+        """
+        Deleting a job leaves its children in place, without a parent.
+        """
+        parent = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER)
+        child = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER, parent=parent)
+
+        parent.delete()
+
+        child.refresh_from_db()
+        self.assertIsNone(child.parent)
+        # Only the parent's RQ job is canceled
+        mock_get_queue.return_value.fetch_job.assert_called_once_with(str(parent.job_id))
+
+    @patch('core.models.jobs.django_rq.get_queue')
+    def test_terminate_after_parent_deleted(self, mock_get_queue):
+        """
+        A copy of a job loaded before its parent was deleted does not restore the deleted parent when saved.
+        """
+        parent = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER)
+        child = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER, parent=parent)
+        stale_child = Job.objects.get(pk=child.pk)
+
+        parent.delete()
+        stale_child.terminate()
+
+        child.refresh_from_db()
+        self.assertIsNone(child.parent_id)
+        self.assertEqual(child.status, JobStatusChoices.STATUS_COMPLETED)
+
     @patch('core.models.jobs.django_rq.get_queue')
     def test_delete_cancels_job_from_correct_queue(self, mock_get_queue):
         """

@@ -293,6 +293,20 @@ class JobTestCase(TestCase, BaseFilterSetTestMixin):
             ),
         )
         Job.objects.bulk_create(jobs)
+        Job.objects.filter(name__in=['Job 2', 'Job 3']).update(parent=jobs[0])
+
+    def test_parent(self):
+        """Filter Jobs by parent job (ID)."""
+        parent = Job.objects.get(name='Job 1')
+        params = {'parent_id': [parent.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_has_parent(self):
+        """Filter Jobs by whether they have a parent job."""
+        params = {'has_parent': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'has_parent': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_user(self):
         """Filter Jobs by user (ID and username)."""

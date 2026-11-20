@@ -591,6 +591,32 @@ class EnqueueTestCase(BaseJobRunnerTestCase):
         self.assertRaises(Job.DoesNotExist, job1.refresh_from_db)
         self.assertEqual(TestJobRunner.get_jobs(instance).count(), 1)
 
+    def test_enqueue_with_parent(self):
+        parent = TestJobRunner.enqueue(schedule_at=self.get_schedule_at())
+        child = TestJobRunner.enqueue(schedule_at=self.get_schedule_at(), parent=parent)
+        once = TestJobRunner.enqueue_once(instance=DataSource(), schedule_at=self.get_schedule_at(), parent=parent)
+
+        self.assertIsNone(parent.parent)
+        self.assertEqual(child.parent, parent)
+        self.assertEqual(once.parent, parent)
+        self.assertEqual(set(parent.children.all()), {child, once})
+
+    def test_enqueue_once_reuse_assigns_parent(self):
+        instance = DataSource()
+        schedule_at = self.get_schedule_at()
+        parent = TestJobRunner.enqueue(schedule_at=self.get_schedule_at())
+        job1 = TestJobRunner.enqueue_once(instance, schedule_at=schedule_at)
+        job2 = TestJobRunner.enqueue_once(instance, schedule_at=schedule_at, parent=parent)
+
+        self.assertEqual(job1, job2)
+        job1.refresh_from_db()
+        self.assertEqual(job1.parent, parent)
+
+        # Reusing the job without a parent leaves its parent in place
+        TestJobRunner.enqueue_once(instance, schedule_at=schedule_at)
+        job1.refresh_from_db()
+        self.assertEqual(job1.parent, parent)
+
 
 class SystemJobTestCase(BaseJobRunnerTestCase):
     """
@@ -721,6 +747,25 @@ class SystemJobTestCase(BaseJobRunnerTestCase):
             interval=interval,
         )
         self.assertEqual(enqueued.count(), 1)
+
+    def test_handle_reschedules_with_parent(self):
+        """A recurring job's successor keeps its parent, unless the parent has been deleted."""
+        parent = Job.objects.create(name='Parent', job_id=uuid.uuid4())
+        for delete_parent in (False, True):
+            with self.subTest(delete_parent=delete_parent):
+                job = Job.objects.create(name=TestJobRunner.name, interval=60, job_id=uuid.uuid4(), parent=parent)
+                if delete_parent:
+                    with patch('core.models.jobs.django_rq.get_queue'):
+                        parent.delete()
+
+                with patch.object(TestJobRunner, 'run'):
+                    TestJobRunner.handle(job)
+
+                successor = Job.objects.filter(
+                    name=TestJobRunner.name, status=JobStatusChoices.STATUS_SCHEDULED
+                ).exclude(pk=job.pk).latest('created')
+                self.assertEqual(successor.parent_id, None if delete_parent else parent.pk)
+                successor.delete()
 
     def test_handle_reschedules_non_system_job_independently(self):
         """

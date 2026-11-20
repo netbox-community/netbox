@@ -53,6 +53,12 @@ The job's current status. Potential values include:
 
 Any data associated with the execution of the job, such as log output.
 
+### Parent
+
+!!! info "This field was introduced in NetBox v4.8."
+
+The job which enqueued this job (if any). A parent does not wait for its children, and its status is independent of theirs. If the parent is deleted, its children are retained without a parent.
+
 ### Job ID
 
 The job's UUID, used for unique identification within a queue.

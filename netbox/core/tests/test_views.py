@@ -208,6 +208,61 @@ class JobTestCase(
         )
 
 
+class JobParentViewTestCase(TestCase):
+    """
+    A job's page links to its parent, and lists its children with a count per status.
+    """
+    user_permissions = (
+        'core.view_job',
+    )
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.parent = Job.objects.create(name='Parent Job', job_id=uuid.uuid4(), status=JobStatusChoices.STATUS_RUNNING)
+        cls.children = [
+            Job.objects.create(name=f'Child Job {i}', job_id=uuid.uuid4(), parent=cls.parent, status=status)
+            for i, status in enumerate((
+                JobStatusChoices.STATUS_COMPLETED,
+                JobStatusChoices.STATUS_COMPLETED,
+                JobStatusChoices.STATUS_ERRORED,
+            ))
+        ]
+
+    def test_parent_lists_children(self):
+        response = self.client.get(self.parent.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+        content = response.content.decode()
+        self.assertIn('Child jobs', content)
+        self.assertIn('2 Completed', content)
+        self.assertIn('1 Errored', content)
+        self.assertNotIn('Pending', content)
+        self.assertIn(f'parent_id={self.parent.pk}&amp;status=errored', content)
+
+    def test_child_links_to_parent(self):
+        response = self.client.get(self.children[0].get_absolute_url())
+        self.assertHttpStatus(response, 200)
+        content = response.content.decode()
+        self.assertIn(self.parent.get_absolute_url(), content)
+        self.assertNotIn('Child jobs', content)
+
+    def test_child_counts_respect_permissions(self):
+        self.remove_permissions('core.view_job')
+        obj_perm = ObjectPermission(
+            name='View some jobs',
+            constraints={'status__in': [JobStatusChoices.STATUS_RUNNING, JobStatusChoices.STATUS_ERRORED]},
+            actions=['view'],
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Job))
+
+        response = self.client.get(self.parent.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+        content = response.content.decode()
+        self.assertIn('1 Errored', content)
+        self.assertNotIn('2 Completed', content)
+
+
 class ObjectJobsViewTestCase(TestCase):
     """
     The Jobs tab of an object must list only the Jobs which the user is permitted to view.
