@@ -15,7 +15,7 @@ from core.models import DataFile, DataSource, ObjectChange, ObjectType
 from dcim.choices import DeviceStatusChoices, InterfaceTypeChoices, SiteStatusChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site, VirtualChassis
 from extras.events import enqueue_event
-from extras.models import ImageAttachment
+from extras.models import ImageAttachment, JournalEntry
 from extras.validators import CustomValidator
 from ipam.choices import VLANStatusChoices
 from ipam.models import VLAN, VLANGroup
@@ -651,3 +651,47 @@ class ProtectedObjectsMessageTestCase(TestCase):
             '_confirm': True,
         })
         self.assertProtectedObjectsMessage(response)
+
+
+class ObjectDeleteReturnURLTestCase(TestCase):
+    """
+    After deleting an object, the delete view must redirect only to a local return URL. (Ref: #23583)
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.add_permissions('dcim.view_site', 'dcim.delete_site')
+
+    def test_unsafe_return_url_ignored(self):
+        for i, return_url in enumerate(('//example.com', '/\\example.com'), start=1):
+            with self.subTest(return_url=return_url):
+                site = Site.objects.create(name=f'Site {i}', slug=f'site-{i}')
+                url = reverse('dcim:site_delete', kwargs={'pk': site.pk})
+                response = self.client.post(url, data={'confirm': True, 'return_url': return_url})
+                self.assertHttpStatus(response, 302)
+                self.assertEqual(response['Location'], reverse('dcim:site_list'))
+                self.assertFalse(Site.objects.filter(pk=site.pk).exists())
+
+    def test_local_return_url_followed(self):
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        url = reverse('dcim:site_delete', kwargs={'pk': site.pk})
+        return_url = reverse('dcim:region_list')
+        response = self.client.post(url, data={'confirm': True, 'return_url': return_url})
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], return_url)
+        self.assertFalse(Site.objects.filter(pk=site.pk).exists())
+
+    def test_local_return_url_precedes_get_return_url_override(self):
+        """
+        JournalEntryDeleteView overrides get_return_url() and ignores return_url. The delete view must check
+        return_url itself, or the user lands on the parent object's journal tab.
+        """
+        self.add_permissions('extras.delete_journalentry')
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        journal_entry = JournalEntry.objects.create(assigned_object=site, created_by=self.user, comments='Entry')
+        url = reverse('extras:journalentry_delete', kwargs={'pk': journal_entry.pk})
+        return_url = reverse('extras:journalentry_list')
+        response = self.client.post(url, data={'confirm': True, 'return_url': return_url})
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], return_url)
+        self.assertFalse(JournalEntry.objects.filter(pk=journal_entry.pk).exists())
