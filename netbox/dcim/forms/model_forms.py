@@ -2044,6 +2044,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
     type = ChoiceField(
         label=_('Type'),
         choices=InterfaceTypeChoices,
+        widget=HTMXSelect(hx_target_id='lag-attributes'),
     )
     duplex = TypedChoiceField(
         label=_('Duplex'),
@@ -2058,6 +2059,17 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
     poe_type = TypedChoiceField(
         label=_('PoE type'),
         choices=add_blank_choice(InterfacePoETypeChoices),
+        required=False,
+    )
+    lag_mode = TypedChoiceField(
+        label=_('LAG mode'),
+        choices=add_blank_choice(InterfaceLAGModeChoices),
+        required=False,
+        widget=HTMXSelect(hx_target_id='lag-attributes'),
+    )
+    lag_hash_policy = TypedChoiceField(
+        label=_('LAG hash policy'),
+        choices=add_blank_choice(InterfaceLAGHashPolicyChoices),
         required=False,
     )
     mode = TypedChoiceField(
@@ -2185,6 +2197,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         FieldSet('vdcs', 'mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected', name=_('Operation')),
         FieldSet('parent', 'channel_id', 'bridge', 'lag', name=_('Related Interfaces')),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
+        FieldSet('lag_mode', 'lag_hash_policy', name=_('LAG'), html_id='lag-attributes'),
         FieldSet(
             'mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy',
             name=_('802.1Q Switching'),
@@ -2199,17 +2212,36 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
     class Meta:
         model = Interface
         fields = [
-            'device', 'module', 'vdcs', 'name', 'label', 'type', 'channels', 'channel_id', 'speed', 'duplex',
-            'enabled', 'parent', 'bridge', 'lag', 'wwn', 'mtu', 'mgmt_only', 'mark_connected', 'description',
-            'poe_mode', 'poe_type', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width',
-            'tx_power', 'wireless_lans', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy',
-            'vrf', 'owner', 'tags',
+            'device', 'module', 'vdcs', 'name', 'label', 'type', 'channels', 'channel_id', 'speed', 'duplex', 'enabled',
+            'parent', 'bridge', 'lag', 'wwn', 'mtu', 'mgmt_only', 'mark_connected', 'description', 'poe_mode',
+            'poe_type', 'lag_mode', 'lag_hash_policy', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
+            'rf_channel_width', 'tx_power', 'wireless_lans', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan',
+            'vlan_translation_policy', 'vrf', 'owner', 'tags',
         ]
         widgets = {
             'speed': NumberWithOptions(
                 options=InterfaceSpeedChoices
             ),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # LAG attributes apply only to LAG interfaces, and a hash policy only to LAG modes which hash
+        if get_field_value(self, 'type') != InterfaceTypeChoices.TYPE_LAG:
+            del self.fields['lag_mode']
+            del self.fields['lag_hash_policy']
+        elif get_field_value(self, 'lag_mode') not in LAG_HASH_MODES:
+            del self.fields['lag_hash_policy']
+
+    def clean(self):
+        super().clean()
+
+        # Clear any LAG attributes which no longer apply
+        if 'lag_mode' not in self.fields:
+            self.instance.lag_mode = None
+        if 'lag_hash_policy' not in self.fields:
+            self.instance.lag_hash_policy = None
 
 
 class FrontPortForm(FrontPortFormMixin, ModularDeviceComponentForm):

@@ -5920,6 +5920,35 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLogge
         params = {'poe_type': [InterfacePoETypeChoices.TYPE_1_8023AF, InterfacePoETypeChoices.TYPE_2_8023AT]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
+    def _create_lag_interfaces(self):
+        device = Device.objects.first()
+        for name, lag_mode, lag_hash_policy in (
+            ('LAG 1', InterfaceLAGModeChoices.MODE_LACP, InterfaceLAGHashPolicyChoices.POLICY_LAYER2),
+            ('LAG 2', InterfaceLAGModeChoices.MODE_STATIC, InterfaceLAGHashPolicyChoices.POLICY_LAYER2_3),
+            ('LAG 3', InterfaceLAGModeChoices.MODE_ACTIVE_BACKUP, None),
+        ):
+            interface = Interface(
+                device=device,
+                name=name,
+                type=InterfaceTypeChoices.TYPE_LAG,
+                lag_mode=lag_mode,
+                lag_hash_policy=lag_hash_policy,
+            )
+            interface.full_clean()
+            interface.save()
+
+    def test_lag_mode(self):
+        self._create_lag_interfaces()
+        params = {'lag_mode': [InterfaceLAGModeChoices.MODE_LACP, InterfaceLAGModeChoices.MODE_ACTIVE_BACKUP]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_lag_hash_policy(self):
+        self._create_lag_interfaces()
+        params = {'lag_hash_policy': [
+            InterfaceLAGHashPolicyChoices.POLICY_LAYER2, InterfaceLAGHashPolicyChoices.POLICY_LAYER2_3,
+        ]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_mode(self):
         params = {'mode': [InterfaceModeChoices.MODE_ACCESS]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
