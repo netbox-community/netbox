@@ -1353,8 +1353,10 @@ class InterfaceTestCase(TestCase):
         self.assertIsNone(lag.lag_mode)
         self.assertIsNone(lag.lag_hash_policy)
 
-    def test_lag_mode_on_non_lag_interface_rejected(self):
-        """A LAG mode chosen for a non-LAG interface is rejected rather than silently dropped."""
+    def test_lag_attributes_only_for_lag_interfaces(self):
+        """LAG attributes are offered only for LAG interfaces, and are not saved for any other type."""
+        self.assertIn('lag_mode', InterfaceForm(initial={'type': InterfaceTypeChoices.TYPE_LAG}).fields)
+
         data = {
             'device': self.device.pk,
             'name': 'eth9',
@@ -1362,8 +1364,10 @@ class InterfaceTestCase(TestCase):
             'lag_mode': InterfaceLAGModeChoices.MODE_LACP,
         }
         form = InterfaceForm(data)
-        self.assertFalse(form.is_valid())
-        self.assertIn('lag_mode', form.errors)
+        self.assertNotIn('lag_mode', form.fields)
+        self.assertNotIn('lag_hash_policy', form.fields)
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertIsNone(form.save().lag_mode)
 
     def test_child_interface_preselects_every_parent_vdc(self):
         """A child interface's form pre-selects every virtual device context of its parent."""

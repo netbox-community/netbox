@@ -4790,6 +4790,30 @@ class InterfaceTestCase(Mixins.FieldPrefetchMixin, Mixins.ComponentTraceMixin, A
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertIn('lag_hash_policy', response.json())
 
+    def test_change_lag_mode_to_non_hash_mode(self):
+        """Changing to a non-hashing LAG mode via the API requires explicitly clearing the hash policy."""
+        self.add_permissions('dcim.change_interface')
+        lag = Interface.objects.create(
+            device=Device.objects.first(),
+            name='bond0',
+            type=InterfaceTypeChoices.TYPE_LAG,
+            lag_mode=InterfaceLAGModeChoices.MODE_LACP,
+            lag_hash_policy=InterfaceLAGHashPolicyChoices.POLICY_LAYER3_4,
+        )
+        url = self._get_detail_url(lag)
+
+        data = {'lag_mode': InterfaceLAGModeChoices.MODE_ACTIVE_BACKUP}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('lag_hash_policy', response.json())
+
+        data['lag_hash_policy'] = None
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        lag.refresh_from_db()
+        self.assertEqual(lag.lag_mode, InterfaceLAGModeChoices.MODE_ACTIVE_BACKUP)
+        self.assertFalse(lag.lag_hash_policy)
+
     def test_graphql_filter_lag_attributes(self):
         self.add_permissions('dcim.view_interface')
         lag = Interface.objects.create(

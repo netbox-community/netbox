@@ -3770,7 +3770,7 @@ class InterfaceLAGAttributesTestCase(TestCase):
             (None, False),
             (InterfaceLAGModeChoices.MODE_LACP, True),
             (InterfaceLAGModeChoices.MODE_STATIC, True),
-            (InterfaceLAGModeChoices.MODE_BALANCE_TLB, True),
+            (InterfaceLAGModeChoices.MODE_BALANCE_TLB, False),
             (InterfaceLAGModeChoices.MODE_ACTIVE_BACKUP, False),
             (InterfaceLAGModeChoices.MODE_BALANCE_RR, False),
             (InterfaceLAGModeChoices.MODE_BALANCE_ALB, False),

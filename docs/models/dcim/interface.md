@@ -113,19 +113,19 @@ Physical interfaces may be arranged into link aggregation groups (LAGs, also kno
 
 The link aggregation mode of a LAG interface. (This field may be set only on interfaces of type LAG.) Choices include:
 
-| Mode           | Linux bonding mode |
-|----------------|--------------------|
-| LACP (802.3ad) | `802.3ad`          |
-| Static         | `balance-xor`      |
-| Active-Backup  | `active-backup`    |
-| Balance-RR     | `balance-rr`       |
-| Balance-TLB    | `balance-tlb`      |
-| Balance-ALB    | `balance-alb`      |
-| Broadcast      | `broadcast`        |
+| Mode           | Group   | Linux bonding mode |
+|----------------|---------|--------------------|
+| LACP (802.3ad) | Generic | `802.3ad`          |
+| Static         | Generic | `balance-xor`      |
+| Active-Backup  | Generic | `active-backup`    |
+| Balance-RR     | Linux   | `balance-rr`       |
+| Balance-TLB    | Linux   | `balance-tlb`      |
+| Balance-ALB    | Linux   | `balance-alb`      |
+| Broadcast      | Linux   | `broadcast`        |
 
 ### LAG Hash Policy
 
-The transmit hash policy used to distribute traffic across the members of a LAG interface: layer 2, layer 2+3, layer 3+4, encapsulated layer 2+3, or encapsulated layer 3+4. (This field may be set only on LAG interfaces whose mode is LACP, static, or balance-TLB, as other modes do not select members by hash.)
+The transmit hash policy used to distribute traffic across the members of a LAG interface: layer 2, layer 2+3, layer 3+4, encapsulated layer 2+3, encapsulated layer 3+4, or VLAN + source MAC. (This field may be set only on LAG interfaces whose mode is LACP or static.)
 
 ### PoE Mode
 

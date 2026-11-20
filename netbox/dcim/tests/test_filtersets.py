@@ -5859,20 +5859,6 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLogge
         # Wireless links
         WirelessLink(interface_a=interfaces[7], interface_b=interfaces[8]).save()
 
-        # LAG attributes (set directly; validation is covered in test_models)
-        Interface.objects.filter(pk=interfaces[0].pk).update(
-            lag_mode=InterfaceLAGModeChoices.MODE_LACP,
-            lag_hash_policy=InterfaceLAGHashPolicyChoices.POLICY_LAYER2,
-        )
-        Interface.objects.filter(pk=interfaces[1].pk).update(
-            lag_mode=InterfaceLAGModeChoices.MODE_ACTIVE_BACKUP,
-            lag_hash_policy=InterfaceLAGHashPolicyChoices.POLICY_LAYER2_3,
-        )
-        Interface.objects.filter(pk=interfaces[2].pk).update(
-            lag_mode=InterfaceLAGModeChoices.MODE_BALANCE_RR,
-            lag_hash_policy=InterfaceLAGHashPolicyChoices.POLICY_LAYER3_4,
-        )
-
     def test_name(self):
         params = {'name': ['Interface 1', 'Interface 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -5913,11 +5899,30 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLogge
         params = {'poe_type': [InterfacePoETypeChoices.TYPE_1_8023AF, InterfacePoETypeChoices.TYPE_2_8023AT]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
+    def _create_lag_interfaces(self):
+        device = Device.objects.first()
+        for name, lag_mode, lag_hash_policy in (
+            ('LAG 1', InterfaceLAGModeChoices.MODE_LACP, InterfaceLAGHashPolicyChoices.POLICY_LAYER2),
+            ('LAG 2', InterfaceLAGModeChoices.MODE_STATIC, InterfaceLAGHashPolicyChoices.POLICY_LAYER2_3),
+            ('LAG 3', InterfaceLAGModeChoices.MODE_ACTIVE_BACKUP, None),
+        ):
+            interface = Interface(
+                device=device,
+                name=name,
+                type=InterfaceTypeChoices.TYPE_LAG,
+                lag_mode=lag_mode,
+                lag_hash_policy=lag_hash_policy,
+            )
+            interface.full_clean()
+            interface.save()
+
     def test_lag_mode(self):
+        self._create_lag_interfaces()
         params = {'lag_mode': [InterfaceLAGModeChoices.MODE_LACP, InterfaceLAGModeChoices.MODE_ACTIVE_BACKUP]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_lag_hash_policy(self):
+        self._create_lag_interfaces()
         params = {'lag_hash_policy': [
             InterfaceLAGHashPolicyChoices.POLICY_LAYER2, InterfaceLAGHashPolicyChoices.POLICY_LAYER2_3,
         ]}

@@ -2037,6 +2037,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
     type = ChoiceField(
         label=_('Type'),
         choices=InterfaceTypeChoices,
+        widget=HTMXSelect(hx_target_id='lag-attributes'),
     )
     duplex = TypedChoiceField(
         label=_('Duplex'),
@@ -2219,23 +2220,21 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # A hash policy applies only to LAG modes which hash
-        if get_field_value(self, 'lag_mode') not in LAG_HASH_MODES:
+        # LAG attributes apply only to LAG interfaces, and a hash policy only to LAG modes which hash
+        if get_field_value(self, 'type') != InterfaceTypeChoices.TYPE_LAG:
+            del self.fields['lag_mode']
+            del self.fields['lag_hash_policy']
+        elif get_field_value(self, 'lag_mode') not in LAG_HASH_MODES:
             del self.fields['lag_hash_policy']
 
     def clean(self):
         super().clean()
 
-        # Clear a hash policy left over from a previous LAG mode
+        # Clear any LAG attributes which no longer apply
+        if 'lag_mode' not in self.fields:
+            self.instance.lag_mode = None
         if 'lag_hash_policy' not in self.fields:
             self.instance.lag_hash_policy = None
-
-        # Clear LAG attributes left over when changing a LAG interface to another type
-        if self.instance.is_lag and self.cleaned_data.get('type') != InterfaceTypeChoices.TYPE_LAG:
-            self.cleaned_data['lag_mode'] = None
-            self.instance.lag_hash_policy = None
-            if 'lag_hash_policy' in self.fields:
-                self.cleaned_data['lag_hash_policy'] = None
 
 
 class FrontPortForm(FrontPortFormMixin, ModularDeviceComponentForm):

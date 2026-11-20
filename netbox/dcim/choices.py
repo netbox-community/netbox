@@ -1672,13 +1672,28 @@ class InterfaceLAGModeChoices(ChoiceSet):
     MODE_BROADCAST = 'broadcast'
 
     CHOICES = (
-        Choice(MODE_LACP, _('LACP (802.3ad)'), description=_('Dynamic link aggregation negotiated via LACP')),
-        Choice(MODE_STATIC, _('Static'), description=_('Static aggregation with hash-based balancing (balance-xor)')),
-        Choice(MODE_ACTIVE_BACKUP, _('Active-Backup'), description=_('One active member; others on standby')),
-        Choice(MODE_BALANCE_RR, _('Balance-RR'), description=_('Round-robin transmission across members')),
-        Choice(MODE_BALANCE_TLB, _('Balance-TLB'), description=_('Adaptive transmit load balancing')),
-        Choice(MODE_BALANCE_ALB, _('Balance-ALB'), description=_('Adaptive transmit and receive load balancing')),
-        Choice(MODE_BROADCAST, _('Broadcast'), description=_('Transmit on all members')),
+        (
+            _('Generic'),
+            (
+                Choice(MODE_LACP, _('LACP (802.3ad)'), description=_('Dynamic link aggregation negotiated via LACP')),
+                Choice(
+                    MODE_STATIC, _('Static'),
+                    description=_('Static aggregation with hash-based balancing (balance-xor)'),
+                ),
+                Choice(MODE_ACTIVE_BACKUP, _('Active-Backup'), description=_('One active member; others on standby')),
+            ),
+        ),
+        (
+            _('Linux'),
+            (
+                Choice(MODE_BALANCE_RR, _('Balance-RR'), description=_('Round-robin transmission across members')),
+                Choice(MODE_BALANCE_TLB, _('Balance-TLB'), description=_('Adaptive transmit load balancing')),
+                Choice(
+                    MODE_BALANCE_ALB, _('Balance-ALB'), description=_('Adaptive transmit and receive load balancing')
+                ),
+                Choice(MODE_BROADCAST, _('Broadcast'), description=_('Transmit on all members')),
+            ),
+        ),
     )
 
 
@@ -1689,6 +1704,7 @@ class InterfaceLAGHashPolicyChoices(ChoiceSet):
     POLICY_LAYER3_4 = 'layer3+4'
     POLICY_ENCAP2_3 = 'encap2+3'
     POLICY_ENCAP3_4 = 'encap3+4'
+    POLICY_VLAN_SRCMAC = 'vlan+srcmac'
 
     CHOICES = (
         Choice(POLICY_LAYER2, _('Layer 2')),
@@ -1696,6 +1712,7 @@ class InterfaceLAGHashPolicyChoices(ChoiceSet):
         Choice(POLICY_LAYER3_4, _('Layer 3+4')),
         Choice(POLICY_ENCAP2_3, _('Encapsulated Layer 2+3')),
         Choice(POLICY_ENCAP3_4, _('Encapsulated Layer 3+4')),
+        Choice(POLICY_VLAN_SRCMAC, _('VLAN + Source MAC')),
     )
 
 
