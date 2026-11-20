@@ -4,14 +4,18 @@ from types import SimpleNamespace
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from django.test import TestCase, override_settings
+from django.templatetags.static import static
+from django.test import TestCase, override_settings, tag
+from django.utils import translation
+from django.utils.functional import Promise
 from django.utils.html import escape
+from django.utils.translation import gettext
 
 from dcim.models import Rack, Site
 from netbox.choices import ColorChoices, ImportFormatChoices
 from utilities.choices import Choice, ChoiceSet
 from utilities.forms.bulk_import import BulkImportForm
-from utilities.forms.fields import ChoiceField, MultipleChoiceField, TypedChoiceField
+from utilities.forms.fields import ChoiceField, CommentField, MultipleChoiceField, TypedChoiceField
 from utilities.forms.fields.csv import CSVModelChoiceField, CSVModelMultipleChoiceField, CSVSelectWidget
 from utilities.forms.fields.dynamic import (
     DynamicChoiceField,
@@ -1240,3 +1244,21 @@ class ColorSelectTestCase(TestCase):
         html = widget.render('color', 'ff0000;background:url(x)')
         self.assertNotIn('background:url', html)
         self.assertEqual(html.count('<option'), len(widget.choices))
+
+
+class CommentFieldHelpTextTranslationTestCase(TestCase):
+    """
+    CommentField.help_text is defined at the class level, so calling .format() on the lazy
+    translation would resolve it to DEFAULT_LANGUAGE at import time.
+    """
+
+    @tag('regression')  # Ref: #23751
+    def test_help_text_translated(self):
+        with translation.override('it'):
+            field = CommentField()
+            self.assertIsInstance(field.help_text, Promise)
+            expected = gettext(
+                '<i class="mdi mdi-information-outline" aria-hidden="true"></i> '
+                '<a href="{url}" target="_blank" tabindex="-1">Markdown</a> syntax is supported'
+            ).format(url=static('docs/reference/markdown/'))
+            self.assertEqual(str(field.help_text), expected)
