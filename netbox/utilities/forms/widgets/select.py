@@ -1,6 +1,7 @@
 from django import forms
 
 from netbox.choices import ColorChoices
+from utilities.validators import ColorValidator
 
 from ..utils import add_blank_choice
 
@@ -93,6 +94,16 @@ class ColorSelect(forms.Select):
         kwargs['choices'] = add_blank_choice(ColorChoices)
         super().__init__(*args, **kwargs)
         self.attrs['class'] = 'color-select'
+
+    def optgroups(self, name, value, attrs=None):
+        groups = super().optgroups(name, value, attrs)
+        # Render a valid custom (non-predefined) color as a selected option so it isn't lost on submission
+        color = value[0] if value else None
+        if color and ColorValidator.regex.fullmatch(color):
+            if not any(option['selected'] for _, options, _ in groups for option in options):
+                index = len(groups)
+                groups.append((None, [self.create_option(name, color, color, True, index)], index))
+        return groups
 
 
 class HTMXSelect(Select):

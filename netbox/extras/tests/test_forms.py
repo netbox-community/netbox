@@ -9,15 +9,25 @@ from core.choices import ManagedFileRootPathChoices
 from core.events import OBJECT_CREATED
 from core.models import DataSource, ObjectType
 from dcim.forms import SiteForm
+from dcim.forms.filtersets import PowerOutletFilterForm
 from dcim.models import Site
 from extras.choices import CustomFieldTypeChoices, EventRuleActionChoices
 from extras.forms import SavedFilterForm, TableConfigBulkEditForm, TableConfigForm
 from extras.forms.bulk_edit import EventRuleBulkEditForm
 from extras.forms.bulk_import import EventRuleImportForm
 from extras.forms.filtersets import EventRuleFilterForm
-from extras.forms.model_forms import CustomFieldChoiceSetForm, EventRuleForm
+from extras.forms.model_forms import CustomFieldChoiceSetForm, EventRuleForm, TagForm
 from extras.forms.scripts import ScriptFileForm
-from extras.models import CustomField, CustomFieldChoiceSet, EventRule, NotificationGroup, Script, ScriptModule, Webhook
+from extras.models import (
+    CustomField,
+    CustomFieldChoiceSet,
+    EventRule,
+    NotificationGroup,
+    Script,
+    ScriptModule,
+    Tag,
+    Webhook,
+)
 from netbox.event_rules import EventRuleAction, register_event_rule_action
 from netbox.events import EventType
 from netbox.registry import registry
@@ -730,3 +740,26 @@ class EventRuleImportFormTestCase(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn(NON_FIELD_ERRORS, form.errors)
         self.assertIn('Bad action_data for test', form.errors[NON_FIELD_ERRORS])
+
+
+class TagFormTestCase(TestCase):
+
+    def test_edit_tag_with_custom_color(self):
+        """
+        A Tag with a color outside the predefined ColorChoices can be edited without losing its color.
+        """
+        tag = Tag.objects.create(name='Tag 1', slug='tag-1', color='e20074')
+
+        # The current color must be rendered as the selected option
+        form = TagForm(instance=tag)
+        self.assertInHTML(
+            '<option value="e20074" selected>e20074</option>',
+            str(form['color'])
+        )
+
+    def test_filter_form_ignores_invalid_color(self):
+        """
+        A non-hex color passed to a filter form must not be rendered as an option.
+        """
+        form = PowerOutletFilterForm(data={'color': 'ff0000;background:url(x)'})
+        self.assertNotIn('background:url', str(form['color']))
