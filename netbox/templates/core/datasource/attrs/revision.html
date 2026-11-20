@@ -1,0 +1,5 @@
+{% load i18n %}
+<span class="font-monospace" title="{{ value }}">{{ object.short_revision }}</span>
+<a class="btn btn-sm btn-primary copy-content" data-clipboard-text="{{ value }}" title="{% trans "Copy to clipboard" %}">
+  <i class="mdi mdi-content-copy"></i>
+</a>

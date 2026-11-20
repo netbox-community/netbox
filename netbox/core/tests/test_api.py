@@ -159,6 +159,19 @@ class DataSourceTestCase(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(list(data_source.tags.values_list('slug', flat=True)), [])
 
+    def test_revision_fields_read_only(self):
+        """The revision fields are reported but cannot be set via the API."""
+        data_source = DataSource.objects.first()
+        DataSource.objects.filter(pk=data_source.pk).update(revision='abc123', revision_author='Jane Doe')
+        self.add_permissions('core.change_datasource')
+
+        data = {'revision': 'def456', 'revision_author': 'John Doe', 'revision_message': 'Changed'}
+        response = self.client.patch(self._get_detail_url(data_source), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['revision'], 'abc123')
+        self.assertEqual(response.data['revision_author'], 'Jane Doe')
+        self.assertIsNone(response.data['revision_message'])
+
     @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
     def test_sync(self):
         """

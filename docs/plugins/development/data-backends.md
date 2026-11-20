@@ -20,4 +20,6 @@ backends = [MyDataBackend]
 !!! tip
     The path to the list of data backends can be modified by setting `data_backends` in the PluginConfig instance.
 
+A backend can optionally implement `get_revision()` to report which revision of the remote data it fetched (for example, a commit hash). NetBox records this on the data source after each synchronization.
+
 ::: netbox.data_backends.DataBackend

@@ -11,6 +11,18 @@ class DataSourcePanel(panels.ObjectAttributesPanel):
     status = attrs.ChoiceAttr('status')
     sync_interval = attrs.ChoiceAttr('sync_interval', label=_('Sync interval'))
     last_synced = attrs.DateTimeAttr('last_synced', label=_('Last synced'))
+    revision = attrs.TemplatedAttr(
+        'revision',
+        label=_('Revision'),
+        template_name='core/datasource/attrs/revision.html',
+    )
+    revision_message = attrs.TemplatedAttr(
+        'revision_message',
+        label=_('Revision message'),
+        template_name='core/datasource/attrs/revision_message.html',
+    )
+    revision_author = attrs.TextAttr('revision_author', label=_('Revision author'))
+    revision_time = attrs.DateTimeAttr('revision_time', label=_('Revision time'))
     description = attrs.TextAttr('description')
     source_url = attrs.TemplatedAttr(
         'source_url',

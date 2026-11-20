@@ -75,6 +75,32 @@ class DataSourceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
         }
 
+    def test_revision_display(self):
+        """The detail view shows the abbreviated revision with the full value on hover, and the revision message."""
+        self.add_permissions('core.view_datasource')
+        datasource = DataSource.objects.first()
+        revision = '0123456789abcdef0123456789abcdef01234567'
+        DataSource.objects.filter(pk=datasource.pk).update(
+            revision=revision,
+            revision_message='Update files\n\nAdd more detail',
+            revision_author='Jane Doe <jane@example.com>',
+            revision_time=datetime(2026, 1, 1, 12, 0, tzinfo=UTC),
+        )
+
+        response = self.client.get(datasource.get_absolute_url())
+
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, f'<span class="font-monospace" title="{revision}">0123456</span>', html=True)
+        self.assertContains(response, 'Update files<br><br>Add more detail')
+        self.assertContains(response, 'Jane Doe &lt;jane@example.com&gt;')
+
+        # A revision which isn't a hash is shown in full
+        DataSource.objects.filter(pk=datasource.pk).update(revision='release-2026-01')
+        response = self.client.get(datasource.get_absolute_url())
+        self.assertContains(
+            response, '<span class="font-monospace" title="release-2026-01">release-2026-01</span>', html=True
+        )
+
     def test_sync_form_submission_guard(self):
         """The Sync form of a ready data source opts into the duplicate submission guard."""
         self.add_permissions('core.view_datasource', 'core.sync_datasource')
