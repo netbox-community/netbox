@@ -10,9 +10,9 @@ from django.test import Client, TransactionTestCase, override_settings, tag
 from django.urls import reverse
 from django.utils import timezone
 
-from core.models import DataFile, DataSource, ObjectChange
+from core.models import DataFile, DataSource, ObjectChange, ObjectType
 from dcim.choices import DeviceStatusChoices, InterfaceTypeChoices, SiteStatusChoices
-from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site, VirtualChassis
+from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, ModuleType, Site, VirtualChassis
 from dcim.tables import SiteTable
 from extras.events import enqueue_event
 from extras.models import ImageAttachment
@@ -25,7 +25,7 @@ from netbox.constants import EMPTY_TABLE_TEXT
 from netbox.search.backends import search_backend
 from netbox.views import generic
 from users.constants import TOKEN_PREFIX
-from users.models import Token, User
+from users.models import ObjectPermission, Token, User
 from utilities.exceptions import AbortRequest
 from utilities.testing import TestCase
 from utilities.views import get_action_url
@@ -337,6 +337,12 @@ class MediaViewTestCase(TestCase):
             manufacturer=manufacturer,
             front_image='devicetype-images/front.jpg',
         )
+        cls.module_type = ModuleType.objects.create(
+            model='Module Type 1',
+            manufacturer=manufacturer,
+            front_image='moduletype-images/front.jpg',
+            rear_image='moduletype-images/rear.jpg',
+        )
 
     def test_media_login_required(self):
         url = reverse('media', kwargs={'path': 'foo.txt'})
@@ -403,6 +409,66 @@ class MediaViewTestCase(TestCase):
         url = reverse('media', kwargs={'path': traversal_path})
         response = self.client.get(url)
         self.assertHttpStatus(response, 404)
+
+    def test_module_type_with_permission(self):
+        """
+        A user who can view a module type should receive both of its images.
+        """
+        self.add_permissions('dcim.view_moduletype')
+        for image in (self.module_type.front_image, self.module_type.rear_image):
+            url = reverse('media', kwargs={'path': image.name})
+            with patch('netbox.views.misc.serve', return_value=HttpResponse(status=200)):
+                response = self.client.get(url)
+            self.assertHttpStatus(response, 200)
+            self.assertEqual(response['Content-Security-Policy'], "sandbox; default-src 'none'")
+            self.assertEqual(response['X-Content-Type-Options'], "nosniff")
+
+    def test_module_type_without_permission(self):
+        """
+        A user who cannot view a module type should get a 404 for its image.
+        """
+        # serve() is stubbed because it would 404 anyway, the fixture files not being on disk
+        url = reverse('media', kwargs={'path': self.module_type.front_image.name})
+        with patch('netbox.views.misc.serve', return_value=HttpResponse(status=200)) as serve:
+            response = self.client.get(url)
+        self.assertHttpStatus(response, 404)
+        serve.assert_not_called()
+
+    def test_module_type_traversal_without_permission(self):
+        """
+        A traversal path that normalizes to a module type image should still be denied.
+        """
+        traversal_path = 'foo/../' + self.module_type.front_image.name
+        url = reverse('media', kwargs={'path': traversal_path})
+        with patch('netbox.views.misc.serve', return_value=HttpResponse(status=200)) as serve:
+            response = self.client.get(url)
+        self.assertHttpStatus(response, 404)
+        serve.assert_not_called()
+
+    def test_module_type_with_constrained_permission(self):
+        """
+        A constrained view permission should serve only the images of the module types it covers.
+        """
+        hidden_type = ModuleType.objects.create(
+            model='Module Type 2',
+            manufacturer=self.module_type.manufacturer,
+            front_image='moduletype-images/hidden.jpg',
+        )
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['view'],
+            constraints={'pk': self.module_type.pk},
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(ModuleType))
+
+        with patch('netbox.views.misc.serve', return_value=HttpResponse(status=200)) as serve:
+            response = self.client.get(reverse('media', kwargs={'path': self.module_type.front_image.name}))
+            self.assertHttpStatus(response, 200)
+            response = self.client.get(reverse('media', kwargs={'path': hidden_type.front_image.name}))
+            self.assertHttpStatus(response, 404)
+        serve.assert_called_once()
 
 
 class DeleteAtomicityMixin:

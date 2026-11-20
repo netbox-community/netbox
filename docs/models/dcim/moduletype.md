@@ -83,6 +83,10 @@ The cooling method employed by modules of this type (air, liquid, hybrid, or imm
 
 The date after which this module type is no longer supported by its manufacturer. This can be used to identify modules approaching or past their support horizon to aid in hardware lifecycle planning.
 
+### Front & Rear Images
+
+Users can upload images of the module's front and rear panels. These are displayed on the module type and its module instances.
+
 ### Profile
 
 The assigned [profile](./moduletypeprofile.md) for the type of module. Profiles can be used to classify module types by function (e.g. power supply, hard disk, etc.), and they support the addition of user-configurable attributes on module types. The assignment of a module type to a profile is optional.

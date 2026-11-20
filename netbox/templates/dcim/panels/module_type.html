@@ -27,5 +27,25 @@
         </td>
       </tr>
     {% endfor %}
+    <tr>
+      <th scope="row">{% trans "Front image" %}</th>
+      <td>
+        {% if object.module_type.front_image %}
+          {% include "ui/attrs/image.html" with value=object.module_type.front_image load_lazy=True decoding="async" only %}
+        {% else %}
+          {{ ''|placeholder }}
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th scope="row">{% trans "Rear image" %}</th>
+      <td>
+        {% if object.module_type.rear_image %}
+          {% include "ui/attrs/image.html" with value=object.module_type.rear_image load_lazy=True decoding="async" only %}
+        {% else %}
+          {{ ''|placeholder }}
+        {% endif %}
+      </td>
+    </tr>
   </table>
 {% endblock panel_content %}

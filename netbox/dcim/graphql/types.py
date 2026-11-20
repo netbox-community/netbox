@@ -809,6 +809,8 @@ class ModuleTypeType(PrimaryObjectType):
     front_port_template_count: BigInt
     rear_port_template_count: BigInt
     module_bay_template_count: BigInt
+    front_image: strawberry_django.fields.types.DjangoImageType | None
+    rear_image: strawberry_django.fields.types.DjangoImageType | None
     profile: Annotated["ModuleTypeProfileType", strawberry.lazy('dcim.graphql.types')] | None
     manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')]
     module_bay_types: list[Annotated["ModuleBayTypeType", strawberry.lazy('dcim.graphql.types')]]

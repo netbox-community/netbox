@@ -4,6 +4,7 @@ import uuid
 from decimal import Decimal
 from unittest.mock import patch
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, connection, transaction
 from django.db.models import ProtectedError
@@ -695,6 +696,144 @@ class ModuleTypeTestCase(TestCase):
                 'Media': 'sfp, qsfp28',
             },
         )
+
+
+class ModuleTypeImageTestCase(TestCase):
+    """
+    Test the handling of ModuleType front/rear image files.
+    """
+    def setUp(self):
+        media_root = self.enterContext(tempfile.TemporaryDirectory())
+        self.enterContext(override_settings(MEDIA_ROOT=media_root))
+        self.manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+
+    def _create_module_type(self, model='Module Type 1'):
+        """
+        Create a ModuleType with an uploaded front and rear image.
+        """
+        return ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model=model,
+            front_image=create_test_image('front.png'),
+            rear_image=create_test_image('rear.png'),
+        )
+
+    def test_saves_without_image_fields_preserve_files(self):
+        """
+        A save which leaves out or defers the image fields should keep the stored files.
+        """
+        module_type = self._create_module_type()
+        front_image_name = module_type.front_image.name
+        storage = module_type.front_image.storage
+        module_type.front_image = create_test_image('replacement.png')
+        module_type.description = 'Updated description'
+
+        with self.captureOnCommitCallbacks(execute=True):
+            module_type.save(update_fields=iter(['description']))
+
+        self.assertTrue(storage.exists(front_image_name))
+        module_type = ModuleType.objects.defer('front_image', 'rear_image').get(pk=module_type.pk)
+        module_type.description = 'Another description'
+        with self.captureOnCommitCallbacks(execute=True):
+            module_type.save()
+
+        self.assertTrue({'front_image', 'rear_image'}.issubset(module_type.get_deferred_fields()))
+        module_type.refresh_from_db()
+        self.assertEqual(module_type.front_image.name, front_image_name)
+        self.assertTrue(storage.exists(front_image_name))
+
+    def test_image_restored_before_commit(self):
+        """
+        Restoring the original image before the transaction commits should keep it and delete the replacement.
+        """
+        module_type = self._create_module_type()
+        original_name = module_type.front_image.name
+        storage = module_type.front_image.storage
+
+        with self.captureOnCommitCallbacks(execute=True):
+            module_type.front_image = create_test_image('replacement.png')
+            module_type.save()
+            replacement_name = module_type.front_image.name
+            module_type.front_image = original_name
+            module_type.save()
+
+        self.assertTrue(storage.exists(original_name))
+        self.assertFalse(storage.exists(replacement_name))
+
+    @override_settings(STORAGES={
+        **settings.STORAGES,
+        'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage', 'OPTIONS': {'allow_overwrite': True}},
+    })
+    def test_image_shared_between_module_types(self):
+        """
+        An image file stored for two module types should be deleted only once neither references it.
+        """
+        # Overwriting storage (S3 by default) gives two uploads of the same file one stored name
+        module_type = self._create_module_type()
+        other_type = self._create_module_type(model='Module Type 2')
+        front_image_name = module_type.front_image.name
+        rear_image_name = module_type.rear_image.name
+        storage = module_type.front_image.storage
+        self.assertEqual(other_type.front_image.name, front_image_name)
+        self.assertEqual(other_type.rear_image.name, rear_image_name)
+
+        with self.captureOnCommitCallbacks(execute=True):
+            module_type.front_image = ''
+            module_type.save()
+        self.assertTrue(storage.exists(front_image_name))
+
+        with self.captureOnCommitCallbacks(execute=True):
+            other_type.delete()
+        self.assertFalse(storage.exists(front_image_name))
+        self.assertTrue(storage.exists(rear_image_name))
+
+    def test_image_deletion_after_commit(self):
+        """
+        Deleting a module type should delete its stored image files once the deletion commits.
+        """
+        for operation in ('instance', 'deferred', 'unsaved_image', 'queryset'):
+            with self.subTest(operation=operation):
+                module_type = self._create_module_type()
+                images = (module_type.front_image.name, module_type.rear_image.name)
+                storage = module_type.front_image.storage
+                if operation == 'deferred':
+                    module_type = ModuleType.objects.only('pk').get(pk=module_type.pk)
+                elif operation == 'unsaved_image':
+                    module_type.front_image = create_test_image('unsaved.png')
+
+                with self.captureOnCommitCallbacks(execute=True):
+                    if operation == 'queryset':
+                        ModuleType.objects.filter(pk=module_type.pk).delete()
+                    else:
+                        module_type.delete()
+                    for name in images:
+                        self.assertTrue(storage.exists(name))
+
+                for name in images:
+                    self.assertFalse(storage.exists(name))
+
+    def test_image_cleanup_rollback(self):
+        """
+        Replacing an image or deleting a module type in a transaction which is rolled back should keep the file.
+        """
+        for operation in ('replace', 'delete'):
+            with self.subTest(operation=operation):
+                module_type = self._create_module_type(model=operation)
+                pk = module_type.pk
+                original_name = module_type.front_image.name
+                storage = module_type.front_image.storage
+
+                with self.captureOnCommitCallbacks(execute=True), self.assertRaises(RuntimeError):
+                    with transaction.atomic():
+                        if operation == 'replace':
+                            module_type.front_image = create_test_image('replacement.png')
+                            module_type.save()
+                        else:
+                            module_type.delete()
+                        raise RuntimeError('Roll back the transaction')
+
+                self.assertEqual(ModuleType.objects.get(pk=pk).front_image.name, original_name)
+                self.assertTrue(storage.exists(original_name))
 
 
 class RackTypeTestCase(TestCase):
