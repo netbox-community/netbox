@@ -9,7 +9,7 @@ from zoneinfo import ZoneInfo
 
 import yaml
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.messages import get_messages
+from django.contrib.messages import WARNING, get_messages
 from django.db import connection
 from django.http import QueryDict, StreamingHttpResponse
 from django.test import override_settings, tag
@@ -23,7 +23,7 @@ from core.models import ObjectChange, ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from dcim.views import DeviceTypeListView, ModuleTypeListView
+from dcim.views import DeviceTypeListView, ModuleTypeImportView, ModuleTypeListView
 from extras.models import ConfigContext, ConfigTemplate
 from ipam.models import ASN, RIR, VLAN, VRF, IPAddress, VLANGroup
 from netbox.choices import (
@@ -1822,6 +1822,40 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
                 module_type = ModuleType.objects.get(model=data['model'])
                 self.assertEqual(set(module_type.module_bay_types.all()), {global_type, manufacturer_type})
                 module_type.delete()
+
+    def test_import_update_warns_about_incompatible_installed_modules(self):
+        """An import can restrict an existing module type and gives a warning (doesn't remove installed modules)."""
+        self.add_permissions(
+            *ModuleTypeImportView.additional_permissions,
+            'dcim.change_moduletype',
+            'dcim.view_modulebaytype',
+        )
+        module_type = ModuleType.objects.get(model='Module Type 2')
+        device = create_test_device('Device 1')
+        allowed_type = ModuleBayType.objects.create(name='Allowed Slot', slug='allowed-slot')
+        other_type = ModuleBayType.objects.create(name='Other Slot', slug='other-slot')
+        compatible_bay = ModuleBay.objects.create(device=device, name='Compatible Bay')
+        compatible_bay.module_bay_types.add(allowed_type)
+        incompatible_bay = ModuleBay.objects.create(device=device, name='Incompatible Bay')
+        incompatible_bay.module_bay_types.add(other_type)
+
+        # Create modules with no bay type constraints and installs them in module bays with different bay type constraints.
+        Module.objects.create(device=device, module_bay=compatible_bay, module_type=module_type)
+        installed_module = Module.objects.create(device=device, module_bay=incompatible_bay, module_type=module_type)
+
+        response = self.client.post(reverse('dcim:moduletype_bulk_import'), data={
+            'data': yaml.safe_dump({'id': module_type.pk, 'module_bay_types': [allowed_type.name]}),
+            'format': 'yaml',
+        })
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(list(module_type.module_bay_types.all()), [allowed_type])
+        installed_module.refresh_from_db()
+        self.assertEqual(installed_module.module_bay_id, incompatible_bay.pk)
+        self.assertEqual(
+            [str(message) for message in get_messages(response.wsgi_request) if message.level == WARNING],
+            ['1 installed module is incompatible with its module bay due to conflicting bay type constraints.'],
+        )
 
     def test_import_objects(self):
         """

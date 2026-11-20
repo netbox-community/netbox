@@ -37,6 +37,7 @@ from netbox.ui.panels import (
 from netbox.views import generic
 from utilities.exceptions import PermissionsViolation
 from utilities.forms import ConfirmationForm, restrict_form_fields
+from utilities.jobs import is_background_request
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
 from utilities.query import count_related
@@ -2180,6 +2181,30 @@ class ModuleTypeImportView(generic.BulkImportView):
     def prep_related_object_data(self, parent, data):
         data.update({'module_type': parent})
         return data
+
+    def save_object(self, object_form, request):
+        check_compatibility = object_form.instance.pk and 'module_bay_types' in object_form.cleaned_data
+        module_type = super().save_object(object_form, request)
+        if check_compatibility:
+            self._incompatible_count += module_type.get_incompatible_modules().count()
+        return module_type
+
+    def post(self, request):
+        self._incompatible_count = 0
+        response = super().post(request)
+        if self._incompatible_count and (response is None or response.status_code == 302):
+            warning = ngettext(
+                '%(count)d installed module is incompatible with its module bay '
+                'due to conflicting bay type constraints.',
+                '%(count)d installed modules are incompatible with their module bays '
+                'due to conflicting bay type constraints.',
+                self._incompatible_count,
+            ) % {'count': self._incompatible_count}
+            if is_background_request(request):
+                request.job.logger.warning(warning)
+            else:
+                messages.warning(request, warning)
+        return response
 
 
 @register_model_view(ModuleType, 'bulk_edit', path='edit', detail=False)
