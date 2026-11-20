@@ -32,9 +32,9 @@ The `undefined` Jinja environment parameter, which must reference a Python class
 }
 ```
 
-!!! note "Changed in NetBox v4.6.1"
+!!! warning "Deprecation Warning"
 
-    The `finalize` parameter is deprecated and cannot be set on new or modified templates. Templates that already have it saved continue to honor it.
+    The `finalize` parameter has been deprecated as of NetBox v4.6.1, and is scheduled for removal in NetBox v5.0. It cannot be set on new or modified templates. Templates that already have it saved continue to honor it until then. Move any `finalize` logic into the template code itself.
 
 ### MIME Type
 
