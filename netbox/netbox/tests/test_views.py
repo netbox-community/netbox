@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages import get_messages
+from django.core.exceptions import ImproperlyConfigured
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models.signals import pre_delete
 from django.http import HttpResponse
@@ -12,6 +13,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from core.models import DataFile, DataSource, ObjectChange, ObjectType
+from dcim import forms as dcim_forms
 from dcim.choices import DeviceStatusChoices, InterfaceTypeChoices, SiteStatusChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site, VirtualChassis
 from extras.events import enqueue_event
@@ -23,6 +25,7 @@ from ipam.views import VLANGroupVLANsView
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices, ImportMethodChoices
 from netbox.constants import EMPTY_TABLE_TEXT
 from netbox.search.backends import search_backend
+from netbox.views import generic
 from users.models import ObjectPermission, User
 from utilities.exceptions import AbortRequest
 from utilities.testing import TestCase, create_test_device
@@ -132,6 +135,41 @@ class BulkImportViewTabsTestCase(TestCase):
         self.assertHttpStatus(response, 200)
         content = response.content.decode()
         self.assertIn('<div class="tab-pane show active" id="import-form"', content)
+
+
+class BulkImportViewRelatedObjectPermissionsTestCase(TestCase):
+    """
+    Verify resolution of the permissions required to import related objects.
+    """
+
+    def test_public_model_defaults_to_add_permission(self):
+        class TestImportView(generic.BulkImportView):
+            queryset = DeviceType.objects.all()
+            related_object_forms = {'console-ports': dcim_forms.ConsolePortTemplateImportForm}
+
+        self.assertEqual(
+            TestImportView()._related_object_permissions,
+            {'console-ports': ('dcim.add_consoleporttemplate',)}
+        )
+
+    def test_permission_may_be_a_string(self):
+        class TestImportView(generic.BulkImportView):
+            queryset = DeviceType.objects.all()
+            related_object_forms = {'port-mappings': dcim_forms.PortTemplateMappingImportForm}
+            related_object_permissions = {'port-mappings': 'dcim.add_frontporttemplate'}
+
+        self.assertEqual(
+            TestImportView()._related_object_permissions,
+            {'port-mappings': ('dcim.add_frontporttemplate',)}
+        )
+
+    def test_private_model_requires_declaration(self):
+        class TestImportView(generic.BulkImportView):
+            queryset = DeviceType.objects.all()
+            related_object_forms = {'port-mappings': dcim_forms.PortTemplateMappingImportForm}
+
+        with self.assertRaises(ImproperlyConfigured):
+            TestImportView()
 
 
 class BulkActionButtonsTestCase(TestCase):

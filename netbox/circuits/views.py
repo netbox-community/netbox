@@ -468,9 +468,6 @@ class CircuitDeleteView(generic.ObjectDeleteView):
 class CircuitBulkImportView(generic.BulkImportView):
     queryset = Circuit.objects.all()
     model_form = forms.CircuitImportForm
-    additional_permissions = [
-        'circuits.add_circuittermination',
-    ]
     related_object_forms = {
         'terminations': forms.CircuitTerminationImportRelatedForm,
     }
@@ -858,9 +855,6 @@ class VirtualCircuitDeleteView(generic.ObjectDeleteView):
 class VirtualCircuitBulkImportView(generic.BulkImportView):
     queryset = VirtualCircuit.objects.all()
     model_form = forms.VirtualCircuitImportForm
-    additional_permissions = [
-        'circuits.add_virtualcircuittermination',
-    ]
     related_object_forms = {
         'terminations': forms.VirtualCircuitTerminationImportRelatedForm,
     }
