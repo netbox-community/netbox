@@ -49,6 +49,16 @@ The job's current status. Potential values include:
 | Failed | The job did not complete successfully |
 | Errored | An unexpected error was encountered during execution |
 
+### Access
+
+The job's access class, which determines which users may access the job in addition to the permissions assigned for jobs. It is set by the job runner when the job is created. Superusers can access all jobs regardless of access class.
+
+| Value | Who can access the job |
+|-------|------------------------|
+| Requester | Only the user who created the job |
+| Object | Only users permitted to view the job's assigned object |
+| Shared | Any user permitted to view jobs |
+
 ### Data
 
 Any data associated with the execution of the job, such as log output.

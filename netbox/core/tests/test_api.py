@@ -16,7 +16,7 @@ from core.api.serializers import DataSourceSerializer
 from dcim.choices import PortTypeChoices
 from dcim.models import FrontPort, PortMapping, RearPort, Site
 from users.constants import TOKEN_PREFIX
-from users.models import ObjectPermission, Token
+from users.models import ObjectPermission, Token, User
 from utilities.testing import APITestCase, APIViewTestCases, GraphQLQueryTest, TestCase, create_tags, create_test_device
 from utilities.testing.mixins import RQQueueTestMixin
 from utilities.testing.utils import disable_logging
@@ -326,6 +326,34 @@ class JobTestCase(
                 ),
             ]
         )
+
+    def test_job_access(self):
+        """Jobs are limited to those permitted by their access class."""
+        other_user = User.objects.create_user(username='otheruser')
+        own_job, other_job, object_job = Job.objects.bulk_create([
+            Job(name='Own job', job_id=uuid.uuid4(), user=self.user, access='requester'),
+            Job(name='Other job', job_id=uuid.uuid4(), user=other_user, access='requester'),
+            Job(
+                name='Object job', job_id=uuid.uuid4(), access='object',
+                object_type=ContentType.objects.get_for_model(DataSource), object_id=DataSource.objects.first().pk,
+            ),
+        ])
+        self.add_permissions('core.view_job')
+        url = reverse('core-api:job-list')
+
+        # Another user's requester job isn't listed, and can't be retrieved
+        response = self.client.get(url, **self.header)
+        listed = {job['id'] for job in response.data['results']}
+        self.assertIn(own_job.pk, listed)
+        self.assertNotIn(other_job.pk, listed)
+        self.assertNotIn(object_job.pk, listed)
+        response = self.client.get(self._get_detail_url(other_job), **self.header)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+
+        # An object job requires permission to view its assigned object
+        self.add_permissions('core.view_datasource')
+        response = self.client.get(self._get_detail_url(object_job), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
 
     def test_list_objects_by_execution_time(self):
         """The Job list endpoint supports filtering and ordering by execution_time."""

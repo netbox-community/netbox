@@ -15,7 +15,7 @@ from netbox.jobs import JobRunner, system_job
 from netbox.search.backends import search_backend
 from utilities.proxy import resolve_proxies
 
-from .choices import DataSourceStatusChoices, JobIntervalChoices, ObjectChangeActionChoices
+from .choices import DataSourceStatusChoices, JobAccessChoices, JobIntervalChoices, ObjectChangeActionChoices
 from .models import DataSource
 
 
@@ -26,6 +26,7 @@ class SyncDataSourceJob(JobRunner):
 
     class Meta:
         name = 'Synchronization'
+        access = JobAccessChoices.ACCESS_OBJECT
 
     @classmethod
     def enqueue(cls, *args, **kwargs):

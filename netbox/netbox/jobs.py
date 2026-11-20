@@ -21,7 +21,7 @@ from django_pg_utils import advisory_lock
 from rest_framework.exceptions import APIException
 from rq.timeouts import JobTimeoutException
 
-from core.choices import JobStatusChoices
+from core.choices import JobAccessChoices, JobStatusChoices
 from core.exceptions import JobFailed
 from core.models import Job, ObjectType
 from netbox.constants import ADVISORY_LOCK_KEYS
@@ -198,12 +198,14 @@ class JobRunner(ABC):
                 schedule_at=new_scheduled_time,
                 interval=job.interval,
                 notifications=job.notifications,
+                access=job.access,
                 **kwargs,
             )
-        except ValidationError as e:
-            # Keep the run's outcome when invalid configuration blocks the reschedule (see #22872)
+        except (ValidationError, ValueError) as e:
+            # Keep the run's outcome when invalid configuration blocks the reschedule (see #22872). A ValueError is
+            # raised for an object job whose assigned object no longer exists.
             message = _("Recurring job not rescheduled due to invalid configuration: {error}").format(
-                error='; '.join(e.messages)
+                error='; '.join(e.messages) if isinstance(e, ValidationError) else str(e)
             )
             logger.error(f"Job {job}: {message}")
             job.log(logging.makeLogRecord({
@@ -238,7 +240,8 @@ class JobRunner(ABC):
         parameters.
         """
         name = kwargs.pop('name', None) or cls.name
-        return Job.enqueue(cls.handle, name=name, *args, **kwargs)
+        access = kwargs.pop('access', None) or getattr(cls.Meta, 'access', JobAccessChoices.ACCESS_SHARED)
+        return Job.enqueue(cls.handle, name=name, access=access, *args, **kwargs)
 
     @classmethod
     @advisory_lock(ADVISORY_LOCK_KEYS['job-schedules'])
@@ -284,6 +287,7 @@ class AsyncViewJob(JobRunner):
     """
     class Meta:
         name = 'Async View'
+        access = JobAccessChoices.ACCESS_REQUESTER
 
     def run(self, view_cls, request, **kwargs):
         view = view_cls.as_view()
@@ -308,6 +312,7 @@ class AsyncAPIJob(JobRunner):
     """
     class Meta:
         name = 'Async API Request'
+        access = JobAccessChoices.ACCESS_REQUESTER
 
     @staticmethod
     def _build_request(request_copy, payload, scheme):

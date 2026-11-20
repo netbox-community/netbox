@@ -75,7 +75,7 @@ class JobFilterForm(SavedFiltersMixin, FilterForm):
     model = Job
     fieldsets = (
         FieldSet('q', 'filter_id'),
-        FieldSet('object_type_id', 'status', 'queue_name', 'user_id', name=_('Attributes')),
+        FieldSet('object_type_id', 'status', 'access', 'queue_name', 'user_id', name=_('Attributes')),
         FieldSet(
             'created__before', 'created__after', 'scheduled__before', 'scheduled__after', 'started__before',
             'started__after', 'completed__before', 'completed__after', name=_('Scheduling')
@@ -90,6 +90,11 @@ class JobFilterForm(SavedFiltersMixin, FilterForm):
     status = forms.MultipleChoiceField(
         label=_('Status'),
         choices=JobStatusChoices,
+        required=False
+    )
+    access = forms.MultipleChoiceField(
+        label=_('Access'),
+        choices=JobAccessChoices,
         required=False
     )
     queue_name = forms.CharField(
