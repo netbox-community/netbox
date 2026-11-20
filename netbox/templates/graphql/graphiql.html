@@ -56,6 +56,6 @@
       data-graphql-worker="{% url 'graphiql_worker' name='graphql' %}"
       data-json-worker="{% url 'graphiql_worker' name='json' %}"
     >Loading...</div>
-    <script src="{% static_with_params 'graphiql/graphiql.js' v=settings.RELEASE.version %}"></script>
+    <script src="{% static_with_params 'graphiql/graphiql.js' v=settings.RELEASE.version %}" nonce="{{ csp_nonce }}"></script>
   </body>
 </html>

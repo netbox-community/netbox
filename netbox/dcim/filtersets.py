@@ -919,6 +919,14 @@ class ModuleTypeFilterSet(AttributeFiltersMixin, PrimaryModelFilterSet):
         to_field_name='slug',
         label=_('Module bay type (slug)'),
     )
+    has_front_image = django_filters.BooleanFilter(
+        label=_('Has a front image'),
+        method='_has_front_image'
+    )
+    has_rear_image = django_filters.BooleanFilter(
+        label=_('Has a rear image'),
+        method='_has_rear_image'
+    )
     console_ports = django_filters.BooleanFilter(
         method='_console_ports',
         label=_('Has console ports'),
@@ -978,6 +986,16 @@ class ModuleTypeFilterSet(AttributeFiltersMixin, PrimaryModelFilterSet):
             Q(description__icontains=value) |
             Q(comments__icontains=value)
         )
+
+    def _has_front_image(self, queryset, name, value):
+        if value:
+            return queryset.exclude(front_image='')
+        return queryset.filter(front_image='')
+
+    def _has_rear_image(self, queryset, name, value):
+        if value:
+            return queryset.exclude(rear_image='')
+        return queryset.filter(rear_image='')
 
     def _console_ports(self, queryset, name, value):
         return queryset.exclude(consoleporttemplates__isnull=value)

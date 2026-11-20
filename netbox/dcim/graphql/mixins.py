@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Annotated
 
 import strawberry
+import strawberry_django
 
 if TYPE_CHECKING:
     from circuits.graphql.types import CircuitTerminationType, ProviderNetworkType, VirtualCircuitTerminationType
@@ -19,6 +20,7 @@ if TYPE_CHECKING:
 __all__ = (
     'CabledObjectMixin',
     'PathEndpointMixin',
+    'WebMercatorMixin',
 )
 
 
@@ -61,3 +63,15 @@ class PathEndpointMixin:
             strawberry.union("ConnectedEndpointType"),
         ]
     ]
+
+
+@strawberry.type
+class WebMercatorMixin:
+
+    @strawberry_django.field(only=['latitude', 'longitude'])
+    def mercator_x(self) -> float | None:
+        return self.mercator_x
+
+    @strawberry_django.field(only=['latitude', 'longitude'])
+    def mercator_y(self) -> float | None:
+        return self.mercator_y

@@ -642,6 +642,7 @@ class ModuleTypeForm(PrimaryModelForm):
             FieldSet('cooling_method', 'airflow', name=_('Cooling')),
             FieldSet('module_bay_types', name=_('Bay Type Compatibility')),
             FieldSet('end_of_life', name=_('Lifecycle')),
+            FieldSet('front_image', 'rear_image', name=_('Images')),
             FieldSet('profile', *self.attr_fields, name=_('Profile & Attributes'), html_id='profile-attributes')
         ]
 
@@ -649,9 +650,15 @@ class ModuleTypeForm(PrimaryModelForm):
         model = ModuleType
         fields = [
             'profile', 'manufacturer', 'model', 'part_number', 'description', 'cooling_method', 'airflow', 'weight',
-            'weight_unit', 'module_bay_types', 'end_of_life', 'owner', 'comments', 'tags',
+            'weight_unit', 'module_bay_types', 'end_of_life', 'front_image', 'rear_image', 'owner', 'comments', 'tags',
         ]
         widgets = {
+            'front_image': ClearableFileInput(attrs={
+                'accept': DEVICETYPE_IMAGE_FORMATS
+            }),
+            'rear_image': ClearableFileInput(attrs={
+                'accept': DEVICETYPE_IMAGE_FORMATS
+            }),
             'end_of_life': DatePicker(),
         }
 

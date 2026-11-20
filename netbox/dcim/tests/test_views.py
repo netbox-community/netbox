@@ -1,6 +1,7 @@
 import csv
 import datetime
 import json
+import tempfile
 from decimal import Decimal
 from io import StringIO
 from unittest.mock import patch
@@ -35,7 +36,7 @@ from netbox.choices import (
 from netbox.exporters import get_exporter
 from tenancy.models import Tenant
 from users.models import ObjectPermission, Owner, User
-from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
+from utilities.testing import ViewTestCases, create_tags, create_test_device, create_test_image, post_data
 from wireless.models import WirelessLAN
 
 
@@ -1622,6 +1623,58 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "id,model",
             f"{module_types[0].id},test model",
         )
+
+    def test_module_type_detail_includes_images(self):
+        """
+        The module type view should show the front and rear images.
+        """
+        self.add_permissions('dcim.view_moduletype')
+        module_type = self._get_queryset().first()
+        module_type.front_image = 'moduletype-images/front.png'
+        module_type.rear_image = 'moduletype-images/rear.png'
+        module_type.save()
+
+        response = self.client.get(module_type.get_absolute_url())
+
+        self.assertContains(response, f'src="{module_type.front_image.url}"')
+        self.assertContains(response, f'src="{module_type.rear_image.url}"')
+
+    def test_bulk_delete_rollback_keeps_images(self):
+        """
+        A bulk delete which fails on an in-use module type should keep the image files of the others.
+        """
+        self.add_permissions('dcim.delete_moduletype')
+        manufacturer = Manufacturer.objects.get(slug='manufacturer-1')
+
+        with tempfile.TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
+            module_type = ModuleType.objects.create(
+                manufacturer=manufacturer,
+                model='Module Type A',
+                front_image=create_test_image('front.png'),
+                rear_image=create_test_image('rear.png'),
+            )
+            in_use_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type B')
+            device = create_test_device('Device 1')
+            module_bay = ModuleBay.objects.create(device=device, name='Module Bay 1')
+            Module.objects.create(device=device, module_bay=module_bay, module_type=in_use_type)
+            images = (module_type.front_image.name, module_type.rear_image.name)
+            storage = module_type.front_image.storage
+
+            # The view deletes in the default ordering, so the type with images goes before the in-use type
+            pk_list = [module_type.pk, in_use_type.pk]
+            self.assertEqual(list(ModuleType.objects.filter(pk__in=pk_list).values_list('pk', flat=True)), pk_list)
+            data = {
+                'pk': pk_list,
+                'confirm': True,
+                '_confirm': True,  # Form button
+            }
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(self._get_url('bulk_delete'), data)
+
+            self.assertHttpStatus(response, 302)
+            self.assertTrue(ModuleType.objects.filter(pk=module_type.pk).exists())
+            for name in images:
+                self.assertTrue(storage.exists(name))
 
     def test_bulk_update_objects_with_permission(self):
         self.add_permissions(
@@ -3295,6 +3348,24 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.remove_permissions('dcim.view_device')
         self.assertHttpStatus(self.client.get(url), 403)
 
+    def test_device_renderconfig_matches_model(self):
+        """
+        The rendered config exported from the UI matches the output of Device.render_config().
+        """
+        device = Device.objects.first()
+        device.config_template = ConfigTemplate.objects.create(
+            name='Test Config Template',
+            template_code='hostname {{ device.name }}\nntp server {{ ntp_server }}\n'
+        )
+        device.local_context_data = {'ntp_server': '192.0.2.1'}
+        device.save()
+
+        self.add_permissions('dcim.view_device', 'dcim.render_config_device')
+        url = reverse('dcim:device_render-config', kwargs={'pk': device.pk})
+        response = self.client.get(url, {'export': 1})
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(response.content.decode(), Device.objects.get(pk=device.pk).render_config())
+
     def test_device_renderconfig_with_config_template_id(self):
         default_template = ConfigTemplate.objects.create(
             name='Default Template',
@@ -3598,6 +3669,22 @@ class ModuleTestCase(
         response = self.client.get(self._get_queryset().first().get_absolute_url())
 
         self.assertContains(response, 'Module Type Profile 1')
+
+    def test_module_detail_includes_module_type_images(self):
+        """
+        The module view should show the front and rear images of its module type.
+        """
+        self.add_permissions('dcim.view_module')
+        module = self._get_queryset().first()
+        module_type = module.module_type
+        module_type.front_image = 'moduletype-images/front.png'
+        module_type.rear_image = 'moduletype-images/rear.png'
+        module_type.save()
+
+        response = self.client.get(module.get_absolute_url())
+
+        self.assertContains(response, f'src="{module_type.front_image.url}"')
+        self.assertContains(response, f'src="{module_type.rear_image.url}"')
 
     @tag('regression')
     def test_module_detail_renders_module_type_attribute_lists(self):

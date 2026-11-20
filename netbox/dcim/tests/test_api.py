@@ -458,6 +458,27 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
         self.assertNotIn('remove_tags', response.data)
         self.assertIn('tags', response.data)
 
+    def test_web_mercator_coordinates(self):
+        """
+        Web Mercator coordinates are calculated from the GPS coordinates and cannot be written.
+        """
+        obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        site = Site.objects.first()
+        data = {
+            'latitude': 40.7128,
+            'longitude': -74.006,
+            'mercator_x': 1,
+            'mercator_y': 1,
+        }
+        response = self.client.patch(self._get_detail_url(site), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['mercator_x'], -8238310.24)
+        self.assertEqual(response.data['mercator_y'], 4970071.58)
+
     def test_remove_tags(self):
         """
         Remove tags from an existing object via the remove_tags field.
@@ -1808,6 +1829,23 @@ class ModuleTypeTestCase(APIViewTestCases.APIViewTestCase):
         'airflow': 'not-a-valid-airflow',
     }
     user_permissions = ('dcim.view_manufacturer', )
+    graphql_filter_tests = (
+        GraphQLFilterTest(
+            name='front_image__exact',
+            filters='front_image: {exact: "moduletype-images/front2.png"}',
+            expected=lambda qs: qs.filter(model='Module Type 2'),
+        ),
+        GraphQLFilterTest(
+            name='rear_image__exact',
+            filters='rear_image: {exact: "moduletype-images/rear3.png"}',
+            expected=lambda qs: qs.filter(model='Module Type 3'),
+        ),
+        GraphQLFilterTest(
+            name='front_image__exact_empty',
+            filters='front_image: {exact: ""}',
+            expected=lambda qs: qs.filter(model__in=['Module Type 1', 'Module Type 3']),
+        ),
+    )
 
     @classmethod
     def setUpTestData(cls):
@@ -1820,8 +1858,16 @@ class ModuleTypeTestCase(APIViewTestCases.APIViewTestCase):
 
         module_types = (
             ModuleType(manufacturer=manufacturers[0], model='Module Type 1'),
-            ModuleType(manufacturer=manufacturers[0], model='Module Type 2'),
-            ModuleType(manufacturer=manufacturers[0], model='Module Type 3'),
+            ModuleType(
+                manufacturer=manufacturers[0],
+                model='Module Type 2',
+                front_image='moduletype-images/front2.png',
+            ),
+            ModuleType(
+                manufacturer=manufacturers[0],
+                model='Module Type 3',
+                rear_image='moduletype-images/rear3.png',
+            ),
         )
         ModuleType.objects.bulk_create(module_types)
 
@@ -1850,6 +1896,80 @@ class ModuleTypeTestCase(APIViewTestCases.APIViewTestCase):
                 'model': 'Module Type 6',
             },
         ]
+
+    def test_create_object_with_images(self):
+        """
+        Create a ModuleType with front/rear images via a multipart request.
+        """
+        self.add_permissions('dcim.add_moduletype')
+        # A nested field is read from "<field>.id" in a multipart request
+        data = {
+            'manufacturer.id': Manufacturer.objects.first().pk,
+            'model': 'Module Type 7',
+            'front_image': create_test_image('front.png'),
+            'rear_image': create_test_image('rear.png'),
+        }
+
+        with tempfile.TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
+            response = self.client.post(self._get_list_url(), data, format='multipart', **self.header)
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
+            module_type = ModuleType.objects.get(pk=response.data['id'])
+            for image in (module_type.front_image, module_type.rear_image):
+                self.assertTrue(os.path.exists(image.path))
+                self.assertTrue(image.name.startswith('moduletype-images/'))
+
+    def test_update_object_image(self):
+        """
+        Replace a ModuleType's front image via a multipart request, which should delete the original file.
+        """
+        self.add_permissions('dcim.change_moduletype')
+
+        with tempfile.TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
+            module_type = ModuleType.objects.first()
+            module_type.front_image = create_test_image('front.png')
+            module_type.rear_image = create_test_image('rear.png')
+            module_type.save()
+            front_image_path = module_type.front_image.path
+            rear_image_path = module_type.rear_image.path
+
+            data = {
+                'front_image': create_test_image('front2.png'),
+            }
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.patch(
+                    self._get_detail_url(module_type), data, format='multipart', **self.header
+                )
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            module_type.refresh_from_db()
+            self.assertFalse(os.path.exists(front_image_path))
+            self.assertTrue(os.path.exists(module_type.front_image.path))
+            self.assertNotEqual(module_type.front_image.path, front_image_path)
+            self.assertTrue(os.path.exists(rear_image_path))
+
+    def test_clear_object_image(self):
+        """
+        Clear a ModuleType's rear image via a JSON request, which should delete its file.
+        """
+        self.add_permissions('dcim.change_moduletype')
+
+        with tempfile.TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
+            module_type = ModuleType.objects.first()
+            module_type.front_image = create_test_image('front.png')
+            module_type.rear_image = create_test_image('rear.png')
+            module_type.save()
+            front_image_path = module_type.front_image.path
+            rear_image_path = module_type.rear_image.path
+
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.patch(
+                    self._get_detail_url(module_type), {'rear_image': None}, format='json', **self.header
+                )
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            self.assertIsNone(response.data['rear_image'])
+            module_type.refresh_from_db()
+            self.assertFalse(module_type.rear_image)
+            self.assertFalse(os.path.exists(rear_image_path))
+            self.assertTrue(os.path.exists(front_image_path))
 
 
 class ModuleTypeProfileTestCase(APIViewTestCases.APIViewTestCase):
@@ -3090,6 +3210,23 @@ class DeviceTestCase(Mixins.FieldPrefetchMixin, APIViewTestCases.APIViewTestCase
 
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
+    def test_web_mercator_coordinates(self):
+        """
+        Web Mercator coordinates are calculated from the GPS coordinates and cannot be written.
+        """
+        self.add_permissions('dcim.change_device')
+        device = Device.objects.first()
+        data = {
+            'latitude': 40.7128,
+            'longitude': -74.006,
+            'mercator_x': 1,
+            'mercator_y': 1,
+        }
+        response = self.client.patch(self._get_detail_url(device), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['mercator_x'], -8238310.24)
+        self.assertEqual(response.data['mercator_y'], 4970071.58)
+
     def test_create_device_replicates_components(self):
         """
         Creating a device without specifying replicate_components should instantiate its device type's components.
@@ -3199,6 +3336,32 @@ class DeviceTestCase(Mixins.FieldPrefetchMixin, APIViewTestCases.APIViewTestCase
         response = self.client.post(url, {}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data['content'], f'Config for device {device.name}')
+
+    def test_render_config_matches_model(self):
+        """
+        The rendered config returned by the REST API matches the output of Device.render_config().
+        """
+        device = Device.objects.first()
+        device.config_template = ConfigTemplate.objects.create(
+            name='Config Template 1',
+            template_code='hostname {{ device.name }}\nntp server {{ ntp_server }}\nsyslog {{ syslog_server }}\n'
+        )
+        device.local_context_data = {'ntp_server': '192.0.2.1'}
+        device.save()
+
+        self.add_permissions('dcim.render_config_device', 'dcim.view_device')
+        url = reverse('dcim-api:device-render-config', kwargs={'pk': device.pk})
+        data = {'syslog_server': '192.0.2.2', 'device': 'spoofed'}
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(
+            response.data['content'],
+            f'hostname {device.name}\nntp server 192.0.2.1\nsyslog 192.0.2.2'
+        )
+        self.assertEqual(
+            response.data['content'],
+            Device.objects.get(pk=device.pk).render_config(extra_context=data)
+        )
 
     def test_render_config_leaves_config_context_cache_unchanged(self):
         """

@@ -3,10 +3,12 @@
 import importlib
 import importlib.util
 import os
+import re
 import sys
 import threading
 import warnings
 from typing import NamedTuple
+from urllib.parse import urlsplit
 
 from django.core.exceptions import ImproperlyConfigured
 from rq.exceptions import TimeoutFormatError
@@ -22,6 +24,7 @@ __all__ = (
     'parse_job_timeout',
     'resolve_install_paths',
     'secret_key_hint',
+    'validate_permissions_policy',
     'validate_webhook_default_timeout',
 )
 
@@ -119,6 +122,67 @@ def validate_webhook_default_timeout(timeout, job_timeout):
             f"WEBHOOK_DEFAULT_TIMEOUT ({timeout}) must be less than RQ_DEFAULT_TIMEOUT ({job_timeout} seconds), "
             f"which caps the total runtime of the background job."
         )
+
+
+_LABEL = r'[A-Za-z0-9_]([A-Za-z0-9_-]*[A-Za-z0-9_])?'
+ORIGIN_NETLOC_RE = re.compile(rf'(\*\.)?{_LABEL}(\.{_LABEL})*(:[0-9]+)?|\[[0-9A-Fa-f:.]+\](:[0-9]+)?')
+
+
+FEATURE_NAME_RE = re.compile(r'[a-z][a-z0-9-]*')
+
+
+def validate_permissions_policy(name, value):
+    """Validate PERMISSIONS_POLICY.
+
+    Feature names are checked for header-safe characters only, not against a list of known features.
+
+    Each value must be a list or tuple whose entries are 'self', '*', or a bare http(s) origin.
+    Anything else would be emitted into the header verbatim and silently discarded by browsers.
+    """
+    for feature, entries in value.items():
+        if not isinstance(feature, str) or FEATURE_NAME_RE.fullmatch(feature) is None:
+            raise ImproperlyConfigured(
+                f"{name} contains the invalid feature name {feature!r}: names start with a lowercase letter, then "
+                "lowercase letters, digits and hyphens"
+            )
+        if not isinstance(entries, (list, tuple)):
+            raise ImproperlyConfigured(
+                f"{name}[{feature!r}] must be a list or tuple of allowed origins (found {entries!r})"
+            )
+        for entry in entries:
+            if entry in ('self', '*'):
+                continue
+            if entry in ("'self'", "'none'"):
+                raise ImproperlyConfigured(
+                    f"{name}[{feature!r}] contains the CSP keyword {entry!r}: use 'self' without the CSP quotes "
+                    f"(CSP.SELF is not accepted), or an empty list to deny the feature"
+                )
+            if not _is_origin(entry):
+                raise ImproperlyConfigured(
+                    f"{name}[{feature!r}] contains {entry!r}, which is not 'self', '*', or an origin such as "
+                    f"'https://scan.example.com'"
+                )
+
+
+def _is_origin(entry):
+    """
+    Return True if entry is exactly a lowercase http(s) scheme, an ASCII host and an optional valid port.
+
+    The host charset is strict because the entry is written into a structured-field header, where one
+    bad character makes the browser drop the whole policy.
+    """
+    if not isinstance(entry, str):
+        return False
+    try:
+        parts = urlsplit(entry)
+        parts.port  # Raises ValueError if the port is not a number from 0 to 65535
+    except ValueError:
+        return False
+    return (
+        parts.scheme in ('http', 'https')
+        and entry == f'{parts.scheme}://{parts.netloc}'
+        and ORIGIN_NETLOC_RE.fullmatch(parts.netloc) is not None
+    )
 
 
 def _import_module(name):

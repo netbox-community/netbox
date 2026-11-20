@@ -22,7 +22,9 @@ class SearchForm(forms.Form):
             attrs={
                 'hx-get': '',
                 'hx-target': '#object_list',
-                'hx-trigger': 'keyup[target.value.length >= 3] changed delay:500ms',
+                # netbox:search-input is dispatched by htmx.ts once the value reaches data-search-min-length
+                'hx-trigger': 'netbox:search-input changed delay:500ms',
+                'data-search-min-length': '3',
             }
         )
     )

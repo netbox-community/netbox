@@ -1697,7 +1697,7 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
 class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ModuleType.objects.all()
     filterset = ModuleTypeFilterSet
-    ignore_fields = ['attribute_data']
+    ignore_fields = ['attribute_data', 'front_image', 'rear_image']
 
     PROFILE_SCHEMA = {
         "properties": {
@@ -1744,6 +1744,8 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 airflow=ModuleAirflowChoices.FRONT_TO_REAR,
                 cooling_method=CoolingMethodChoices.METHOD_LIQUID,
                 end_of_life='2030-01-01',
+                front_image='moduletype-images/front1.png',
+                rear_image='moduletype-images/rear1.png',
                 profile=module_type_profiles[0],
                 attribute_data={
                     'string': 'string1',
@@ -1762,6 +1764,7 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 airflow=ModuleAirflowChoices.REAR_TO_FRONT,
                 cooling_method=CoolingMethodChoices.METHOD_HYBRID,
                 end_of_life='2035-06-30',
+                front_image='moduletype-images/front2.png',
                 profile=module_type_profiles[1],
                 attribute_data={
                     'string': 'string2',
@@ -1900,6 +1903,24 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'module_bays': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_has_front_image(self):
+        """
+        Filter by the presence of a front image.
+        """
+        params = {'has_front_image': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'has_front_image': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_has_rear_image(self):
+        """
+        Filter by the presence of a rear image.
+        """
+        params = {'has_rear_image': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'has_rear_image': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_weight(self):
         params = {'weight': [10, 20]}

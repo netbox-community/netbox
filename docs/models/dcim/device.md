@@ -71,7 +71,13 @@ If installed in a rack, this field indicates the base rack unit in which the dev
 
 ### Latitude & Longitude
 
-GPS coordinates of the device for geolocation.
+GPS coordinates of the device for geolocation. These are assumed to use the WGS84 datum (as reported by GPS).
+
+### Web Mercator X & Y
+
+!!! info "This field was introduced in NetBox v4.8."
+
+The device's coordinates in the [Web Mercator](https://epsg.io/3857) (EPSG:3857) projection, in meters. These read-only values are calculated from the latitude and longitude. See the [site](./site.md#web-mercator-x-y) documentation for details.
 
 ### Status
 

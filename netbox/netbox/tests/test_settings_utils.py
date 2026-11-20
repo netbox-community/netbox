@@ -397,6 +397,73 @@ class ValidateWebhookDefaultTimeoutTest(SimpleTestCase):
                     settings_utils.validate_webhook_default_timeout(timeout, 300)
 
 
+class ValidatePermissionsPolicyTest(SimpleTestCase):
+    """validate_permissions_policy() is the startup check applied to PERMISSIONS_POLICY."""
+
+    def test_valid_policies(self):
+        valid = (
+            {},
+            {'camera': []},
+            {'camera': ['self']},
+            {'camera': ['*']},
+            {'camera': ('self',)},
+            {'camera': ['self', 'https://scan.example.com'], 'usb': []},
+            {'camera': ['http://localhost:8000']},
+            {'camera': ['https://[::1]:8443']},
+            {'camera': ['https://*.example.com']},
+            {'camera': ['https://*.example.com:8443']},
+            {'camera': ['https://localhost']},
+            {'camera': ['https://xn--bcher-kva.example']},
+            {'camera': ['https://scan_1.example.com']},
+            {'camera': ['https://_service.example.com']},
+        )
+        for value in valid:
+            with self.subTest(value=value):
+                settings_utils.validate_permissions_policy('PERMISSIONS_POLICY', value)
+
+    def test_csp_quoted_keywords_raise(self):
+        for entry in ("'self'", "'none'"):
+            with self.subTest(entry=entry):
+                with self.assertRaisesMessage(ImproperlyConfigured, 'without the CSP quotes'):
+                    settings_utils.validate_permissions_policy('PERMISSIONS_POLICY', {'camera': [entry]})
+
+    def test_error_names_feature_and_entry(self):
+        with self.assertRaisesMessage(ImproperlyConfigured, "camera"):
+            settings_utils.validate_permissions_policy('PERMISSIONS_POLICY', {'camera': ['scan.example.com']})
+        with self.assertRaisesMessage(ImproperlyConfigured, "'scan.example.com'"):
+            settings_utils.validate_permissions_policy('PERMISSIONS_POLICY', {'camera': ['scan.example.com']})
+
+    def test_malformed_feature_names_raise(self):
+        for feature in ('camera ()', 'cam=era', 'Camera', '', 5, '1camera', '-camera'):
+            with self.subTest(feature=feature):
+                with self.assertRaisesMessage(ImproperlyConfigured, repr(feature)):
+                    settings_utils.validate_permissions_policy('PERMISSIONS_POLICY', {feature: []})
+
+    def test_well_formed_feature_names_are_not_checked_against_a_list(self):
+        for feature in ('camera', 'publickey-credentials-get', 'future-feature'):
+            with self.subTest(feature=feature):
+                settings_utils.validate_permissions_policy('PERMISSIONS_POLICY', {feature: []})
+
+    def test_bare_string_value_raises(self):
+        with self.assertRaisesMessage(ImproperlyConfigured, 'must be a list or tuple'):
+            settings_utils.validate_permissions_policy('PERMISSIONS_POLICY', {'camera': 'self'})
+
+    def test_invalid_origins_raise(self):
+        invalid = (
+            'scan.example.com', 'ftp://scan.example.com', 'https://', 'https://example.com/path', '', 5,
+            'https://u@x', 'https://x:abc', 'https://x:99999', 'https://x:', 'https://x?', 'https://x#',
+            'https://x y', 'https:// x', 'HTTPS://x',
+            'https://x"y', 'https://x,y', 'https://x;y', 'https://x%20y', 'https://x\x00', 'https://x\x7f',
+            'https://bücher.example',
+            'https://*', 'https://ex*ample.com', 'https://a*b.example.com', 'https://*.*.example.com',
+            'https://-', 'https://..', 'https://.example.com', 'https://example.com.', 'https://*.example.com:',
+        )
+        for entry in invalid:
+            with self.subTest(entry=entry):
+                with self.assertRaises(ImproperlyConfigured):
+                    settings_utils.validate_permissions_policy('PERMISSIONS_POLICY', {'camera': [entry]})
+
+
 class LoadLdapConfigTest(SimpleTestCase):
     def test_loads_sibling_ldap_config(self):
         with tempfile.TemporaryDirectory() as conf_dir:

@@ -3,6 +3,7 @@ import importlib.util
 import logging
 import os
 import sys
+import warnings
 from collections import defaultdict
 
 from django.core.exceptions import ValidationError
@@ -25,6 +26,9 @@ __all__ = (
 )
 
 logger = logging.getLogger(__name__)
+
+# (model name, pk) of templates that have already emitted the stored 'finalize' deprecation warning (#23498)
+_stored_finalize_warned = set()
 
 
 class CustomStoragesLoader(importlib.abc.Loader):
@@ -253,6 +257,15 @@ class RenderTemplateMixin(models.Model):
                 type(self).__name__, self.pk,
             )
             return {key: value for key, value in params.items() if key != 'finalize'}
+        # Track warned templates here: the warnings registry resets whenever any code changes the warning filters.
+        warned_key = (type(self).__name__, self.pk)
+        if warned_key not in _stored_finalize_warned:
+            _stored_finalize_warned.add(warned_key)
+            warnings.warn(
+                f'The "finalize" environment parameter stored on {type(self).__name__} (pk={self.pk}) is deprecated '
+                'and will be removed in NetBox v5.0. Move its logic into the template code.',
+                FutureWarning,
+            )
         return {**params, 'finalize': stored_finalize}
 
     def get_environment_params(self):

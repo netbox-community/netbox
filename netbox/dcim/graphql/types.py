@@ -26,7 +26,7 @@ from utilities.querysets import RestrictedPrefetch
 from virtualization.models import Cluster, VMInterface
 
 from .filters import *
-from .mixins import CabledObjectMixin, PathEndpointMixin
+from .mixins import CabledObjectMixin, PathEndpointMixin, WebMercatorMixin
 
 if TYPE_CHECKING:
     from circuits.graphql.types import CircuitTerminationType
@@ -327,7 +327,7 @@ class ConsoleServerPortTemplateType(ModularComponentTemplateType):
     filters=DeviceFilter,
     pagination=True
 )
-class DeviceType(ConfigContextMixin, ImageAttachmentsMixin, ContactsMixin, PrimaryObjectType):
+class DeviceType(ConfigContextMixin, ImageAttachmentsMixin, ContactsMixin, WebMercatorMixin, PrimaryObjectType):
     console_port_count: BigInt
     console_server_port_count: BigInt
     power_port_count: BigInt
@@ -809,6 +809,8 @@ class ModuleTypeType(PrimaryObjectType):
     front_port_template_count: BigInt
     rear_port_template_count: BigInt
     module_bay_template_count: BigInt
+    front_image: strawberry_django.fields.types.DjangoImageType | None
+    rear_image: strawberry_django.fields.types.DjangoImageType | None
     profile: Annotated["ModuleTypeProfileType", strawberry.lazy('dcim.graphql.types')] | None
     manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')]
     module_bay_types: list[Annotated["ModuleBayTypeType", strawberry.lazy('dcim.graphql.types')]]
@@ -1145,7 +1147,7 @@ class RegionType(VLANGroupsMixin, ContactsMixin, NestedLtreeGroupObjectType):
     filters=SiteFilter,
     pagination=True
 )
-class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, PrimaryObjectType):
+class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, WebMercatorMixin, PrimaryObjectType):
     time_zone: str | None
     region: Annotated["RegionType", strawberry.lazy('dcim.graphql.types')] | None
     group: Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')] | None

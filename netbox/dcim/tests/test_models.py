@@ -4,6 +4,7 @@ import uuid
 from decimal import Decimal
 from unittest.mock import patch
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, connection, transaction
 from django.db.models import ProtectedError
@@ -11,6 +12,7 @@ from django.db.models.signals import post_save
 from django.test import RequestFactory, TestCase, override_settings, tag
 from django.test.utils import CaptureQueriesContext
 from django.utils.text import slugify
+from jinja2 import TemplateSyntaxError
 from netaddr import EUI
 
 from circuits.models import *
@@ -20,7 +22,7 @@ from dcim.choices import *
 from dcim.models import *
 from dcim.utils import resolve_module_placeholder
 from extras.events import serialize_for_event
-from extras.models import CustomField
+from extras.models import ConfigTemplate, CustomField
 from ipam.models import IPAddress, Prefix
 from netbox.choices import DiameterUnitChoices, FlowRateUnitChoices, WeightUnitChoices
 from netbox.context_managers import event_tracking
@@ -128,6 +130,31 @@ class MACAddressTestCase(TestCase):
             primary_mac_address=mac,
         )
         new_iface.full_clean()  # must not raise
+
+
+class WebMercatorTestCase(TestCase):
+
+    def test_web_mercator_coordinates(self):
+        for model in (Site, Device):
+            with self.subTest(model=model.__name__):
+                obj = model(latitude=Decimal('40.712800'), longitude=Decimal('-74.006000'))
+                self.assertEqual(obj.mercator_x, -8238310.24)
+                self.assertEqual(obj.mercator_y, 4970071.58)
+
+    def test_web_mercator_coordinates_missing_gps(self):
+        for latitude, longitude in ((None, None), (Decimal('10'), None), (None, Decimal('10'))):
+            site = Site(latitude=latitude, longitude=longitude)
+            self.assertIsNone(site.mercator_x)
+            self.assertIsNone(site.mercator_y)
+
+    def test_web_mercator_coordinates_at_poles(self):
+        site = Site(latitude=Decimal('90'), longitude=Decimal('180'))
+        self.assertEqual(site.mercator_x, 20037508.34)
+        self.assertEqual(site.mercator_y, 20037508.34)
+
+        site = Site(latitude=Decimal('-90'), longitude=Decimal('-180'))
+        self.assertEqual(site.mercator_x, -20037508.34)
+        self.assertEqual(site.mercator_y, -20037508.34)
 
 
 class MACBlockTestCase(TestCase):
@@ -669,6 +696,144 @@ class ModuleTypeTestCase(TestCase):
                 'Media': 'sfp, qsfp28',
             },
         )
+
+
+class ModuleTypeImageTestCase(TestCase):
+    """
+    Test the handling of ModuleType front/rear image files.
+    """
+    def setUp(self):
+        media_root = self.enterContext(tempfile.TemporaryDirectory())
+        self.enterContext(override_settings(MEDIA_ROOT=media_root))
+        self.manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+
+    def _create_module_type(self, model='Module Type 1'):
+        """
+        Create a ModuleType with an uploaded front and rear image.
+        """
+        return ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model=model,
+            front_image=create_test_image('front.png'),
+            rear_image=create_test_image('rear.png'),
+        )
+
+    def test_saves_without_image_fields_preserve_files(self):
+        """
+        A save which leaves out or defers the image fields should keep the stored files.
+        """
+        module_type = self._create_module_type()
+        front_image_name = module_type.front_image.name
+        storage = module_type.front_image.storage
+        module_type.front_image = create_test_image('replacement.png')
+        module_type.description = 'Updated description'
+
+        with self.captureOnCommitCallbacks(execute=True):
+            module_type.save(update_fields=iter(['description']))
+
+        self.assertTrue(storage.exists(front_image_name))
+        module_type = ModuleType.objects.defer('front_image', 'rear_image').get(pk=module_type.pk)
+        module_type.description = 'Another description'
+        with self.captureOnCommitCallbacks(execute=True):
+            module_type.save()
+
+        self.assertTrue({'front_image', 'rear_image'}.issubset(module_type.get_deferred_fields()))
+        module_type.refresh_from_db()
+        self.assertEqual(module_type.front_image.name, front_image_name)
+        self.assertTrue(storage.exists(front_image_name))
+
+    def test_image_restored_before_commit(self):
+        """
+        Restoring the original image before the transaction commits should keep it and delete the replacement.
+        """
+        module_type = self._create_module_type()
+        original_name = module_type.front_image.name
+        storage = module_type.front_image.storage
+
+        with self.captureOnCommitCallbacks(execute=True):
+            module_type.front_image = create_test_image('replacement.png')
+            module_type.save()
+            replacement_name = module_type.front_image.name
+            module_type.front_image = original_name
+            module_type.save()
+
+        self.assertTrue(storage.exists(original_name))
+        self.assertFalse(storage.exists(replacement_name))
+
+    @override_settings(STORAGES={
+        **settings.STORAGES,
+        'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage', 'OPTIONS': {'allow_overwrite': True}},
+    })
+    def test_image_shared_between_module_types(self):
+        """
+        An image file stored for two module types should be deleted only once neither references it.
+        """
+        # Overwriting storage (S3 by default) gives two uploads of the same file one stored name
+        module_type = self._create_module_type()
+        other_type = self._create_module_type(model='Module Type 2')
+        front_image_name = module_type.front_image.name
+        rear_image_name = module_type.rear_image.name
+        storage = module_type.front_image.storage
+        self.assertEqual(other_type.front_image.name, front_image_name)
+        self.assertEqual(other_type.rear_image.name, rear_image_name)
+
+        with self.captureOnCommitCallbacks(execute=True):
+            module_type.front_image = ''
+            module_type.save()
+        self.assertTrue(storage.exists(front_image_name))
+
+        with self.captureOnCommitCallbacks(execute=True):
+            other_type.delete()
+        self.assertFalse(storage.exists(front_image_name))
+        self.assertTrue(storage.exists(rear_image_name))
+
+    def test_image_deletion_after_commit(self):
+        """
+        Deleting a module type should delete its stored image files once the deletion commits.
+        """
+        for operation in ('instance', 'deferred', 'unsaved_image', 'queryset'):
+            with self.subTest(operation=operation):
+                module_type = self._create_module_type()
+                images = (module_type.front_image.name, module_type.rear_image.name)
+                storage = module_type.front_image.storage
+                if operation == 'deferred':
+                    module_type = ModuleType.objects.only('pk').get(pk=module_type.pk)
+                elif operation == 'unsaved_image':
+                    module_type.front_image = create_test_image('unsaved.png')
+
+                with self.captureOnCommitCallbacks(execute=True):
+                    if operation == 'queryset':
+                        ModuleType.objects.filter(pk=module_type.pk).delete()
+                    else:
+                        module_type.delete()
+                    for name in images:
+                        self.assertTrue(storage.exists(name))
+
+                for name in images:
+                    self.assertFalse(storage.exists(name))
+
+    def test_image_cleanup_rollback(self):
+        """
+        Replacing an image or deleting a module type in a transaction which is rolled back should keep the file.
+        """
+        for operation in ('replace', 'delete'):
+            with self.subTest(operation=operation):
+                module_type = self._create_module_type(model=operation)
+                pk = module_type.pk
+                original_name = module_type.front_image.name
+                storage = module_type.front_image.storage
+
+                with self.captureOnCommitCallbacks(execute=True), self.assertRaises(RuntimeError):
+                    with transaction.atomic():
+                        if operation == 'replace':
+                            module_type.front_image = create_test_image('replacement.png')
+                            module_type.save()
+                        else:
+                            module_type.delete()
+                        raise RuntimeError('Roll back the transaction')
+
+                self.assertEqual(ModuleType.objects.get(pk=pk).front_image.name, original_name)
+                self.assertTrue(storage.exists(original_name))
 
 
 class RackTypeTestCase(TestCase):
@@ -1436,6 +1601,52 @@ class DeviceTestCase(TestCase):
         with self.assertRaises(ValidationError) as cm:
             Device(**common_kwargs, primary_ip4=mgmt_ip4).full_clean()
         self.assertIn('primary_ip4', cm.exception.message_dict)
+
+
+class DeviceRenderConfigTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.device = create_test_device('Device 1', local_context_data={'foo': 'context', 'bar': 'context'})
+
+    def test_render_config_without_template(self):
+        self.assertIsNone(self.device.render_config())
+
+    def test_render_config_resolves_template(self):
+        role = self.device.role
+        role.config_template = ConfigTemplate.objects.create(
+            name='Role Template', template_code='Role config for {{ device.name }}'
+        )
+        role.save()
+        self.device.config_template = ConfigTemplate.objects.create(
+            name='Device Template', template_code='Device config for {{ device.name }}'
+        )
+        self.device.save()
+        self.assertEqual(self.device.render_config(), 'Device config for Device 1')
+
+        self.device.config_template = None
+        self.device.save()
+        self.assertEqual(self.device.render_config(), 'Role config for Device 1')
+
+    def test_render_config_with_template_and_extra_context(self):
+        config_template = ConfigTemplate.objects.create(
+            name='Template 1', template_code='{{ device.name }} {{ foo }} {{ bar }} {{ baz }}'
+        )
+        self.assertEqual(
+            self.device.render_config(config_template, extra_context={'bar': 'extra', 'baz': 'extra'}),
+            'Device 1 context extra extra'
+        )
+
+    def test_get_render_context(self):
+        context = self.device.get_render_context({'bar': 'extra', 'device': 'spoofed'})
+        self.assertEqual(context['foo'], 'context')
+        self.assertEqual(context['bar'], 'extra')
+        self.assertEqual(context['device'], self.device)
+
+    def test_render_config_error_propagates(self):
+        config_template = ConfigTemplate.objects.create(name='Template 1', template_code='{{ device.name ')
+        with self.assertRaises(TemplateSyntaxError):
+            self.device.render_config(config_template)
 
 
 class DeviceBayTestCase(TestCase):

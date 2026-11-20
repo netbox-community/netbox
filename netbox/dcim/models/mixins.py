@@ -1,3 +1,4 @@
+import math
 from decimal import Decimal
 
 from django.apps import apps
@@ -8,7 +9,13 @@ from django.db import IntegrityError, models, transaction
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import InterfaceTypeChoices
-from dcim.constants import NONCONNECTABLE_IFACE_TYPES, VIRTUAL_IFACE_TYPES, WIRELESS_IFACE_TYPES
+from dcim.constants import (
+    NONCONNECTABLE_IFACE_TYPES,
+    VIRTUAL_IFACE_TYPES,
+    WEB_MERCATOR_EARTH_RADIUS,
+    WEB_MERCATOR_MAX_LATITUDE,
+    WIRELESS_IFACE_TYPES,
+)
 from netbox.choices import *
 from utilities.conversion import (
     DIAMETER_TO_MILLIMETERS,
@@ -26,10 +33,14 @@ __all__ = (
     'InterfaceValidationMixin',
     'MaxFlowMixin',
     'RenderConfigMixin',
+    'WebMercatorMixin',
 )
 
 
 class RenderConfigMixin(models.Model):
+    """
+    Enables rendering an object's configuration from a ConfigTemplate. Must be combined with ConfigContextModel.
+    """
     config_template = models.ForeignKey(
         to='extras.ConfigTemplate',
         on_delete=models.PROTECT,
@@ -52,6 +63,26 @@ class RenderConfigMixin(models.Model):
         if self.platform and self.platform.config_template:
             return self.platform.config_template
         return None
+
+    def get_render_context(self, extra_context=None):
+        """
+        Return the context for rendering this object's config template: its config context data, then any extra
+        context, then the object itself under its model name.
+        """
+        context = self.get_config_context()
+        context.update(extra_context or {})
+        context[self._meta.model_name] = self
+        return context
+
+    def render_config(self, config_template=None, extra_context=None):
+        """
+        Render this object's configuration using the given ConfigTemplate, or the one resolved by
+        get_config_template(). Returns None if no template applies; rendering errors propagate to the caller.
+        """
+        config_template = config_template or self.get_config_template()
+        if config_template is None:
+            return None
+        return config_template.render(context=self.get_render_context(extra_context))
 
 
 class CachedScopeMixin(models.Model):
@@ -500,3 +531,22 @@ class MaxFlowMixin(models.Model):
         # Validate max_flow and max_flow_unit
         if self.max_flow is not None and not self.max_flow_unit:
             raise ValidationError(_("Must specify a unit when setting a maximum flow"))
+
+
+class WebMercatorMixin:
+    """
+    Provides read-only Web Mercator (EPSG:3857) coordinates calculated from a model's latitude and longitude.
+    """
+    @property
+    def mercator_x(self):
+        if self.latitude is None or self.longitude is None:
+            return None
+        return round(math.radians(float(self.longitude)) * WEB_MERCATOR_EARTH_RADIUS, 2)
+
+    @property
+    def mercator_y(self):
+        if self.latitude is None or self.longitude is None:
+            return None
+        # Web Mercator is undefined at the poles; clamp latitude to the projection's bounds
+        latitude = max(-WEB_MERCATOR_MAX_LATITUDE, min(float(self.latitude), WEB_MERCATOR_MAX_LATITUDE))
+        return round(math.log(math.tan(math.pi / 4 + math.radians(latitude) / 2)) * WEB_MERCATOR_EARTH_RADIUS, 2)

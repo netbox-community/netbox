@@ -550,6 +550,7 @@ class SiteView(GetRelatedModelsMixin, generic.ObjectView):
     layout = layout.SimpleLayout(
         left_panels=[
             panels.SitePanel(),
+            panels.SiteLocationPanel(),
             CustomFieldsPanel(),
             TagsPanel(),
             CommentsPanel(),
@@ -2964,6 +2965,7 @@ class DeviceView(generic.ObjectView):
     layout = layout.SimpleLayout(
         left_panels=[
             panels.DevicePanel(),
+            panels.DeviceLocationPanel(),
             panels.VirtualChassisMembersPanel(),
             CustomFieldsPanel(),
             TagsPanel(),

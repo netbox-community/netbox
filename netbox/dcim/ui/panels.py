@@ -37,9 +37,20 @@ class SitePanel(panels.ObjectAttributesPanel):
     facility = attrs.TextAttr('facility')
     description = attrs.TextAttr('description')
     timezone = attrs.TimezoneAttr('time_zone')
+
+
+class SiteLocationPanel(panels.ObjectAttributesPanel):
+    title = _('Location')
+
     physical_address = attrs.AddressAttr('physical_address', map_url=True, copy_button=True)
     shipping_address = attrs.AddressAttr('shipping_address', map_url=True, copy_button=True)
     gps_coordinates = attrs.GPSCoordinatesAttr()
+    mercator_x = attrs.NumericAttr(
+        'mercator_x', label=_('Web Mercator X (EPSG:3857, meters)'), copy_button=True, localize=False
+    )
+    mercator_y = attrs.NumericAttr(
+        'mercator_y', label=_('Web Mercator Y (EPSG:3857, meters)'), copy_button=True, localize=False
+    )
 
 
 class LocationPanel(panels.NestedGroupObjectPanel):
@@ -113,13 +124,8 @@ class RackTypePanel(panels.ObjectAttributesPanel):
 
 
 class DevicePanel(panels.ObjectAttributesPanel):
-    region = attrs.NestedObjectAttr('site.region', linkify=True)
-    site = attrs.RelatedObjectAttr('site', linkify=True, grouped_by='group')
-    location = attrs.NestedObjectAttr('location', linkify=True)
-    rack = attrs.TemplatedAttr('rack', template_name='dcim/device/attrs/rack.html')
     virtual_chassis = attrs.RelatedObjectAttr('virtual_chassis', linkify=True)
     parent_device = attrs.TemplatedAttr('parent_bay', template_name='dcim/device/attrs/parent_device.html')
-    gps_coordinates = attrs.GPSCoordinatesAttr()
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
     description = attrs.TextAttr('description')
     cooling_method = attrs.ChoiceAttr('cooling_method')
@@ -127,6 +133,22 @@ class DevicePanel(panels.ObjectAttributesPanel):
     serial = attrs.TextAttr('serial', label=_('Serial number'), style='font-monospace', copy_button=True)
     asset_tag = attrs.TextAttr('asset_tag', style='font-monospace', copy_button=True)
     config_template = attrs.RelatedObjectAttr('config_template', linkify=True)
+
+
+class DeviceLocationPanel(panels.ObjectAttributesPanel):
+    title = _('Location')
+
+    region = attrs.NestedObjectAttr('site.region', linkify=True)
+    site = attrs.RelatedObjectAttr('site', linkify=True, grouped_by='group')
+    location = attrs.NestedObjectAttr('location', linkify=True)
+    rack = attrs.TemplatedAttr('rack', template_name='dcim/device/attrs/rack.html')
+    gps_coordinates = attrs.GPSCoordinatesAttr()
+    mercator_x = attrs.NumericAttr(
+        'mercator_x', label=_('Web Mercator X (EPSG:3857, meters)'), copy_button=True, localize=False
+    )
+    mercator_y = attrs.NumericAttr(
+        'mercator_y', label=_('Web Mercator Y (EPSG:3857, meters)'), copy_button=True, localize=False
+    )
 
 
 class DeviceManagementPanel(panels.ObjectAttributesPanel):
@@ -228,6 +250,8 @@ class ModuleTypePanel(panels.ObjectAttributesPanel):
     module_bay_types = attrs.RelatedObjectListAttr(
         'module_bay_types', label=_('Bay Type Compatibility'), linkify=True
     )
+    front_image = attrs.ImageAttr('front_image')
+    rear_image = attrs.ImageAttr('rear_image')
 
 
 class PlatformPanel(panels.NestedGroupObjectPanel):

@@ -2,6 +2,7 @@ import io
 import os
 import sys
 import tempfile
+import warnings
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -1707,6 +1708,109 @@ class ExportTemplateStoredOnlyFinalizeTestCase(TestCase):
         t = self._create_stored()
         with self.assertNumQueries(1):
             t.get_environment_params()
+
+
+class StoredFinalizeDeprecationWarningTestCase(TestCase):
+    """
+    A stored 'finalize' stays honored until v5.0, so operators get a once-per-template FutureWarning and unchanged
+    output (#23498).
+    """
+    TEMPLATE_CODE = '{{ "netbox" }}'
+    SHARED_PK = 9001
+
+    def setUp(self):
+        # Start each test with no templates marked as already warned
+        self.enterContext(patch('extras.models.mixins._stored_finalize_warned', set()))
+
+    def _create(self, model, name, **kwargs):
+        # create() does not call clean(). This matches a value stored before clean() blocked it.
+        return model.objects.create(name=name, template_code=self.TEMPLATE_CODE, **kwargs)
+
+    def _create_stored(self, model, name='stored'):
+        return self._create(model, name, environment_params={'finalize': 'builtins.len'})
+
+    def _render_recording(self, *templates):
+        """
+        Use the 'always' filter so any dedupe comes from the template mixin, not from the warnings registry.
+        """
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter('always')
+            for template in templates:
+                template.render()
+        return [w for w in caught if issubclass(w.category, FutureWarning)]
+
+    def test_render_output_unchanged_with_stored_finalize(self):
+        for model in (ExportTemplate, ConfigTemplate):
+            with self.subTest(model=model.__name__):
+                self._create_stored(model)
+                t = model.objects.get(name='stored')
+                with warnings.catch_warnings():
+                    warnings.simplefilter('ignore')
+                    self.assertEqual(t.render(), '6')
+
+    def test_warning_names_model_pk_and_removal_version(self):
+        for model in (ExportTemplate, ConfigTemplate):
+            with self.subTest(model=model.__name__):
+                t = self._create_stored(model, name=f'stored-{model.__name__}')
+                with self.assertNoLogs('extras.models.mixins', 'WARNING'):
+                    caught = self._render_recording(t)
+                self.assertEqual(len(caught), 1)
+                self.assertIs(caught[0].category, FutureWarning)
+                message = str(caught[0].message)
+                self.assertIn(model.__name__, message)
+                self.assertIn(f'pk={t.pk}', message)
+                self.assertIn('v5.0', message)
+                # Must read differently from the "Ignoring the deprecated..." log for in-memory values
+                self.assertNotIn('Ignoring', message)
+
+    def test_warns_once_per_template_per_process(self):
+        first = self._create_stored(ExportTemplate, name='first')
+        second = self._create_stored(ExportTemplate, name='second')
+        caught = self._render_recording(first, first, second, first, second)
+        self.assertEqual(len(caught), 2)
+        self.assertIn(f'pk={first.pk}', str(caught[0].message))
+        self.assertIn(f'pk={second.pk}', str(caught[1].message))
+
+    def test_warns_once_when_warning_filters_change_between_renders(self):
+        """
+        Changing the warning filters (catch_warnings(), filterwarnings(), urllib3.disable_warnings()) clears the
+        warnings registry. The once-per-template dedupe must not depend on it.
+        """
+        t = self._create_stored(ExportTemplate)
+        caught = []
+        for _ in range(3):
+            caught += self._render_recording(t)
+        self.assertEqual(len(caught), 1)
+
+    def test_warns_separately_for_models_sharing_a_pk(self):
+        params = {'finalize': 'builtins.len'}
+        export_template = self._create(ExportTemplate, 'export', pk=self.SHARED_PK, environment_params=params)
+        config_template = self._create(ConfigTemplate, 'config', pk=self.SHARED_PK, environment_params=params)
+        caught = self._render_recording(export_template, config_template)
+        self.assertEqual(len(caught), 2)
+
+    def test_no_warning_without_finalize(self):
+        for model in (ExportTemplate, ConfigTemplate):
+            with self.subTest(model=model.__name__):
+                t = self._create(model, f'plain-{model.__name__}', environment_params={'trim_blocks': True})
+                self.assertEqual(self._render_recording(t), [])
+
+    def test_no_warning_when_finalize_exists_only_in_memory(self):
+        t = self._create(ExportTemplate, 'saved')
+        t.environment_params = {'finalize': 'builtins.len'}
+        with self.assertLogs('extras.models.mixins', 'WARNING'):
+            caught = self._render_recording(t)
+        self.assertEqual(caught, [])
+
+    def test_no_warning_for_unsaved_template(self):
+        t = ExportTemplate(
+            name='unsaved',
+            template_code=self.TEMPLATE_CODE,
+            environment_params={'finalize': 'builtins.len'},
+        )
+        with self.assertLogs('extras.models.mixins', 'WARNING'):
+            caught = self._render_recording(t)
+        self.assertEqual(caught, [])
 
 
 class WebhookPayloadUrlValidationTestCase(TestCase):

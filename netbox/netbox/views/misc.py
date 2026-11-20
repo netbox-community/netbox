@@ -18,7 +18,7 @@ from django.views.static import serve
 from django_tables2 import RequestConfig
 from packaging import version
 
-from dcim.models import DeviceType
+from dcim.models import DeviceType, ModuleType
 from extras.constants import DEFAULT_DASHBOARD
 from extras.dashboard.utils import get_dashboard, get_default_dashboard
 from extras.models import ImageAttachment
@@ -155,6 +155,11 @@ class MediaView(TokenConditionalLoginRequiredMixin, View):
                 raise Http404
         elif path.startswith('devicetype-images/'):
             if not DeviceType.objects.restrict(request.user, 'view').filter(
+                Q(front_image=path) | Q(rear_image=path)
+            ).exists():
+                raise Http404
+        elif path.startswith('moduletype-images/'):
+            if not ModuleType.objects.restrict(request.user, 'view').filter(
                 Q(front_image=path) | Q(rear_image=path)
             ).exists():
                 raise Http404

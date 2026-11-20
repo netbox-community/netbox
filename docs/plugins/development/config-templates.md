@@ -115,3 +115,43 @@ The returned dict is merged into the template context, so `my_plugin` becomes av
 
 !!! note "No per-render context"
     `get_jinja_context()` receives no arguments — it has no access to the object being rendered or the caller-supplied context. It is intended for plugin-global namespaces (e.g. a lazily-evaluated query helper). Per-object logic belongs in the template itself or in a custom filter.
+
+---
+
+## Rendering Configurations
+
+!!! info "This feature was introduced in NetBox v4.8."
+
+Devices and virtual machines provide two methods for rendering their configuration outside of a web request, for example from a background job, a custom script, or a management command. For the same template and extra context, these produce the same output as the "Render Config" tab in the UI and the `render-config` REST API endpoint.
+
+### `render_config(config_template=None, extra_context=None)`
+
+Renders and returns the object's configuration as text. If `config_template` is not given, the template is resolved from the object, its role, or its platform (in that order). Returns `None` if no template applies. Rendering errors are raised to the caller.
+
+```python
+from dcim.models import Device
+
+device = Device.objects.get(name='router1')
+config = device.render_config(extra_context={'deploy_id': 42})
+```
+
+!!! tip "Rendering many objects"
+    Resolving each object's config template, and computing any config context that isn't cached, can take extra queries per object. When rendering many objects, preload the template relationships and annotate the queryset so that both are fetched in the same query:
+
+    ```python
+    devices = (
+        Device.objects
+        .select_related('config_template', 'role__config_template', 'platform__config_template')
+        .annotate_config_context_data(only_invalidated=True)
+    )
+
+    for device in devices:
+        config = device.render_config()
+    ```
+
+### `get_render_context(extra_context=None)`
+
+Returns the context used to render the object's config template: its [config context](../../features/context-data.md) data, then any extra context, then the object itself under its model name (`device` or `virtualmachine`). The object always takes precedence, so extra context can't replace it.
+
+!!! note "Permissions"
+    Neither method checks permissions. If you render a configuration on behalf of a user, confirm that the user has the `render_config` and `view` permissions for the object, as the UI and REST API do. If you pass a `config_template` the user selected, also confirm that they have `view` permission for that template.

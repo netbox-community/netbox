@@ -865,6 +865,8 @@ class ModuleTypeFilter(ImageAttachmentFilterMixin, WeightFilterMixin, PrimaryMod
         strawberry_django.filter_field()
     )
     end_of_life: DateFilterLookup | None = strawberry_django.filter_field()
+    front_image: StrFilterLookup | None = strawberry_django.filter_field()
+    rear_image: StrFilterLookup | None = strawberry_django.filter_field()
     consoleporttemplates: Annotated['ConsolePortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field(name='console_port_templates')
     )

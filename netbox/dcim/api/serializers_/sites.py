@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from timezone_field.rest_framework import TimeZoneSerializerField
 
@@ -53,6 +54,16 @@ class SiteSerializer(PrimaryModelSerializer):
     group = SiteGroupSerializer(nested=True, required=False, allow_null=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     time_zone = TimeZoneSerializerField(required=False, allow_null=True)
+    mercator_x = serializers.FloatField(
+        read_only=True,
+        allow_null=True,
+        help_text=_('Web Mercator (EPSG:3857) X coordinate, in meters')
+    )
+    mercator_y = serializers.FloatField(
+        read_only=True,
+        allow_null=True,
+        help_text=_('Web Mercator (EPSG:3857) Y coordinate, in meters')
+    )
     asns = SerializedPKRelatedField(
         queryset=ASN.objects.all(),
         serializer=ASNSerializer,
@@ -73,9 +84,9 @@ class SiteSerializer(PrimaryModelSerializer):
         model = Site
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'status', 'region', 'group', 'tenant', 'facility',
-            'time_zone', 'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'owner',
-            'comments', 'asns', 'tags', 'custom_fields', 'created', 'last_updated', 'circuit_count', 'device_count',
-            'prefix_count', 'rack_count', 'virtualmachine_count', 'vlan_count',
+            'time_zone', 'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'mercator_x',
+            'mercator_y', 'owner', 'comments', 'asns', 'tags', 'custom_fields', 'created', 'last_updated',
+            'circuit_count', 'device_count', 'prefix_count', 'rack_count', 'virtualmachine_count', 'vlan_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description', 'slug')
 
