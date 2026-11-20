@@ -91,7 +91,7 @@ The assigned [profile](./moduletypeprofile.md) for the type of module. Profiles 
 
 Zero or more [module bay types](./modulebaytype.md) that this module type is compatible with. When at least one bay type is set, the module type may only be installed into bays that share a common type. Leave empty to allow installation into any bay.
 
-Bay types are included, by name, in a module type's exported YAML definition, but are not currently importable back through it; re-importing an exported definition leaves this field unset.
+Bay types are exported and imported by name. On import, a bay type belonging to the module type's manufacturer takes precedence over a global bay type with the same name; a name matching only another manufacturer's bay type is rejected.
 
 ### Attributes
 

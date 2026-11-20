@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+import yaml
 from django import forms
 from django.template.loader import render_to_string
 from django.test import TestCase
@@ -309,6 +310,80 @@ class ModuleTypeFormTestCase(TestCase):
 
                     module_type = form.save()
                     self.assertEqual(module_type.attribute_data, {'slots': value})
+
+
+class ModuleTypeImportFormTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        other_manufacturer = Manufacturer.objects.create(name='Manufacturer 2', slug='manufacturer-2')
+        cls.global_type = ModuleBayType.objects.create(name='global-slot', slug='global-slot')
+        cls.manufacturer_type = ModuleBayType.objects.create(
+            manufacturer=cls.manufacturer, name='manufacturer-slot', slug='manufacturer-slot',
+        )
+        ModuleBayType.objects.create(name='manufacturer-slot', slug='manufacturer-slot')
+        cls.other_type = ModuleBayType.objects.create(
+            manufacturer=other_manufacturer, name='Other Bay', slug='other-bay',
+        )
+
+    def test_import_module_bay_types(self):
+        """Save global and manufacturer-specific bay types, preferring the latter when a name is shared."""
+        form = ModuleTypeImportForm(data={
+            'manufacturer': self.manufacturer.name,
+            'model': 'Imported Module',
+            'module_bay_types': ['global-slot', 'manufacturer-slot'],
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        module_type = form.save()
+        self.assertEqual(set(module_type.module_bay_types.all()), {self.global_type, self.manufacturer_type})
+
+    def test_invalid_module_bay_types(self):
+        """Reject names that are unknown or belong only to another manufacturer."""
+        for name in ('Unknown Bay', self.other_type.name):
+            with self.subTest(name=name):
+                form = ModuleTypeImportForm(data={
+                    'manufacturer': self.manufacturer.name,
+                    'model': 'Imported Module',
+                    'module_bay_types': [self.global_type.name, name],
+                })
+                self.assertFalse(form.is_valid())
+                self.assertEqual(form.errors.as_data()['module_bay_types'][0].code, 'invalid_choice')
+
+    def test_optional_module_bay_types(self):
+        """An omitted or empty bay type list leaves a new module type unconstrained."""
+        for extra_data in ({}, {'module_bay_types': []}):
+            with self.subTest(data=extra_data):
+                form = ModuleTypeImportForm(data={
+                    'manufacturer': self.manufacturer.name,
+                    'model': 'Imported Module',
+                    **extra_data,
+                })
+                self.assertTrue(form.is_valid(), form.errors)
+                module_type = form.save()
+                self.assertFalse(module_type.module_bay_types.exists())
+                module_type.delete()
+
+    def test_update_module_bay_types_without_manufacturer(self):
+        """Resolve bay types against the saved manufacturer when an update omits it."""
+        module_type = ModuleType.objects.create(manufacturer=self.manufacturer, model='Existing Module')
+        form = ModuleTypeImportForm(instance=module_type, data={'module_bay_types': ['manufacturer-slot']})
+        # BulkImportView removes unspecified fields when updating an existing object.
+        for name in list(form.fields):
+            if name not in form.data:
+                del form.fields[name]
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(list(form.save().module_bay_types.all()), [self.manufacturer_type])
+
+    def test_import_export_round_trip(self):
+        """Exporting and reimporting a module type preserves its bay type assignments."""
+        original = ModuleType.objects.create(manufacturer=self.manufacturer, model='Original Module')
+        original.module_bay_types.set([self.global_type, self.manufacturer_type])
+        data = yaml.safe_load(original.to_yaml())
+        data['model'] = 'Reimported Module'
+        form = ModuleTypeImportForm(data=data)
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(set(form.save().module_bay_types.all()), set(original.module_bay_types.all()))
 
 
 class ModuleTypeProfileDescriptionRenderingTestCase(TestCase):
