@@ -22,14 +22,22 @@ from core.events import JOB_COMPLETED, JOB_ERRORED, JOB_FAILED
 from core.models import ObjectType
 from core.signals import job_end, job_start
 from extras.models import Notification
+from netbox.config import get_config
+from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.models.features import has_feature
 from utilities.json import JobLogDecoder
 from utilities.querysets import RestrictedQuerySet
-from utilities.rqworker import get_queue_for_model
 
 __all__ = (
     'Job',
 )
+
+
+def get_queue_for_model(model):
+    """
+    Return the configured queue name for jobs associated with the given model.
+    """
+    return get_config().QUEUE_MAPPINGS.get(model, RQ_QUEUE_DEFAULT)
 
 
 class Job(models.Model):
@@ -197,6 +205,14 @@ class Job(models.Model):
 
         return f"{int(minutes)} minutes, {seconds:.2f} seconds"
 
+    def _get_rq_job(self):
+        """
+        Return this job's RQ-side entry, or None if it no longer exists in Redis.
+        """
+        rq_queue_name = self.queue_name or get_queue_for_model(self.object_type.model if self.object_type else None)
+        queue = django_rq.get_queue(rq_queue_name)
+        return queue.fetch_job(str(self.job_id))
+
     def _is_rq_job_present(self):
         """
         Return True if this job's RQ-side entry still exists. A "scheduled" Job row whose RQ entry
@@ -206,9 +222,7 @@ class Job(models.Model):
         Only meaningful while the Job row is "scheduled": the RQ entry also lingers after a job has
         finished (briefly) or failed (up to a year), states a "scheduled" row never occupies.
         """
-        rq_queue_name = self.queue_name or get_queue_for_model(self.object_type.model if self.object_type else None)
-        queue = django_rq.get_queue(rq_queue_name)
-        return queue.fetch_job(str(self.job_id)) is not None
+        return self._get_rq_job() is not None
 
     def delete(self, *args, **kwargs):
         # Use the stored queue name, or fall back to get_queue_for_model for legacy jobs
@@ -245,6 +259,8 @@ class Job(models.Model):
 
         self.started = started
         self.status = JobStatusChoices.STATUS_RUNNING
+        # This instance may be stale (e.g. unpickled from its RQ task), and a retry may have cleared the interval.
+        self.refresh_from_db(using=using, fields=['interval'])
 
         # Send signal
         job_start.send(self)

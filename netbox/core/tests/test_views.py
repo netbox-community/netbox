@@ -586,6 +586,29 @@ class BackgroundTaskTestCase(RQQueueTestMixin, TestCase):
         job.refresh_from_db()
         self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
 
+    def test_background_task_retry_of_recurring_job_does_not_reschedule(self):
+        """Retrying a terminated recurring Job, which already scheduled its successor, does not schedule another."""
+        queue = get_queue('default')
+        with self.captureOnCommitCallbacks(execute=True):
+            job = TestJobRunner.enqueue(interval=60)
+        rq_job = RQ_Job.fetch(str(job.job_id), connection=queue.connection)
+        # A failed run still terminates the Job and schedules its successor
+        with patch.object(TestJobRunner, 'run', side_effect=Exception('Simulated job error')):
+            self.run_rq_jobs('default')
+        successors = Job.objects.filter(status=JobStatusChoices.STATUS_SCHEDULED).exclude(pk=job.pk)
+        self.assertEqual(successors.count(), 1)
+
+        with self.captureOnCommitCallbacks(execute=True):
+            self.client.get(reverse('core:background_task_enqueue', args=[rq_job.id]))
+        with patch.object(TestJobRunner, 'run') as run:
+            self.run_rq_jobs('default')
+
+        run.assert_called_once()
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
+        self.assertIsNone(job.interval)
+        self.assertEqual(successors.count(), 1)
+
     def test_background_task_enqueue_leaves_running_job(self):
         """Enqueue of a task its worker still holds does not run the Job twice."""
         queue = get_queue('default')
