@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.storage import storages
 from django.db import models
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from extras.storage import ScriptFileSystemStorage
 from netbox.models.features import SyncedDataMixin

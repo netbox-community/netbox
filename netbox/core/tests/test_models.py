@@ -10,9 +10,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import call_command
 from django.db import IntegrityError, connection
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from django.test.utils import CaptureQueriesContext
-from django.utils import timezone
+from django.utils import timezone, translation
+from django.utils.functional import Promise
+from django.utils.translation import gettext
 
 from core.choices import DataSourceStatusChoices, JobNotificationChoices, JobStatusChoices, ObjectChangeActionChoices
 from core.data_backends import LocalBackend
@@ -663,3 +665,11 @@ class JobTestCase(TestCase):
         job.terminate(status=JobStatusChoices.STATUS_COMPLETED)
 
         self.assertIsNone(job.execution_time)
+
+    @tag('regression')  # Ref: #23702
+    def test_verbose_name_translation(self):
+        # Meta labels are set at import, so eager gettext keeps them in DEFAULT_LANGUAGE (#23702)
+        verbose_name = Job._meta.verbose_name
+        self.assertIsInstance(verbose_name, Promise)
+        with translation.override('nl'):
+            self.assertEqual(str(verbose_name), gettext('job'))

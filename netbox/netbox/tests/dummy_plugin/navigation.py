@@ -1,4 +1,4 @@
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from netbox.plugins.navigation import PluginMenu, PluginMenuButton, PluginMenuItem
 

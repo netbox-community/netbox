@@ -13,7 +13,7 @@ from django.core.validators import MinValueValidator
 from django.db import models, router, transaction
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from rq.exceptions import InvalidJobOperation
 
 from core.choices import JobNotificationChoices, JobStatusChoices
