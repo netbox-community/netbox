@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-19 05:01+0000\n"
+"POT-Creation-Date: 2026-11-20 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2844,7 +2844,7 @@ msgstr ""
 msgid "log entries"
 msgstr ""
 
-#: netbox/core/models/jobs.py:151
+#: netbox/core/models/jobs.py:151 netbox/core/tests/test_models.py:675
 msgid "job"
 msgstr ""
 
@@ -14801,7 +14801,7 @@ msgstr ""
 msgid "{class_name} must specify a model class."
 msgstr ""
 
-#: netbox/netbox/forms/mixins.py:114
+#: netbox/netbox/forms/mixins.py:114 netbox/netbox/tests/test_forms.py:619
 #: netbox/templates/inc/table_controls_htmx.html:25
 #: netbox/templates/inc/table_controls_htmx.html:26
 msgid "Saved filter"
