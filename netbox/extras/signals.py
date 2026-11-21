@@ -447,6 +447,8 @@ def process_job_start_event_rules(sender, **kwargs):
     )
     event = EventContext(
         event_type=JOB_STARTED,
+        object_id=sender.object_id,
+        object=sender.object,
         data=sender.data,
         user=sender.user,
     )
@@ -465,6 +467,8 @@ def process_job_end_event_rules(sender, **kwargs):
     )
     event = EventContext(
         event_type=JOB_COMPLETED,
+        object_id=sender.object_id,
+        object=sender.object,
         data=sender.data,
         user=sender.user,
     )
