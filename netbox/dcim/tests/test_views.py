@@ -6156,6 +6156,25 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertFalse(self._get_member_changes(member).exists())
 
     @tag('regression')  # Ref: #23669
+    def test_edit_members_checks_constrained_change_device_permission_before_save(self):
+        self.add_permissions('dcim.change_virtualchassis')
+        self._add_constrained_permission(Device, ['change'], {'vc_priority__isnull': True})
+        vc = VirtualChassis.objects.get(name='VC1')
+        member = Device.objects.get(name='Device 2')
+        Device.objects.filter(pk=member.pk).update(vc_priority=50)
+
+        # Clearing the priority would satisfy the constraint, but the member does not satisfy it beforehand
+        response = self.client.post(self._get_url('edit', vc), self._get_edit_data(vc, **{'Device 2': (2, None)}))
+        self.assertHttpStatus(response, 200)
+        self.assertIn(PermissionsViolation.message, response.context['vc_form'].non_field_errors())
+        self.assertEqual(response.context['object'], vc)
+
+        # The change is rolled back
+        member.refresh_from_db()
+        self.assertEqual(member.vc_priority, 50)
+        self.assertFalse(self._get_member_changes(member).exists())
+
+    @tag('regression')  # Ref: #23669
     def test_edit_blocked_by_constrained_change_virtualchassis_permission(self):
         self._add_constrained_permission(VirtualChassis, ['view', 'change'], {'name': 'VC1'})
         vc = VirtualChassis.objects.get(name='VC1')

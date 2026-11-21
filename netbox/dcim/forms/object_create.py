@@ -394,7 +394,7 @@ class VirtualChassisCreateForm(OwnerMixin, NetBoxModelForm):
     def clean_members(self):
         members = self.cleaned_data['members']
         for member in members:
-            if member.virtual_chassis is not None:
+            if member.virtual_chassis_id is not None:
                 raise forms.ValidationError(
                     _("Device {device} is already assigned to a virtual chassis.").format(device=member)
                 )
@@ -429,10 +429,8 @@ class VirtualChassisCreateForm(OwnerMixin, NetBoxModelForm):
                 member.save()
 
             # Check that each member still conforms with any assigned object-level permissions
-            if request := current_request.get():
-                members = self.cleaned_data['members']
-                permitted = Device.objects.restrict(request.user, 'change').filter(pk__in=[m.pk for m in members])
-                if permitted.count() != len(members):
-                    raise PermissionsViolation()
+            members = self.cleaned_data['members']
+            if self.fields['members'].queryset.filter(pk__in=[m.pk for m in members]).count() != len(members):
+                raise PermissionsViolation()
 
         return instance

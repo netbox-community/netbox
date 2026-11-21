@@ -5252,10 +5252,16 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
                     # Save the VirtualChassis
                     vc_form.save()
 
+                    # Each changed member must be a device the user can change, both before and after saving
+                    members = formset.save(commit=False)
+                    member_pks = [m.pk for m in members]
+                    change_queryset = Device.objects.restrict(request.user, 'change')
+                    if change_queryset.filter(pk__in=member_pks).count() != len(members):
+                        raise PermissionsViolation()
+
                     # Nullify vc_position of each changed member first to allow reordering without an IntegrityError
                     # on duplicate positions. A queryset update keeps this transient state out of the changelog.
-                    members = formset.save(commit=False)
-                    Device.objects.filter(pk__in=[m.pk for m in members]).update(vc_position=None)
+                    Device.objects.filter(pk__in=member_pks).update(vc_position=None)
                     for member in members:
                         member.save()
 
@@ -5263,10 +5269,7 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
                     # object-level permissions
                     if not self.queryset.filter(pk=virtual_chassis.pk).exists():
                         raise PermissionsViolation()
-                    permitted_members = Device.objects.restrict(request.user, 'change').filter(
-                        pk__in=[m.pk for m in members]
-                    )
-                    if permitted_members.count() != len(members):
+                    if change_queryset.filter(pk__in=member_pks).count() != len(members):
                         raise PermissionsViolation()
 
                 return redirect(virtual_chassis.get_absolute_url())
@@ -5276,6 +5279,7 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
                 clear_events.send(sender=self)
 
         return render(request, 'dcim/virtualchassis_edit.html', {
+            'object': virtual_chassis,
             'vc_form': vc_form,
             'formset': formset,
             'return_url': self.get_return_url(request, virtual_chassis),
