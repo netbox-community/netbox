@@ -52,6 +52,7 @@ corencas
 corubba
 cory-kantar
 dansheps
+danshinde
 dfex
 dianbofa
 dkrasthi
