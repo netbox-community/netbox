@@ -158,7 +158,7 @@ class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id'),
         FieldSet('time_before', 'time_after', name=_('Time')),
-        FieldSet('action', 'user_id', 'changed_object_type_id', name=_('Attributes')),
+        FieldSet('action', 'user_id', 'changed_object_type_id', 'changed_object_id', name=_('Attributes')),
     )
     time_after = forms.DateTimeField(
         required=False,
@@ -184,6 +184,10 @@ class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
         queryset=ObjectType.objects.with_feature('change_logging'),
         required=False,
         label=_('Object Type'),
+    )
+    changed_object_id = forms.IntegerField(
+        label=_('Object ID'),
+        required=False,
     )
 
 

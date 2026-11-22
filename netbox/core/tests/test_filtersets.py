@@ -256,6 +256,33 @@ class ObjectChangeTestCase(TestCase, BaseFilterSetTestMixin):
         params = {'changed_object_type_id': [ContentType.objects.get_by_natural_key('dcim', 'site').pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
+    def test_changed_object_id(self):
+        site = Site.objects.get(name='Test Site 1')
+
+        params = {'changed_object_id': [site.pk]}
+        filterset = self.filterset(params, self.queryset)
+
+        self.assertTrue(filterset.is_valid(), msg=filterset.errors)
+
+        actual_ids = list(
+            filterset.qs.values_list('pk', flat=True)
+        )
+        expected_ids = list(
+            self.queryset.filter(changed_object_id=site.pk).values_list('pk', flat=True)
+        )
+        self.assertCountEqual(actual_ids, expected_ids)
+
+        params = {
+            'changed_object_type_id': [
+                ContentType.objects.get_for_model(Site).pk
+            ],
+            'changed_object_id': [site.pk],
+        }
+        filterset = self.filterset(params, self.queryset)
+
+        self.assertTrue(filterset.is_valid(), msg=filterset.errors)
+        self.assertEqual(filterset.qs.count(), 3)
+
 
 class JobTestCase(TestCase, BaseFilterSetTestMixin):
     queryset = Job.objects.all()
