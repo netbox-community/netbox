@@ -1,10 +1,12 @@
-from django.test import TestCase
+from django.test import TestCase, tag
+from django.utils import translation
+from django.utils.translation import gettext
 
 from core.events import OBJECT_CREATED
 from core.models import ObjectType
 from dcim.models import Site
 from extras.choices import CustomFieldStatusChoices, CustomFieldTypeChoices
-from extras.models import Bookmark, CustomField, EventRule, Notification, Subscription
+from extras.models import Bookmark, CustomField, EventRule, JournalEntry, Notification, Subscription
 from extras.tables import *
 from utilities.testing import TableTestCases
 
@@ -190,3 +192,9 @@ class ImageAttachmentTableTestCase(TableTestCases.StandardTableTestCase):
 
 class JournalEntryTableTestCase(TableTestCases.StandardTableTestCase):
     table = JournalEntryTable
+
+    @tag('regression')  # Ref: #23753
+    def test_created_by_header_translated(self):
+        with translation.override('nl'):
+            table = JournalEntryTable(JournalEntry.objects.none())
+            self.assertEqual(table.columns['created_by'].header, gettext('Created by'))
