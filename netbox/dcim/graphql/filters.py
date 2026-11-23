@@ -44,7 +44,7 @@ from .filter_mixins import (
 
 if TYPE_CHECKING:
     from core.graphql.filters import ContentTypeFilter
-    from extras.graphql.filters import ConfigTemplateFilter, ImageAttachmentFilter
+    from extras.graphql.filters import ConfigTemplateFilter
     from ipam.graphql.filters import (
         ASNFilter,
         FHRPGroupAssignmentFilter,
@@ -412,12 +412,8 @@ class DeviceTypeFilter(ImageAttachmentFilterMixin, WeightFilterMixin, PrimaryMod
         strawberry_django.filter_field()
     )
     end_of_life: DateFilterLookup | None = strawberry_django.filter_field()
-    front_image: Annotated['ImageAttachmentFilter', strawberry.lazy('extras.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    rear_image: Annotated['ImageAttachmentFilter', strawberry.lazy('extras.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
+    front_image: StrFilterLookup | None = strawberry_django.filter_field()
+    rear_image: StrFilterLookup | None = strawberry_django.filter_field()
     consoleporttemplates: Annotated['ConsolePortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field(name='console_port_templates')
     )
