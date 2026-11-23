@@ -1375,6 +1375,31 @@ class InterfaceTestCase(TestCase):
         self.assertEqual(lag.lag_mode, InterfaceLAGModeChoices.MODE_ACTIVE_BACKUP)
         self.assertIsNone(lag.lag_hash_policy)
 
+    def test_lag_mode_cleared(self):
+        """Clearing the LAG mode of a LAG interface also clears its hash policy."""
+        lag = Interface.objects.create(
+            device=self.device,
+            name='bond0',
+            type=InterfaceTypeChoices.TYPE_LAG,
+            lag_mode=InterfaceLAGModeChoices.MODE_LACP,
+            lag_hash_policy=InterfaceLAGHashPolicyChoices.POLICY_LAYER3_4,
+        )
+        data = {
+            'device': self.device.pk,
+            'name': 'bond0',
+            'type': InterfaceTypeChoices.TYPE_LAG,
+            'lag_mode': '',
+            'lag_hash_policy': InterfaceLAGHashPolicyChoices.POLICY_LAYER3_4,
+        }
+        form = InterfaceForm(data, instance=lag)
+        self.assertNotIn('lag_hash_policy', form.fields)
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+
+        lag.refresh_from_db()
+        self.assertFalse(lag.lag_mode)
+        self.assertIsNone(lag.lag_hash_policy)
+
     def test_lag_attributes_cleared_when_changing_from_lag_type(self):
         """Changing a LAG interface to another type clears its LAG mode and hash policy."""
         lag = Interface.objects.create(

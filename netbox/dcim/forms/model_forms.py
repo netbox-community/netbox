@@ -2231,8 +2231,14 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         if get_field_value(self, 'type') != InterfaceTypeChoices.TYPE_LAG:
             del self.fields['lag_mode']
             del self.fields['lag_hash_policy']
-        elif get_field_value(self, 'lag_mode') not in LAG_HASH_MODES:
-            del self.fields['lag_hash_policy']
+        else:
+            # Read a submitted mode directly, as get_field_value() treats a cleared (blank) mode as unset
+            if self.is_bound and 'lag_mode' in self.data:
+                lag_mode = self.data['lag_mode']
+            else:
+                lag_mode = get_field_value(self, 'lag_mode')
+            if lag_mode not in LAG_HASH_MODES:
+                del self.fields['lag_hash_policy']
 
     def clean(self):
         super().clean()
