@@ -365,6 +365,22 @@ class ObjectChangeTestCase(TestCase):
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
         self.assertHttpStatus(response, 200)
 
+    def test_objectchange_list_filter_by_object_id(self):
+        """Filter the change log by the ID of a deleted object."""
+        site = Site.objects.get(slug='site-1')
+        site_pk = site.pk
+        site.delete()
+        url = reverse('core:objectchange_list')
+
+        response = self.client.get(url, {'changed_object_id': site_pk})
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, f'Object ID: {site_pk}')
+        self.assertEqual(len(response.context['table'].rows), 3)
+
+        response = self.client.get(url, {'changed_object_id': site_pk + 1})
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(len(response.context['table'].rows), 0)
+
     def test_objectchange(self):
 
         objectchange = ObjectChange.objects.first()
