@@ -22,6 +22,7 @@ class ChangelogMessageMixin(forms.Form):
     Adds an optional field for recording a message on the resulting changelog record(s).
     """
     changelog_message = forms.CharField(
+        label=_('Changelog message'),
         required=False,
         max_length=200,
     )

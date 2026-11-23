@@ -597,12 +597,13 @@ class FormMixinLabelTranslationTestCase(TestCase):
 
     @tag('regression')  # Ref: #23702
     def test_model_form_mixin_labels(self):
-        # SiteForm inherits OwnerMixin and TagsMixin
+        # SiteForm inherits OwnerMixin, TagsMixin and ChangelogMessageMixin
         with translation.override('nl'):
             self.assertLabelsTranslated(SiteForm(), {
                 'owner_group': 'Owner group',
                 'owner': 'Owner',
                 'tags': 'Tags',
+                'changelog_message': 'Changelog message',
             })
 
     @tag('regression')  # Ref: #23702
