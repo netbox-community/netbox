@@ -1,10 +1,7 @@
 import logging
-import threading
-from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
-from django.db.models import QuerySet
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 
@@ -312,29 +309,8 @@ def retrace_cable_paths(instance, **kwargs):
         cablepath.retrace()
 
 
-# IDs of CablePaths to retrace once the current transaction commits, keyed by database alias
-_pending_path_retraces = threading.local()
-
-
-def _retrace_paths_on_commit(cablepath_ids, using):
-    """
-    Queue CablePaths to be retraced (once each) after the current transaction commits.
-    """
-    _pending_path_retraces.__dict__.setdefault(using, set()).update(cablepath_ids)
-    transaction.on_commit(partial(_flush_path_retraces, using), using=using)
-
-
-def _flush_path_retraces(using):
-    cablepath_ids = _pending_path_retraces.__dict__.pop(using, None)
-    if not cablepath_ids:
-        return
-    with transaction.atomic(using=using):
-        for cablepath in CablePath.objects.using(using).filter(pk__in=cablepath_ids):
-            cablepath.retrace()
-
-
 @receiver((post_delete, post_save), sender=PortMapping)
-def update_passthrough_port_paths(instance, using, update_fields=None, origin=None, **kwargs):
+def update_passthrough_port_paths(instance, update_fields=None, **kwargs):
     """
     When a PortMapping is created or deleted, retrace any CablePaths which traverse its front and/or rear ports.
     """
@@ -346,14 +322,7 @@ def update_passthrough_port_paths(instance, using, update_fields=None, origin=No
         compile_path_node(ContentType.objects.get_for_model(FrontPort).pk, instance.front_port_id),
         compile_path_node(ContentType.objects.get_for_model(RearPort).pk, instance.rear_port_id),
     ]
-    cablepaths = CablePath.objects.using(using).filter(_nodes__overlap=port_nodes)
-
-    # Mid-cascade (e.g. deleting a Module), other nodes on the path may be half deleted; retrace after commit
-    origin_model = origin.model if isinstance(origin, QuerySet) else type(origin)
-    if origin is not None and origin_model is not PortMapping:
-        _retrace_paths_on_commit(cablepaths.values_list('pk', flat=True), using)
-        return
-    for cablepath in cablepaths:
+    for cablepath in CablePath.objects.filter(_nodes__overlap=port_nodes):
         cablepath.retrace()
 
 

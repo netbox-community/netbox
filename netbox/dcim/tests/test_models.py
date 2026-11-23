@@ -2460,8 +2460,7 @@ class ModuleBayTestCase(TestCase):
         module = Module.objects.create(device=device, module_bay=slot, module_type=line_card)
         interface, cable = self._cable_interface_to_front_port(device, module)
 
-        with self.captureOnCommitCallbacks(execute=True):
-            slot.delete()
+        slot.delete()
         self.assertFalse(ModuleBay.objects.filter(device=device, name='Sub').exists())
         self._assert_path_ends_at_cable(interface, cable)
 
@@ -2479,8 +2478,7 @@ class ModuleBayTestCase(TestCase):
         Module.objects.create(device=device, module_bay=sub_bay, module_type=plain_module_type)
         interface, cable = self._cable_interface_to_front_port(device, module)
 
-        with self.captureOnCommitCallbacks(execute=True):
-            module.delete()
+        module.delete()
         self.assertFalse(Module.objects.filter(module_bay=slot).exists())
         self._assert_path_ends_at_cable(interface, cable)
 
