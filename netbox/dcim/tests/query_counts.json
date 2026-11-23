@@ -44,7 +44,7 @@
   "inventoryitemtemplate:api_list_objects": 13,
   "location:api_list_objects": 14,
   "location:list_objects_with_permission": 18,
-  "macaddress:api_list_objects": 16,
+  "macaddress:api_list_objects": 15,
   "macaddress:list_objects_with_permission": 20,
   "manufacturer:api_list_objects": 12,
   "manufacturer:list_objects_with_permission": 16,
