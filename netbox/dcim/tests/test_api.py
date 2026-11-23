@@ -1707,6 +1707,33 @@ class DeviceTypeTestCase(APIViewTestCases.APIViewTestCase):
         'airflow': 'not-a-valid-airflow',
     }
     user_permissions = ('dcim.view_manufacturer', )
+    graphql_filter_tests = (
+        GraphQLFilterTest(
+            name='front_image__exact',
+            filters='front_image: {exact: "devicetype-images/device-type-2-front.png"}',
+            expected=lambda qs: qs.filter(model='Device Type 2'),
+        ),
+        GraphQLFilterTest(
+            name='front_image__exact_empty',
+            filters='front_image: {exact: ""}',
+            expected=lambda qs: qs.filter(model__in=['Device Type 1', 'Device Type 3']),
+        ),
+        GraphQLFilterTest(
+            name='front_image__contains',
+            filters='front_image: {contains: "front.png"}',
+            expected=lambda qs: qs.filter(model='Device Type 2'),
+        ),
+        GraphQLFilterTest(
+            name='rear_image__exact',
+            filters='rear_image: {exact: "devicetype-images/device-type-3-rear.png"}',
+            expected=lambda qs: qs.filter(model='Device Type 3'),
+        ),
+        GraphQLFilterTest(
+            name='rear_image__exact_empty',
+            filters='rear_image: {exact: ""}',
+            expected=lambda qs: qs.filter(model__in=['Device Type 1', 'Device Type 2']),
+        ),
+    )
 
     @classmethod
     def setUpTestData(cls):
@@ -1719,8 +1746,18 @@ class DeviceTypeTestCase(APIViewTestCases.APIViewTestCase):
 
         device_types = (
             DeviceType(manufacturer=manufacturers[0], model='Device Type 1', slug='device-type-1'),
-            DeviceType(manufacturer=manufacturers[0], model='Device Type 2', slug='device-type-2'),
-            DeviceType(manufacturer=manufacturers[0], model='Device Type 3', slug='device-type-3'),
+            DeviceType(
+                manufacturer=manufacturers[0],
+                model='Device Type 2',
+                slug='device-type-2',
+                front_image='devicetype-images/device-type-2-front.png',
+            ),
+            DeviceType(
+                manufacturer=manufacturers[0],
+                model='Device Type 3',
+                slug='device-type-3',
+                rear_image='devicetype-images/device-type-3-rear.png',
+            ),
         )
         DeviceType.objects.bulk_create(device_types)
 
