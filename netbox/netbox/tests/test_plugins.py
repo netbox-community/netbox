@@ -90,6 +90,18 @@ class PluginTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('netbox.tests.dummy_plugin', [p['package'] for p in response.json()])
 
+    def test_plugins_api_root_without_base_url(self):
+        self.client.force_login(User.objects.create_superuser(username='superuser'))
+
+        # A plugin without a base_url is listed under its label
+        with mock.patch.object(apps.get_app_config('dummy_plugin'), 'base_url', None):
+            response = self.client.get(reverse('plugins-api:api-root'), HTTP_ACCEPT='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()['dummy_plugin'],
+            'http://testserver/api/plugins/dummy-plugin/',
+        )
+
     @override_settings(LOGIN_REQUIRED=False)
     def test_registered_views(self):
 

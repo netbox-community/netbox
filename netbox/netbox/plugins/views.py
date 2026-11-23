@@ -55,7 +55,7 @@ class PluginsAPIRootView(APIView):
         # Check if the plugin specifies any API URLs
         api_app_name = f'{app_config.label}-api'
         try:
-            entry = (getattr(app_config, 'base_url', app_config.label), reverse(
+            entry = (getattr(app_config, 'base_url') or app_config.label, reverse(
                 f"plugins-api:{api_app_name}:api-root",
                 request=request,
                 format=format
