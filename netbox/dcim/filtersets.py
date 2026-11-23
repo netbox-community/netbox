@@ -2563,6 +2563,14 @@ class InterfaceFilterSet(
         choices=InterfacePoETypeChoices,
         distinct=False,
     )
+    lag_mode = django_filters.MultipleChoiceFilter(
+        choices=InterfaceLAGModeChoices,
+        distinct=False,
+    )
+    lag_hash_policy = django_filters.MultipleChoiceFilter(
+        choices=InterfaceLAGHashPolicyChoices,
+        distinct=False,
+    )
     type = django_filters.MultipleChoiceFilter(
         choices=InterfaceTypeChoices,
         distinct=False,
