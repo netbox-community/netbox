@@ -28,6 +28,7 @@ from netbox.tests.dummy_plugin.data_backends import DummyBackend
 from netbox.tests.dummy_plugin.jobs import DummySystemJob
 from netbox.tests.dummy_plugin.models import DummyModel
 from netbox.tests.dummy_plugin.webhook_callbacks import set_context
+from users.models import User
 
 
 @skipIf('netbox.tests.dummy_plugin' not in settings.PLUGINS, "dummy_plugin not in settings.PLUGINS")
@@ -77,6 +78,17 @@ class PluginTestCase(TestCase):
         client = Client()
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
+
+    def test_plugins_api_views(self):
+        self.client.force_login(User.objects.create_superuser(username='superuser'))
+
+        response = self.client.get(reverse('plugins-api:api-root'), HTTP_ACCEPT='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('dummy-plugin', response.json())
+
+        response = self.client.get(reverse('plugins-api:plugins-list'), HTTP_ACCEPT='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('netbox.tests.dummy_plugin', [p['package'] for p in response.json()])
 
     @override_settings(LOGIN_REQUIRED=False)
     def test_registered_views(self):
