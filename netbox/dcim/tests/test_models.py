@@ -17,7 +17,7 @@ from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
 from dcim.choices import *
 from dcim.models import *
-from dcim.utils import resolve_module_placeholder
+from dcim.utils import object_to_path_node, resolve_module_placeholder
 from extras.events import serialize_for_event
 from extras.models import CustomField
 from ipam.models import IPAddress, Prefix
@@ -2422,12 +2422,7 @@ class ModuleBayTestCase(TestCase):
         self.assertEqual(RearPort.objects.filter(module=module).count(), 1)
         self.assertEqual(PortMapping.objects.filter(front_port__module=module).count(), 0)
 
-    @tag('regression')  # #23744
-    def test_delete_module_with_port_mappings_and_module_bay(self):
-        """
-        Deleting a module or module bay must succeed when the module has port mappings and its own module bay.
-        """
-        device = Device.objects.first()
+    def _create_line_card_type(self):
         manufacturer = Manufacturer.objects.first()
         line_card = ModuleType.objects.create(manufacturer=manufacturer, model='Line Card')
         rear_port_template = RearPortTemplate.objects.create(
@@ -2438,25 +2433,43 @@ class ModuleBayTestCase(TestCase):
         )
         PortTemplateMapping.objects.create(front_port=front_port_template, rear_port=rear_port_template)
         ModuleBayTemplate.objects.create(module_type=line_card, name='Sub', position='1')
+        return line_card
 
-        # Delete the module bay holding a line card with an empty module bay
+    @tag('regression')  # Ref: #23744
+    def test_delete_module_bay_holding_module_with_port_mappings(self):
+        """
+        Deleting a module bay must succeed when its module has port mappings and its own module bay.
+        """
+        device = Device.objects.first()
+        line_card = self._create_line_card_type()
         slot = ModuleBay.objects.create(device=device, name='Slot A', position='1')
         Module.objects.create(device=device, module_bay=slot, module_type=line_card)
+
         slot.delete()
         self.assertFalse(ModuleBay.objects.filter(device=device, name='Sub').exists())
 
-        # Delete a line card with a module installed in its module bay, and a cable on its front port
+    @tag('regression')  # Ref: #23744
+    def test_delete_module_with_port_mappings_and_installed_module(self):
+        """
+        Deleting a module with port mappings and a populated module bay must succeed and retrace cable paths.
+        """
+        device = Device.objects.first()
+        line_card = self._create_line_card_type()
         slot = ModuleBay.objects.create(device=device, name='Slot B', position='2')
         module = Module.objects.create(device=device, module_bay=slot, module_type=line_card)
         sub_bay = ModuleBay.objects.get(module=module, name='Sub')
         Module.objects.create(device=device, module_bay=sub_bay, module_type=ModuleType.objects.first())
         interface = Interface.objects.create(device=device, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         front_port = FrontPort.objects.get(module=module)
-        Cable(a_terminations=[interface], b_terminations=[front_port]).save()
+        cable = Cable(a_terminations=[interface], b_terminations=[front_port])
+        cable.save()
         self.assertTrue(CablePath.objects.filter(_nodes__contains=front_port).exists())
+
         module.delete()
         self.assertFalse(Module.objects.filter(module_bay=slot).exists())
-        self.assertFalse(CablePath.objects.filter(_nodes__contains=front_port).exists())
+        path = CablePath.objects.get(_nodes__contains=interface)
+        self.assertFalse(path.is_complete)
+        self.assertEqual(path._nodes, [object_to_path_node(interface), object_to_path_node(cable)])
 
     def test_cannot_install_module_in_disabled_bay(self):
         """
