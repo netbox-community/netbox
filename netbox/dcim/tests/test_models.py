@@ -2422,6 +2422,42 @@ class ModuleBayTestCase(TestCase):
         self.assertEqual(RearPort.objects.filter(module=module).count(), 1)
         self.assertEqual(PortMapping.objects.filter(front_port__module=module).count(), 0)
 
+    @tag('regression')  # #23744
+    def test_delete_module_with_port_mappings_and_module_bay(self):
+        """
+        Deleting a module or module bay must succeed when the module has port mappings and its own module bay.
+        """
+        device = Device.objects.first()
+        manufacturer = Manufacturer.objects.first()
+        line_card = ModuleType.objects.create(manufacturer=manufacturer, model='Line Card')
+        rear_port_template = RearPortTemplate.objects.create(
+            module_type=line_card, name='R{module}', type=PortTypeChoices.TYPE_LC, positions=1
+        )
+        front_port_template = FrontPortTemplate.objects.create(
+            module_type=line_card, name='F{module}', type=PortTypeChoices.TYPE_LC
+        )
+        PortTemplateMapping.objects.create(front_port=front_port_template, rear_port=rear_port_template)
+        ModuleBayTemplate.objects.create(module_type=line_card, name='Sub', position='1')
+
+        # Delete the module bay holding a line card with an empty module bay
+        slot = ModuleBay.objects.create(device=device, name='Slot A', position='1')
+        Module.objects.create(device=device, module_bay=slot, module_type=line_card)
+        slot.delete()
+        self.assertFalse(ModuleBay.objects.filter(device=device, name='Sub').exists())
+
+        # Delete a line card with a module installed in its module bay, and a cable on its front port
+        slot = ModuleBay.objects.create(device=device, name='Slot B', position='2')
+        module = Module.objects.create(device=device, module_bay=slot, module_type=line_card)
+        sub_bay = ModuleBay.objects.get(module=module, name='Sub')
+        Module.objects.create(device=device, module_bay=sub_bay, module_type=ModuleType.objects.first())
+        interface = Interface.objects.create(device=device, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+        front_port = FrontPort.objects.get(module=module)
+        Cable(a_terminations=[interface], b_terminations=[front_port]).save()
+        self.assertTrue(CablePath.objects.filter(_nodes__contains=front_port).exists())
+        module.delete()
+        self.assertFalse(Module.objects.filter(module_bay=slot).exists())
+        self.assertFalse(CablePath.objects.filter(_nodes__contains=front_port).exists())
+
     def test_cannot_install_module_in_disabled_bay(self):
         """
         Test that a Module cannot be installed into a disabled ModuleBay.

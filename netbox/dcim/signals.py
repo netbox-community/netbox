@@ -15,12 +15,14 @@ from .models import (
     CablePath,
     CableTermination,
     Device,
+    FrontPort,
     Interface,
     Location,
     PathEndpoint,
     PortMapping,
     PowerPanel,
     Rack,
+    RearPort,
     VirtualChassis,
 )
 from .models.cables import trace_paths
@@ -315,8 +317,10 @@ def update_passthrough_port_paths(instance, update_fields=None, **kwargs):
     # Moving a module to another device changes only these fields; its connections are unchanged
     if update_fields and set(update_fields) <= {'device', 'last_updated'}:
         return
+    # Use PK stubs: on a cascading delete the ports may already be gone
     for cablepath in CablePath.objects.filter(
-        Q(_nodes__contains=instance.front_port) | Q(_nodes__contains=instance.rear_port)
+        Q(_nodes__contains=FrontPort(pk=instance.front_port_id)) |
+        Q(_nodes__contains=RearPort(pk=instance.rear_port_id))
     ):
         cablepath.retrace()
 
