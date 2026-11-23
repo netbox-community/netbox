@@ -16,16 +16,16 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from rq.exceptions import InvalidJobOperation
 
-from core.choices import JobNotificationChoices, JobStatusChoices
+from core.choices import JobAccessChoices, JobNotificationChoices, JobStatusChoices
 from core.dataclasses import JobLogEntry
 from core.events import JOB_COMPLETED, JOB_ERRORED, JOB_FAILED
 from core.models import ObjectType
+from core.querysets import JobQuerySet
 from core.signals import job_end, job_start
 from core.utils import get_job_result_url
 from extras.models import Notification
 from netbox.models.features import has_feature
 from utilities.json import JobLogDecoder
-from utilities.querysets import RestrictedQuerySet
 from utilities.rqworker import get_queue_for_model
 
 __all__ = (
@@ -131,6 +131,13 @@ class Job(models.Model):
         choices=JobNotificationChoices,
         default=JobNotificationChoices.NOTIFICATION_ALWAYS
     )
+    access = models.CharField(
+        verbose_name=_('access'),
+        max_length=30,
+        choices=JobAccessChoices,
+        default=JobAccessChoices.ACCESS_SHARED,
+        help_text=_('Determines which users may access the job, in addition to the permissions assigned for jobs')
+    )
     log_entries = ArrayField(
         verbose_name=_('log entries'),
         base_field=models.JSONField(
@@ -141,7 +148,7 @@ class Job(models.Model):
         default=list,
     )
 
-    objects = RestrictedQuerySet.as_manager()
+    objects = JobQuerySet.as_manager()
 
     class Meta:
         ordering = ['-created']
@@ -320,6 +327,7 @@ class Job(models.Model):
             immediate=False,
             queue_name=None,
             notifications=None,
+            access=None,
             **kwargs
     ):
         """
@@ -335,9 +343,14 @@ class Job(models.Model):
             immediate: Run the job immediately without scheduling it in the background. Should be used for interactive
                 management commands only.
             notifications: Notification behavior on job completion (always, on_failure, or never)
+            access: The job's access class (requester, object, or shared; defaults to shared)
         """
         if schedule_at and immediate:
             raise ValueError(_("enqueue() cannot be called with values for both schedule_at and immediate."))
+        if access is None:
+            access = JobAccessChoices.ACCESS_SHARED
+        if access == JobAccessChoices.ACCESS_OBJECT and instance is None:
+            raise ValueError(_("A job with object access must be assigned to an object."))
 
         if instance:
             object_type = ObjectType.objects.get_for_model(instance, for_concrete_model=False)
@@ -357,7 +370,8 @@ class Job(models.Model):
             user=user,
             job_id=uuid.uuid4(),
             queue_name=rq_queue_name,
-            notifications=notifications if notifications is not None else JobNotificationChoices.NOTIFICATION_ALWAYS
+            notifications=notifications if notifications is not None else JobNotificationChoices.NOTIFICATION_ALWAYS,
+            access=access,
         )
         job.full_clean()
         job.save()

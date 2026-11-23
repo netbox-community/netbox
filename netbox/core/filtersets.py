@@ -154,6 +154,11 @@ class JobFilterSet(BaseFilterSet):
         distinct=False,
         null_value=None
     )
+    access = django_filters.MultipleChoiceFilter(
+        choices=JobAccessChoices,
+        distinct=False,
+        null_value=None
+    )
     queue_name = django_filters.CharFilter()
     user_id = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.all(),

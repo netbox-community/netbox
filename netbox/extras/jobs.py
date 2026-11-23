@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django_pg_utils import advisory_lock
 
+from core.choices import JobAccessChoices
 from core.signals import clear_events
 from core.utils import register_job_result_url
 from dcim.models import Device
@@ -277,6 +278,7 @@ class ScriptJob(JobRunner):
 
     class Meta:
         name = 'Run Script'
+        access = JobAccessChoices.ACCESS_OBJECT
 
     @classmethod
     def enqueue(cls, *args, **kwargs):

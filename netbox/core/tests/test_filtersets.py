@@ -276,11 +276,13 @@ class JobTestCase(TestCase, BaseFilterSetTestMixin):
                 name='Job 1', job_id=uuid.uuid4(), user=users[0],
                 notifications=JobNotificationChoices.NOTIFICATION_ALWAYS,
                 execution_time=timedelta(seconds=30),
+                access=JobAccessChoices.ACCESS_REQUESTER,
             ),
             Job(
                 name='Job 2', job_id=uuid.uuid4(), user=users[0],
                 notifications=JobNotificationChoices.NOTIFICATION_ALWAYS,
                 execution_time=timedelta(seconds=60),
+                access=JobAccessChoices.ACCESS_OBJECT,
             ),
             Job(
                 name='Job 3', job_id=uuid.uuid4(), user=users[1],
@@ -308,6 +310,11 @@ class JobTestCase(TestCase, BaseFilterSetTestMixin):
             JobNotificationChoices.NOTIFICATION_ON_FAILURE,
         ]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_access(self):
+        """Filter Jobs by access class."""
+        params = {'access': [JobAccessChoices.ACCESS_REQUESTER, JobAccessChoices.ACCESS_OBJECT]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_execution_time(self):
         """Filter Jobs by execution time (exact value and gte/lte range)."""

@@ -12,13 +12,15 @@ from django.utils import timezone
 from django_pg_utils import advisory_lock
 from django_rq import get_queue
 
-from core.choices import JobStatusChoices
+from core.choices import JobAccessChoices, JobStatusChoices
 from core.events import JOB_COMPLETED, JOB_FAILED
 from core.exceptions import JobFailed
+from core.jobs import SyncDataSourceJob, SystemHousekeepingJob
 from core.models import DataSource, Job
 from core.signals import job_end
 from dcim.models import Site
 from dcim.views import SiteBulkEditView
+from extras.jobs import ScriptJob
 from extras.models import Notification
 from users.models import User
 from utilities.request import copy_safe_request
@@ -276,6 +278,35 @@ class JobRunnerTestCase(BaseJobRunnerTestCase):
                 self.assertEqual(observed, [(status, [successor.pk])])
                 self.assertEqual((successor.status, successor.interval), (JobStatusChoices.STATUS_SCHEDULED, 60))
 
+    def test_handle_reschedule_keeps_access(self):
+        """A periodic job's successor has the same access class."""
+        instance = DataSource.objects.create(name='Data Source 1', type='local')
+        job = TestJobRunner.enqueue(
+            instance, interval=60, schedule_at=self.get_schedule_at(), access=JobAccessChoices.ACCESS_REQUESTER
+        )
+        TestJobRunner.handle(job)
+
+        successor = TestJobRunner.get_jobs(instance).exclude(pk=job.pk).get()
+        self.assertEqual(successor.access, JobAccessChoices.ACCESS_REQUESTER)
+
+    def test_handle_object_job_without_object_is_not_rescheduled(self):
+        """A periodic object job whose assigned object is gone completes without being rescheduled."""
+        instance = DataSource.objects.create(name='Data Source 1', type='local')
+        job = TestJobRunner.enqueue(
+            instance, interval=60, schedule_at=self.get_schedule_at(), access=JobAccessChoices.ACCESS_OBJECT
+        )
+        # Point the job at an object which doesn't exist
+        Job.objects.filter(pk=job.pk).update(object_id=instance.pk + 1000)
+        job = Job.objects.get(pk=job.pk)
+
+        with disable_logging():
+            TestJobRunner.handle(job)
+
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
+        self.assertIn('not rescheduled', job.log_entries[-1]['message'])
+        self.assertEqual(Job.objects.count(), 1)
+
     def test_handle_keeps_run_outcome_when_reschedule_is_invalid(self):
         """A reschedule rejected as invalid keeps the run's outcome and ends the job once."""
         user = User.objects.create_user(username='job-owner')
@@ -387,6 +418,40 @@ class EnqueueTestCase(BaseJobRunnerTestCase):
 
             self.assertIsInstance(job, Job)
             self.assertEqual(TestJobRunner.get_jobs(instance).count(), i)
+
+    def test_enqueue_access(self):
+        class ObjectJobRunner(TestJobRunner):
+            class Meta:
+                access = JobAccessChoices.ACCESS_OBJECT
+
+        # The runner's default access class
+        job = TestJobRunner.enqueue(DataSource(), schedule_at=self.get_schedule_at())
+        self.assertEqual(job.access, JobAccessChoices.ACCESS_SHARED)
+        job = ObjectJobRunner.enqueue(DataSource(), schedule_at=self.get_schedule_at())
+        self.assertEqual(job.access, JobAccessChoices.ACCESS_OBJECT)
+
+        # Overridden for an individual job
+        job = ObjectJobRunner.enqueue(
+            DataSource(), schedule_at=self.get_schedule_at(), access=JobAccessChoices.ACCESS_REQUESTER
+        )
+        self.assertEqual(job.access, JobAccessChoices.ACCESS_REQUESTER)
+
+    def test_enqueue_object_access_requires_instance(self):
+        with self.assertRaises(ValueError):
+            TestJobRunner.enqueue(schedule_at=self.get_schedule_at(), access=JobAccessChoices.ACCESS_OBJECT)
+        self.assertFalse(Job.objects.exists())
+
+    def test_core_job_runner_access(self):
+        expected = {
+            AsyncAPIJob: JobAccessChoices.ACCESS_REQUESTER,
+            AsyncViewJob: JobAccessChoices.ACCESS_REQUESTER,
+            ScriptJob: JobAccessChoices.ACCESS_OBJECT,
+            SyncDataSourceJob: JobAccessChoices.ACCESS_OBJECT,
+            SystemHousekeepingJob: JobAccessChoices.ACCESS_SHARED,
+        }
+        for runner, access in expected.items():
+            with self.subTest(runner=runner.__name__):
+                self.assertEqual(getattr(runner.Meta, 'access', JobAccessChoices.ACCESS_SHARED), access)
 
     def test_enqueue_once(self):
         job = TestJobRunner.enqueue_once(instance=DataSource(), schedule_at=self.get_schedule_at())
