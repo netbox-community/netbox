@@ -1,7 +1,10 @@
 import logging
+import threading
+from functools import partial
 
+from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import QuerySet
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 
@@ -27,7 +30,7 @@ from .models import (
 )
 from .models.cables import trace_paths
 from .search import DeviceIndex
-from .utils import create_cablepaths, rebuild_cable_paths, rebuild_paths
+from .utils import compile_path_node, create_cablepaths, rebuild_cable_paths, rebuild_paths
 
 # The scope-relevant fields stashed before each model's save by cache_presave_scope_fields(),
 # so that the post_save handlers can tell whether the save actually changed any of them and
@@ -309,19 +312,48 @@ def retrace_cable_paths(instance, **kwargs):
         cablepath.retrace()
 
 
+# IDs of CablePaths to retrace once the current transaction commits, keyed by database alias
+_pending_path_retraces = threading.local()
+
+
+def _retrace_paths_on_commit(cablepath_ids, using):
+    """
+    Queue CablePaths to be retraced (once each) after the current transaction commits.
+    """
+    _pending_path_retraces.__dict__.setdefault(using, set()).update(cablepath_ids)
+    transaction.on_commit(partial(_flush_path_retraces, using), using=using)
+
+
+def _flush_path_retraces(using):
+    cablepath_ids = _pending_path_retraces.__dict__.pop(using, None)
+    if not cablepath_ids:
+        return
+    with transaction.atomic(using=using):
+        for cablepath in CablePath.objects.using(using).filter(pk__in=cablepath_ids):
+            cablepath.retrace()
+
+
 @receiver((post_delete, post_save), sender=PortMapping)
-def update_passthrough_port_paths(instance, update_fields=None, **kwargs):
+def update_passthrough_port_paths(instance, using, update_fields=None, origin=None, **kwargs):
     """
     When a PortMapping is created or deleted, retrace any CablePaths which traverse its front and/or rear ports.
     """
     # Moving a module to another device changes only these fields; its connections are unchanged
     if update_fields and set(update_fields) <= {'device', 'last_updated'}:
         return
-    # Use PK stubs: on a cascading delete the ports may already be gone
-    for cablepath in CablePath.objects.filter(
-        Q(_nodes__contains=FrontPort(pk=instance.front_port_id)) |
-        Q(_nodes__contains=RearPort(pk=instance.rear_port_id))
-    ):
+    # Match path nodes by ID: on a cascading delete the ports may already be gone
+    port_nodes = [
+        compile_path_node(ContentType.objects.get_for_model(FrontPort).pk, instance.front_port_id),
+        compile_path_node(ContentType.objects.get_for_model(RearPort).pk, instance.rear_port_id),
+    ]
+    cablepaths = CablePath.objects.using(using).filter(_nodes__overlap=port_nodes)
+
+    # Mid-cascade (e.g. deleting a Module), other nodes on the path may be half deleted; retrace after commit
+    origin_model = origin.model if isinstance(origin, QuerySet) else type(origin)
+    if origin is not None and origin_model is not PortMapping:
+        _retrace_paths_on_commit(cablepaths.values_list('pk', flat=True), using)
+        return
+    for cablepath in cablepaths:
         cablepath.retrace()
 
 

@@ -2435,18 +2435,35 @@ class ModuleBayTestCase(TestCase):
         ModuleBayTemplate.objects.create(module_type=line_card, name='Sub', position='1')
         return line_card
 
+    def _cable_interface_to_front_port(self, device, module):
+        interface = Interface.objects.create(device=device, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+        front_port = FrontPort.objects.get(module=module)
+        cable = Cable(a_terminations=[interface], b_terminations=[front_port])
+        cable.save()
+        self.assertTrue(CablePath.objects.filter(_nodes__contains=front_port).exists())
+        return interface, cable
+
+    def _assert_path_ends_at_cable(self, interface, cable):
+        path = CablePath.objects.get(_nodes__contains=interface)
+        self.assertFalse(path.is_complete)
+        self.assertEqual(path._nodes, [object_to_path_node(interface), object_to_path_node(cable)])
+
     @tag('regression')  # Ref: #23744
     def test_delete_module_bay_holding_module_with_port_mappings(self):
         """
-        Deleting a module bay must succeed when its module has port mappings and its own module bay.
+        Deleting a module bay must succeed when its module has port mappings and its own module bay, and must
+        retrace cable paths through the module's ports.
         """
         device = Device.objects.first()
         line_card = self._create_line_card_type()
         slot = ModuleBay.objects.create(device=device, name='Slot A', position='1')
-        Module.objects.create(device=device, module_bay=slot, module_type=line_card)
+        module = Module.objects.create(device=device, module_bay=slot, module_type=line_card)
+        interface, cable = self._cable_interface_to_front_port(device, module)
 
-        slot.delete()
+        with self.captureOnCommitCallbacks(execute=True):
+            slot.delete()
         self.assertFalse(ModuleBay.objects.filter(device=device, name='Sub').exists())
+        self._assert_path_ends_at_cable(interface, cable)
 
     @tag('regression')  # Ref: #23744
     def test_delete_module_with_port_mappings_and_installed_module(self):
@@ -2455,21 +2472,17 @@ class ModuleBayTestCase(TestCase):
         """
         device = Device.objects.first()
         line_card = self._create_line_card_type()
+        plain_module_type = ModuleType.objects.create(manufacturer=line_card.manufacturer, model='Plain Module')
         slot = ModuleBay.objects.create(device=device, name='Slot B', position='2')
         module = Module.objects.create(device=device, module_bay=slot, module_type=line_card)
         sub_bay = ModuleBay.objects.get(module=module, name='Sub')
-        Module.objects.create(device=device, module_bay=sub_bay, module_type=ModuleType.objects.first())
-        interface = Interface.objects.create(device=device, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
-        front_port = FrontPort.objects.get(module=module)
-        cable = Cable(a_terminations=[interface], b_terminations=[front_port])
-        cable.save()
-        self.assertTrue(CablePath.objects.filter(_nodes__contains=front_port).exists())
+        Module.objects.create(device=device, module_bay=sub_bay, module_type=plain_module_type)
+        interface, cable = self._cable_interface_to_front_port(device, module)
 
-        module.delete()
+        with self.captureOnCommitCallbacks(execute=True):
+            module.delete()
         self.assertFalse(Module.objects.filter(module_bay=slot).exists())
-        path = CablePath.objects.get(_nodes__contains=interface)
-        self.assertFalse(path.is_complete)
-        self.assertEqual(path._nodes, [object_to_path_node(interface), object_to_path_node(cable)])
+        self._assert_path_ends_at_cable(interface, cable)
 
     def test_cannot_install_module_in_disabled_bay(self):
         """
