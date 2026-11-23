@@ -693,6 +693,23 @@ class SelectMultipleWidgetTestCase(TestCase):
         self.assertEqual(widget.choices[1][1], [(3, 'Option 3')])
 
 
+class FormFieldsTestCase(TestCase):
+    """
+    Tests for shared form field classes.
+    """
+
+    @tag('regression')  # Ref: #23751
+    def test_comment_field_help_text_translation(self):
+        with translation.override('it'):
+            field = CommentField()
+            self.assertIsInstance(field.help_text, Promise)
+            expected = gettext(
+                '<i class="mdi mdi-information-outline" aria-hidden="true"></i> '
+                '<a href="{url}" target="_blank" tabindex="-1">Markdown</a> syntax is supported'
+            ).format(url=static('docs/reference/markdown/'))
+            self.assertEqual(str(field.help_text), expected)
+
+
 class DynamicChoiceFieldTestCase(TestCase):
     """
     Validate that DynamicChoiceField.get_bound_field() limits choices to the current
@@ -1244,21 +1261,3 @@ class ColorSelectTestCase(TestCase):
         html = widget.render('color', 'ff0000;background:url(x)')
         self.assertNotIn('background:url', html)
         self.assertEqual(html.count('<option'), len(widget.choices))
-
-
-class CommentFieldHelpTextTranslationTestCase(TestCase):
-    """
-    CommentField.help_text is defined at the class level, so calling .format() on the lazy
-    translation would resolve it to DEFAULT_LANGUAGE at import time.
-    """
-
-    @tag('regression')  # Ref: #23751
-    def test_help_text_translated(self):
-        with translation.override('it'):
-            field = CommentField()
-            self.assertIsInstance(field.help_text, Promise)
-            expected = gettext(
-                '<i class="mdi mdi-information-outline" aria-hidden="true"></i> '
-                '<a href="{url}" target="_blank" tabindex="-1">Markdown</a> syntax is supported'
-            ).format(url=static('docs/reference/markdown/'))
-            self.assertEqual(str(field.help_text), expected)

@@ -62,7 +62,7 @@ class CommentField(forms.CharField):
     """
     widget = widgets.MarkdownWidget
     label = _('Comments')
-    # .format() on the lazy translation would resolve it at import time
+    # Keep the help text lazy so it uses the active language instead of the language at import time.
     help_text = format_lazy(
         _(
             '<i class="mdi mdi-information-outline" aria-hidden="true"></i> '
