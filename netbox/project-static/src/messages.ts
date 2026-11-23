@@ -8,9 +8,12 @@ export function initMessages(): void {
     'body > div#django-messages > div.toast',
   );
   for (const element of elements) {
-    // Show each toast only once; this runs after every htmx swap, and a closed toast stays in the DOM
-    if (element.dataset.toastShown === 'true') continue;
-    element.dataset.toastShown = 'true';
-    new Toast(element).show();
+    // Skip toasts already showing, and closed toasts restored from an htmx history snapshot
+    const closed = element.classList.contains('fade') && !element.classList.contains('show');
+    if (Toast.getInstance(element) || closed) continue;
+    const toast = new Toast(element);
+    toast.show();
+    // Retry on the next swap if a show.bs.toast listener cancelled the show
+    if (!toast.isShown()) toast.dispose();
   }
 }
