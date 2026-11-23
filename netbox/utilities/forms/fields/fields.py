@@ -7,6 +7,7 @@ from django.db.models import Count
 from django.forms.fields import InvalidJSONInput
 from django.forms.fields import JSONField as _JSONField
 from django.templatetags.static import static
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from netaddr import EUI, AddrFormatError
 
@@ -61,10 +62,14 @@ class CommentField(forms.CharField):
     """
     widget = widgets.MarkdownWidget
     label = _('Comments')
-    help_text = _(
-        '<i class="mdi mdi-information-outline" aria-hidden="true"></i> '
-        '<a href="{url}" target="_blank" tabindex="-1">Markdown</a> syntax is supported'
-    ).format(url=static('docs/reference/markdown/'))
+    # Keep the help text lazy so it uses the active language instead of the language at import time.
+    help_text = format_lazy(
+        _(
+            '<i class="mdi mdi-information-outline" aria-hidden="true"></i> '
+            '<a href="{url}" target="_blank" tabindex="-1">Markdown</a> syntax is supported'
+        ),
+        url=static('docs/reference/markdown/')
+    )
 
     def __init__(self, *, label=label, help_text=help_text, required=False, **kwargs):
         super().__init__(label=label, help_text=help_text, required=required, **kwargs)

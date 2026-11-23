@@ -4,14 +4,18 @@ from types import SimpleNamespace
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from django.test import TestCase, override_settings
+from django.templatetags.static import static
+from django.test import TestCase, override_settings, tag
+from django.utils import translation
+from django.utils.functional import Promise
 from django.utils.html import escape
+from django.utils.translation import gettext
 
 from dcim.models import Rack, Site
 from netbox.choices import ColorChoices, ImportFormatChoices
 from utilities.choices import Choice, ChoiceSet
 from utilities.forms.bulk_import import BulkImportForm
-from utilities.forms.fields import ChoiceField, MultipleChoiceField, TypedChoiceField
+from utilities.forms.fields import ChoiceField, CommentField, MultipleChoiceField, TypedChoiceField
 from utilities.forms.fields.csv import CSVModelChoiceField, CSVModelMultipleChoiceField, CSVSelectWidget
 from utilities.forms.fields.dynamic import (
     DynamicChoiceField,
@@ -687,6 +691,23 @@ class SelectMultipleWidgetTestCase(TestCase):
         self.assertEqual(widget.choices[0][1], [(2, 'Option 2')])
         self.assertEqual(widget.choices[1][0], 'Group B')
         self.assertEqual(widget.choices[1][1], [(3, 'Option 3')])
+
+
+class FormFieldsTestCase(TestCase):
+    """
+    Tests for shared form field classes.
+    """
+
+    @tag('regression')  # Ref: #23751
+    def test_comment_field_help_text_translation(self):
+        with translation.override('it'):
+            field = CommentField()
+            self.assertIsInstance(field.help_text, Promise)
+            expected = gettext(
+                '<i class="mdi mdi-information-outline" aria-hidden="true"></i> '
+                '<a href="{url}" target="_blank" tabindex="-1">Markdown</a> syntax is supported'
+            ).format(url=static('docs/reference/markdown/'))
+            self.assertEqual(str(field.help_text), expected)
 
 
 class DynamicChoiceFieldTestCase(TestCase):
