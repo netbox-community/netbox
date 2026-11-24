@@ -6,8 +6,16 @@ from netbox.registry import registry
 
 __all__ = (
     'get_installed_plugins',
+    'get_plugin_app_config',
     'get_plugin_config',
 )
+
+
+def get_plugin_app_config(plugin_path):
+    """
+    Return the app config for the given plugin module path.
+    """
+    return apps.get_app_config(plugin_path.rsplit('.', 1)[-1])
 
 
 def get_installed_plugins():
@@ -15,9 +23,9 @@ def get_installed_plugins():
     Return a dictionary mapping the names of installed plugins to their versions.
     """
     plugins = {}
-    for plugin_name in registry['plugins']['installed']:
-        plugin_name = plugin_name.rsplit('.', 1)[-1]
-        plugin_config = apps.get_app_config(plugin_name)
+    for plugin_path in registry['plugins']['installed']:
+        plugin_config = get_plugin_app_config(plugin_path)
+        plugin_name = plugin_path.rsplit('.', 1)[-1]
         if plugin_config.release_track:
             plugins[plugin_name] = f'{plugin_config.version}-{plugin_config.release_track}'
         else:

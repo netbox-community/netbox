@@ -79,18 +79,24 @@ class PluginTestCase(TestCase):
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
 
-    def test_plugins_api_views(self):
+    def test_plugins_api_root(self):
         self.client.force_login(User.objects.create_superuser(username='superuser'))
 
         response = self.client.get(reverse('plugins-api:api-root'), HTTP_ACCEPT='application/json')
         self.assertEqual(response.status_code, 200)
-        self.assertIn('dummy-plugin', response.json())
+        self.assertEqual(
+            response.json()['dummy-plugin'],
+            'http://testserver/api/plugins/dummy-plugin/',
+        )
+
+    def test_installed_plugins_api(self):
+        self.client.force_login(User.objects.create_superuser(username='superuser'))
 
         response = self.client.get(reverse('plugins-api:plugins-list'), HTTP_ACCEPT='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertIn('netbox.tests.dummy_plugin', [p['package'] for p in response.json()])
 
-    def test_plugins_api_root_without_base_url(self):
+    def test_plugins_api_root_falls_back_to_app_label(self):
         self.client.force_login(User.objects.create_superuser(username='superuser'))
 
         # A plugin without a base_url is listed under its label
