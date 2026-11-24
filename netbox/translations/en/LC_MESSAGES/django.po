@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-21 05:02+0000\n"
+"POT-Creation-Date: 2026-11-24 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2367,7 +2367,7 @@ msgstr ""
 #: netbox/extras/forms/filtersets.py:630 netbox/extras/tables/tables.py:296
 #: netbox/extras/tables/tables.py:363 netbox/extras/tables/tables.py:389
 #: netbox/extras/tables/tables.py:408 netbox/extras/tables/tables.py:441
-#: netbox/extras/tables/tables.py:782 netbox/tenancy/tables/contacts.py:84
+#: netbox/extras/tables/tables.py:785 netbox/tenancy/tables/contacts.py:84
 #: netbox/vpn/tables/l2vpn.py:59
 msgid "Object Type"
 msgstr ""
@@ -2427,8 +2427,8 @@ msgid "Seconds, or HH:MM:SS"
 msgstr ""
 
 #: netbox/core/forms/filtersets.py:160 netbox/core/tables/change_logging.py:16
-#: netbox/core/tables/jobs.py:87 netbox/extras/tables/tables.py:820
-#: netbox/extras/tables/tables.py:875
+#: netbox/core/tables/jobs.py:87 netbox/extras/tables/tables.py:823
+#: netbox/extras/tables/tables.py:878
 msgid "Time"
 msgstr ""
 
@@ -2656,7 +2656,7 @@ msgstr ""
 
 #: netbox/core/models/data.py:50 netbox/core/ui/panels.py:17
 #: netbox/extras/choices.py:37 netbox/extras/models/models.py:228
-#: netbox/extras/tables/tables.py:885 netbox/templates/core/plugin.html:66
+#: netbox/extras/tables/tables.py:888 netbox/templates/core/plugin.html:66
 msgid "URL"
 msgstr ""
 
@@ -2908,8 +2908,8 @@ msgstr ""
 #: netbox/extras/tables/tables.py:299 netbox/extras/tables/tables.py:392
 #: netbox/extras/tables/tables.py:411 netbox/extras/tables/tables.py:444
 #: netbox/extras/tables/tables.py:530 netbox/extras/tables/tables.py:614
-#: netbox/extras/tables/tables.py:787 netbox/extras/tables/tables.py:828
-#: netbox/extras/tables/tables.py:882 netbox/extras/ui/panels.py:393
+#: netbox/extras/tables/tables.py:790 netbox/extras/tables/tables.py:831
+#: netbox/extras/tables/tables.py:885 netbox/extras/ui/panels.py:393
 #: netbox/extras/ui/panels.py:522 netbox/netbox/tables/tables.py:455
 #: netbox/tenancy/tables/contacts.py:87
 #: netbox/utilities/templates/widgets/generic_object.html:10
@@ -2922,7 +2922,7 @@ msgid "Request ID"
 msgstr ""
 
 #: netbox/core/tables/change_logging.py:46 netbox/core/tables/jobs.py:94
-#: netbox/extras/tables/tables.py:831 netbox/extras/tables/tables.py:888
+#: netbox/extras/tables/tables.py:834 netbox/extras/tables/tables.py:891
 msgid "Message"
 msgstr ""
 
@@ -2951,7 +2951,7 @@ msgstr ""
 
 #: netbox/core/tables/jobs.py:15 netbox/core/tables/tasks.py:77
 #: netbox/dcim/tables/devicetypes.py:178 netbox/extras/tables/tables.py:273
-#: netbox/extras/tables/tables.py:604 netbox/extras/tables/tables.py:853
+#: netbox/extras/tables/tables.py:604 netbox/extras/tables/tables.py:856
 #: netbox/netbox/tables/tables.py:313
 #: netbox/templates/dcim/virtualchassis_edit.html:64
 #: netbox/utilities/forms/forms.py:119
@@ -2971,8 +2971,8 @@ msgstr ""
 msgid "Log Entries"
 msgstr ""
 
-#: netbox/core/tables/jobs.py:91 netbox/extras/tables/tables.py:825
-#: netbox/extras/tables/tables.py:879
+#: netbox/core/tables/jobs.py:91 netbox/extras/tables/tables.py:828
+#: netbox/extras/tables/tables.py:882
 msgid "Level"
 msgstr ""
 
@@ -3122,7 +3122,8 @@ msgstr ""
 msgid "Object type"
 msgstr ""
 
-#: netbox/core/ui/panels.py:56
+#: netbox/core/ui/panels.py:56 netbox/extras/tables/tables.py:782
+#: netbox/extras/tests/test_tables.py:200
 msgid "Created by"
 msgstr ""
 
@@ -4796,13 +4797,13 @@ msgstr ""
 #: netbox/extras/forms/model_forms.py:720
 #: netbox/extras/forms/model_forms.py:805
 #: netbox/extras/forms/model_forms.py:857 netbox/extras/ui/panels.py:104
-#: netbox/netbox/forms/bulk_import.py:28 netbox/netbox/forms/mixins.py:135
+#: netbox/netbox/forms/bulk_import.py:28 netbox/netbox/forms/mixins.py:136
 #: netbox/netbox/tables/columns.py:519
 #: netbox/templates/circuits/inc/circuit_termination.html:29
 #: netbox/templates/circuits/panels/circuit_circuit_termination.html:29
 #: netbox/templates/generic/bulk_edit.html:78
 #: netbox/templates/inc/panels/tags.html:5
-#: netbox/utilities/forms/fields/fields.py:124
+#: netbox/utilities/forms/fields/fields.py:129
 msgid "Tags"
 msgstr ""
 
@@ -6457,7 +6458,7 @@ msgstr ""
 
 #: netbox/dcim/forms/filtersets.py:2042 netbox/extras/forms/bulk_edit.py:449
 #: netbox/extras/forms/bulk_import.py:425 netbox/extras/forms/filtersets.py:633
-#: netbox/extras/forms/model_forms.py:922 netbox/extras/tables/tables.py:790
+#: netbox/extras/forms/model_forms.py:922 netbox/extras/tables/tables.py:793
 msgid "Kind"
 msgstr ""
 
@@ -6610,7 +6611,7 @@ msgstr ""
 
 #: netbox/dcim/forms/model_forms.py:306 netbox/dcim/forms/model_forms.py:536
 #: netbox/dcim/forms/model_forms.py:753
-#: netbox/utilities/forms/fields/fields.py:81
+#: netbox/utilities/forms/fields/fields.py:86
 msgid "Slug"
 msgstr ""
 
@@ -10751,13 +10752,13 @@ msgstr ""
 msgid "The classification of entry"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:430 netbox/extras/tables/tables.py:793
+#: netbox/extras/forms/bulk_import.py:430 netbox/extras/tables/tables.py:796
 #: netbox/netbox/tables/tables.py:407 netbox/netbox/tables/tables.py:422
 #: netbox/netbox/tables/tables.py:445 netbox/netbox/ui/panels.py:243
 #: netbox/templates/dcim/htmx/cable_edit.html:110
 #: netbox/templates/generic/bulk_edit.html:99
 #: netbox/templates/inc/panels/comments.html:5
-#: netbox/utilities/forms/fields/fields.py:63
+#: netbox/utilities/forms/fields/fields.py:64
 msgid "Comments"
 msgstr ""
 
@@ -11020,7 +11021,7 @@ msgid "Template content is populated from the remote source selected below."
 msgstr ""
 
 #: netbox/extras/forms/model_forms.py:428 netbox/extras/ui/panels.py:252
-#: netbox/netbox/forms/mixins.py:103
+#: netbox/netbox/forms/mixins.py:104
 msgid "Saved Filter"
 msgstr ""
 
@@ -12196,7 +12197,7 @@ msgstr ""
 #: netbox/extras/tables/tables.py:340 netbox/extras/tables/tables.py:504
 #: netbox/extras/tables/tables.py:547 netbox/extras/tables/tables.py:590
 #: netbox/extras/tables/tables.py:681 netbox/extras/tables/tables.py:737
-#: netbox/netbox/forms/mixins.py:166 netbox/netbox/forms/mixins.py:191
+#: netbox/netbox/forms/mixins.py:167 netbox/netbox/forms/mixins.py:192
 #: netbox/netbox/tables/tables.py:404 netbox/netbox/tables/tables.py:419
 #: netbox/netbox/tables/tables.py:434 netbox/templates/generic/object.html:57
 #: netbox/users/forms/model_forms.py:556
@@ -12281,15 +12282,15 @@ msgstr ""
 msgid "Device Roles"
 msgstr ""
 
-#: netbox/extras/tables/tables.py:798
+#: netbox/extras/tables/tables.py:801
 msgid "Comments (Short)"
 msgstr ""
 
-#: netbox/extras/tables/tables.py:817 netbox/extras/tables/tables.py:869
+#: netbox/extras/tables/tables.py:820 netbox/extras/tables/tables.py:872
 msgid "Line"
 msgstr ""
 
-#: netbox/extras/tables/tables.py:872
+#: netbox/extras/tables/tables.py:875
 msgid "Method"
 msgstr ""
 
@@ -14808,22 +14809,26 @@ msgstr ""
 msgid "Name of the object's owner"
 msgstr ""
 
-#: netbox/netbox/forms/mixins.py:62
+#: netbox/netbox/forms/mixins.py:25
+msgid "Changelog message"
+msgstr ""
+
+#: netbox/netbox/forms/mixins.py:63
 #, python-brace-format
 msgid "{class_name} must specify a model class."
 msgstr ""
 
-#: netbox/netbox/forms/mixins.py:114 netbox/netbox/tests/test_forms.py:619
+#: netbox/netbox/forms/mixins.py:115 netbox/netbox/tests/test_forms.py:620
 #: netbox/templates/inc/table_controls_htmx.html:25
 #: netbox/templates/inc/table_controls_htmx.html:26
 msgid "Saved filter"
 msgstr ""
 
-#: netbox/netbox/forms/mixins.py:156
+#: netbox/netbox/forms/mixins.py:157
 msgid "Owner group"
 msgstr ""
 
-#: netbox/netbox/forms/mixins.py:182 netbox/netbox/tables/tables.py:400
+#: netbox/netbox/forms/mixins.py:183 netbox/netbox/tables/tables.py:400
 #: netbox/netbox/tables/tables.py:415 netbox/netbox/tables/tables.py:430
 #: netbox/users/forms/model_forms.py:544
 msgid "Owner Group"
@@ -18968,7 +18973,8 @@ msgid ""
 "[0-3,10-13].0.0/16</code>, <code>2001:db8:[a-f]::/64</code>"
 msgstr ""
 
-#: netbox/utilities/forms/fields/fields.py:65
+#: netbox/utilities/forms/fields/fields.py:68
+#: netbox/utilities/tests/test_forms.py:707
 #, python-brace-format
 msgid ""
 "<i class=\"mdi mdi-information-outline\" aria-hidden=\"true\"></i> <a "
@@ -18976,15 +18982,15 @@ msgid ""
 "supported"
 msgstr ""
 
-#: netbox/utilities/forms/fields/fields.py:82
+#: netbox/utilities/forms/fields/fields.py:87
 msgid "URL-friendly unique shorthand"
 msgstr ""
 
-#: netbox/utilities/forms/fields/fields.py:147
+#: netbox/utilities/forms/fields/fields.py:152
 msgid "Enter context data in <a href=\"https://json.org/\">JSON</a> format."
 msgstr ""
 
-#: netbox/utilities/forms/fields/fields.py:168
+#: netbox/utilities/forms/fields/fields.py:173
 msgid "MAC address must be in EUI-48 format"
 msgstr ""
 
