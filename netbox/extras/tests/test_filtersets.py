@@ -116,6 +116,8 @@ class CustomFieldTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {'object_type_id': [ObjectType.objects.get_by_natural_key('dcim', 'site').pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'object_type__n': ['dcim.site']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
 
     def test_related_object_type(self):
         params = {'related_object_type': ['dcim.site']}

@@ -177,6 +177,7 @@ class BaseFilterSet(django_filters.FilterSet):
         if isinstance(existing_filter, (
             django_filters.ModelChoiceFilter,
             django_filters.ModelMultipleChoiceFilter,
+            filters.MultiValueContentTypeFilter,
         )):
             # These filter types support only negation
             return FILTER_NEGATION_LOOKUP_MAP

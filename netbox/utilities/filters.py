@@ -258,7 +258,7 @@ class MultiValueContentTypeFilter(MultiValueCharFilter):
             except (ValueError, ContentType.DoesNotExist):
                 continue
 
-        return qs.filter(
+        return self.get_method(qs)(
             **{
                 f'{self.field_name}__in': content_types,
             }

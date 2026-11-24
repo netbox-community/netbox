@@ -31,6 +31,7 @@ from netbox.filtersets import BaseFilterSet
 from utilities.filters import (
     MultiValueArrayFilter,
     MultiValueCharFilter,
+    MultiValueContentTypeFilter,
     MultiValueDateFilter,
     MultiValueDateTimeFilter,
     MultiValueDecimalFilter,
@@ -244,6 +245,9 @@ class BaseFilterSetTestCase(TestCase):
         multivaluecharfield = MultiValueCharFilter(
             field_name='charfield'
         )
+        multivaluecontenttypefield = MultiValueContentTypeFilter(
+            field_name='charfield'
+        )
         tagfield = TagFilter()
         treeforeignkeyfield = TreeNodeMultipleChoiceFilter(
             queryset=DummyModel.objects.all()
@@ -420,6 +424,16 @@ class BaseFilterSetTestCase(TestCase):
         self.assertEqual(self.filters['multivaluecharfield__regex'].exclude, False)
         self.assertEqual(self.filters['multivaluecharfield__iregex'].lookup_expr, 'iregex')
         self.assertEqual(self.filters['multivaluecharfield__iregex'].exclude, False)
+
+    def test_multi_value_content_type_filter(self):
+        """Only the negation lookup is generated, even on a field which supports text lookups."""
+        self.assertIsInstance(self.filters['multivaluecontenttypefield'], MultiValueContentTypeFilter)
+        self.assertEqual(self.filters['multivaluecontenttypefield'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['multivaluecontenttypefield'].exclude, False)
+        self.assertEqual(self.filters['multivaluecontenttypefield__n'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['multivaluecontenttypefield__n'].exclude, True)
+        generated = {name for name in self.filters if name.startswith('multivaluecontenttypefield__')}
+        self.assertEqual(generated, {'multivaluecontenttypefield__n'})
 
     def test_multi_value_date_filter(self):
         self.assertIsInstance(self.filters['datefield'], MultiValueDateFilter)

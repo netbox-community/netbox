@@ -1955,6 +1955,13 @@ class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'cluster': [clusters[0].pk, clusters[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_scope_type(self):
+        """Negating a scope type keeps VLAN groups without a scope."""
+        params = {'scope_type': ['dcim.region']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'scope_type__n': ['dcim.region']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 7)
+
     def test_tenant(self):
         tenants = Tenant.objects.all()[:2]
         params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
