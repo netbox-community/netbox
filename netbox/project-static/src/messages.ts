@@ -8,11 +8,12 @@ export function initMessages(): void {
     'body > div#django-messages > div.toast',
   );
   for (const element of elements) {
-    if (element !== null) {
-      const toast = new Toast(element);
-      if (!toast.isShown()) {
-        toast.show();
-      }
-    }
+    // Skip toasts already showing, and closed toasts restored from an htmx history snapshot
+    const closed = element.classList.contains('fade') && !element.classList.contains('show');
+    if (Toast.getInstance(element) || closed) continue;
+    const toast = new Toast(element);
+    toast.show();
+    // Retry on the next swap if a show.bs.toast listener cancelled the show
+    if (!toast.isShown()) toast.dispose();
   }
 }
