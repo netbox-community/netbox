@@ -5,7 +5,7 @@ from core.models import *
 from netbox.tables import NetBoxTable, PrimaryModelTable, columns
 
 from .columns import BackendTypeColumn
-from .template_code import DATA_SOURCE_SYNC_BUTTON
+from .template_code import DATA_SOURCE_REVISION, DATA_SOURCE_SYNC_BUTTON
 
 __all__ = (
     'DataFileTable',
@@ -33,6 +33,11 @@ class DataSourceTable(PrimaryModelTable):
     last_synced = tables.DateTimeColumn(
         verbose_name=_('Last Synced'),
     )
+    revision = columns.TemplateColumn(
+        verbose_name=_('Revision'),
+        template_code=DATA_SOURCE_REVISION,
+        export_raw=True,
+    )
     file_count = tables.Column(
         verbose_name=_('Files'),
     )
@@ -47,7 +52,7 @@ class DataSourceTable(PrimaryModelTable):
         model = DataSource
         fields = (
             'pk', 'id', 'name', 'type', 'status', 'enabled', 'source_url', 'description', 'sync_interval', 'comments',
-            'parameters', 'last_synced', 'created', 'last_updated', 'file_count',
+            'parameters', 'last_synced', 'revision', 'created', 'last_updated', 'file_count',
         )
         default_columns = ('pk', 'name', 'type', 'status', 'enabled', 'description', 'sync_interval', 'file_count')
 

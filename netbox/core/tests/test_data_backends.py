@@ -1,4 +1,5 @@
 import tempfile
+from datetime import UTC, datetime
 from pathlib import Path
 from unittest import skipIf
 from unittest.mock import patch
@@ -117,6 +118,46 @@ class GitBackendCredentialIntegrationTestCase(TestCase):
 
         self.assertEqual(kwargs.get('username'), None)
         self.assertEqual(kwargs.get('password'), None)
+
+
+@skipIf(not DULWICH_AVAILABLE, "dulwich is not installed")
+class GitBackendRevisionTestCase(TestCase):
+
+    def setUp(self):
+        from dulwich import porcelain
+
+        temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(temp_dir.cleanup)
+        self.repo_path = Path(temp_dir.name)
+        porcelain.init(str(self.repo_path))
+        for content, message in (('one\n', b'First commit'), ('two\n', b'Second commit\n\nAdd more detail\n')):
+            (self.repo_path / 'file.txt').write_text(content)
+            porcelain.add(str(self.repo_path), [str(self.repo_path / 'file.txt')])
+            self.commit = porcelain.commit(
+                str(self.repo_path),
+                message=message,
+                author=b'Jane Doe <jane@example.com>',
+                committer=b'John Doe <john@example.com>',
+                author_timestamp=1600000000,
+                author_timezone=3600,
+                commit_timestamp=1700000000,
+                commit_timezone=3600,
+            )
+
+    def test_get_revision(self):
+        """The revision describes the head commit of the fetched clone, as of its authoring."""
+        from core.data_backends import GitBackend
+
+        backend = GitBackend(url=self.repo_path.as_uri())
+        with backend.fetch() as local_path:
+            revision = backend.get_revision(local_path)
+
+        self.assertEqual(revision, {
+            'revision': self.commit.decode(),
+            'message': 'Second commit\n\nAdd more detail',
+            'author': 'Jane Doe <jane@example.com>',
+            'time': datetime(2020, 9, 13, 12, 26, 40, tzinfo=UTC),
+        })
 
 
 class S3BackendKeyResolutionTestCase(TestCase):

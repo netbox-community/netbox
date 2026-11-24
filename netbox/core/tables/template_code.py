@@ -37,6 +37,10 @@ PLUGIN_NAME_TEMPLATE = """
 <a href="{% url 'core:plugin' record.config_name %}">{{ record.title_long }}</a>
 """
 
+DATA_SOURCE_REVISION = """
+{% if value %}<span class="font-monospace" title="{{ value }}">{{ record.short_revision }}</span>{% endif %}
+"""
+
 DATA_SOURCE_SYNC_BUTTON = """
 {% load helpers %}
 {% load i18n %}

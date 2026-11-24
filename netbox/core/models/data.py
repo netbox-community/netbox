@@ -1,6 +1,7 @@
 import hashlib
 import logging
 import os
+import re
 from fnmatch import fnmatchcase
 from urllib.parse import urlparse
 
@@ -82,6 +83,33 @@ class DataSource(JobsMixin, PrimaryModel):
         null=True,
         editable=False
     )
+    revision = models.CharField(
+        verbose_name=_('revision'),
+        max_length=64,
+        blank=True,
+        null=True,
+        editable=False,
+        help_text=_("Identifier of the revision most recently synchronized (e.g. a git commit hash)")
+    )
+    revision_message = models.TextField(
+        verbose_name=_('revision message'),
+        blank=True,
+        null=True,
+        editable=False
+    )
+    revision_author = models.CharField(
+        verbose_name=_('revision author'),
+        max_length=200,
+        blank=True,
+        null=True,
+        editable=False
+    )
+    revision_time = models.DateTimeField(
+        verbose_name=_('revision time'),
+        blank=True,
+        null=True,
+        editable=False
+    )
 
     class Meta:
         ordering = ('name',)
@@ -113,6 +141,15 @@ class DataSource(JobsMixin, PrimaryModel):
     @property
     def backend_class(self):
         return registry['data_backends'].get(self.type)
+
+    @property
+    def short_revision(self):
+        """
+        Return the revision abbreviated to seven characters if it's a hash, otherwise unchanged.
+        """
+        if self.revision and re.fullmatch(r'[0-9a-f]{40,64}', self.revision):
+            return self.revision[:7]
+        return self.revision
 
     @property
     def ready_for_sync(self):
@@ -252,18 +289,47 @@ class DataSource(JobsMixin, PrimaryModel):
             created_count = len(DataFile.objects.using(using).bulk_create(new_datafiles, batch_size=100))
             logger.debug(f"Created {created_count} data files")
 
-            # Update status & last_synced time
+            # Update status, last_synced time & revision
             last_synced = timezone.now()
+            revision = self._get_revision(backend, local_path)
             DataSource.objects.using(using).filter(pk=self.pk).update(
-                status=DataSourceStatusChoices.COMPLETED, last_synced=last_synced
+                status=DataSourceStatusChoices.COMPLETED, last_synced=last_synced, **revision
             )
 
         self.status = DataSourceStatusChoices.COMPLETED
         self.last_synced = last_synced
+        for attr, value in revision.items():
+            setattr(self, attr, value)
 
         # Emit the post_sync signal
         post_sync.send(sender=self.__class__, instance=self)
     sync.alters_data = True
+
+    def _get_revision(self, backend, local_path):
+        """
+        Return the revision field values for the data fetched to local_path, or empty values if it can't be determined.
+        """
+        fields = {
+            'revision': 'revision',
+            'revision_message': 'message',
+            'revision_author': 'author',
+            'revision_time': 'time',
+        }
+        try:
+            revision = backend.get_revision(local_path) or {}
+            values = {}
+            for field_name, key in fields.items():
+                field = self._meta.get_field(field_name)
+                value = field.to_python(revision.get(key))
+                if isinstance(value, str):
+                    # Strip NUL characters (which PostgreSQL can't store) and truncate to the field's maximum length
+                    value = value.replace('\x00', '')[:field.max_length]
+                values[field_name] = value
+        except Exception as e:
+            logger.warning(f"Unable to determine the revision of data source {self}: {e}")
+            return dict.fromkeys(fields)
+
+        return values
 
     def _walk(self, root):
         """

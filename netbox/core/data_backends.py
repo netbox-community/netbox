@@ -2,6 +2,7 @@ import logging
 import re
 import tempfile
 from contextlib import contextmanager
+from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
 from urllib.parse import urlparse
 
@@ -136,6 +137,18 @@ class GitBackend(DataBackend):
         yield local_path.name
 
         local_path.cleanup()
+
+    def get_revision(self, local_path):
+        from dulwich.repo import Repo
+
+        with Repo(local_path) as repo:
+            commit = repo[repo.head()]
+            return {
+                'revision': commit.id.decode(),
+                'message': commit.message.decode(errors='replace').strip(),
+                'author': commit.author.decode(errors='replace'),
+                'time': datetime.fromtimestamp(commit.author_time, tz=UTC),
+            }
 
 
 @register_data_backend()

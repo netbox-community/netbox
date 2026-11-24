@@ -52,6 +52,10 @@ class DataSourceFilter(PrimaryModelFilter):
         strawberry_django.filter_field()
     )
     last_synced: DatetimeFilterLookup | None = strawberry_django.filter_field()
+    revision: StrFilterLookup | None = strawberry_django.filter_field()
+    revision_message: StrFilterLookup | None = strawberry_django.filter_field()
+    revision_author: StrFilterLookup | None = strawberry_django.filter_field()
+    revision_time: DatetimeFilterLookup | None = strawberry_django.filter_field()
     datafiles: Annotated['DataFileFilter', strawberry.lazy('core.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )

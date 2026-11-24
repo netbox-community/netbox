@@ -41,7 +41,10 @@ class DataSourceFilterSet(PrimaryModelFilterSet):
 
     class Meta:
         model = DataSource
-        fields = ('id', 'name', 'enabled', 'description', 'source_url', 'last_synced')
+        fields = (
+            'id', 'name', 'enabled', 'description', 'source_url', 'last_synced', 'revision', 'revision_message',
+            'revision_author', 'revision_time',
+        )
 
     def search(self, queryset, name, value):
         if not value.strip():
