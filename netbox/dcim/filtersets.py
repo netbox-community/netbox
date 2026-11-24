@@ -1684,6 +1684,7 @@ class DeviceFilterSet(
     def _interfaces(self, queryset, name, value):
         # Query Interface directly. Excluding on interfaces__isnull self-joins Device, which
         # PostgreSQL can plan very poorly when most devices have no interfaces (#23721).
+        # False uses ~Exists too: a pk__in subquery would negate to NOT IN, which PostgreSQL can't run as an anti join.
         has_interfaces = Exists(Interface.objects.filter(device=OuterRef('pk')))
         return queryset.filter(has_interfaces if value else ~has_interfaces)
 
