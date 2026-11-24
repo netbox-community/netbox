@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.utils.http import content_disposition_header
+from django.utils.http import content_disposition_header, urlencode
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.cache import never_cache
@@ -21,14 +21,13 @@ from core.choices import ManagedFileRootPathChoices
 from core.models import Job
 from core.object_actions import BulkSync
 from dcim.models import Device, DeviceRole, Platform
-from extras.choices import LogLevelChoices
+from extras.choices import CustomFieldFilterLogicChoices, CustomFieldTypeChoices, LogLevelChoices
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
 from extras.scripts import prepare_script_form
 from extras.utils import SharedObjectViewMixin
 from netbox.config import get_config
 from netbox.object_actions import *
-from netbox.registry import registry
 from netbox.ui import layout
 from netbox.ui.panels import (
     CommentsPanel,
@@ -42,6 +41,7 @@ from netbox.views.generic.mixins import TableMixin
 from utilities.forms import ConfirmationForm, get_field_value
 from utilities.htmx import htmx_maybe_redirect_current_page, htmx_partial
 from utilities.paginator import EnhancedPaginator, get_paginate_count
+from utilities.permissions import get_permission_for_model
 from utilities.query import count_related
 from utilities.querydict import normalize_querydict
 from utilities.request import copy_safe_request
@@ -88,21 +88,28 @@ class CustomFieldView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         related_models = []
-        filter_name = f'cf_{instance.name}__empty'
+        # Every filterable custom field has an __empty lookup, so link to the list view of each model
+        # filtered on it, unless filtering is disabled or the field type doesn't support filtering
+        filterable = (
+            instance.filter_logic != CustomFieldFilterLogicChoices.FILTER_DISABLED and
+            instance.type != CustomFieldTypeChoices.TYPE_JSON
+        )
+        query_string = urlencode({f'cf_{instance.name}__empty': 'false'})
 
         for object_type in instance.object_types.all():
             model = object_type.model_class()
+            if model is None:
+                # The model's plugin has been uninstalled
+                continue
             queryset = model.objects.restrict(request.user, 'view').exclude(
                 Q(**{f'custom_field_data__{instance.name}': ''}) |
                 Q(**{f'custom_field_data__{instance.name}': None})
             )
 
-            # Link to the model's list view filtered on this custom field, if the filter is available
             url = None
-            filterset_class = registry['filtersets'].get(f'{object_type.app_label}.{object_type.model}')
-            if filterset_class is not None and filter_name in filterset_class().filters:
+            if filterable and request.user.has_perm(get_permission_for_model(model, 'view')):
                 try:
-                    url = f'{get_action_url(model, "list")}?{filter_name}=false'
+                    url = f'{get_action_url(model, "list")}?{query_string}'
                 except NoReverseMatch:
                     pass
 
