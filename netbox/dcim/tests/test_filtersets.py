@@ -1,9 +1,10 @@
+import re
 from decimal import Decimal
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import DEFAULT_DB_ALIAS, connection
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
 from dcim.choices import *
@@ -3465,6 +3466,23 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'interfaces': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    @tag('performance', 'regression')
+    def test_interfaces_query_reads_only_interface_table(self):
+        """
+        Regression test for #23721: the interfaces filter must query the Interface table directly
+        rather than self-joining Device, which PostgreSQL can plan very poorly on large inventories.
+        """
+        for value in ('true', 'false'):
+            with self.subTest(interfaces=value):
+                sql = str(self.filterset({'interfaces': value}, self.queryset).qs.query)
+                # Device appears once, as the outer table, at any nesting depth
+                self.assertEqual(len(re.findall(r'(?:FROM|JOIN) "dcim_device"', sql)), 1)
+                if value == 'true':
+                    self.assertIn('EXISTS', sql)
+                    self.assertNotIn('NOT EXISTS', sql)
+                else:
+                    self.assertIn('NOT EXISTS', sql)
 
     def test_pass_through_ports(self):
         params = {'pass_through_ports': 'true'}

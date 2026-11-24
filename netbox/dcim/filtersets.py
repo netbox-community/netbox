@@ -1,7 +1,7 @@
 import django_filters
 import netaddr
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Func, IntegerField, Q
+from django.db.models import Exists, Func, IntegerField, OuterRef, Q
 from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
@@ -1682,7 +1682,11 @@ class DeviceFilterSet(
         return queryset.exclude(poweroutlets__isnull=value)
 
     def _interfaces(self, queryset, name, value):
-        return queryset.exclude(interfaces__isnull=value)
+        # Query Interface directly. Excluding on interfaces__isnull self-joins Device, which
+        # PostgreSQL can plan very poorly when most devices have no interfaces (#23721).
+        # False uses ~Exists too: a pk__in subquery would negate to NOT IN, which PostgreSQL can't run as an anti join.
+        has_interfaces = Exists(Interface.objects.filter(device=OuterRef('pk')))
+        return queryset.filter(has_interfaces if value else ~has_interfaces)
 
     def _pass_through_ports(self, queryset, name, value):
         return queryset.exclude(
