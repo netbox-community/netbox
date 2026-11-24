@@ -6145,15 +6145,28 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         vc = VirtualChassis.objects.get(name='VC1')
         member = Device.objects.get(name='Device 2')
 
+        # Members the user cannot change are read-only, so submitted values are ignored
         response = self.client.post(self._get_url('edit', vc), self._get_edit_data(vc, **{'Device 2': (5, 10)}))
-        self.assertHttpStatus(response, 200)
-        self.assertIn(PermissionsViolation.message, response.context['vc_form'].non_field_errors())
+        self.assertHttpStatus(response, 302)
 
-        # The change is rolled back
         member.refresh_from_db()
         self.assertEqual(member.vc_position, 2)
         self.assertIsNone(member.vc_priority)
         self.assertFalse(self._get_member_changes(member).exists())
+
+    @tag('regression')  # Ref: #23669
+    def test_edit_members_shows_restricted_members_read_only(self):
+        self.add_permissions('dcim.change_virtualchassis')
+        self._add_constrained_permission(Device, ['change'], {'name': 'Device 1'})
+        vc = VirtualChassis.objects.get(name='VC1')
+
+        response = self.client.get(self._get_url('edit', vc))
+        self.assertHttpStatus(response, 200)
+        disabled = {
+            form.instance.name: form.fields['vc_position'].disabled and form.fields['vc_priority'].disabled
+            for form in response.context['formset'].forms
+        }
+        self.assertEqual(disabled, {'Device 1': False, 'Device 2': True, 'Device 3': True})
 
     @tag('regression')  # Ref: #23669
     def test_edit_members_checks_constrained_change_device_permission_before_save(self):
@@ -6161,17 +6174,54 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self._add_constrained_permission(Device, ['change'], {'vc_priority__isnull': True})
         vc = VirtualChassis.objects.get(name='VC1')
         member = Device.objects.get(name='Device 2')
+        other_member = Device.objects.get(name='Device 3')
         Device.objects.filter(pk=member.pk).update(vc_priority=50)
 
-        # Clearing the priority would satisfy the constraint, but the member does not satisfy it beforehand
-        response = self.client.post(self._get_url('edit', vc), self._get_edit_data(vc, **{'Device 2': (2, None)}))
+        # Clearing the priority would satisfy the constraint, but the member does not satisfy it beforehand, so the
+        # submitted value is ignored while the change to a permitted member is saved
+        response = self.client.post(
+            self._get_url('edit', vc),
+            self._get_edit_data(vc, **{'Device 2': (2, None), 'Device 3': (5, None)})
+        )
+        self.assertHttpStatus(response, 302)
+
+        member.refresh_from_db()
+        self.assertEqual(member.vc_priority, 50)
+        self.assertFalse(self._get_member_changes(member).exists())
+        other_member.refresh_from_db()
+        self.assertEqual(other_member.vc_position, 5)
+
+    @tag('regression')  # Ref: #23669
+    def test_edit_members_checks_device_permission_against_stored_chassis(self):
+        self.add_permissions('dcim.change_virtualchassis')
+        self._add_constrained_permission(Device, ['change'], {'virtual_chassis__domain': 'lab'})
+        vc = VirtualChassis.objects.get(name='VC1')
+        member = Device.objects.get(name='Device 2')
+
+        # Moving the chassis into the permitted domain must not grant change permission on its members
+        data = self._get_edit_data(vc, **{'Device 2': (2, 10)})
+        data['domain'] = 'lab'
+        self.client.post(self._get_url('edit', vc), data)
+
+        member.refresh_from_db()
+        self.assertIsNone(member.vc_priority)
+        self.assertFalse(self._get_member_changes(member).exists())
+
+    @tag('regression')  # Ref: #23669
+    def test_edit_members_blocked_by_constrained_change_device_permission_after_save(self):
+        self.add_permissions('dcim.change_virtualchassis')
+        self._add_constrained_permission(Device, ['change'], {'vc_position__lte': 5})
+        vc = VirtualChassis.objects.get(name='VC1')
+        member = Device.objects.get(name='Device 2')
+
+        response = self.client.post(self._get_url('edit', vc), self._get_edit_data(vc, **{'Device 2': (9, None)}))
         self.assertHttpStatus(response, 200)
         self.assertIn(PermissionsViolation.message, response.context['vc_form'].non_field_errors())
         self.assertEqual(response.context['object'], vc)
 
         # The change is rolled back
         member.refresh_from_db()
-        self.assertEqual(member.vc_priority, 50)
+        self.assertEqual(member.vc_position, 2)
         self.assertFalse(self._get_member_changes(member).exists())
 
     @tag('regression')  # Ref: #23669

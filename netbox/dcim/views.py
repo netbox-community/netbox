@@ -5200,6 +5200,15 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
     def get_required_permission(self):
         return 'dcim.change_virtualchassis'
 
+    @staticmethod
+    def disable_restricted_members(formset, user):
+        # Show members the user cannot change as read-only; disabled fields ignore submitted data
+        permitted_pks = set(formset.get_queryset().restrict(user, 'change').values_list('pk', flat=True))
+        for form in formset.forms:
+            if form.instance.pk not in permitted_pks:
+                form.fields['vc_position'].disabled = True
+                form.fields['vc_priority'].disabled = True
+
     def get(self, request, pk):
 
         virtual_chassis = get_object_or_404(self.queryset, pk=pk)
@@ -5214,6 +5223,7 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
         vc_form = forms.VirtualChassisForm(instance=virtual_chassis)
         vc_form.fields['master'].queryset = members_queryset
         formset = VCMemberFormSet(queryset=members_queryset)
+        self.disable_restricted_members(formset, request.user)
 
         return render(request, 'dcim/virtualchassis_edit.html', {
             'object': virtual_chassis,
@@ -5237,6 +5247,7 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
         vc_form = forms.VirtualChassisForm(request.POST, instance=virtual_chassis)
         vc_form.fields['master'].queryset = members_queryset
         formset = VCMemberFormSet(request.POST, queryset=members_queryset)
+        self.disable_restricted_members(formset, request.user)
 
         # Snapshot each member before validation applies the submitted data to the instance
         for form in formset.initial_forms:
@@ -5249,15 +5260,16 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
             try:
                 with transaction.atomic(using=router.db_for_write(Device)):
 
-                    # Save the VirtualChassis
-                    vc_form.save()
-
-                    # Each changed member must be a device the user can change, both before and after saving
+                    # Each changed member must be a device the user can change, both before and after saving. Check
+                    # before saving the VirtualChassis so device constraints are evaluated against its stored state.
                     members = formset.save(commit=False)
                     member_pks = [m.pk for m in members]
                     change_queryset = Device.objects.restrict(request.user, 'change')
                     if change_queryset.filter(pk__in=member_pks).count() != len(members):
                         raise PermissionsViolation()
+
+                    # Save the VirtualChassis
+                    vc_form.save()
 
                     # Nullify vc_position of each changed member first to allow reordering without an IntegrityError
                     # on duplicate positions. A queryset update keeps this transient state out of the changelog.
