@@ -1,6 +1,7 @@
 import copy
 import logging
 
+from django.contrib.auth.models import update_last_login as django_update_last_login
 from django.contrib.auth.signals import user_logged_in, user_login_failed
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -22,6 +23,23 @@ def log_user_login_failed(sender, credentials, request, **kwargs):
             "configured to pass the required header(s)."
         )
         logger.info(f"Failed login attempt for username: {username}")
+
+
+# Replace Django's receiver, which always records the login time
+user_logged_in.disconnect(dispatch_uid='update_last_login')
+
+
+@receiver(user_logged_in, dispatch_uid='update_last_login')
+def update_last_login(sender, user, **kwargs):
+    """
+    Record the user's login time, unless maintenance mode is enabled. This allows users to log in while the database
+    is read-only, whichever authentication method they use.
+    """
+    if get_config().MAINTENANCE_MODE:
+        logger = logging.getLogger('netbox.auth.login')
+        logger.debug("Maintenance mode enabled: disabling update of most recent login time")
+        return
+    django_update_last_login(sender, user, **kwargs)
 
 
 @receiver(user_logged_in)

@@ -15,6 +15,7 @@ from django.utils.translation import ngettext
 from django.views.generic import View
 
 from circuits.models import Circuit, CircuitTermination
+from core.signals import clear_events
 from extras.ui.panels import CustomFieldsPanel, ImageAttachmentsPanel, TagsPanel
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import ASN, VLAN, IPAddress, Prefix, VLANGroup
@@ -34,7 +35,9 @@ from netbox.ui.panels import (
     TemplatePanel,
 )
 from netbox.views import generic
-from utilities.forms import ConfirmationForm
+from utilities.exceptions import PermissionsViolation
+from utilities.forms import ConfirmationForm, restrict_form_fields
+from utilities.jobs import is_background_request
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
 from utilities.query import count_related
@@ -2167,6 +2170,30 @@ class ModuleTypeImportView(generic.BulkImportView):
         data.update({'module_type': parent})
         return data
 
+    def save_object(self, object_form, request):
+        check_compatibility = object_form.instance.pk and 'module_bay_types' in object_form.cleaned_data
+        module_type = super().save_object(object_form, request)
+        if check_compatibility:
+            self._incompatible_count += module_type.get_incompatible_modules().count()
+        return module_type
+
+    def post(self, request):
+        self._incompatible_count = 0
+        response = super().post(request)
+        if self._incompatible_count and (response is None or response.status_code == 302):
+            warning = ngettext(
+                '%(count)d installed module is incompatible with its module bay '
+                'due to conflicting bay type constraints.',
+                '%(count)d installed modules are incompatible with their module bays '
+                'due to conflicting bay type constraints.',
+                self._incompatible_count,
+            ) % {'count': self._incompatible_count}
+            if is_background_request(request):
+                request.job.logger.warning(warning)
+            else:
+                messages.warning(request, warning)
+        return response
+
 
 @register_model_view(ModuleType, 'bulk_edit', path='edit', detail=False)
 class ModuleTypeBulkEditView(generic.BulkEditView):
@@ -3971,6 +3998,15 @@ class InterfaceView(generic.ObjectView):
                 filters={'interface_id': lambda ctx: ctx['object'].pk},
                 title=_('IP Addresses'),
                 exclude_columns=['assigned', 'assigned_object', 'assigned_object_parent'],
+                actions=[
+                    actions.AddObject(
+                        'ipam.IPAddress',
+                        url_params={
+                            'device': lambda ctx: ctx['object'].device.pk,
+                            'interface': lambda ctx: ctx['object'].pk,
+                        },
+                    ),
+                ],
             ),
             ObjectsTablePanel(
                 model='dcim.MACAddress',
@@ -5270,6 +5306,7 @@ class VirtualChassisAddMemberView(ObjectPermissionRequiredMixin, GetReturnURLMix
         virtual_chassis = get_object_or_404(self.queryset, pk=pk)
         initial_data = {k: request.GET[k] for k in request.GET}
         member_select_form = forms.VCMemberSelectForm(initial=initial_data)
+        restrict_form_fields(member_select_form, request.user, action='change')
         membership_form = forms.DeviceVCMembershipForm(initial=initial_data)
 
         return render(request, 'dcim/virtualchassis_add_member.html', {
@@ -5282,6 +5319,7 @@ class VirtualChassisAddMemberView(ObjectPermissionRequiredMixin, GetReturnURLMix
     def post(self, request, pk):
         virtual_chassis = get_object_or_404(self.queryset, pk=pk)
         member_select_form = forms.VCMemberSelectForm(request.POST)
+        restrict_form_fields(member_select_form, request.user, action='change')
 
         if member_select_form.is_valid():
             device = member_select_form.cleaned_data['device']
@@ -5301,16 +5339,27 @@ class VirtualChassisAddMemberView(ObjectPermissionRequiredMixin, GetReturnURLMix
                 membership_form.add_error(None, e.messages)
 
             if membership_form.is_valid():
-                membership_form.save()
-                messages.success(request, mark_safe(
-                    _('Added member <a href="{url}">{device}</a>').format(
-                        url=device.get_absolute_url(), device=escape(device)
-                    )
-                ))
+                try:
+                    with transaction.atomic(using=router.db_for_write(Device)):
+                        membership_form.save()
 
-                if '_addanother' in request.POST and safe_for_redirect(request.get_full_path()):
-                    return redirect(request.get_full_path())
-                return redirect(self.get_return_url(request, device))
+                        # Check that the device still conforms with any assigned object-level permissions
+                        if not Device.objects.restrict(request.user, 'change').filter(pk=device.pk).exists():
+                            raise PermissionsViolation()
+
+                    messages.success(request, mark_safe(
+                        _('Added member <a href="{url}">{device}</a>').format(
+                            url=device.get_absolute_url(), device=escape(device)
+                        )
+                    ))
+
+                    if '_addanother' in request.POST and safe_for_redirect(request.get_full_path()):
+                        return redirect(request.get_full_path())
+                    return redirect(self.get_return_url(request, device))
+
+                except PermissionsViolation as e:
+                    membership_form.add_error(None, e.message)
+                    clear_events.send(sender=self)
 
         else:
             membership_form = forms.DeviceVCMembershipForm(data=request.POST)

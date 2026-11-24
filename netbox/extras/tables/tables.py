@@ -778,6 +778,9 @@ class JournalEntryTable(NetBoxTable):
         timespec='minutes',
         linkify=True
     )
+    created_by = tables.Column(
+        verbose_name=_('Created by')
+    )
     assigned_object_type = columns.ContentTypeColumn(
         verbose_name=_('Object Type')
     )

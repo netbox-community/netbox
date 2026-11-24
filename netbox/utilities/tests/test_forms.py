@@ -4,15 +4,19 @@ from types import SimpleNamespace
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from django.test import TestCase, override_settings
+from django.templatetags.static import static
+from django.test import TestCase, override_settings, tag
+from django.utils import translation
+from django.utils.functional import Promise
 from django.utils.html import escape
+from django.utils.translation import gettext
 
 from dcim.models import Rack, Site
-from netbox.choices import ImportFormatChoices
+from netbox.choices import ColorChoices, ImportFormatChoices
 from utilities.choices import Choice, ChoiceSet
 from utilities.forms.bulk_import import BulkImportForm
-from utilities.forms.fields import ChoiceField, MultipleChoiceField, TypedChoiceField
-from utilities.forms.fields.csv import CSVSelectWidget
+from utilities.forms.fields import ChoiceField, CommentField, MultipleChoiceField, TypedChoiceField
+from utilities.forms.fields.csv import CSVModelChoiceField, CSVModelMultipleChoiceField, CSVSelectWidget
 from utilities.forms.fields.dynamic import (
     DynamicChoiceField,
     DynamicModelChoiceField,
@@ -20,7 +24,7 @@ from utilities.forms.fields.dynamic import (
     DynamicMultipleChoiceField,
 )
 from utilities.forms.fields.generic import GenericObjectChoiceField
-from utilities.forms.forms import BulkRenameForm
+from utilities.forms.forms import BulkRenameForm, CSVModelForm
 from utilities.forms.mixins import GenericObjectFormMixin
 from utilities.forms.rendering import FieldSet
 from utilities.forms.utils import (
@@ -31,7 +35,7 @@ from utilities.forms.utils import (
     get_field_value,
     parse_numeric_range,
 )
-from utilities.forms.widgets.select import AvailableOptions, HTMXSelect, Select, SelectedOptions
+from utilities.forms.widgets.select import AvailableOptions, ColorSelect, HTMXSelect, Select, SelectedOptions
 
 
 class ExpandIPNetworkTestCase(TestCase):
@@ -567,6 +571,60 @@ class CSVSelectWidgetTestCase(TestCase):
         self.assertFalse(widget.value_omitted_from_data(data, {}, 'test_field'))
 
 
+class CSVModelFieldFilterByValueTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        Site.objects.bulk_create((
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        ))
+
+    def test_filter_by_value_with_to_field_name(self):
+        site = Site.objects.get(slug='site-1')
+        for field_class in (CSVModelChoiceField, CSVModelMultipleChoiceField):
+            with self.subTest(field_class=field_class.__name__):
+                field = field_class(queryset=Site.objects.all(), to_field_name='slug')
+                self.assertQuerySetEqual(field.filter_by_value('site-1'), [site])
+
+    def test_filter_by_value_without_to_field_name(self):
+        site = Site.objects.get(slug='site-2')
+        for field_class in (CSVModelChoiceField, CSVModelMultipleChoiceField):
+            with self.subTest(field_class=field_class.__name__):
+                field = field_class(queryset=Site.objects.all())
+                self.assertQuerySetEqual(field.filter_by_value(site.pk), [site])
+
+    def test_filter_by_value_no_match(self):
+        field = CSVModelChoiceField(queryset=Site.objects.all(), to_field_name='name')
+        self.assertFalse(field.filter_by_value('Site 3').exists())
+
+
+class CSVModelFormGetRelatedFilterTestCase(TestCase):
+
+    class RackImportTestForm(CSVModelForm):
+        site = CSVModelChoiceField(queryset=Site.objects.all(), to_field_name='name')
+
+        class Meta:
+            model = Rack
+            fields = ('site',)
+
+    def test_get_related_filter(self):
+        form = self.RackImportTestForm()
+        self.assertEqual(form.get_related_filter('site', 'site', 'Site 1'), {'site__name': 'Site 1'})
+
+    def test_get_related_filter_nested_path(self):
+        form = self.RackImportTestForm()
+        self.assertEqual(
+            form.get_related_filter('rack__site', 'site', 'Site 1'),
+            {'rack__site__name': 'Site 1'}
+        )
+
+    def test_get_related_filter_with_csv_header(self):
+        # A CSV header such as "site.slug" overrides the field's to_field_name
+        form = self.RackImportTestForm(headers={'site': 'slug'})
+        self.assertEqual(form.get_related_filter('site', 'site', 'site-1'), {'site__slug': 'site-1'})
+
+
 class SelectMultipleWidgetTestCase(TestCase):
     """
     Validate filtering behavior of AvailableOptions and SelectedOptions widgets.
@@ -633,6 +691,23 @@ class SelectMultipleWidgetTestCase(TestCase):
         self.assertEqual(widget.choices[0][1], [(2, 'Option 2')])
         self.assertEqual(widget.choices[1][0], 'Group B')
         self.assertEqual(widget.choices[1][1], [(3, 'Option 3')])
+
+
+class FormFieldsTestCase(TestCase):
+    """
+    Tests for shared form field classes.
+    """
+
+    @tag('regression')  # Ref: #23751
+    def test_comment_field_help_text_translation(self):
+        with translation.override('it'):
+            field = CommentField()
+            self.assertIsInstance(field.help_text, Promise)
+            expected = gettext(
+                '<i class="mdi mdi-information-outline" aria-hidden="true"></i> '
+                '<a href="{url}" target="_blank" tabindex="-1">Markdown</a> syntax is supported'
+            ).format(url=static('docs/reference/markdown/'))
+            self.assertEqual(str(field.help_text), expected)
 
 
 class DynamicChoiceFieldTestCase(TestCase):
@@ -712,7 +787,7 @@ class DynamicModelChoiceFieldTestCase(TestCase):
         )
         Rack.objects.bulk_create(cls.racks)
 
-    def _make_form(self, site_field_class, data=None, rack_context=None):
+    def _make_form(self, site_field_class, data=None, rack_context=None, rack_initial=None):
         class TestForm(forms.Form):
             rack = DynamicModelMultipleChoiceField(queryset=Rack.objects.all(), required=False, context=rack_context)
             site = site_field_class(
@@ -720,7 +795,9 @@ class DynamicModelChoiceFieldTestCase(TestCase):
                 required=False,
                 initial_params={'racks__in': '$rack'},
             )
-        return TestForm(data=data, initial={'rack': [rack.pk for rack in self.racks]})
+        if rack_initial is None:
+            rack_initial = [rack.pk for rack in self.racks]
+        return TestForm(data=data, initial={'rack': rack_initial})
 
     def test_multiple_choice_field_selects_every_matching_object(self):
         """A multiple-choice parent field selects every distinct object matched by initial_params."""
@@ -746,6 +823,12 @@ class DynamicModelChoiceFieldTestCase(TestCase):
 
         self.assertIn(field.initial, self.sites)
         self.assertEqual(field.queryset.count(), 1)
+
+    def test_invalid_child_value_leaves_initial_unset(self):
+        """An invalid child value leaves a parent field without an initial value."""
+        field = self._make_form(DynamicModelMultipleChoiceField, rack_initial=[''])['site'].field
+
+        self.assertFalse(field.initial)
 
     def test_options_name_their_parent(self):
         """Each rendered option names its parent object."""
@@ -1155,3 +1238,26 @@ class StaticSelectTestCase(TestCase):
         self.assertTrue(calls)
         # And descriptions are still collected as normal
         self.assertEqual(field.widget.descriptions, {self.ExampleChoices.FOO: 'Description of foo'})
+
+
+class ColorSelectTestCase(TestCase):
+
+    def test_predefined_color_selected(self):
+        html = ColorSelect().render('color', ColorChoices.COLOR_RED)
+        self.assertInHTML(f'<option value="{ColorChoices.COLOR_RED}" selected>Red</option>', html)
+        self.assertEqual(html.count(f'value="{ColorChoices.COLOR_RED}"'), 1)
+
+    def test_custom_color_rendered_as_selected_option(self):
+        html = ColorSelect().render('color', 'e20074')
+        self.assertInHTML('<option value="e20074" selected>e20074</option>', html)
+
+    def test_empty_value_adds_no_option(self):
+        widget = ColorSelect()
+        html = widget.render('color', None)
+        self.assertEqual(html.count('<option'), len(widget.choices))
+
+    def test_invalid_color_adds_no_option(self):
+        widget = ColorSelect()
+        html = widget.render('color', 'ff0000;background:url(x)')
+        self.assertNotIn('background:url', html)
+        self.assertEqual(html.count('<option'), len(widget.choices))

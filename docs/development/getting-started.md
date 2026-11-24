@@ -211,16 +211,57 @@ Only the value `1` enables this mode. Unlike `UPDATE_QUERY_COUNTS` mode, it work
 !!! note "Vouched contributors"
     Pull requests are accepted only from contributors who have been vouched for by a maintainer. If you aren't yet listed in [`.github/VOUCHED.td`](https://github.com/netbox-community/netbox/blob/main/.github/VOUCHED.td) (for example, if you're contributing for the first time), introduce yourself by [starting a discussion](https://github.com/netbox-community/netbox/discussions/new?category=vouch-request) in the **Vouch Request** category before submitting your first pull request. Pull requests from contributors who have not been vouched for are closed automatically. See the [contributing guide](https://github.com/netbox-community/netbox/blob/main/CONTRIBUTING.md) for details.
 
-Once you're happy with your work and have verified that all tests pass, commit your changes and push it upstream to your fork. Always provide descriptive (but not excessively verbose) commit messages. Be sure to prefix your commit message with the word "Fixes" or "Closes" and the relevant issue number (with a hash mark). This tells GitHub to automatically close the referenced issue once the commit has been merged.
+Once you're happy with your work and have verified that all tests pass, commit your changes using the [format below](#commit-messages-and-pr-titles) and push them upstream to your fork.
 
 ```no-highlight
 git commit -m "Closes #1234: Add IPv5 support"
 git push origin
 ```
 
-Once your fork has the new commit, submit a [pull request](https://github.com/netbox-community/netbox/compare) to the NetBox repo to propose the changes. Be sure to provide a detailed accounting of the changes being made and the reasons for doing so.
+Once your fork has the new commit, submit a [pull request](https://github.com/netbox-community/netbox/compare) to the NetBox repo to propose the changes. Follow the title and description guidance below.
 
 Once submitted, a maintainer will review your pull request and either merge it or request changes. If changes are needed, you can make them via new commits to your fork: The pull request will update automatically.
 
 !!! warning
     Remember, pull requests are permitted only for **accepted** issues. If an issue you want to work on hasn't been approved by a maintainer yet, it's best to avoid risking your time and effort on a change that might not be accepted. (The one exception to this is trivial changes to the documentation or other non-critical resources.)
+
+### Commit Messages and PR Titles
+
+For issue-linked changes, use one of these subject formats:
+
+* `Fixes #<issue-id>: <summary>` for bug fixes.
+* `Closes #<issue-id>: <summary>` for all other issue types, such as features, housekeeping, and documentation.
+
+GitHub closes the referenced issue automatically once the commit is merged into the default branch.
+
+Use the same wording for the PR title and final commit subject. Write the summary in the imperative (e.g. "Keep cleared fields empty on refresh"), starting with a capital letter and without a trailing period. It should describe the change clearly enough to serve as a release note entry. Aim for about 50 characters for the whole subject, including the issue prefix, while keeping the meaning clear.
+
+When a body is needed, separate it from the subject with a blank line. Briefly explain what changes and why, rather than walking through the implementation, and wrap prose at 72 characters. For example:
+
+```no-highlight
+Fixes #1234: Keep cleared fields empty on refresh
+
+Refreshing an edit form restored the saved value of any field the user
+had cleared, discarding that edit. Cleared fields now stay empty.
+```
+
+The issue reference in the subject is sufficient, so omit a duplicate `Fixes` or `Closes` reference from the commit footer. When applicable, add a `Co-authored-by: Name <email>` trailer for each co-author, using their preferred attribution details. Separate the trailer block from the body with a blank line.
+
+These conventions follow the traditional [Git commit-message guidelines](https://cbea.ms/git-commit/) with NetBox's issue-prefixed subject format.
+
+### Pull Request Descriptions
+
+Use the [PR template](https://github.com/netbox-community/netbox/blob/main/.github/PULL_REQUEST_TEMPLATE.md), including its `Closes: #<issue-id>` line even when the issue is referenced in the title.
+
+Briefly explain what the PR changes and the resulting behavior, usually in one or two short paragraphs. Include only the context needed to understand the change, and leave the full problem statement in the linked issue. Avoid repeating the issue, narrating the diff, or listing every test. Include design decisions, compatibility notes, and meaningful validation results where they help reviewers.
+
+For example:
+
+```markdown
+### Closes: #1234
+
+Keeps cleared fields empty when an edit form refreshes, so saved values
+are no longer restored.
+```
+
+Read through the description before submitting and check that it accurately describes your changes.

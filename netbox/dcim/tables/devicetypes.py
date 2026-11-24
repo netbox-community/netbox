@@ -266,7 +266,8 @@ class FrontPortTemplateTable(ComponentTemplateTable):
     )
     mappings = columns.ManyToManyColumn(
         verbose_name=_('Mappings'),
-        transform=lambda obj: f'{obj.rear_port}:{obj.rear_port_position}'
+        transform=lambda obj: f'{obj.rear_port}:{obj.rear_port_position}',
+        prefetch_related=('mappings__rear_port',)
     )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
@@ -285,7 +286,8 @@ class RearPortTemplateTable(ComponentTemplateTable):
     )
     mappings = columns.ManyToManyColumn(
         verbose_name=_('Mappings'),
-        transform=lambda obj: f'{obj.front_port}:{obj.front_port_position}'
+        transform=lambda obj: f'{obj.front_port}:{obj.front_port_position}',
+        prefetch_related=('mappings__front_port',)
     )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),

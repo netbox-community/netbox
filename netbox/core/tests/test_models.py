@@ -11,10 +11,12 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import call_command
 from django.db import IntegrityError, connection
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
-from django.utils import timezone
+from django.utils import timezone, translation
+from django.utils.functional import Promise
+from django.utils.translation import gettext
 
 from core.choices import (
     DataSourceStatusChoices,
@@ -679,6 +681,14 @@ class JobTestCase(TestCase):
         # Jobs for custom scripts link to the script result view
         job = Job(pk=123, name='Test Job', object_type=ObjectType.objects.get_for_model(Script), object_id=1)
         self.assertEqual(job.get_absolute_url(), reverse('extras:script_result', kwargs={'job_pk': 123}))
+
+    @tag('regression')  # Ref: #23702
+    def test_verbose_name_translation(self):
+        # Meta labels are set at import, so eager gettext keeps them in DEFAULT_LANGUAGE (#23702)
+        verbose_name = Job._meta.verbose_name
+        self.assertIsInstance(verbose_name, Promise)
+        with translation.override('nl'):
+            self.assertEqual(str(verbose_name), gettext('job'))
 
 
 class JobAccessTestCase(TestCase):

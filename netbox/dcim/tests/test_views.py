@@ -5,18 +5,19 @@ import tempfile
 from decimal import Decimal
 from io import StringIO
 from unittest.mock import patch
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 from zoneinfo import ZoneInfo
 
 import yaml
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.messages import get_messages
+from django.contrib.messages import WARNING, get_messages
 from django.db import connection
 from django.http import QueryDict, StreamingHttpResponse
 from django.templatetags.static import static
 from django.test import override_settings, tag
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
+from django.utils.html import escape
 from netaddr import EUI
 
 from core.choices import ObjectChangeActionChoices
@@ -24,6 +25,7 @@ from core.models import ObjectChange, ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
+from dcim.views import ModuleTypeImportView
 from extras.models import ConfigContext, ConfigTemplate
 from ipam.models import ASN, RIR, VLAN, VRF, IPAddress, VLANGroup
 from netbox.choices import (
@@ -36,6 +38,7 @@ from netbox.choices import (
 from netbox.exporters import get_exporter
 from tenancy.models import Tenant
 from users.models import ObjectPermission, Owner, User
+from utilities.exceptions import PermissionsViolation
 from utilities.testing import ViewTestCases, create_tags, create_test_device, create_test_image, post_data
 from wireless.models import WirelessLAN
 
@@ -1868,6 +1871,81 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         url = reverse('dcim:moduletype_frontports', kwargs={'pk': moduletype.pk})
         self.assertHttpStatus(self.client.get(url), 200)
+
+    def test_import_module_bay_types(self):
+        """YAML and JSON imports save global bay types and prefer manufacturer-specific matches for shared names."""
+        manufacturer = Manufacturer.objects.first()
+        global_type = ModuleBayType.objects.create(name='global-slot', slug='global-slot')
+        manufacturer_type = ModuleBayType.objects.create(
+            manufacturer=manufacturer, name='manufacturer-slot', slug='manufacturer-slot',
+        )
+        ModuleBayType.objects.create(name='manufacturer-slot', slug='manufacturer-slot')
+        self.add_permissions(
+            'dcim.view_manufacturer',
+            'dcim.view_modulebaytype',
+            'dcim.view_moduletype',
+            'dcim.add_moduletype',
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
+        )
+
+        data = {
+            'manufacturer': manufacturer.name,
+            'model': 'Imported Transceiver',
+            'module_bay_types': ['global-slot', 'manufacturer-slot'],
+        }
+        for format_, serialized in (('yaml', yaml.safe_dump(data)), ('json', json.dumps(data))):
+            with self.subTest(format=format_):
+                response = self.client.post(reverse('dcim:moduletype_bulk_import'), data={
+                    'data': serialized,
+                    'format': format_,
+                })
+                self.assertHttpStatus(response, 302)
+                module_type = ModuleType.objects.get(model=data['model'])
+                self.assertEqual(set(module_type.module_bay_types.all()), {global_type, manufacturer_type})
+                module_type.delete()
+
+    def test_import_update_warns_about_incompatible_installed_modules(self):
+        """An import can restrict an existing module type and gives a warning (doesn't remove installed modules)."""
+        self.add_permissions(
+            *ModuleTypeImportView.additional_permissions,
+            'dcim.change_moduletype',
+            'dcim.view_modulebaytype',
+        )
+        module_type = ModuleType.objects.get(model='Module Type 2')
+        device = create_test_device('Device 1')
+        allowed_type = ModuleBayType.objects.create(name='Allowed Slot', slug='allowed-slot')
+        other_type = ModuleBayType.objects.create(name='Other Slot', slug='other-slot')
+        compatible_bay = ModuleBay.objects.create(device=device, name='Compatible Bay')
+        compatible_bay.module_bay_types.add(allowed_type)
+        incompatible_bay = ModuleBay.objects.create(device=device, name='Incompatible Bay')
+        incompatible_bay.module_bay_types.add(other_type)
+
+        # Install modules with no bay type constraints in bays with differing bay type constraints.
+        Module.objects.create(device=device, module_bay=compatible_bay, module_type=module_type)
+        installed_module = Module.objects.create(device=device, module_bay=incompatible_bay, module_type=module_type)
+
+        response = self.client.post(reverse('dcim:moduletype_bulk_import'), data={
+            'data': yaml.safe_dump({'id': module_type.pk, 'module_bay_types': [allowed_type.name]}),
+            'format': 'yaml',
+        })
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(list(module_type.module_bay_types.all()), [allowed_type])
+        installed_module.refresh_from_db()
+        self.assertEqual(installed_module.module_bay_id, incompatible_bay.pk)
+        self.assertEqual(
+            [str(message) for message in get_messages(response.wsgi_request) if message.level == WARNING],
+            ['1 installed module is incompatible with its module bay due to conflicting bay type constraints.'],
+        )
 
     def test_import_objects(self):
         """
@@ -4390,6 +4468,23 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         response = self.client.get(reverse('dcim:interface_trace', kwargs={'pk': interface1.pk}))
         self.assertHttpStatus(response, 200)
 
+    @tag('regression')  # Issue #23711
+    def test_ip_addresses_panel_add_action(self):
+        """
+        The interface's IP addresses panel links to add an IP address assigned to the interface.
+        """
+        self.add_permissions('dcim.view_interface', 'ipam.view_ipaddress', 'ipam.add_ipaddress')
+        interface = Interface.objects.first()
+        url_params = urlencode({
+            'device': interface.device.pk,
+            'interface': interface.pk,
+            'return_url': interface.get_absolute_url(),
+        })
+
+        response = self.client.get(interface.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, escape(f"{reverse('ipam:ipaddress_add')}?{url_params}"))
+
     def test_bulk_delete_child_interfaces(self):
         interface1 = Interface.objects.get(name='Interface 1')
         device = interface1.device
@@ -5985,7 +6080,7 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @tag('regression')  # Ref: #23212
     def test_add_member_blocked_by_cross_chassis_lag(self):
-        self.add_permissions('dcim.change_virtualchassis')
+        self.add_permissions('dcim.change_virtualchassis', 'dcim.change_device')
         vc1_member = Device.objects.get(name='Device 1')
         device = Device.objects.get(name='Device 10')
         lag = Interface.objects.create(device=vc1_member, name='lag0', type=InterfaceTypeChoices.TYPE_LAG)
@@ -6000,6 +6095,72 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         device.refresh_from_db()
         self.assertIsNone(device.virtual_chassis)
         self.assertIsNone(device.vc_position)
+
+    def test_add_member(self):
+        self.add_permissions('dcim.change_virtualchassis', 'dcim.change_device')
+        device = Device.objects.get(name='Device 10')
+        vc = VirtualChassis.objects.get(name='VC1')
+
+        url = reverse('dcim:virtualchassis_add_member', kwargs={'pk': vc.pk})
+        response = self.client.post(url, {'device': device.pk, 'vc_position': 4, 'vc_priority': ''})
+        self.assertHttpStatus(response, 302)
+
+        device.refresh_from_db()
+        self.assertEqual(device.virtual_chassis, vc)
+        self.assertEqual(device.vc_position, 4)
+
+    @tag('regression')  # Ref: #23199
+    def test_add_member_requires_change_device_permission(self):
+        """
+        The add member form only displays and accepts devices the user can change.
+        """
+        self.add_permissions('dcim.change_virtualchassis')
+        device = Device.objects.get(name='Device 10')
+        vc = VirtualChassis.objects.get(name='VC1')
+        url = reverse('dcim:virtualchassis_add_member', kwargs={'pk': vc.pk})
+
+        # Adding the device is rejected
+        response = self.client.post(url, {'device': device.pk, 'vc_position': 4, 'vc_priority': ''})
+        self.assertHttpStatus(response, 200)
+        self.assertTrue(response.context['member_select_form'].has_error('device', code='invalid_choice'))
+        self.assertNotContains(response, device.name)
+
+        device.refresh_from_db()
+        self.assertIsNone(device.virtual_chassis)
+        self.assertIsNone(device.vc_position)
+
+        # The form does not display the device
+        response = self.client.get(url, {'device': device.pk})
+        self.assertHttpStatus(response, 200)
+        self.assertNotContains(response, device.name)
+
+    @tag('regression')  # Ref: #23199
+    def test_add_member_blocked_by_constrained_change_device_permission(self):
+        """
+        A device which would no longer satisfy the user's permission constraints once added is not saved.
+        """
+        self.add_permissions('dcim.change_virtualchassis')
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['change'],
+            constraints={'virtual_chassis__isnull': True},
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Device))
+        device = Device.objects.get(name='Device 10')
+        vc = VirtualChassis.objects.get(name='VC1')
+
+        url = reverse('dcim:virtualchassis_add_member', kwargs={'pk': vc.pk})
+        response = self.client.post(url, {'device': device.pk, 'vc_position': 4, 'vc_priority': ''})
+        self.assertHttpStatus(response, 200)
+        self.assertIn(PermissionsViolation.message, response.context['membership_form'].non_field_errors())
+
+        # The change is rolled back
+        device.refresh_from_db()
+        self.assertIsNone(device.virtual_chassis)
+        self.assertIsNone(device.vc_position)
+        self.assertFalse(self._get_member_changes(device).exists())
 
     @tag('regression')  # Ref: #23212
     def test_create_with_members_blocked_by_cross_chassis_lag(self):

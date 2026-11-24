@@ -31,6 +31,7 @@ from netbox.filtersets import BaseFilterSet
 from utilities.filters import (
     MultiValueArrayFilter,
     MultiValueCharFilter,
+    MultiValueContentTypeFilter,
     MultiValueDateFilter,
     MultiValueDateTimeFilter,
     MultiValueDecimalFilter,
@@ -244,6 +245,9 @@ class BaseFilterSetTestCase(TestCase):
         multivaluecharfield = MultiValueCharFilter(
             field_name='charfield'
         )
+        multivaluecontenttypefield = MultiValueContentTypeFilter(
+            field_name='charfield'
+        )
         tagfield = TagFilter()
         treeforeignkeyfield = TreeNodeMultipleChoiceFilter(
             queryset=DummyModel.objects.all()
@@ -420,6 +424,16 @@ class BaseFilterSetTestCase(TestCase):
         self.assertEqual(self.filters['multivaluecharfield__regex'].exclude, False)
         self.assertEqual(self.filters['multivaluecharfield__iregex'].lookup_expr, 'iregex')
         self.assertEqual(self.filters['multivaluecharfield__iregex'].exclude, False)
+
+    def test_multi_value_content_type_filter(self):
+        """Only the negation lookup is generated, even on a field which supports text lookups."""
+        self.assertIsInstance(self.filters['multivaluecontenttypefield'], MultiValueContentTypeFilter)
+        self.assertEqual(self.filters['multivaluecontenttypefield'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['multivaluecontenttypefield'].exclude, False)
+        self.assertEqual(self.filters['multivaluecontenttypefield__n'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['multivaluecontenttypefield__n'].exclude, True)
+        generated = {name for name in self.filters if name.startswith('multivaluecontenttypefield__')}
+        self.assertEqual(generated, {'multivaluecontenttypefield__n'})
 
     def test_multi_value_date_filter(self):
         self.assertIsInstance(self.filters['datefield'], MultiValueDateFilter)
@@ -770,6 +784,32 @@ class DynamicFilterLookupExpressionTestCase(TestCase):
     def test_device_name_icontains_negation(self):
         params = {'name__nic': [' ']}
         self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 0)
+
+    def test_device_name_null_lookups(self):
+        """
+        The null choice value must match null values for every lookup, as with exact lookups (#23632).
+        """
+        Device.objects.filter(name='Device 1').update(name=None)
+        # A name containing the literal string "null" must not match
+        Device.objects.filter(name='Device 2').update(name='Device null')
+        lookups = {
+            'name': 1,
+            'name__n': 2,
+            'name__ic': 1,
+            'name__nic': 2,
+            'name__isw': 1,
+            'name__nisw': 2,
+            'name__iew': 1,
+            'name__niew': 2,
+            'name__ie': 1,
+            'name__nie': 2,
+            'name__regex': 1,
+            'name__iregex': 1,
+        }
+        for lookup, count in lookups.items():
+            with self.subTest(lookup=lookup):
+                params = {lookup: ['null']}
+                self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), count)
 
     def test_device_mac_address_negation(self):
         params = {'mac_address__n': ['00-00-00-00-00-01', 'aa-00-00-00-00-01']}

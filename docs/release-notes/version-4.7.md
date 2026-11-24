@@ -1,5 +1,52 @@
 # NetBox v4.7
 
+## v4.7.6 (2026-11-24)
+
+!!! note "Retracing Split Cable Paths"
+    The fixes for [#21960](https://github.com/netbox-community/netbox/issues/21960) and [#23490](https://github.com/netbox-community/netbox/issues/23490) don't update cable paths which have already been recorded: these remain marked as split until one of their cables is saved again. To retrace them, run `manage.py trace_paths --force` after upgrading. On large installations, you can instead delete only the split paths in `nbshell` (`CablePath.objects.filter(is_split=True).delete()`), then run `manage.py trace_paths`.
+
+### Enhancements
+
+* [#23531](https://github.com/netbox-community/netbox/issues/23531) - Preserve the `color`, `length`, and `length_unit` values when cloning a cable or using "Create & Add Another"
+* [#23656](https://github.com/netbox-community/netbox/issues/23656) - Add the `netbox.graphql.query` logger, which logs each GraphQL API operation (including the user, client IP, operation name, query, duration, and error count) at the INFO level
+* [#23757](https://github.com/netbox-community/netbox/issues/23757) - Add an object ID field to the change log filter form, to find the changes recorded for a specific object (including deleted objects)
+
+### Performance Improvements
+
+* [#23349](https://github.com/netbox-community/netbox/issues/23349) - Batch the loading of related objects for the contact assignment, circuit group assignment, and port mapping table columns, rather than querying them for each row
+* [#23721](https://github.com/netbox-community/netbox/issues/23721) - Avoid a slow query when filtering devices by whether they have interfaces (`interfaces`), which could time out on installations with many devices that have none
+
+### Bug Fixes
+
+* [#21960](https://github.com/netbox-community/netbox/issues/21960) - Fix cable tracing from a multi-position front port whose rear ports converge on the same remote endpoint, which was reported as a split path with no `connected_endpoints`
+* [#23199](https://github.com/netbox-community/netbox/issues/23199) - Require permission to change a device (in addition to the virtual chassis) when adding it as a member of a virtual chassis
+* [#23398](https://github.com/netbox-community/netbox/issues/23398) - Restrict the dependent objects listed when an object can't be deleted (in the UI and in REST API 409 responses) to those the user is permitted to view
+* [#23471](https://github.com/netbox-community/netbox/issues/23471) - Avoid reporting a 404 error to Sentry for requests redirected to add a missing trailing slash
+* [#23490](https://github.com/netbox-community/netbox/issues/23490) - Fix cable tracing through a partially connected profiled cable (e.g. a `1C4P:4C1P` breakout with fewer than four legs connected), which was reported as a split path with no endpoints
+* [#23493](https://github.com/netbox-community/netbox/issues/23493) - Fix exception when creating a device whose device type has an inventory item template assigned to a component template named with `{vc_position}`
+* [#23552](https://github.com/netbox-community/netbox/issues/23552) - Prevent database writes while `MAINTENANCE_MODE` is enabled, which previously permitted them on most paths
+* [#23583](https://github.com/netbox-community/netbox/issues/23583) - Prevent the object delete view from redirecting to an external site via a protocol-relative `return_url` (e.g. `//example.com`)
+* [#23603](https://github.com/netbox-community/netbox/issues/23603) - Prevent cleared multiple-selection fields (e.g. tags) from being restored when an edit form refreshes
+* [#23608](https://github.com/netbox-community/netbox/issues/23608) - Fix the editing of tags and other objects whose color is a custom value rather than one of the predefined colors
+* [#23617](https://github.com/netbox-community/netbox/issues/23617) - Record pre-change data in the change log for objects updated as a side effect of other changes, such as cables, wireless link interfaces, primary MAC addresses, synced templates, and child devices
+* [#23632](https://github.com/netbox-community/netbox/issues/23632) - Fix `ValueError` exception when passing `null` to a substring or regex lookup filter (e.g. `name__ic=null`)
+* [#23635](https://github.com/netbox-community/netbox/issues/23635) - Reject a custom field `related_object_filter` with nested values, which could be saved but raised an exception on list and edit views
+* [#23637](https://github.com/netbox-community/netbox/issues/23637) - Support the `module_bay_types` field when importing module types
+* [#23652](https://github.com/netbox-community/netbox/issues/23652) - Include event types registered by plugins in the event rule add, edit, bulk edit, and import forms
+* [#23665](https://github.com/netbox-community/netbox/issues/23665) - Fix `AttributeError` exception when the login form is submitted without a `username` field
+* [#23691](https://github.com/netbox-community/netbox/issues/23691) - Fix negated (`__n`) object type filters (e.g. `changed_object_type__n`) returning matching objects instead of excluding them, and remove the text lookups (e.g. `object_type__ic`), which had no effect, from many-to-many object type filters
+* [#23696](https://github.com/netbox-community/netbox/issues/23696) - Rebuild the config context cache when running `netbox upgrade`
+* [#23702](https://github.com/netbox-community/netbox/issues/23702) - Translate the "Owner" and "Owner group" form field labels, and other labels which always rendered in English
+* [#23711](https://github.com/netbox-community/netbox/issues/23711) - Restore the action to add an IP address on the IP addresses panel of the interface view
+* [#23746](https://github.com/netbox-community/netbox/issues/23746) - Prevent closed toast messages from reappearing when a table is paginated or otherwise refreshed
+* [#23747](https://github.com/netbox-community/netbox/issues/23747) - Fix exception when creating a device whose device type has a child interface template named with `{vc_position}`
+* [#23751](https://github.com/netbox-community/netbox/issues/23751) - Translate the Markdown hint shown under comments fields
+* [#23752](https://github.com/netbox-community/netbox/issues/23752) - Translate the "Changelog message" field label on object edit forms
+* [#23753](https://github.com/netbox-community/netbox/issues/23753) - Translate the "Created by" column header in journal entry tables
+* [#23758](https://github.com/netbox-community/netbox/issues/23758) - Fix filtering device types by `front_image` and `rear_image` via GraphQL
+
+---
+
 ## v4.7.5 (2026-11-10)
 
 ### Enhancements

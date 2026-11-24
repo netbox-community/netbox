@@ -19,6 +19,7 @@
 
 991jo
 9er-tom
+aaronaxvig
 abhirupmandal
 abrahamvegh
 abubnalitic-nbl
@@ -51,6 +52,7 @@ corencas
 corubba
 cory-kantar
 dansheps
+danshinde
 dfex
 dianbofa
 dkrasthi
@@ -69,6 +71,7 @@ guibi1
 haeki
 harryajc
 hblandford
+himanchalkaushale
 ianb-mp
 ifoughal
 ipb-devops
@@ -136,6 +139,7 @@ rodvand
 sebb0
 sensiblecoder
 sergiolpzgmz
+somiljain2006
 stalker-nn
 studioussagar
 stuntguy3000

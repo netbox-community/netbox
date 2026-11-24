@@ -198,7 +198,7 @@ class LocationImportForm(NestedGroupModelImportForm):
 
         if data:
             # Limit location queryset by assigned site
-            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            params = self.get_related_filter('site', 'site', data.get('site'))
             self.fields['parent'].queryset = self.fields['parent'].queryset.filter(**params)
 
 
@@ -370,7 +370,7 @@ class RackImportForm(PrimaryModelImportForm):
         if data:
 
             # Limit location queryset by assigned site
-            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            params = self.get_related_filter('site', 'site', data.get('site'))
             self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
 
     def clean(self):
@@ -433,13 +433,13 @@ class RackReservationImportForm(PrimaryModelImportForm):
         if data:
 
             # Limit location queryset by assigned site
-            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            params = self.get_related_filter('site', 'site', data.get('site'))
             self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
 
             # Limit rack queryset by assigned site and group
             params = {
-                f"site__{self.fields['site'].to_field_name}": data.get('site'),
-                f"location__{self.fields['location'].to_field_name}": data.get('location'),
+                **self.get_related_filter('site', 'site', data.get('site')),
+                **self.get_related_filter('location', 'location', data.get('location')),
             }
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
@@ -511,6 +511,12 @@ class ModuleTypeProfileImportForm(PrimaryModelImportForm):
 
 
 class ModuleTypeImportForm(PrimaryModelImportForm):
+    module_bay_types = CSVModelMultipleChoiceField(
+        label=_('Module bay types'),
+        queryset=ModuleBayType.objects.all(),
+        to_field_name='name',
+        required=False,
+    )
     profile = forms.ModelChoiceField(
         label=_('Profile'),
         queryset=ModuleTypeProfile.objects.all(),
@@ -555,7 +561,7 @@ class ModuleTypeImportForm(PrimaryModelImportForm):
         model = ModuleType
         fields = [
             'manufacturer', 'model', 'part_number', 'description', 'cooling_method', 'airflow', 'weight', 'weight_unit',
-            'end_of_life', 'profile', 'attribute_data', 'owner', 'comments', 'tags',
+            'end_of_life', 'profile', 'attribute_data', 'module_bay_types', 'owner', 'comments', 'tags',
         ]
 
     def clean(self):
@@ -568,6 +574,40 @@ class ModuleTypeImportForm(PrimaryModelImportForm):
         # Default attribute_data to an empty dictionary if a profile is specified (to enforce schema validation)
         if self.cleaned_data.get('profile') and not self.cleaned_data.get('attribute_data'):
             self.cleaned_data['attribute_data'] = {}
+
+        module_bay_types = self.cleaned_data.get('module_bay_types')
+        manufacturer = self.cleaned_data.get('manufacturer')
+
+        # If importing an update to an existing module type and the manufacturer is not in
+        # the import data, use the existing manufacturer.
+        if manufacturer is None and self.instance.pk:
+            manufacturer = self.instance.manufacturer
+        if not module_bay_types or manufacturer is None:
+            return
+
+        # Match the module's manufacturer or a global bay type, preferring the former
+        # when a name is shared, as with module bay template imports.
+        by_name = {}
+        for module_bay_type in module_bay_types:
+            if module_bay_type.manufacturer_id not in (None, manufacturer.pk):
+                continue
+            existing = by_name.get(module_bay_type.name)
+            if existing is None or module_bay_type.manufacturer_id is not None:
+                by_name[module_bay_type.name] = module_bay_type
+
+        # A name matching only some other manufacturer's bay type is rejected rather than
+        # resolved to it.
+        for module_bay_type in module_bay_types:
+            if module_bay_type.name not in by_name:
+                raise forms.ValidationError({
+                    'module_bay_types': forms.ValidationError(
+                        self.fields['module_bay_types'].error_messages['invalid_choice'],
+                        code='invalid_choice',
+                        params={'value': module_bay_type.name},
+                    )
+                })
+
+        self.cleaned_data['module_bay_types'] = list(by_name.values())
 
 
 class DeviceRoleImportForm(NestedGroupModelImportForm):
@@ -692,7 +732,7 @@ class BaseDeviceImportForm(PrimaryModelImportForm):
         if data:
 
             # Limit device type queryset by manufacturer
-            params = {f"manufacturer__{self.fields['manufacturer'].to_field_name}": data.get('manufacturer')}
+            params = self.get_related_filter('manufacturer', 'manufacturer', data.get('manufacturer'))
             self.fields['device_type'].queryset = self.fields['device_type'].queryset.filter(**params)
 
 
@@ -776,29 +816,25 @@ class DeviceImportForm(BaseDeviceImportForm):
         if data:
 
             # Limit location queryset by assigned site
-            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            params = self.get_related_filter('site', 'site', data.get('site'))
             self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
             self.fields['parent'].queryset = self.fields['parent'].queryset.filter(**params)
 
             # Limit rack queryset by assigned site and location
-            params = {
-                f"site__{self.fields['site'].to_field_name}": data.get('site'),
-            }
+            params = self.get_related_filter('site', 'site', data.get('site'))
             if location := data.get('location'):
-                params.update({
-                    f"location__{self.fields['location'].to_field_name}": location,
-                })
+                params.update(self.get_related_filter('location', 'location', location))
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
             # Limit platform queryset by manufacturer
-            params = {f"manufacturer__{self.fields['manufacturer'].to_field_name}": data.get('manufacturer')}
+            params = self.get_related_filter('manufacturer', 'manufacturer', data.get('manufacturer'))
             self.fields['platform'].queryset = self.fields['platform'].queryset.filter(
                 Q(**params) | Q(manufacturer=None)
             )
 
             # Limit device bay queryset by parent device
             if parent := data.get('parent'):
-                params = {f"device__{self.fields['parent'].to_field_name}": parent}
+                params = self.get_related_filter('device', 'parent', parent)
                 self.fields['device_bay'].queryset = self.fields['device_bay'].queryset.filter(**params)
 
     def clean(self):
@@ -871,7 +907,7 @@ class ModuleImportForm(ModuleCommonForm, PrimaryModelImportForm):
 
         if data:
             # Limit module_bay queryset by assigned device
-            params = {f"device__{self.fields['device'].to_field_name}": data.get('device')}
+            params = self.get_related_filter('device', 'device', data.get('device'))
             self.fields['module_bay'].queryset = self.fields['module_bay'].queryset.filter(**params)
 
     def clean_replicate_components(self):
@@ -1290,9 +1326,7 @@ class InterfaceImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         if data:
             # Limit choices for parent, bridge, and LAG interfaces to the assigned device
             if device := data.get('device'):
-                params = {
-                    f"device__{self.fields['device'].to_field_name}": device
-                }
+                params = self.get_related_filter('device', 'device', device)
                 self.fields['parent'].queryset = self.fields['parent'].queryset.filter(**params)
                 self.fields['bridge'].queryset = self.fields['bridge'].queryset.filter(**params)
                 self.fields['lag'].queryset = self.fields['lag'].queryset.filter(**params)
@@ -1300,7 +1334,7 @@ class InterfaceImportForm(OwnerCSVMixin, NetBoxModelImportForm):
 
             # Limit choices for VLANs to the assigned VLAN group
             if vlan_group := data.get('vlan_group'):
-                params = {f"group__{self.fields['vlan_group'].to_field_name}": vlan_group}
+                params = self.get_related_filter('group', 'vlan_group', vlan_group)
                 self.fields['untagged_vlan'].queryset = self.fields['untagged_vlan'].queryset.filter(**params)
                 self.fields['tagged_vlans'].queryset = self.fields['tagged_vlans'].queryset.filter(**params)
                 self.fields['qinq_svlan'].queryset = self.fields['qinq_svlan'].queryset.filter(**params)
@@ -1684,13 +1718,13 @@ class MACAddressImportForm(PrimaryModelImportForm):
             # Limit interface queryset by assigned device
             if data.get('device'):
                 self.fields['interface'].queryset = Interface.objects.filter(
-                    **{f"device__{self.fields['device'].to_field_name}": data['device']}
+                    **self.get_related_filter('device', 'device', data['device'])
                 )
 
             # Limit interface queryset by assigned device
             elif data.get('virtual_machine'):
                 self.fields['interface'].queryset = VMInterface.objects.filter(
-                    **{f"virtual_machine__{self.fields['virtual_machine'].to_field_name}": data['virtual_machine']}
+                    **self.get_related_filter('virtual_machine', 'virtual_machine', data['virtual_machine'])
                 )
 
     def clean(self):
@@ -1912,7 +1946,7 @@ class CableImportForm(PrimaryModelImportForm):
         if data:
             # Limit choices for side_a_device to the assigned side_a_site
             if side_a_site := data.get('side_a_site'):
-                side_a_parent_params = {f'site__{self.fields['side_a_site'].to_field_name}': side_a_site}
+                side_a_parent_params = self.get_related_filter('site', 'side_a_site', side_a_site)
                 self.fields['side_a_device'].queryset = self.fields['side_a_device'].queryset.filter(
                     **side_a_parent_params
                 )
@@ -1922,7 +1956,7 @@ class CableImportForm(PrimaryModelImportForm):
 
             # Limit choices for side_b_device to the assigned side_b_site
             if side_b_site := data.get('side_b_site'):
-                side_b_parent_params = {f'site__{self.fields['side_b_site'].to_field_name}': side_b_site}
+                side_b_parent_params = self.get_related_filter('site', 'side_b_site', side_b_site)
                 self.fields['side_b_device'].queryset = self.fields['side_b_device'].queryset.filter(
                     **side_b_parent_params
                 )
@@ -1995,12 +2029,11 @@ class CableImportForm(PrimaryModelImportForm):
             # The parent field has already raised its own validation error
             return None
         field = self.fields[field_name]
-        to_field_name = field.to_field_name or 'pk'
 
         parents = []
         for value in self._split_side_values(self.data.get(field_name)):
             try:
-                parents.append(field.queryset.get(**{to_field_name: value}))
+                parents.append(field.filter_by_value(value).get())
             except ObjectDoesNotExist:
                 self.add_error(field_name, _("Object not found: {value}").format(value=value))
                 return None
@@ -2236,7 +2269,7 @@ class PowerPanelImportForm(PrimaryModelImportForm):
         if data:
 
             # Limit group queryset by assigned site
-            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            params = self.get_related_filter('site', 'site', data.get('site'))
             self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
 
 
@@ -2307,17 +2340,17 @@ class PowerFeedImportForm(PrimaryModelImportForm):
         if data:
 
             # Limit power_panel queryset by site
-            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            params = self.get_related_filter('site', 'site', data.get('site'))
             self.fields['power_panel'].queryset = self.fields['power_panel'].queryset.filter(**params)
 
             # Limit location queryset by site
-            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            params = self.get_related_filter('site', 'site', data.get('site'))
             self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
 
             # Limit rack queryset by site and group
             params = {
-                f"site__{self.fields['site'].to_field_name}": data.get('site'),
-                f"location__{self.fields['location'].to_field_name}": data.get('location'),
+                **self.get_related_filter('site', 'site', data.get('site')),
+                **self.get_related_filter('location', 'location', data.get('location')),
             }
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
@@ -2365,7 +2398,7 @@ class CoolingSourceImportForm(PrimaryModelImportForm):
         if data:
 
             # Limit location queryset by assigned site
-            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            params = self.get_related_filter('site', 'site', data.get('site'))
             self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
 
 
@@ -2428,17 +2461,17 @@ class CoolingFeedImportForm(PrimaryModelImportForm):
         if data:
 
             # Limit cooling_source queryset by site
-            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            params = self.get_related_filter('site', 'site', data.get('site'))
             self.fields['cooling_source'].queryset = self.fields['cooling_source'].queryset.filter(**params)
 
             # Limit location queryset by site
-            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            params = self.get_related_filter('site', 'site', data.get('site'))
             self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
 
             # Limit rack queryset by site and group
             params = {
-                f"site__{self.fields['site'].to_field_name}": data.get('site'),
-                f"location__{self.fields['location'].to_field_name}": data.get('location'),
+                **self.get_related_filter('site', 'site', data.get('site')),
+                **self.get_related_filter('location', 'location', data.get('location')),
             }
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
@@ -2488,6 +2521,6 @@ class VirtualDeviceContextImportForm(PrimaryModelImportForm):
         if data:
 
             # Limit primary_ip4/ip6 querysets by assigned device
-            params = {f"interface__device__{self.fields['device'].to_field_name}": data.get('device')}
+            params = self.get_related_filter('interface__device', 'device', data.get('device'))
             self.fields['primary_ip4'].queryset = self.fields['primary_ip4'].queryset.filter(**params)
             self.fields['primary_ip6'].queryset = self.fields['primary_ip6'].queryset.filter(**params)

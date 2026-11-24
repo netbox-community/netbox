@@ -59,6 +59,49 @@ class MACAddressTestCase(TestCase):
         cls.interface.primary_mac_address = cls.mac_a
         cls.interface.save()
 
+    @tag('regression')  # Ref: #23617
+    def test_primary_mac_assignment_on_interface_creation_records_prechange(self):
+        mac = MACAddress.objects.create(mac_address='1234567890cd')
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = User.objects.create_user(username='testuser')
+
+        with event_tracking(request):
+            interface = Interface.objects.create(
+                device=self.interface.device, name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+                primary_mac_address=mac
+            )
+
+        change = ObjectChange.objects.get(
+            changed_object_type=ObjectType.objects.get_for_model(MACAddress),
+            changed_object_id=mac.pk,
+        )
+        self.assertIsNone(change.prechange_data['assigned_object_id'])
+        self.assertEqual(change.postchange_data['assigned_object_id'], interface.pk)
+        self.assertFalse(hasattr(mac, '_prechange_snapshot'))
+
+    @tag('regression')  # Ref: #23617
+    def test_primary_mac_assignment_keeps_existing_snapshot(self):
+        mac = MACAddress.objects.create(mac_address='1234567890ce')
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = User.objects.create_user(username='testuser')
+
+        with event_tracking(request):
+            mac.snapshot()
+            mac.description = 'updated'
+            Interface.objects.create(
+                device=self.interface.device, name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+                primary_mac_address=mac
+            )
+
+        change = ObjectChange.objects.get(
+            changed_object_type=ObjectType.objects.get_for_model(MACAddress),
+            changed_object_id=mac.pk,
+        )
+        self.assertEqual(change.prechange_data['description'], '')
+        self.assertEqual(change.postchange_data['description'], 'updated')
+
     @tag('regression')
     def test_clean_will_not_allow_removal_of_assigned_object_if_primary(self):
         self.mac_a.assigned_object = None
@@ -1710,6 +1753,29 @@ class DeviceBayTestCase(TestCase):
         self.assertIn('installed_device', cm.exception.message_dict)
         self.assertIn('disabled device bay', str(cm.exception.message_dict['installed_device']))
 
+    @tag('regression')  # Ref: #23617
+    def test_moving_parent_device_records_child_prechange(self):
+        DeviceBay.objects.create(device=self.parent_device, name='Bay 1', installed_device=self.child_device)
+        old_site = self.parent_device.site
+        new_site = Site.objects.create(name='Test Site 2', slug='test-site-2')
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = User.objects.create_user(username='testuser')
+
+        with event_tracking(request):
+            parent = Device.objects.get(pk=self.parent_device.pk)
+            parent.snapshot()
+            parent.site = new_site
+            parent.save()
+
+        change = ObjectChange.objects.get(
+            changed_object_type=ObjectType.objects.get_for_model(Device),
+            changed_object_id=self.child_device.pk,
+            action=ObjectChangeActionChoices.ACTION_UPDATE,
+        )
+        self.assertEqual(change.prechange_data['site'], old_site.pk)
+        self.assertEqual(change.postchange_data['site'], new_site.pk)
+
     def test_can_disable_bay_with_existing_device(self):
         """
         Test that disabling a bay that already has a device installed does NOT raise an error
@@ -2988,6 +3054,20 @@ class CableTestCase(TestCase):
         self.assertEqual(interface1.link_peers, [interface2])
         self.assertEqual(interface2.link_peers, [interface1])
 
+    def test_clone_includes_color_and_length(self):
+        """
+        Cloning a cable preserves its color, length, and length unit.
+        """
+        cable = Cable.objects.first()
+        cable.color = 'ff0000'
+        cable.length = Decimal('3.50')
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+
+        attrs = cable.clone()
+        self.assertEqual(attrs['color'], 'ff0000')
+        self.assertEqual(attrs['length'], Decimal('3.50'))
+        self.assertEqual(attrs['length_unit'], CableLengthUnitChoices.UNIT_METER)
+
     def test_cable_deletion(self):
         """
         When a Cable is deleted, the `cable` field on its termination points must be nullified. The str() method
@@ -3837,6 +3917,65 @@ class CableDisconnectChangeLoggingTestCase(TestCase):
             action=ObjectChangeActionChoices.ACTION_UPDATE,
         ).order_by('time')
 
+    @tag('regression')  # Ref: #23617
+    def test_cable_creation_records_termination_prechange(self):
+        cable = self._connect(self.interface1, self.interface2)
+
+        # The update recording the terminations follows the creation of the Cable itself
+        change = self._updates(cable).get()
+        self.assertEqual(change.prechange_data['a_terminations'], [])
+        self.assertEqual(change.prechange_data['b_terminations'], [])
+        self.assertEqual(len(change.postchange_data['a_terminations']), 1)
+        self.assertEqual(len(change.postchange_data['b_terminations']), 1)
+
+    @tag('regression')  # Ref: #23617
+    def test_resaving_new_cable_records_current_prechange(self):
+        # The creation snapshot must not be reused, so the re-save falls back to the database
+        with self.assertLogs('netbox.models.features', level='WARNING'), event_tracking(self._request()):
+            cable = Cable(a_terminations=[self.interface1], b_terminations=[self.interface2])
+            cable.save()
+            cable.label = 'x'
+            cable.save()
+
+        change = self._updates(cable).last()
+        self.assertEqual(len(change.prechange_data['a_terminations']), 1)
+        self.assertEqual(len(change.prechange_data['b_terminations']), 1)
+        self.assertEqual(change.postchange_data['label'], 'x')
+
+    @tag('regression')  # Ref: #23617
+    def test_resaving_new_cable_with_preset_pk_records_current_prechange(self):
+        # A new Cable with a preset pk (e.g. restored by deserialize_object()) must also discard its creation snapshot
+        with self.assertLogs('netbox.models.features', level='WARNING'), event_tracking(self._request()):
+            cable = Cable(pk=1000000, a_terminations=[self.interface1], b_terminations=[self.interface2])
+            cable.save()
+            cable.label = 'x'
+            cable.save()
+
+        change = self._updates(cable).last()
+        self.assertEqual(len(change.prechange_data['a_terminations']), 1)
+        self.assertEqual(len(change.prechange_data['b_terminations']), 1)
+        self.assertEqual(change.postchange_data['label'], 'x')
+
+    @tag('regression')  # Ref: #23617
+    def test_termination_update_without_snapshot_records_prechange(self):
+        cable = self._connect(self.interface1, self.interface2)
+        old_b_termination = CableTermination.objects.get(cable=cable, cable_end=CableEndChoices.SIDE_B)
+
+        request = self._request()
+        with self.assertLogs('netbox.models.features', level='WARNING') as logs, event_tracking(request):
+            cable = Cable.objects.get(pk=cable.pk)
+            cable.label = 'x'
+            cable.b_terminations = [self.interface3]
+            cable.save()
+
+        change = self._updates(cable).get(request_id=request.id)
+        self.assertEqual(change.prechange_data['b_terminations'], [old_b_termination.pk])
+        self.assertEqual(change.prechange_data['label'], '')
+        self.assertNotEqual(change.postchange_data['b_terminations'], [old_b_termination.pk])
+        self.assertEqual(change.postchange_data['label'], 'x')
+        self.assertFalse(hasattr(cable, '_prechange_snapshot'))
+        self.assertEqual(len(logs.records), 1)
+
     @tag('regression')  # Ref: netbox-branching#631
     def test_cable_deletion_records_disconnect(self):
         cable = self._connect(self.interface1, self.interface2)
@@ -3914,6 +4053,7 @@ class CableDisconnectChangeLoggingTestCase(TestCase):
         request = self._request()
         with event_tracking(request):
             cable = Cable.objects.get(pk=cable_pk)
+            cable.snapshot()
             cable.b_terminations = [self.interface3]
             cable.save()
 
@@ -4547,6 +4687,57 @@ class VCPositionTokenTestCase(TestCase):
         self.assertEqual(mapping.rear_port, rear_port)
         self.assertEqual(mapping.front_port_position, 1)
         self.assertEqual(mapping.rear_port_position, 1)
+
+    @tag('regression')  # Ref: #23493
+    def test_vc_position_token_inventory_item_component_device_type_template(self):
+        site = Site.objects.first()
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        interface_template = InterfaceTemplate.objects.create(
+            device_type=device_type,
+            name='eth{vc_position}',
+            type='1000base-t',
+        )
+        InventoryItemTemplate.objects.create(
+            device_type=device_type,
+            name='NIC',
+            component=interface_template,
+        )
+        vc = VirtualChassis.objects.create(name='Test VC 7')
+        device = Device.objects.create(
+            name='Device VC 7', device_type=device_type, role=device_role,
+            site=site, virtual_chassis=vc, vc_position=7,
+        )
+
+        inventory_item = device.inventoryitems.get(name='NIC')
+        self.assertEqual(inventory_item.component, device.interfaces.get(name='eth7'))
+
+    @tag('regression')  # Ref: #23747
+    def test_vc_position_token_interface_parent_device_type_template(self):
+        site = Site.objects.first()
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        parent_template = InterfaceTemplate.objects.create(
+            device_type=device_type,
+            name='eth{vc_position}',
+            type='1000base-t',
+        )
+        InterfaceTemplate.objects.create(
+            device_type=device_type,
+            name='eth{vc_position}.100',
+            type='virtual',
+            parent=parent_template,
+        )
+        vc = VirtualChassis.objects.create(name='Test VC 8')
+        device = Device.objects.create(
+            name='Device VC 8', device_type=device_type, role=device_role,
+            site=site, virtual_chassis=vc, vc_position=8,
+        )
+
+        interface = device.interfaces.get(name='eth8.100')
+        self.assertEqual(interface.parent, device.interfaces.get(name='eth8'))
 
 
 class SiteSignalTestCase(TestCase):

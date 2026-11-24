@@ -482,11 +482,14 @@ def update_interface_parents(device, interface_templates, module=None):
     Interface = apps.get_model('dcim', 'Interface')
 
     for interface_template in interface_templates.exclude(parent=None):
-        interface = Interface.objects.get(device=device, name=interface_template.resolve_name(module=module))
+        interface = Interface.objects.get(
+            device=device,
+            name=interface_template.resolve_name(module=module, device=device)
+        )
         interface.snapshot()
         interface.parent = Interface.objects.get(
             device=device,
-            name=interface_template.parent.resolve_name(module=module)
+            name=interface_template.parent.resolve_name(module=module, device=device)
         )
         interface.full_clean()
         interface.save()

@@ -255,6 +255,12 @@ class ObjectChangeTestCase(TestCase, BaseFilterSetTestMixin):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {'changed_object_type_id': [ContentType.objects.get_by_natural_key('dcim', 'site').pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'changed_object_type__n': ['dcim.site']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'changed_object_type__n': ['dcim.site', 'ipam.ipaddress']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {'changed_object_type__n': ['dcim.no-such-value']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
 
 class JobTestCase(TestCase, BaseFilterSetTestMixin):
