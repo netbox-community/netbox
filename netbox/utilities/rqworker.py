@@ -11,17 +11,14 @@ from rq.job import JobStatus as RQJobStatus
 from rq.worker_registration import REDIS_WORKER_KEYS
 from rq.worker_registration import register as register_worker
 
-from core.choices import JobStatusChoices
-from core.models import Job
 from netbox.config import get_config
 from netbox.constants import ADVISORY_LOCK_KEYS, RQ_QUEUE_DEFAULT
-from netbox.jobs import JobRunner
-from netbox.registry import registry
 
 __all__ = (
     'NetBoxRQWorker',
     'any_workers_for_queue',
     'get_all_workers',
+    'get_queue_for_model',
     'get_rq_retry',
     'get_workers_for_queue',
 )
@@ -62,6 +59,12 @@ class NetBoxRQWorker(Worker):
         Terminate and reschedule any running `Job` whose RQ job has already died, e.g. because its worker
         was restarted or OOM killed.
         """
+        # Imported here to avoid a circular import from core.models
+        from core.choices import JobStatusChoices
+        from core.models import Job
+        from netbox.jobs import JobRunner
+        from netbox.registry import registry
+
         job_logger = logging.getLogger('netbox.jobs')
 
         for job in Job.objects.filter(status=JobStatusChoices.STATUS_RUNNING, queue_name__in=self.queue_names()):
@@ -74,6 +77,11 @@ class NetBoxRQWorker(Worker):
                 if rq_status not in RQ_DEAD_STATUSES:
                     continue
 
+                result = rq_job.latest_result()
+                error = (result.exc_string if result else None) or _(
+                    "Job terminated unexpectedly (RQ status: {status})"
+                ).format(status=rq_status.value)
+
                 # Claim the job, so that it is handled only once if several workers sweep concurrently.
                 claimed = Job.objects.filter(
                     pk=job.pk,
@@ -84,10 +92,6 @@ class NetBoxRQWorker(Worker):
                 if not claimed:
                     continue
 
-                result = rq_job.latest_result()
-                error = (result.exc_string if result else None) or _(
-                    "Job terminated unexpectedly (RQ status: {status})"
-                ).format(status=rq_status.value)
                 job_logger.warning(f"Job {job} (PK: {job.pk}) died while running: {error}")
                 # Keep the in-memory status in step with the claim, as rescheduling may save the job
                 job.status = JobStatusChoices.STATUS_ERRORED
@@ -139,6 +143,13 @@ class NetBoxRQWorker(Worker):
         except Exception:
             logger.exception("Failed to verify worker registration.")
         super().heartbeat(*args, **kwargs)
+
+
+def get_queue_for_model(model):
+    """
+    Return the configured queue name for jobs associated with the given model.
+    """
+    return get_config().QUEUE_MAPPINGS.get(model, RQ_QUEUE_DEFAULT)
 
 
 def _is_live_worker(worker, queue_name):
