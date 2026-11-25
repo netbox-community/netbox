@@ -14,7 +14,7 @@ from redis.exceptions import ConnectionError as RedisConnectionError
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from dcim.search import SiteIndex
-from extras.models import CachedValue
+from extras.models import CachedValue, Tag
 from ipam.models import Prefix
 from netbox.search import deferred
 from netbox.search.backends import SearchBackend, search_backend
@@ -241,6 +241,43 @@ class SearchBackendTestCase(TestCase):
 
         self.assertEqual(sum(name.startswith('Manufacturer 1 Device Type 1') for name, _ in rendered), 3)
         self.assertCountEqual([attrs[0] for name, attrs in rendered if name.startswith('10.0.')], sites)
+
+    def test_search_prefetches_tags(self):
+        """
+        Check that each search result carries its own tags, prefetched from all results.
+        """
+        tag1 = Tag.objects.create(name='Tag 1', slug='tag-1', description='Tag for a site')
+        tag2 = Tag.objects.create(name='Tag 2', slug='tag-2')
+        sites = list(Site.objects.all())
+        sites[0].tags.add(tag1)
+
+        # Add a tenant with a tag to ensure that the prefetching works across multiple models with colliding pks
+        tenant = Tenant.objects.create(pk=sites[0].pk, name='Tenant Site', slug='tenant-site')
+        tenant.tags.add(tag2)
+
+        search_backend.cache(Site.objects.all())
+        search_backend.cache(Tenant.objects.all())
+        search_backend.cache(Tag.objects.all())
+
+        # Matches the three sites, the tenant (by name) and Tag 1 (by description)
+        results = search_backend.search('site')
+        self.assertEqual(len(results), 5)
+
+        # Untaggable models (like Tag itself) should be returned in search results
+        self.assertIn(Tag, {type(result.object) for result in results})
+
+        with self.assertNumQueries(0):
+            tags = {
+                (type(result.object), result.object.pk): [tag.name for tag in result.object.tags.all()]
+                for result in results if hasattr(result.object, 'tags')
+            }
+
+        self.assertEqual(tags, {
+            (Site, sites[0].pk): ['Tag 1'],
+            (Site, sites[1].pk): [],
+            (Site, sites[2].pk): [],
+            (Tenant, tenant.pk): ['Tag 2'],
+        })
 
 
 class DeferredCachingTestCase(RQQueueTestMixin, TestCase):
