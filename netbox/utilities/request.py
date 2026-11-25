@@ -11,6 +11,7 @@ from netaddr import AddrFormatError, IPAddress
 from netbox.registry import registry
 
 from .constants import HTTP_REQUEST_META_SAFE_COPY, HTTP_REQUEST_META_SENSITIVE
+from .exceptions import AbortRequest
 
 __all__ = (
     'NetBoxFakeRequest',
@@ -135,12 +136,15 @@ def safe_for_redirect(url):
 @contextmanager
 def apply_request_processors(request):
     """
-    A context manager with applies all registered request processors (such as event_tracking).
+    A context manager which applies all registered request processors (such as event_tracking). A processor may raise
+    AbortRequest to refuse the request outright; any other exception it raises is reported as a warning and skipped.
     """
     with ExitStack() as stack:
         for request_processor in registry['request_processors']:
             try:
                 stack.enter_context(request_processor(request))
+            except AbortRequest:
+                raise
             except Exception as e:
                 warnings.warn(f'Failed to initialize request processor {request_processor.__name__}: {e}')
         yield

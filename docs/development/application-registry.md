@@ -32,7 +32,7 @@ This store maintains all registered items for plugins, such as navigation menus,
 
 ### `request_processors`
 
-A list of context managers to invoke when processing a request e.g. in middleware or when executing a background job. Request processors can be registered with the `@register_request_processor` decorator.
+A list of context managers to invoke when processing a request e.g. in middleware or when executing a background job. Request processors can be registered with the `@register_request_processor` decorator. When a background job replays a request, a processor may raise `AbortRequest` while being entered to refuse it, and the job is marked as failed. Don't raise `AbortRequest` from a processor for a live HTTP request, as it is not converted to an error response; refuse the request from plugin middleware instead.
 
 ### `search`
 

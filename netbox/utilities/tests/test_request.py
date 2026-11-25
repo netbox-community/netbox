@@ -1,11 +1,21 @@
+from contextlib import contextmanager
+from unittest.mock import patch
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.test import RequestFactory, TestCase, override_settings
 from django_htmx.middleware import HtmxDetails
 from netaddr import IPAddress
 
+from utilities.exceptions import AbortRequest
 from utilities.htmx import htmx_partial
-from utilities.request import NetBoxFakeRequest, copy_safe_request, get_client_ip, get_safe_request_context
+from utilities.request import (
+    NetBoxFakeRequest,
+    apply_request_processors,
+    copy_safe_request,
+    get_client_ip,
+    get_safe_request_context,
+)
 
 User = get_user_model()
 
@@ -169,3 +179,32 @@ class GetClientIPTestCase(TestCase):
         """get_client_ip() should honor the HTTP_CLIENT_IP_HEADERS setting."""
         request = self.factory.get('/', HTTP_X_FORWARDED_FOR='192.168.1.1', HTTP_CF_CONNECTING_IP='10.0.0.1')
         self.assertEqual(get_client_ip(request), IPAddress('10.0.0.1'))
+
+
+class ApplyRequestProcessorsTestCase(TestCase):
+    @staticmethod
+    def _processor(exc):
+        @contextmanager
+        def processor(request):
+            raise exc
+            yield
+
+        return processor
+
+    def test_processor_error_is_skipped(self):
+        processors = [self._processor(RuntimeError('broken'))]
+        with (
+            patch('utilities.request.registry', {'request_processors': processors}),
+            self.assertWarnsRegex(UserWarning, 'broken'),
+            apply_request_processors(RequestFactory().get('/')),
+        ):
+            pass
+
+    def test_processor_abort_request_propagates(self):
+        processors = [self._processor(AbortRequest('refused'))]
+        with (
+            patch('utilities.request.registry', {'request_processors': processors}),
+            self.assertRaisesMessage(AbortRequest, 'refused'),
+            apply_request_processors(RequestFactory().get('/')),
+        ):
+            self.fail('The request was not aborted')
