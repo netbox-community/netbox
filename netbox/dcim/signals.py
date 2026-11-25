@@ -317,7 +317,7 @@ def update_passthrough_port_paths(instance, update_fields=None, **kwargs):
     # Moving a module to another device changes only these fields; its connections are unchanged
     if update_fields and set(update_fields) <= {'device', 'last_updated'}:
         return
-    # Match path nodes by ID: on a cascading delete the ports may already be gone
+    # Use port IDs because the ports may already have been deleted by the cascade
     port_nodes = [
         compile_path_node(ContentType.objects.get_for_model(FrontPort).pk, instance.front_port_id),
         compile_path_node(ContentType.objects.get_for_model(RearPort).pk, instance.rear_port_id),

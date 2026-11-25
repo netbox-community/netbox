@@ -2438,10 +2438,24 @@ class ModuleBayTestCase(TestCase):
     def _cable_interface_to_front_port(self, device, module):
         interface = Interface.objects.create(device=device, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
         front_port = FrontPort.objects.get(module=module)
+        self.assertTrue(PortMapping.objects.filter(front_port=front_port, rear_port__module=module).exists())
         cable = Cable(a_terminations=[interface], b_terminations=[front_port])
         cable.save()
         self.assertTrue(CablePath.objects.filter(_nodes__contains=front_port).exists())
         return interface, cable
+
+    def _module_component_pks(self, module):
+        return {
+            FrontPort: list(FrontPort.objects.filter(module=module).values_list('pk', flat=True)),
+            RearPort: list(RearPort.objects.filter(module=module).values_list('pk', flat=True)),
+            PortMapping: list(PortMapping.objects.filter(front_port__module=module).values_list('pk', flat=True)),
+            ModuleBay: list(ModuleBay.objects.filter(module=module).values_list('pk', flat=True)),
+        }
+
+    def _assert_deleted(self, pks_by_model):
+        for model, pks in pks_by_model.items():
+            self.assertTrue(pks, f'No {model.__name__} PKs captured')
+            self.assertFalse(model.objects.filter(pk__in=pks).exists(), f'{model.__name__} not deleted')
 
     def _assert_path_ends_at_cable(self, interface, cable):
         path = CablePath.objects.get(_nodes__contains=interface)
@@ -2451,23 +2465,24 @@ class ModuleBayTestCase(TestCase):
     @tag('regression')  # Ref: #23744
     def test_delete_module_bay_holding_module_with_port_mappings(self):
         """
-        Deleting a module bay must succeed when its module has port mappings and its own module bay, and must
-        retrace cable paths through the module's ports.
+        Deleting a module bay with a nested bay and port mappings retraces affected cable paths.
         """
         device = Device.objects.first()
         line_card = self._create_line_card_type()
         slot = ModuleBay.objects.create(device=device, name='Slot A', position='1')
         module = Module.objects.create(device=device, module_bay=slot, module_type=line_card)
         interface, cable = self._cable_interface_to_front_port(device, module)
+        deleted_pks = {**self._module_component_pks(module), Module: [module.pk]}
+        slot_pk = slot.pk
 
         slot.delete()
-        self.assertFalse(ModuleBay.objects.filter(device=device, name='Sub').exists())
+        self._assert_deleted({**deleted_pks, ModuleBay: [slot_pk, *deleted_pks[ModuleBay]]})
         self._assert_path_ends_at_cable(interface, cable)
 
     @tag('regression')  # Ref: #23744
     def test_delete_module_with_port_mappings_and_installed_module(self):
         """
-        Deleting a module with port mappings and a populated module bay must succeed and retrace cable paths.
+        Deleting a module with port mappings and a nested module retraces affected cable paths.
         """
         device = Device.objects.first()
         line_card = self._create_line_card_type()
@@ -2475,11 +2490,13 @@ class ModuleBayTestCase(TestCase):
         slot = ModuleBay.objects.create(device=device, name='Slot B', position='2')
         module = Module.objects.create(device=device, module_bay=slot, module_type=line_card)
         sub_bay = ModuleBay.objects.get(module=module, name='Sub')
-        Module.objects.create(device=device, module_bay=sub_bay, module_type=plain_module_type)
+        nested_module = Module.objects.create(device=device, module_bay=sub_bay, module_type=plain_module_type)
         interface, cable = self._cable_interface_to_front_port(device, module)
+        deleted_pks = {**self._module_component_pks(module), Module: [module.pk, nested_module.pk]}
 
         module.delete()
-        self.assertFalse(Module.objects.filter(module_bay=slot).exists())
+        self._assert_deleted(deleted_pks)
+        self.assertTrue(ModuleBay.objects.filter(pk=slot.pk).exists())
         self._assert_path_ends_at_cable(interface, cable)
 
     def test_cannot_install_module_in_disabled_bay(self):
