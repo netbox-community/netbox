@@ -598,7 +598,7 @@ class InventoryItemRoleViewSet(NetBoxModelViewSet):
 #
 
 class MACAddressViewSet(NetBoxModelViewSet):
-    queryset = MACAddress.objects.all()
+    queryset = MACAddress.objects.fetch_mode(FETCH_PEERS)
     serializer_class = serializers.MACAddressSerializer
     filterset_class = filtersets.MACAddressFilterSet
 
