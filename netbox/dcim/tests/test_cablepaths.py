@@ -4060,6 +4060,45 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
         self.assertCurrentPathExists((interface2, wirelesslink1, interface1), is_complete=True, is_active=True)
         self.assertEqual(CablePath.objects.count(), 2)
 
+    def test_325_create_and_delete_port_mapping_between_cabled_ports(self):
+        """
+        [IF1] --C1-- [FP1] [RP1] --C2-- [IF2], with the FP1/RP1 mapping added and removed after cabling
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[frontport1])
+        cable1.save()
+        cable2 = Cable(a_terminations=[rearport1], b_terminations=[interface2])
+        cable2.save()
+        self.assertPathExists((interface1, cable1, frontport1), is_complete=False)
+        self.assertPathExists((interface2, cable2, rearport1), is_complete=False)
+
+        mapping = PortMapping.objects.create(
+            device=self.device,
+            front_port=frontport1,
+            front_port_position=1,
+            rear_port=rearport1,
+            rear_port_position=1
+        )
+        self.assertPathExists(
+            (interface1, cable1, frontport1, rearport1, cable2, interface2),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertPathExists(
+            (interface2, cable2, rearport1, frontport1, cable1, interface1),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        mapping.delete()
+        self.assertPathExists((interface1, cable1, frontport1), is_complete=False)
+        self.assertPathExists((interface2, cable2, rearport1), is_complete=False)
+        self.assertEqual(CablePath.objects.count(), 2)
+
     def test_401_exclude_midspan_devices(self):
         """
         [IF1] --C1-- [FP1][Test Device][RP1] --C2-- [RP2][Test Device][FP2] --C3-- [IF2]

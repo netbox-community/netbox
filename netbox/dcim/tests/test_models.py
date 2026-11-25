@@ -17,7 +17,7 @@ from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
 from dcim.choices import *
 from dcim.models import *
-from dcim.utils import resolve_module_placeholder
+from dcim.utils import object_to_path_node, resolve_module_placeholder
 from extras.events import serialize_for_event
 from extras.models import CustomField
 from ipam.models import IPAddress, Prefix
@@ -2421,6 +2421,83 @@ class ModuleBayTestCase(TestCase):
         self.assertEqual(FrontPort.objects.filter(module=module).count(), 12)
         self.assertEqual(RearPort.objects.filter(module=module).count(), 1)
         self.assertEqual(PortMapping.objects.filter(front_port__module=module).count(), 0)
+
+    def _create_line_card_type(self):
+        manufacturer = Manufacturer.objects.first()
+        line_card = ModuleType.objects.create(manufacturer=manufacturer, model='Line Card')
+        rear_port_template = RearPortTemplate.objects.create(
+            module_type=line_card, name='R{module}', type=PortTypeChoices.TYPE_LC, positions=1
+        )
+        front_port_template = FrontPortTemplate.objects.create(
+            module_type=line_card, name='F{module}', type=PortTypeChoices.TYPE_LC
+        )
+        PortTemplateMapping.objects.create(front_port=front_port_template, rear_port=rear_port_template)
+        ModuleBayTemplate.objects.create(module_type=line_card, name='Sub', position='1')
+        return line_card
+
+    def _cable_interface_to_front_port(self, device, module):
+        interface = Interface.objects.create(device=device, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+        front_port = FrontPort.objects.get(module=module)
+        self.assertTrue(PortMapping.objects.filter(front_port=front_port, rear_port__module=module).exists())
+        cable = Cable(a_terminations=[interface], b_terminations=[front_port])
+        cable.save()
+        self.assertTrue(CablePath.objects.filter(_nodes__contains=front_port).exists())
+        return interface, cable
+
+    def _module_component_pks(self, module):
+        return {
+            FrontPort: list(FrontPort.objects.filter(module=module).values_list('pk', flat=True)),
+            RearPort: list(RearPort.objects.filter(module=module).values_list('pk', flat=True)),
+            PortMapping: list(PortMapping.objects.filter(front_port__module=module).values_list('pk', flat=True)),
+            ModuleBay: list(ModuleBay.objects.filter(module=module).values_list('pk', flat=True)),
+        }
+
+    def _assert_deleted(self, pks_by_model):
+        for model, pks in pks_by_model.items():
+            self.assertTrue(pks, f'No {model.__name__} PKs captured')
+            self.assertFalse(model.objects.filter(pk__in=pks).exists(), f'{model.__name__} not deleted')
+
+    def _assert_path_ends_at_cable(self, interface, cable):
+        path = CablePath.objects.get(_nodes__contains=interface)
+        self.assertFalse(path.is_complete)
+        self.assertEqual(path._nodes, [object_to_path_node(interface), object_to_path_node(cable)])
+
+    @tag('regression')  # Ref: #23744
+    def test_delete_module_bay_holding_module_with_port_mappings(self):
+        """
+        Deleting a module bay with a nested bay and port mappings retraces affected cable paths.
+        """
+        device = Device.objects.first()
+        line_card = self._create_line_card_type()
+        slot = ModuleBay.objects.create(device=device, name='Slot A', position='1')
+        module = Module.objects.create(device=device, module_bay=slot, module_type=line_card)
+        interface, cable = self._cable_interface_to_front_port(device, module)
+        deleted_pks = {**self._module_component_pks(module), Module: [module.pk]}
+        slot_pk = slot.pk
+
+        slot.delete()
+        self._assert_deleted({**deleted_pks, ModuleBay: [slot_pk, *deleted_pks[ModuleBay]]})
+        self._assert_path_ends_at_cable(interface, cable)
+
+    @tag('regression')  # Ref: #23744
+    def test_delete_module_with_port_mappings_and_installed_module(self):
+        """
+        Deleting a module with port mappings and a nested module retraces affected cable paths.
+        """
+        device = Device.objects.first()
+        line_card = self._create_line_card_type()
+        plain_module_type = ModuleType.objects.create(manufacturer=line_card.manufacturer, model='Plain Module')
+        slot = ModuleBay.objects.create(device=device, name='Slot B', position='2')
+        module = Module.objects.create(device=device, module_bay=slot, module_type=line_card)
+        sub_bay = ModuleBay.objects.get(module=module, name='Sub')
+        nested_module = Module.objects.create(device=device, module_bay=sub_bay, module_type=plain_module_type)
+        interface, cable = self._cable_interface_to_front_port(device, module)
+        deleted_pks = {**self._module_component_pks(module), Module: [module.pk, nested_module.pk]}
+
+        module.delete()
+        self._assert_deleted(deleted_pks)
+        self.assertTrue(ModuleBay.objects.filter(pk=slot.pk).exists())
+        self._assert_path_ends_at_cable(interface, cable)
 
     def test_cannot_install_module_in_disabled_bay(self):
         """

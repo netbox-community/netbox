@@ -1,7 +1,7 @@
 import logging
 
+from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
-from django.db.models import Q
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 
@@ -15,17 +15,19 @@ from .models import (
     CablePath,
     CableTermination,
     Device,
+    FrontPort,
     Interface,
     Location,
     PathEndpoint,
     PortMapping,
     PowerPanel,
     Rack,
+    RearPort,
     VirtualChassis,
 )
 from .models.cables import trace_paths
 from .search import DeviceIndex
-from .utils import create_cablepaths, rebuild_cable_paths, rebuild_paths
+from .utils import compile_path_node, create_cablepaths, rebuild_cable_paths, rebuild_paths
 
 # The scope-relevant fields stashed before each model's save by cache_presave_scope_fields(),
 # so that the post_save handlers can tell whether the save actually changed any of them and
@@ -315,9 +317,12 @@ def update_passthrough_port_paths(instance, update_fields=None, **kwargs):
     # Moving a module to another device changes only these fields; its connections are unchanged
     if update_fields and set(update_fields) <= {'device', 'last_updated'}:
         return
-    for cablepath in CablePath.objects.filter(
-        Q(_nodes__contains=instance.front_port) | Q(_nodes__contains=instance.rear_port)
-    ):
+    # Use port IDs because the ports may already have been deleted by the cascade
+    port_nodes = [
+        compile_path_node(ContentType.objects.get_for_model(FrontPort).pk, instance.front_port_id),
+        compile_path_node(ContentType.objects.get_for_model(RearPort).pk, instance.rear_port_id),
+    ]
+    for cablepath in CablePath.objects.filter(_nodes__overlap=port_nodes):
         cablepath.retrace()
 
 
