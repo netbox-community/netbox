@@ -100,9 +100,15 @@
                             </td>
                             <td>
                                 {% if virtual_chassis.pk %}
-                                    <a href="{% url 'dcim:virtualchassis_remove_member' pk=device.pk %}?return_url={% url 'dcim:virtualchassis_edit' pk=virtual_chassis.pk %}" title="{% trans "Remove member" %}" aria-label="{% trans "Remove member" %}" class="btn btn-danger{% if virtual_chassis.master == device %} disabled{% endif %}">
-                                        <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span>
-                                    </a>
+                                    {% if virtual_chassis.master == device or form.vc_position.field.disabled %}
+                                        <button type="button" title="{% trans "Remove member" %}" aria-label="{% trans "Remove member" %}" class="btn btn-danger" disabled>
+                                            <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span>
+                                        </button>
+                                    {% else %}
+                                        <a href="{% url 'dcim:virtualchassis_remove_member' pk=device.pk %}?return_url={% url 'dcim:virtualchassis_edit' pk=virtual_chassis.pk %}" title="{% trans "Remove member" %}" aria-label="{% trans "Remove member" %}" class="btn btn-danger">
+                                            <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span>
+                                        </a>
+                                    {% endif %}
                                 {% endif %}
                             </td>
                         </tr>
