@@ -2,6 +2,7 @@ import uuid
 from functools import partial
 
 from django.db import DatabaseError, connection, router, transaction
+from django.db.models import Case, F, Value, When
 from django.http import Http404
 from django.utils.translation import gettext_lazy as _
 from django_rq.queues import get_queue, get_queue_by_index, get_redis_connection
@@ -113,7 +114,9 @@ def _retry_rq_job(job, queue, ended, push):
             jobs = Job.objects.none()
         # Lock the Job before checking the task, so no worker claims it in between
         if jobs.select_for_update().exists() and ended() and job.id not in queue.started_job_registry:
+            # A terminated recurring Job has already scheduled its successor, so run the retry only once
             jobs.update(
+                interval=Case(When(completed__isnull=False, then=Value(None)), default=F('interval')),
                 status=JobStatusChoices.STATUS_PENDING,
                 started=None,
                 completed=None,
