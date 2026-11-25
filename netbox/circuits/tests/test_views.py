@@ -263,6 +263,37 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertHttpStatus(self.client.post(self._get_url('bulk_import'), data), 302)
         self.assertEqual(self._get_queryset().count(), initial_count + 1)
 
+    def test_bulk_import_objects_without_termination_permission(self):
+        """
+        Importing circuits requires add_circuittermination only when terminations are included.
+        """
+        self.remove_permissions('circuits.add_circuittermination')
+        self.add_permissions(
+            'circuits.add_circuit',
+            'circuits.view_provider',
+            'circuits.view_circuittype',
+            'dcim.view_site',
+        )
+        url = self._get_url('bulk_import')
+        self.assertHttpStatus(self.client.get(url), 200)
+
+        data = {
+            'data': '[{"cid": "Circuit 8", "provider": "Provider 1", "type": "Circuit Type 1", "status": "active"}]',
+            'format': ImportFormatChoices.JSON,
+        }
+        self.assertHttpStatus(self.client.post(url, data), 302)
+        self.assertTrue(Circuit.objects.filter(cid='Circuit 8').exists())
+
+        site = Site.objects.first()
+        data['data'] = (
+            '[{"cid": "Circuit 9", "provider": "Provider 1", "type": "Circuit Type 1", "status": "active", '
+            f'"terminations": [{{"term_side": "A", "termination_type": "dcim.site", "termination_id": {site.pk}}}]}}]'
+        )
+        response = self.client.post(url, data)
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'circuits.add_circuittermination')
+        self.assertFalse(Circuit.objects.filter(cid='Circuit 9').exists())
+
 
 class ProviderAccountTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = ProviderAccount
@@ -774,6 +805,41 @@ class VirtualCircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         # Test POST with permission
         self.assertHttpStatus(self.client.post(self._get_url('bulk_import'), data), 302)
         self.assertEqual(self._get_queryset().count(), initial_count + 1)
+
+    def test_bulk_import_objects_without_termination_permission(self):
+        """
+        Importing virtual circuits requires add_virtualcircuittermination only when terminations are included.
+        """
+        self.remove_permissions('circuits.add_virtualcircuittermination')
+        self.add_permissions(
+            'circuits.add_virtualcircuit',
+            'circuits.view_providernetwork',
+            'circuits.view_virtualcircuittype',
+            'dcim.view_interface',
+        )
+        url = self._get_url('bulk_import')
+        self.assertHttpStatus(self.client.get(url), 200)
+
+        data = {
+            'data': (
+                '[{"cid": "Virtual Circuit 8", "provider_network": "Provider Network 1", '
+                '"type": "Virtual Circuit Type 1", "status": "active"}]'
+            ),
+            'format': ImportFormatChoices.JSON,
+        }
+        self.assertHttpStatus(self.client.post(url, data), 302)
+        self.assertTrue(VirtualCircuit.objects.filter(cid='Virtual Circuit 8').exists())
+
+        interface = Interface.objects.filter(type=InterfaceTypeChoices.TYPE_VIRTUAL).first()
+        data['data'] = (
+            '[{"cid": "Virtual Circuit 9", "provider_network": "Provider Network 1", '
+            '"type": "Virtual Circuit Type 1", "status": "active", '
+            f'"terminations": [{{"role": "hub", "interface": {interface.pk}}}]}}]'
+        )
+        response = self.client.post(url, data)
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'circuits.add_virtualcircuittermination')
+        self.assertFalse(VirtualCircuit.objects.filter(cid='Virtual Circuit 9').exists())
 
 
 class VirtualCircuitTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
