@@ -5,7 +5,7 @@ import netaddr
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import DatabaseError, ProgrammingError, transaction
-from django.db.models import FETCH_PEERS, F, Q, Window
+from django.db.models import FETCH_PEERS, F, Q, Window, prefetch_related_objects
 from django.db.models.functions import window
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
@@ -219,10 +219,17 @@ class CachedValueSearchBackend(SearchBackend):
 
         # Omit any results pertaining to an object the user does not have permission to view
         ret = []
+        objects_by_model = defaultdict(list)
         for r in results:
             if r.object is not None:
                 r.name = str(r.object)
+                objects_by_model[type(r.object)].append(r.object)
                 ret.append(r)
+
+        # Load related tags for any objects that have them, to avoid N+1 queries when rendering results
+        for model, objects in objects_by_model.items():
+            if hasattr(model, 'tags'):
+                prefetch_related_objects(objects, 'tags')
 
         return ret
 
