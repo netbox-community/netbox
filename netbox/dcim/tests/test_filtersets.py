@@ -102,12 +102,10 @@ class HasRelatedObjectsFilterTestMixin:
                     queryset = self.filterset({filter_name: value}, self.queryset).qs
                     sql = str(queryset.query)
 
-                    # The parent table should occur only as the outer query table.
                     self.assertEqual(
                         len(re.findall(rf'(?:FROM|JOIN) "{re.escape(parent_table)}"', sql)),
                         1,
                     )
-                    # The correlated subquery should read directly from the component table.
                     self.assertRegex(sql, rf'FROM "{re.escape(component_table)}"')
 
                     if value == 'true':
