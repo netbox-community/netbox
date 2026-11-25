@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.choices import ObjectChangeActionChoices
 from core.querysets import ObjectChangeQuerySet
+from netbox.config import get_config
 from netbox.models.features import ChangeLoggingMixin, has_feature
 from utilities.data import deep_compare_dict
 
@@ -147,7 +148,12 @@ class ObjectChange(models.Model):
 
     @cached_property
     def has_changes(self):
-        return self.prechange_data != self.postchange_data
+        prechange_data, postchange_data = self.prechange_data, self.postchange_data
+        # Every save bumps last_updated, so ignore it when deciding whether an update changed anything
+        if get_config().CHANGELOG_SKIP_EMPTY_CHANGES and prechange_data and postchange_data:
+            prechange_data = {k: v for k, v in prechange_data.items() if k != 'last_updated'}
+            postchange_data = {k: v for k, v in postchange_data.items() if k != 'last_updated'}
+        return prechange_data != postchange_data
 
     @cached_property
     def diff_exclude_fields(self):

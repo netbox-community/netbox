@@ -4,7 +4,7 @@ from datetime import timedelta
 from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
-from django.test import TestCase, override_settings
+from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
@@ -30,6 +30,9 @@ from dcim.models import (
 )
 from extras.choices import *
 from extras.models import CustomField, CustomFieldChoiceSet, Tag
+from netbox.context_managers import event_tracking
+from users.models import User
+from utilities.serialization import serialize_object
 from utilities.testing import APITestCase
 from utilities.testing.utils import create_tags, create_test_device, post_data
 from utilities.testing.views import ModelViewTestCase
@@ -849,3 +852,107 @@ class ChangelogPruneRetentionTestCase(TestCase):
         self.assertNotIn(x_create, remaining)
         self.assertNotIn(x_update, remaining)
         self.assertIn(y_delete, remaining)
+
+
+class ChangeLogTimestampTestCase(TestCase):
+    """
+    Change log snapshots must record last_updated, so that consumers replaying a change can restore it.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user(username='alice', password='pw')
+
+    def _request(self):
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = self.user
+        return request
+
+    def _changes(self, site):
+        return ObjectChange.objects.filter(
+            changed_object_type=ContentType.objects.get_for_model(Site),
+            changed_object_id=site.pk,
+        ).order_by('pk')
+
+    @override_settings(CHANGELOG_SKIP_EMPTY_CHANGES=True)
+    def test_create_records_last_updated(self):
+        with event_tracking(self._request()):
+            site = Site.objects.create(name='Site 1', slug='site-1')
+
+        oc = self._changes(site).get()
+        self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_CREATE)
+        self.assertEqual(oc.postchange_data['last_updated'], serialize_object(site)['last_updated'])
+        self.assertEqual(oc.postchange_data['created'], serialize_object(site)['created'])
+
+    @override_settings(CHANGELOG_SKIP_EMPTY_CHANGES=True)
+    def test_create_with_tags_records_last_updated(self):
+        # Assigning tags rewrites the CREATE record's postchange data within the same request
+        create_tags('Tag 1')
+        with event_tracking(self._request()):
+            site = Site.objects.create(name='Site 1', slug='site-1')
+            site.tags.set(['Tag 1'])
+
+        oc = self._changes(site).get()
+        self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_CREATE)
+        self.assertEqual(oc.postchange_data['tags'], ['Tag 1'])
+        self.assertEqual(oc.postchange_data['last_updated'], serialize_object(site)['last_updated'])
+
+    @override_settings(CHANGELOG_SKIP_EMPTY_CHANGES=True)
+    def test_update_records_last_updated(self):
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        before = serialize_object(site)['last_updated']
+
+        with event_tracking(self._request()):
+            site.snapshot()
+            site.description = 'changed'
+            site.save()
+
+        oc = self._changes(site).get()
+        self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_UPDATE)
+        self.assertEqual(oc.prechange_data['last_updated'], before)
+        self.assertEqual(oc.postchange_data['last_updated'], serialize_object(site)['last_updated'])
+
+    @override_settings(CHANGELOG_SKIP_EMPTY_CHANGES=True)
+    def test_delete_records_last_updated(self):
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        last_updated = serialize_object(site)['last_updated']
+
+        with event_tracking(self._request()):
+            site.snapshot()
+            site.delete()
+
+        oc = ObjectChange.objects.get(action=ObjectChangeActionChoices.ACTION_DELETE)
+        self.assertEqual(oc.prechange_data['last_updated'], last_updated)
+
+    @override_settings(CHANGELOG_SKIP_EMPTY_CHANGES=True)
+    def test_save_without_changes_is_not_recorded(self):
+        site = Site.objects.create(name='Site 1', slug='site-1')
+
+        with event_tracking(self._request()):
+            site.snapshot()
+            site.save()
+
+        self.assertFalse(self._changes(site).exists())
+
+    @override_settings(CHANGELOG_SKIP_EMPTY_CHANGES=False)
+    def test_save_without_changes_is_recorded_when_not_skipping(self):
+        site = Site.objects.create(name='Site 1', slug='site-1')
+
+        with event_tracking(self._request()):
+            site.snapshot()
+            site.save()
+
+        self.assertEqual(self._changes(site).get().action, ObjectChangeActionChoices.ACTION_UPDATE)
+
+    def test_has_changes_ignores_last_updated(self):
+        prechange = {'name': 'Site 1', 'last_updated': '2026-01-01T00:00:00Z'}
+        postchange = {'name': 'Site 1', 'last_updated': '2026-01-02T00:00:00Z'}
+
+        with override_settings(CHANGELOG_SKIP_EMPTY_CHANGES=True):
+            self.assertFalse(ObjectChange(prechange_data=prechange, postchange_data=postchange).has_changes)
+            self.assertTrue(
+                ObjectChange(prechange_data=prechange, postchange_data={**postchange, 'name': 'Site X'}).has_changes
+            )
+        with override_settings(CHANGELOG_SKIP_EMPTY_CHANGES=False):
+            self.assertTrue(ObjectChange(prechange_data=prechange, postchange_data=postchange).has_changes)
