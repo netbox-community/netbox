@@ -27,6 +27,7 @@ from extras.querysets import ConfigContextModelQuerySet
 from netbox.choices import ColorChoices
 from netbox.config import ConfigItem
 from netbox.models import NestedLtreeGroupModel, OrganizationalModel, PrimaryModel
+from netbox.models.deletion import run_protection_rules
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from netbox.models.mixins import WeightMixin
 from utilities.data import normalize_update_fields
@@ -1355,8 +1356,12 @@ class VirtualChassis(PrimaryModel):
                 self.master = master
                 super().save(using=using, update_fields=['master', 'last_updated'])
                 self.__dict__.pop('_prechange_snapshot', None)
-        finally:
+        except Exception:
+            # The creation was rolled back, so the virtual chassis is unsaved again
+            self.pk = None
+            self._state.adding = True
             self.master = master
+            raise
 
     def delete(self, *args, **kwargs):
         # Check for LAG interfaces split across member chassis
@@ -1378,22 +1383,30 @@ class VirtualChassis(PrimaryModel):
         # Release the master, then detach each member, each as a recorded change which is valid on its own and
         # precedes the deletion: replayed in reverse, the virtual chassis is restored before its members rejoin it.
         using = kwargs.get('using') or router.db_for_write(self.__class__, instance=self)
-        with transaction.atomic(using=using):
-            # Deletion protection rules must see the virtual chassis as it was before its master was released
-            self._pre_release_state = copy.copy(self)
-            if self.master_id:
-                self.snapshot()
-                self.master = None
-                super().save(using=using, update_fields=['master', 'last_updated'])
-                self.__dict__.pop('_prechange_snapshot', None)
-            for device in Device.objects.using(using).filter(virtual_chassis=self.pk):
-                device.snapshot()
-                device.virtual_chassis = None
-                device.vc_position = None
-                device.vc_priority = None
-                device.save(using=using)
+        master = self.master
+        try:
+            with transaction.atomic(using=using):
+                # Deletion protection rules must see the virtual chassis while it still has its master and members
+                run_protection_rules(self)
+                self._pre_release_state = copy.copy(self)
+                if self.master_id:
+                    self.snapshot()
+                    self.master = None
+                    super().save(using=using, update_fields=['master', 'last_updated'])
+                    self.__dict__.pop('_prechange_snapshot', None)
+                for device in Device.objects.using(using).filter(virtual_chassis=self.pk):
+                    device.snapshot()
+                    device.virtual_chassis = None
+                    device.vc_position = None
+                    device.vc_priority = None
+                    device.save(using=using)
 
-            return super().delete(*args, **kwargs)
+                return super().delete(*args, **kwargs)
+        except Exception:
+            # The deletion was rolled back, so the virtual chassis still has its master
+            self.master = master
+            self.__dict__.pop('_pre_release_state', None)
+            raise
 
 
 class VirtualDeviceContext(PrimaryModel):

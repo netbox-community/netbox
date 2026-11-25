@@ -227,19 +227,6 @@ def handle_rack_site_change(instance, created, raw=False, using=None, update_fie
 # Virtual chassis
 #
 
-@receiver(pre_delete, sender=MACAddress)
-def clear_primary_mac_address(instance, using, **kwargs):
-    """
-    When a MACAddress is deleted, trigger save() on any interface for which it was the primary MAC address.
-    MACAddress.clear_cached_references() has already done so unless the deletion was made through a queryset.
-    """
-    for model in (Interface, VMInterface):
-        if interface := model.objects.using(using).filter(primary_mac_address=instance.pk).first():
-            interface.snapshot()
-            interface.primary_mac_address = None
-            interface.save(using=using, update_fields=['primary_mac_address', 'last_updated'])
-
-
 @receiver(post_save, sender=VirtualChassis)
 def update_virtualchassis_member_search_cache(instance, created, raw=False, update_fields=None, **kwargs):
     """
@@ -494,3 +481,24 @@ def cleanup_channel_subinterface_paths(instance, **kwargs):
         if parent and parent.channels:
             parent.propagate_channel_cables()
             rebuild_cable_paths(parent.cable)
+
+
+#
+# MAC addresses
+#
+
+@receiver(pre_delete, sender=MACAddress)
+def clear_primary_mac_address(instance, using, origin=None, **kwargs):
+    """
+    When a MACAddress is deleted, trigger save() on any interface for which it was the primary MAC address.
+    MACAddress.clear_cached_references() has already done so unless the deletion was made through a queryset.
+    """
+    # A MAC address deleted along with its interface needs no release, and the interface's deletion may already
+    # have been recorded
+    if getattr(origin, 'model', type(origin)) is not MACAddress:
+        return
+    for model in (Interface, VMInterface):
+        if interface := model.objects.using(using).filter(primary_mac_address=instance.pk).first():
+            interface.snapshot()
+            interface.primary_mac_address = None
+            interface.save(using=using, update_fields=['primary_mac_address', 'last_updated'])

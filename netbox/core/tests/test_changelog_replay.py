@@ -22,6 +22,7 @@ from extras.validators import CustomValidator
 from ipam.models import IPAddress
 from netbox.context_managers import event_tracking
 from users.models import User
+from utilities.exceptions import AbortRequest
 from utilities.fields import CounterCacheField
 from utilities.serialization import deserialize_object, serialize_object
 from utilities.testing.utils import create_test_device, create_test_virtualmachine
@@ -483,3 +484,27 @@ class ChangeLogReplayTestCase(TestCase):
 
         self.assertFalse(Interface.objects.filter(device=device).exists())
         self.assertEqual(interface.primary_mac_address, mac)
+        self.assertIsNone(interface.pk)
+
+        # The interface can be saved again as if for the first time
+        interface.save()
+        mac.refresh_from_db()
+        self.assertEqual(mac.assigned_object, interface)
+
+    def test_protection_rule_sees_object_while_still_referenced(self):
+        _, ip = self._create_device_ip('primary_ip4')
+        rules = {'ipam.ipaddress': [{'is_primary_ip': {'eq': False}}]}
+
+        with override_settings(PROTECTION_RULES=rules), self.assertRaises(AbortRequest):
+            self._record(lambda: IPAddress.objects.get(pk=ip.pk).delete())
+
+    def test_interface_queryset_delete_records_nothing_after_the_deletion(self):
+        """An interface deleted through a queryset along with its primary MAC is not updated after its deletion."""
+        interface, _ = self._create_primary_mac()
+
+        changes = self._record(lambda: Interface.objects.filter(pk=interface.pk).delete())
+
+        interface_changes = [change.action for change in changes if change.changed_object_type.model == 'interface']
+        self.assertEqual(interface_changes[-1], DELETE)
+        self.assertEqual(interface_changes.count(DELETE), 1)
+        self.assertNotIn(UPDATE, interface_changes)

@@ -10,6 +10,28 @@ from django.utils.translation import gettext as _
 logger = logging.getLogger("netbox.models.deletion")
 
 
+def run_protection_rules(instance):
+    """
+    Run any deletion protection rules for an object ahead of releasing the references to it, so that the rules see
+    it while it is still referenced. (They run again, as for any object, when its deletion is recorded.)
+    """
+    # TODO: Fix circular imports
+    from django.core.exceptions import ValidationError
+
+    from extras.utils import run_validators
+    from netbox.config import get_config
+    from utilities.data import get_config_value_ci
+    from utilities.exceptions import AbortRequest
+
+    validators = get_config_value_ci(get_config().PROTECTION_RULES, instance._meta.label_lower, default=[])
+    try:
+        run_validators(instance, validators)
+    except ValidationError as e:
+        raise AbortRequest(
+            _("Deletion is prevented by a protection rule: {message}").format(message=e)
+        )
+
+
 class CountOnly:
     """
     A stand-in for a list of dependent instances that reports a count without holding any
@@ -162,6 +184,8 @@ class CustomCollector(Collector):
         with transaction.atomic(using=self.using, savepoint=False):
             for model, instances in self.data.items():
                 if clear_references := getattr(model, 'clear_cached_references', None):
+                    for instance in instances:
+                        run_protection_rules(instance)
                     clear_references(instances, self)
 
             return super().delete()

@@ -939,8 +939,13 @@ class BaseInterface(models.Model):
                 self.primary_mac_address = primary_mac_address
                 super().save(using=using, update_fields=['primary_mac_address', 'last_updated'])
                 self.__dict__.pop('_prechange_snapshot', None)
-        finally:
+        except Exception:
+            # The creation was rolled back, so the interface is unsaved again
+            self.pk = None
+            self._state.adding = True
             self.primary_mac_address = primary_mac_address
+            raise
+        finally:
             # Anything which read the MAC address while the interface had none has cached that
             self.__dict__.pop('mac_address', None)
 
