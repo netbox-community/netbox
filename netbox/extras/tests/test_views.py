@@ -85,6 +85,57 @@ class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'weight': 200,
         }
 
+    def test_related_objects_links(self):
+        """
+        Check that each related object type links to its list view filtered on the custom field.
+        """
+        site_type = ObjectType.objects.get_for_model(Site)
+        cf_exact = CustomField.objects.create(
+            name='cf_exact', type=CustomFieldTypeChoices.TYPE_TEXT,
+            filter_logic=CustomFieldFilterLogicChoices.FILTER_EXACT
+        )
+        cf_loose = CustomField.objects.create(
+            name='cf_loose', type=CustomFieldTypeChoices.TYPE_TEXT,
+            filter_logic=CustomFieldFilterLogicChoices.FILTER_LOOSE
+        )
+        cf_disabled = CustomField.objects.create(
+            name='cf_disabled', type=CustomFieldTypeChoices.TYPE_TEXT,
+            filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED
+        )
+        for cf in (cf_exact, cf_loose, cf_disabled):
+            cf.object_types.add(site_type)
+        Site.objects.create(
+            name='Site 1', slug='site-1',
+            custom_field_data={'cf_exact': 'foo', 'cf_loose': 'foo', 'cf_disabled': 'bar'}
+        )
+        self.add_permissions('extras.view_customfield', 'dcim.view_site')
+        list_url = reverse('dcim:site_list')
+
+        for cf in (cf_exact, cf_loose):
+            response = self.client.get(cf.get_absolute_url())
+            self.assertHttpStatus(response, 200)
+            self.assertContains(response, f'href="{list_url}?cf_{cf.name}__empty=false"')
+
+        # No link is rendered when filtering is disabled for the custom field
+        response = self.client.get(cf_disabled.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+        self.assertNotContains(response, f'href="{list_url}?cf_cf_disabled__empty')
+
+    def test_related_objects_links_without_view_permission(self):
+        """
+        Check that no link is rendered for a related object type the user cannot view.
+        """
+        cf = CustomField.objects.create(
+            name='cf_exact', type=CustomFieldTypeChoices.TYPE_TEXT,
+            filter_logic=CustomFieldFilterLogicChoices.FILTER_EXACT
+        )
+        cf.object_types.add(ObjectType.objects.get_for_model(Site))
+        self.add_permissions('extras.view_customfield')
+
+        response = self.client.get(cf.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+        self.assertNotContains(response, f'href="{reverse("dcim:site_list")}?cf_cf_exact__empty')
+
 
 class CustomFieldChoiceSetTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = CustomFieldChoiceSet

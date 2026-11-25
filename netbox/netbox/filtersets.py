@@ -365,6 +365,11 @@ class NetBoxModelFilterSet(ChangeLoggedModelFilterSet):
                 additional_lookups = self.get_additional_lookups(filter_name, filter_instance)
                 custom_field_filters.update(additional_lookups)
 
+                # Always provide an empty lookup, including for filters which get no additional lookups
+                # (e.g. text fields using loose filter logic)
+                if f'{filter_name}__empty' not in custom_field_filters:
+                    custom_field_filters[f'{filter_name}__empty'] = custom_field.to_filter(lookup_expr='empty')
+
         self.filters.update(custom_field_filters)
 
     def search(self, queryset, name, value):

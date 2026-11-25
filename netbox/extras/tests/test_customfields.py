@@ -3014,6 +3014,8 @@ class CustomFieldModelFilterTestCase(TestCase):
 
     def test_filter_text_loose(self):
         self.assertEqual(self.filterset({'cf_cf5': ['foo']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf5__empty': True}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf5__empty': False}, self.queryset).qs.count(), 3)
 
     def test_filter_date(self):
         self.assertEqual(self.filterset({'cf_cf6': ['2016-06-26', '2016-06-27']}, self.queryset).qs.count(), 2)
@@ -3042,6 +3044,8 @@ class CustomFieldModelFilterTestCase(TestCase):
 
     def test_filter_url_loose(self):
         self.assertEqual(self.filterset({'cf_cf8': ['example.com']}, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset({'cf_cf8__empty': True}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf8__empty': False}, self.queryset).qs.count(), 3)
 
     def test_filter_negation_matches_unset_values(self):
         """
