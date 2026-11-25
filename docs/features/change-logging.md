@@ -16,6 +16,16 @@ When editing an object via the web UI, the "Changelog message" field appears at 
 
 For information on including changelog messages when making changes via the REST API, see [Changelog Messages](../integrations/rest-api.md#changelog-messages).
 
+## Order of Changes
+
+Saving or deleting an object can lead NetBox to change other objects as well. Where it does, NetBox records the changes in an order in which each one is valid by itself, given only the changes before it, and can be undone by itself, given only the changes after it. For example:
+
+* Deleting a cable records an update to each interface it was attached to, clearing the cable, ahead of the deletion of the cable.
+* Creating an interface with an existing MAC address as its primary records the creation of the interface, then the assignment of the MAC address to it, and only then an update to the interface designating that MAC address as primary.
+
+!!! note
+    Deleting objects through a queryset (`queryset.delete()`) bypasses the model hook which records the release of references ahead of a deletion. Delete objects individually where the order of changes matters.
+
 ## Correlating Changes by Request
 
 Every request made to NetBox is assigned a random unique ID that can be used to correlate change records. For example, if you change the status of three sites using the UI's bulk edit feature, you will see three new change records (one for each site) all referencing the same request ID. This shows that all three changes were made as part of the same request.

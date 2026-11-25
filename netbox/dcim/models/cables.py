@@ -98,7 +98,7 @@ class Cable(PrimaryModel):
     A physical connection between two endpoints.
     """
     # Per-thread tracking of Cable PKs currently being deleted; referenced by
-    # dcim.signals.nullify_connected_endpoints to record the disconnect on each terminating object and
+    # dcim.signals.record_cable_disconnect to record the disconnect on each terminating object and
     # to skip per-CableTermination path retracing during the cascade (retrace_cable_paths does it once).
     _deletion_tracking = threading.local()
 
@@ -439,7 +439,7 @@ class Cable(PrimaryModel):
     @classmethod
     def _track_deletion(cls, pk):
         """
-        Track a Cable as being deleted, so that the post_delete handler for its cascaded CableTerminations can
+        Track a Cable as being deleted, so that the signal handlers for its cascaded CableTerminations can
         record the disconnect on each terminating object and skip redundant path retracing (retrace_cable_paths()
         retraces each affected path once, after the Cable itself is deleted). The tracking set lives on a
         threading.local() to isolate concurrent deletions across threads.

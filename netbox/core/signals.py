@@ -198,7 +198,8 @@ def handle_deleted_object(sender, instance, **kwargs):
     model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
     validators = get_config_value_ci(get_config().PROTECTION_RULES, model_name, default=[])
     try:
-        run_validators(instance, validators)
+        # Validate the object as it was before any references were released ahead of its deletion
+        run_validators(getattr(instance, '_pre_release_state', instance), validators)
     except ValidationError as e:
         raise AbortRequest(
             _("Deletion is prevented by a protection rule: {message}").format(message=e)
@@ -219,16 +220,10 @@ def handle_deleted_object(sender, instance, **kwargs):
         return
     _signals_received.pre_delete.add(signature)
 
-    # Record an ObjectChange if applicable
-    object_change_id = None
+    # Capture the object's state before any related objects are detached from it below
     if hasattr(instance, 'to_objectchange'):
         if hasattr(instance, 'snapshot') and not getattr(instance, '_prechange_snapshot', None):
             instance.snapshot()
-        objectchange = instance.to_objectchange(ObjectChangeActionChoices.ACTION_DELETE)
-        objectchange.user = request.user
-        objectchange.request_id = request.id
-        objectchange.save()
-        object_change_id = objectchange.pk
 
     # Django does not automatically send an m2m_changed signal for the reverse direction of a
     # many-to-many relationship (see https://code.djangoproject.com/ticket/17688), so we need to
@@ -276,6 +271,16 @@ def handle_deleted_object(sender, instance, **kwargs):
                 elif type(relation) is ManyToOneRel and relation.null and relation.on_delete not in (CASCADE, RESTRICT):
                     setattr(obj, related_field_name, None)
                     obj.save()
+
+    # Record an ObjectChange if applicable. It follows the changes recorded above, so that each reference to
+    # the object is released before its deletion (and restored after it when the log is replayed in reverse).
+    object_change_id = None
+    if hasattr(instance, 'to_objectchange'):
+        objectchange = instance.to_objectchange(ObjectChangeActionChoices.ACTION_DELETE)
+        objectchange.user = request.user
+        objectchange.request_id = request.id
+        objectchange.save()
+        object_change_id = objectchange.pk
 
     # Enqueue the object for event processing
     queue = events_queue.get()

@@ -56,6 +56,7 @@ def handle_prefix_deleted(instance, using=None, **kwargs):
 def clear_primary_ip(instance, **kwargs):
     """
     When an IPAddress is deleted, trigger save() on any Devices/VirtualMachines for which it was a primary IP.
+    IPAddress.clear_cached_references() has already done so unless the deletion was made through a queryset.
     """
     field_name = f'primary_ip{instance.family}'
     if device := Device.objects.filter(**{field_name: instance}).first():
@@ -72,6 +73,7 @@ def clear_primary_ip(instance, **kwargs):
 def clear_oob_ip(instance, **kwargs):
     """
     When an IPAddress is deleted, trigger save() on any Devices for which it was a OOB IP.
+    IPAddress.clear_cached_references() has already done so unless the deletion was made through a queryset.
     """
     if device := Device.objects.filter(oob_ip=instance).first():
         device.snapshot()

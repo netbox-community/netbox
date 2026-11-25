@@ -599,8 +599,7 @@ class DeviceComponentScopeTriggerTestCase(TestCase):
 
 class VirtualChassisMasterSignalTestCase(TestCase):
     """
-    Verify dcim.signals.assign_virtualchassis_master links the master device back to a
-    newly-created VirtualChassis.
+    Verify VirtualChassis.save() links the master device back to a newly-created VirtualChassis.
     """
 
     @classmethod
@@ -907,8 +906,7 @@ class CableSignalTestCase(TestCase):
 
 class MACAddressInterfaceSignalTestCase(TestCase):
     """
-    Verify dcim.signals.update_mac_address_interface assigns a designated primary MAC to
-    the newly-created Interface or VMInterface.
+    Verify BaseInterface.save() assigns a designated primary MAC to the newly-created Interface or VMInterface.
     """
 
     @classmethod
@@ -1062,14 +1060,6 @@ class CableSignalDirectHandlerTestCase(SimpleTestCase):
         chunked_update.assert_called_once_with(
             cablepath_model.objects.filter.return_value, is_active=False
         )
-
-    def test_update_mac_address_interface_raw_import_is_a_no_op(self):
-        primary_mac = SimpleNamespace(save=MagicMock())
-        interface = SimpleNamespace(primary_mac_address=primary_mac)
-
-        signals.update_mac_address_interface(instance=interface, created=True, raw=True)
-
-        primary_mac.save.assert_not_called()
 
 
 class CableTerminationDenormalizationTriggerTestCase(TestCase):
