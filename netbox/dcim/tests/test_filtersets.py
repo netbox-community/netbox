@@ -83,6 +83,40 @@ class DeviceComponentFilterSetTestMixin:
             self.assertEqual(len(filterset.form.cleaned_data[param]), 1)
 
 
+class HasRelatedObjectsFilterTestMixin:
+    component_filter_models = {}
+
+    @tag('performance', 'regression')
+    def test_component_filters_use_direct_exists_subqueries(self):
+        """
+        Component presence filters must query their component table directly rather than
+        joining the parent table back to itself. This avoids the poorly planned anti-join
+        pattern described in #23722.
+        """
+        parent_table = self.queryset.model._meta.db_table
+
+        for filter_name, component_model in self.component_filter_models.items():
+            component_table = component_model._meta.db_table
+            for value in ('true', 'false'):
+                with self.subTest(filter=filter_name, value=value):
+                    queryset = self.filterset({filter_name: value}, self.queryset).qs
+                    sql = str(queryset.query)
+
+                    # The parent table should occur only as the outer query table.
+                    self.assertEqual(
+                        len(re.findall(rf'(?:FROM|JOIN) "{re.escape(parent_table)}"', sql)),
+                        1,
+                    )
+                    # The correlated subquery should read directly from the component table.
+                    self.assertRegex(sql, rf'FROM "{re.escape(component_table)}"')
+
+                    if value == 'true':
+                        self.assertIn('EXISTS', sql)
+                        self.assertNotIn('NOT EXISTS', sql)
+                    else:
+                        self.assertIn('NOT EXISTS', sql)
+
+
 class DeviceComponentTemplateFilterSetTestMixin:
 
     def test_q(self):
@@ -1443,10 +1477,19 @@ class ManufacturerTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
+class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTestMixin, HasRelatedObjectsFilterTestMixin):
     queryset = DeviceType.objects.all()
     filterset = DeviceTypeFilterSet
     ignore_fields = ('front_image', 'rear_image')
+    component_filter_models = {
+        'console_ports': ConsolePortTemplate,
+        'console_server_ports': ConsoleServerPortTemplate,
+        'power_ports': PowerPortTemplate,
+        'power_outlets': PowerOutletTemplate,
+        'module_bays': ModuleBayTemplate,
+        'device_bays': DeviceBayTemplate,
+        'inventory_items': InventoryItemTemplate,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -1695,10 +1738,17 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
+class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTestMixin, HasRelatedObjectsFilterTestMixin):
     queryset = ModuleType.objects.all()
     filterset = ModuleTypeFilterSet
     ignore_fields = ['attribute_data']
+    component_filter_models = {
+        'console_ports': ConsolePortTemplate,
+        'console_server_ports': ConsoleServerPortTemplate,
+        'power_ports': PowerPortTemplate,
+        'power_outlets': PowerOutletTemplate,
+        'module_bays': ModuleBayTemplate,
+    }
 
     PROFILE_SCHEMA = {
         "properties": {
@@ -3015,10 +3065,18 @@ class PlatformTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         self.assertFalse(self.filterset(params, self.queryset).is_valid())
 
 
-class DeviceTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
+class DeviceTestCase(TestCase, ChangeLoggedFilterSetTestMixin, HasRelatedObjectsFilterTestMixin):
     queryset = Device.objects.all()
     filterset = DeviceFilterSet
     ignore_fields = ('local_context_data', 'oob_ip', 'primary_ip4', 'primary_ip6', 'vc_master_for')
+    component_filter_models = {
+        'console_ports': ConsolePort,
+        'console_server_ports': ConsoleServerPort,
+        'power_ports': PowerPort,
+        'power_outlets': PowerOutlet,
+        'module_bays': ModuleBay,
+        'device_bays': DeviceBay,
+    }
 
     @classmethod
     def setUpTestData(cls):

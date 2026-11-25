@@ -27,6 +27,7 @@ from tenancy.models import *
 from users.filterset_mixins import OwnerFilterMixin
 from users.models import User
 from utilities.filters import (
+    HasRelatedObjectsFilter,
     MultiValueBigNumberFilter,
     MultiValueCharFilter,
     MultiValueContentTypeFilter,
@@ -706,20 +707,20 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
         label=_('Has a rear image'),
         method='_has_rear_image'
     )
-    console_ports = django_filters.BooleanFilter(
-        method='_console_ports',
+    console_ports = HasRelatedObjectsFilter(
+        field_name='consoleporttemplates',
         label=_('Has console ports'),
     )
-    console_server_ports = django_filters.BooleanFilter(
-        method='_console_server_ports',
+    console_server_ports = HasRelatedObjectsFilter(
+        field_name='consoleserverporttemplates',
         label=_('Has console server ports'),
     )
-    power_ports = django_filters.BooleanFilter(
-        method='_power_ports',
+    power_ports = HasRelatedObjectsFilter(
+        field_name='powerporttemplates',
         label=_('Has power ports'),
     )
-    power_outlets = django_filters.BooleanFilter(
-        method='_power_outlets',
+    power_outlets = HasRelatedObjectsFilter(
+        field_name='poweroutlettemplates',
         label=_('Has power outlets'),
     )
     interfaces = django_filters.BooleanFilter(
@@ -730,16 +731,16 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
         method='_pass_through_ports',
         label=_('Has pass-through ports'),
     )
-    module_bays = django_filters.BooleanFilter(
-        method='_module_bays',
+    module_bays = HasRelatedObjectsFilter(
+        field_name='modulebaytemplates',
         label=_('Has module bays'),
     )
-    device_bays = django_filters.BooleanFilter(
-        method='_device_bays',
+    device_bays = HasRelatedObjectsFilter(
+        field_name='devicebaytemplates',
         label=_('Has device bays'),
     )
-    inventory_items = django_filters.BooleanFilter(
-        method='_inventory_items',
+    inventory_items = HasRelatedObjectsFilter(
+        field_name='inventoryitemtemplates',
         label=_('Has inventory items'),
     )
 
@@ -786,18 +787,6 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
             return queryset.exclude(rear_image='')
         return queryset.filter(rear_image='')
 
-    def _console_ports(self, queryset, name, value):
-        return queryset.exclude(consoleporttemplates__isnull=value)
-
-    def _console_server_ports(self, queryset, name, value):
-        return queryset.exclude(consoleserverporttemplates__isnull=value)
-
-    def _power_ports(self, queryset, name, value):
-        return queryset.exclude(powerporttemplates__isnull=value)
-
-    def _power_outlets(self, queryset, name, value):
-        return queryset.exclude(poweroutlettemplates__isnull=value)
-
     def _interfaces(self, queryset, name, value):
         return queryset.exclude(interfacetemplates__isnull=value)
 
@@ -806,15 +795,6 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
             frontporttemplates__isnull=value,
             rearporttemplates__isnull=value
         )
-
-    def _module_bays(self, queryset, name, value):
-        return queryset.exclude(modulebaytemplates__isnull=value)
-
-    def _device_bays(self, queryset, name, value):
-        return queryset.exclude(devicebaytemplates__isnull=value)
-
-    def _inventory_items(self, queryset, name, value):
-        return queryset.exclude(inventoryitemtemplates__isnull=value)
 
 
 @register_filterset
@@ -918,20 +898,20 @@ class ModuleTypeFilterSet(AttributeFiltersMixin, PrimaryModelFilterSet):
         to_field_name='slug',
         label=_('Module bay type (slug)'),
     )
-    console_ports = django_filters.BooleanFilter(
-        method='_console_ports',
+    console_ports = HasRelatedObjectsFilter(
+        field_name='consoleporttemplates',
         label=_('Has console ports'),
     )
-    console_server_ports = django_filters.BooleanFilter(
-        method='_console_server_ports',
+    console_server_ports = HasRelatedObjectsFilter(
+        field_name='consoleserverporttemplates',
         label=_('Has console server ports'),
     )
-    power_ports = django_filters.BooleanFilter(
-        method='_power_ports',
+    power_ports = HasRelatedObjectsFilter(
+        field_name='powerporttemplates',
         label=_('Has power ports'),
     )
-    power_outlets = django_filters.BooleanFilter(
-        method='_power_outlets',
+    power_outlets = HasRelatedObjectsFilter(
+        field_name='poweroutlettemplates',
         label=_('Has power outlets'),
     )
     interfaces = django_filters.BooleanFilter(
@@ -942,8 +922,8 @@ class ModuleTypeFilterSet(AttributeFiltersMixin, PrimaryModelFilterSet):
         method='_pass_through_ports',
         label=_('Has pass-through ports'),
     )
-    module_bays = django_filters.BooleanFilter(
-        method='_module_bays',
+    module_bays = HasRelatedObjectsFilter(
+        field_name='modulebaytemplates',
         label=_('Has module bays'),
     )
 
@@ -978,18 +958,6 @@ class ModuleTypeFilterSet(AttributeFiltersMixin, PrimaryModelFilterSet):
             Q(comments__icontains=value)
         )
 
-    def _console_ports(self, queryset, name, value):
-        return queryset.exclude(consoleporttemplates__isnull=value)
-
-    def _console_server_ports(self, queryset, name, value):
-        return queryset.exclude(consoleserverporttemplates__isnull=value)
-
-    def _power_ports(self, queryset, name, value):
-        return queryset.exclude(powerporttemplates__isnull=value)
-
-    def _power_outlets(self, queryset, name, value):
-        return queryset.exclude(poweroutlettemplates__isnull=value)
-
     def _interfaces(self, queryset, name, value):
         return queryset.exclude(interfacetemplates__isnull=value)
 
@@ -998,9 +966,6 @@ class ModuleTypeFilterSet(AttributeFiltersMixin, PrimaryModelFilterSet):
             frontporttemplates__isnull=value,
             rearporttemplates__isnull=value
         )
-
-    def _module_bays(self, queryset, name, value):
-        return queryset.exclude(modulebaytemplates__isnull=value)
 
 
 class DeviceTypeComponentFilterSet(django_filters.FilterSet):
@@ -1568,20 +1533,20 @@ class DeviceFilterSet(
         distinct=False,
         label=_('Config template (ID)'),
     )
-    console_ports = django_filters.BooleanFilter(
-        method='_console_ports',
+    console_ports = HasRelatedObjectsFilter(
+        field_name='consoleports',
         label=_('Has console ports'),
     )
-    console_server_ports = django_filters.BooleanFilter(
-        method='_console_server_ports',
+    console_server_ports = HasRelatedObjectsFilter(
+        field_name='consoleserverports',
         label=_('Has console server ports'),
     )
-    power_ports = django_filters.BooleanFilter(
-        method='_power_ports',
+    power_ports = HasRelatedObjectsFilter(
+        field_name='powerports',
         label=_('Has power ports'),
     )
-    power_outlets = django_filters.BooleanFilter(
-        method='_power_outlets',
+    power_outlets = HasRelatedObjectsFilter(
+        field_name='poweroutlets',
         label=_('Has power outlets'),
     )
     interfaces = django_filters.BooleanFilter(
@@ -1592,12 +1557,12 @@ class DeviceFilterSet(
         method='_pass_through_ports',
         label=_('Has pass-through ports'),
     )
-    module_bays = django_filters.BooleanFilter(
-        method='_module_bays',
+    module_bays = HasRelatedObjectsFilter(
+        field_name='modulebays',
         label=_('Has module bays'),
     )
-    device_bays = django_filters.BooleanFilter(
-        method='_device_bays',
+    device_bays = HasRelatedObjectsFilter(
+        field_name='devicebays',
         label=_('Has device bays'),
     )
     oob_ip_id = django_filters.ModelMultipleChoiceFilter(
@@ -1669,18 +1634,6 @@ class DeviceFilterSet(
     def _virtual_chassis_member(self, queryset, name, value):
         return queryset.exclude(virtual_chassis__isnull=value)
 
-    def _console_ports(self, queryset, name, value):
-        return queryset.exclude(consoleports__isnull=value)
-
-    def _console_server_ports(self, queryset, name, value):
-        return queryset.exclude(consoleserverports__isnull=value)
-
-    def _power_ports(self, queryset, name, value):
-        return queryset.exclude(powerports__isnull=value)
-
-    def _power_outlets(self, queryset, name, value):
-        return queryset.exclude(poweroutlets__isnull=value)
-
     def _interfaces(self, queryset, name, value):
         # Query Interface directly. Excluding on interfaces__isnull self-joins Device, which
         # PostgreSQL can plan very poorly when most devices have no interfaces (#23721).
@@ -1693,12 +1646,6 @@ class DeviceFilterSet(
             frontports__isnull=value,
             rearports__isnull=value
         )
-
-    def _module_bays(self, queryset, name, value):
-        return queryset.exclude(modulebays__isnull=value)
-
-    def _device_bays(self, queryset, name, value):
-        return queryset.exclude(devicebays__isnull=value)
 
     def _has_virtual_device_context(self, queryset, name, value):
         params = Q(vdcs__isnull=False)

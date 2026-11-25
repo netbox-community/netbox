@@ -3,6 +3,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.db.models import Exists, OuterRef
 from django.utils.translation import gettext as _
 from django_filters.constants import EMPTY_VALUES
 from django_filters.utils import get_model_field
@@ -13,6 +14,7 @@ from .forms.fields import BigIntegerField
 
 __all__ = (
     'ContentTypeFilter',
+    'HasRelatedObjectsFilter',
     'MultiValueArrayFilter',
     'MultiValueBigNumberFilter',
     'MultiValueCharFilter',
@@ -63,6 +65,23 @@ def multivalue_field_factory(field_class):
 #
 # Filters
 #
+
+class HasRelatedObjectsFilter(django_filters.BooleanFilter):
+    """
+    Filter objects based on the existence of related objects.
+    """
+    def filter(self, qs, value):
+        if value is None:
+            return qs
+
+        relation = qs.model._meta.get_field(self.field_name)
+        subquery = Exists(
+            relation.related_model.objects.filter(
+                **{relation.field.name: OuterRef('pk')}
+            )
+        )
+        return qs.filter(subquery if value else ~subquery)
+
 
 @extend_schema_field(OpenApiTypes.STR)
 class MultiValueCharFilter(django_filters.MultipleChoiceFilter):
