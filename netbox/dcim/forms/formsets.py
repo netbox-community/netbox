@@ -8,6 +8,17 @@ __all__ = (
 
 class BaseVCMemberFormSet(forms.BaseModelFormSet):
 
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Show members the user cannot change as read-only; disabled fields ignore submitted data
+        if user is not None:
+            permitted_pks = set(self.get_queryset().restrict(user, 'change').values_list('pk', flat=True))
+            for form in self.forms:
+                if form.instance.pk not in permitted_pks:
+                    form.fields['vc_position'].disabled = True
+                    form.fields['vc_priority'].disabled = True
+
     def clean(self):
         super().clean()
 

@@ -5247,7 +5247,7 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
 
         vc_form = forms.VirtualChassisForm(instance=virtual_chassis)
         vc_form.fields['master'].queryset = members_queryset
-        formset = VCMemberFormSet(queryset=members_queryset)
+        formset = VCMemberFormSet(queryset=members_queryset, user=request.user)
 
         return render(request, 'dcim/virtualchassis_edit.html', {
             'object': virtual_chassis,
@@ -5270,7 +5270,7 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
 
         vc_form = forms.VirtualChassisForm(request.POST, instance=virtual_chassis)
         vc_form.fields['master'].queryset = members_queryset
-        formset = VCMemberFormSet(request.POST, queryset=members_queryset)
+        formset = VCMemberFormSet(request.POST, queryset=members_queryset, user=request.user)
 
         # Snapshot each member before validation applies the submitted data to the instance
         for form in formset.initial_forms:
@@ -5280,21 +5280,39 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
         if vc_form.is_valid() and formset.is_valid():
             virtual_chassis._changelog_message = vc_form.cleaned_data.pop('changelog_message', '')
 
-            with transaction.atomic(using=router.db_for_write(Device)):
+            try:
+                with transaction.atomic(using=router.db_for_write(Device)):
 
-                # Save the VirtualChassis
-                vc_form.save()
+                    # Evaluate member permissions against the chassis's persisted state
+                    members = formset.save(commit=False)
+                    member_pks = [m.pk for m in members]
+                    change_queryset = Device.objects.restrict(request.user, 'change')
+                    if change_queryset.filter(pk__in=member_pks).count() != len(members):
+                        raise PermissionsViolation()
 
-                # Nullify vc_position of each changed member first to allow reordering without an IntegrityError on
-                # duplicate positions. A queryset update keeps this transient state out of the changelog.
-                members = formset.save(commit=False)
-                Device.objects.filter(pk__in=[m.pk for m in members]).update(vc_position=None)
-                for member in members:
-                    member.save()
+                    vc_form.save()
 
-            return redirect(virtual_chassis.get_absolute_url())
+                    # Nullify vc_position of each changed member first to allow reordering without an IntegrityError
+                    # on duplicate positions. A queryset update keeps this transient state out of the changelog.
+                    Device.objects.filter(pk__in=member_pks).update(vc_position=None)
+                    for member in members:
+                        member.save()
+
+                    # Check that the VirtualChassis and each changed member still conform with any assigned
+                    # object-level permissions
+                    if not self.queryset.filter(pk=virtual_chassis.pk).exists():
+                        raise PermissionsViolation()
+                    if change_queryset.filter(pk__in=member_pks).count() != len(members):
+                        raise PermissionsViolation()
+
+                return redirect(virtual_chassis.get_absolute_url())
+
+            except PermissionsViolation as e:
+                vc_form.add_error(None, e.message)
+                clear_events.send(sender=self)
 
         return render(request, 'dcim/virtualchassis_edit.html', {
+            'object': virtual_chassis,
             'vc_form': vc_form,
             'formset': formset,
             'return_url': self.get_return_url(request, virtual_chassis),
@@ -5385,12 +5403,21 @@ class VirtualChassisAddMemberView(ObjectPermissionRequiredMixin, GetReturnURLMix
 
 class VirtualChassisRemoveMemberView(ObjectPermissionRequiredMixin, GetReturnURLMixin, View):
     queryset = Device.objects.all()
+    additional_permissions = ['dcim.change_virtualchassis']
 
     def get_required_permission(self):
         return 'dcim.change_device'
 
+    def get_device(self, request, pk):
+        # The member's VirtualChassis must also be one the user can change
+        return get_object_or_404(
+            self.queryset,
+            pk=pk,
+            virtual_chassis__in=VirtualChassis.objects.restrict(request.user, 'change'),
+        )
+
     def get(self, request, pk):
-        device = get_object_or_404(self.queryset, pk=pk, virtual_chassis__isnull=False)
+        device = self.get_device(request, pk)
         form = ConfirmationForm(initial=request.GET)
 
         return render(request, 'dcim/virtualchassis_remove_member.html', {
@@ -5400,7 +5427,7 @@ class VirtualChassisRemoveMemberView(ObjectPermissionRequiredMixin, GetReturnURL
         })
 
     def post(self, request, pk):
-        device = get_object_or_404(self.queryset, pk=pk, virtual_chassis__isnull=False)
+        device = self.get_device(request, pk)
         form = ConfirmationForm(request.POST)
 
         # Protect master device from being removed
@@ -5424,7 +5451,22 @@ class VirtualChassisRemoveMemberView(ObjectPermissionRequiredMixin, GetReturnURL
                 for message in e.messages:
                     messages.error(request, message)
                 return redirect(self.get_return_url(request, device))
-            device.save()
+
+            try:
+                with transaction.atomic(using=router.db_for_write(Device)):
+                    device.save()
+
+                    # Check that the device and its former VirtualChassis still conform with any assigned
+                    # object-level permissions
+                    if not self.queryset.filter(pk=device.pk).exists():
+                        raise PermissionsViolation()
+                    vc_queryset = VirtualChassis.objects.restrict(request.user, 'change')
+                    if not vc_queryset.filter(pk=virtual_chassis.pk).exists():
+                        raise PermissionsViolation()
+            except PermissionsViolation as e:
+                messages.error(request, e.message)
+                clear_events.send(sender=self)
+                return redirect(self.get_return_url(request, device))
 
             msg = _('Removed {device} from virtual chassis {chassis}').format(
                 device=device,
