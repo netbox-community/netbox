@@ -6072,7 +6072,7 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     def _get_edit_data(self, vc, **member_data):
         """
-        Return POST data for the edit view, overriding each member's position and priority from member_data.
+        Build VC edit POST data with optional member position and priority overrides.
         """
         data = {
             'name': vc.name,
@@ -6140,7 +6140,7 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertEqual(device.vc_position, 1)
 
     @tag('regression')  # Ref: #23669
-    def test_edit_members_requires_change_device_permission(self):
+    def test_edit_ignores_changes_to_restricted_members(self):
         self.add_permissions('dcim.change_virtualchassis', 'dcim.view_device')
         vc = VirtualChassis.objects.get(name='VC1')
         member = Device.objects.get(name='Device 2')
@@ -6177,8 +6177,7 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         other_member = Device.objects.get(name='Device 3')
         Device.objects.filter(pk=member.pk).update(vc_priority=50)
 
-        # Clearing the priority would satisfy the constraint, but the member does not satisfy it beforehand, so the
-        # submitted value is ignored while the change to a permitted member is saved
+        # A member's submitted changes cannot grant permission to modify it
         response = self.client.post(
             self._get_url('edit', vc),
             self._get_edit_data(vc, **{'Device 2': (2, None), 'Device 3': (5, None)})
@@ -6201,8 +6200,11 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         # Moving the chassis into the permitted domain must not grant change permission on its members
         data = self._get_edit_data(vc, **{'Device 2': (2, 10)})
         data['domain'] = 'lab'
-        self.client.post(self._get_url('edit', vc), data)
+        response = self.client.post(self._get_url('edit', vc), data)
+        self.assertHttpStatus(response, 302)
 
+        vc.refresh_from_db()
+        self.assertEqual(vc.domain, 'lab')
         member.refresh_from_db()
         self.assertIsNone(member.vc_priority)
         self.assertFalse(self._get_member_changes(member).exists())
@@ -6267,6 +6269,24 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self._add_constrained_permission(Device, ['view', 'change'], {'virtual_chassis__isnull': False})
         member = Device.objects.get(name='Device 2')
 
+        url = reverse('dcim:virtualchassis_remove_member', kwargs={'pk': member.pk})
+        response = self.client.post(url, {'confirm': True})
+        self.assertHttpStatus(response, 302)
+        self.assertIn(PermissionsViolation.message, [str(m) for m in get_messages(response.wsgi_request)])
+
+        # The change is rolled back
+        member.refresh_from_db()
+        self.assertEqual(member.virtual_chassis.name, 'VC1')
+        self.assertEqual(member.vc_position, 2)
+        self.assertFalse(self._get_member_changes(member).exists())
+
+    @tag('regression')  # Ref: #23669
+    def test_remove_member_blocked_by_constrained_change_virtualchassis_permission(self):
+        self.add_permissions('dcim.change_device')
+        self._add_constrained_permission(VirtualChassis, ['change'], {'members__name': 'Device 2'})
+        member = Device.objects.get(name='Device 2')
+
+        # Removing the member takes the chassis outside the user's permitted set
         url = reverse('dcim:virtualchassis_remove_member', kwargs={'pk': member.pk})
         response = self.client.post(url, {'confirm': True})
         self.assertHttpStatus(response, 302)

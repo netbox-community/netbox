@@ -388,7 +388,9 @@ class VirtualChassisCreateForm(OwnerMixin, NetBoxModelForm):
         super().__init__(*args, **kwargs)
 
         # Assigning members modifies them, so limit choices to devices the user can change
+        self._member_change_queryset = None
         if request := current_request.get():
+            self._member_change_queryset = Device.objects.restrict(request.user, 'change')
             self.fields['members'].queryset = self.fields['members'].queryset.restrict(request.user, 'change')
 
     def clean_members(self):
@@ -429,8 +431,9 @@ class VirtualChassisCreateForm(OwnerMixin, NetBoxModelForm):
                 member.save()
 
             # Check that each member still conforms with any assigned object-level permissions
-            members = self.cleaned_data['members']
-            if self.fields['members'].queryset.filter(pk__in=[m.pk for m in members]).count() != len(members):
-                raise PermissionsViolation()
+            if self._member_change_queryset is not None:
+                members = self.cleaned_data['members']
+                if self._member_change_queryset.filter(pk__in=[m.pk for m in members]).count() != len(members):
+                    raise PermissionsViolation()
 
         return instance
