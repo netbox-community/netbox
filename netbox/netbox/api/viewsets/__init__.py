@@ -3,9 +3,10 @@ import warnings
 from contextlib import contextmanager
 from functools import cached_property
 
-from django.core.exceptions import FieldError, ObjectDoesNotExist, PermissionDenied, ValidationError
+from django.core.exceptions import FieldError, ValidationError
 from django.db import router, transaction
 from django.db.models import ProtectedError, RestrictedError
+from django.shortcuts import get_object_or_404
 from rest_framework import mixins as drf_mixins
 from rest_framework import status
 from rest_framework.exceptions import MethodNotAllowed
@@ -356,12 +357,9 @@ class NetBoxModelViewSet(
 
         # Enforce object-level permissions on save()
         using = router.db_for_write(model)
-        try:
-            with transaction.atomic(using=using), mixins.discard_events_on_rollback(self, using=using):
-                instance = serializer.save()
-                self._validate_objects(instance)
-        except ObjectDoesNotExist:
-            raise PermissionDenied()
+        with transaction.atomic(using=using), mixins.discard_events_on_rollback(self, using=using):
+            instance = serializer.save()
+            self._validate_objects(instance)
 
     # Updates
 
@@ -402,21 +400,18 @@ class NetBoxModelViewSet(
 
         # Enforce object-level permissions on save()
         using = router.db_for_write(model)
-        try:
-            with transaction.atomic(using=using), mixins.discard_events_on_rollback(self, using=using):
-                # Check the If-Match ETag under a row-level lock to close the TOCTOU window between any
-                # earlier check and the actual write. An object retrieved only once its row had been
-                # locked is already current; otherwise, lock its row and re-fetch it.
-                if self._get_if_match(self.request):
-                    if serializer.instance.pk in self.locked_pks:
-                        current = serializer.instance
-                    else:
-                        current = model._default_manager.select_for_update().get(pk=serializer.instance.pk)
-                    self._validate_etag(self.request, current)
-                instance = serializer.save()
-                self._validate_objects(instance)
-        except ObjectDoesNotExist:
-            raise PermissionDenied()
+        with transaction.atomic(using=using), mixins.discard_events_on_rollback(self, using=using):
+            # Check the If-Match ETag under a row-level lock to close the TOCTOU window between any
+            # earlier check and the actual write. An object retrieved only once its row had been
+            # locked is already current; otherwise, lock its row and re-fetch it.
+            if self._get_if_match(self.request):
+                if serializer.instance.pk in self.locked_pks:
+                    current = serializer.instance
+                else:
+                    current = get_object_or_404(model._default_manager.select_for_update(), pk=serializer.instance.pk)
+                self._validate_etag(self.request, current)
+            instance = serializer.save()
+            self._validate_objects(instance)
 
     # Deletes
 
@@ -441,16 +436,13 @@ class NetBoxModelViewSet(
         logger.info(f"Deleting {model._meta.verbose_name} {instance} (PK: {instance.pk})")
 
         using = router.db_for_write(model)
-        try:
-            with transaction.atomic(using=using), mixins.discard_events_on_rollback(self, using=using):
-                # Re-check the If-Match ETag under a row-level lock to close the TOCTOU window
-                # between the initial check in destroy() and the actual delete.
-                if self._get_if_match(self.request):
-                    locked = model.objects.select_for_update().get(pk=instance.pk)
-                    self._validate_etag(self.request, locked)
-                super().perform_destroy(instance)
-        except ObjectDoesNotExist:
-            raise PermissionDenied()
+        with transaction.atomic(using=using), mixins.discard_events_on_rollback(self, using=using):
+            # Re-check the If-Match ETag under a row-level lock to close the TOCTOU window
+            # between the initial check in destroy() and the actual delete.
+            if self._get_if_match(self.request):
+                locked = get_object_or_404(model.objects.select_for_update(), pk=instance.pk)
+                self._validate_etag(self.request, locked)
+            super().perform_destroy(instance)
 
 
 # TODO: Remove this in NetBox v5.0

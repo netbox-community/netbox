@@ -2,16 +2,18 @@ import json
 import logging
 from unittest.mock import patch
 
-from django.test import tag
+from django.test import override_settings, tag
 from django.urls import reverse
 from netaddr import IPNetwork
 from rest_framework import status
 
+from core.models import ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
 from ipam.api.serializers import RIRSerializer, VLANGroupSerializer, VRFSerializer
 from ipam.choices import *
 from ipam.models import *
 from tenancy.models import Tenant
+from users.models import ObjectPermission
 from utilities.data import string_to_ranges
 from utilities.testing import APITestCase, APIViewTestCases, create_tags, create_test_device, disable_logging
 
@@ -897,6 +899,64 @@ class PrefixTestCase(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(len(response.data), 1)
         self.assertIn('prefix_length', response.data[0])
+
+    @tag('regression')  # Ref: #23765
+    @override_settings(DEBUG=False)
+    def test_create_available_ips_save_error(self):
+        """
+        Test that an error raised while saving the new IP addresses is reported as a server error.
+        """
+        vrf = VRF.objects.create(name='VRF 1')
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/29'), vrf=vrf, is_pool=True)
+        url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
+        self.add_permissions('ipam.view_prefix', 'ipam.add_ipaddress')
+        self.client.raise_request_exception = False
+        ipaddress_save = IPAddress.save
+
+        def save(ipaddress, *args, **kwargs):
+            ipaddress_save(ipaddress, *args, **kwargs)
+            if ipaddress.description == 'Test IP 2':
+                raise VRF.DoesNotExist('Simulated save error')
+
+        with patch.object(IPAddress, 'save', autospec=True, side_effect=save):
+            # Create a single IP
+            response = self.client.post(url, {'description': 'Test IP 2'}, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_500_INTERNAL_SERVER_ERROR)
+            self.assertEqual(response.json()['exception'], 'DoesNotExist')
+
+            # Create multiple IPs (only the second fails)
+            data = [{'description': 'Test IP 1'}, {'description': 'Test IP 2'}]
+            response = self.client.post(url, data, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_500_INTERNAL_SERVER_ERROR)
+            self.assertEqual(response.json()['exception'], 'DoesNotExist')
+
+        self.assertFalse(IPAddress.objects.filter(vrf=vrf).exists())
+
+    @tag('regression')  # Ref: #23765
+    def test_create_multiple_available_ips_constrained_permission(self):
+        """
+        Test that no IP addresses are created if any of them falls outside the user's object-level permissions.
+        """
+        vrf = VRF.objects.create(name='VRF 1')
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/29'), vrf=vrf, is_pool=True)
+        url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
+        self.add_permissions('ipam.view_prefix')
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['add'],
+            constraints={'status': IPAddressStatusChoices.STATUS_ACTIVE},
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(IPAddress))
+
+        data = [
+            {'description': 'Test IP 1'},
+            {'description': 'Test IP 2', 'status': IPAddressStatusChoices.STATUS_RESERVED},
+        ]
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+        self.assertFalse(IPAddress.objects.filter(vrf=vrf).exists())
 
     @tag('regression')
     def test_graphql_tenant_prefixes_contains_nested_skips_invalid(self):

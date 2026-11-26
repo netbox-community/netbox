@@ -1,7 +1,6 @@
 from copy import deepcopy
 
 from django.contrib.contenttypes.prefetch import GenericPrefetch
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import router, transaction
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
@@ -301,14 +300,11 @@ class AvailableObjectsView(ObjectValidationMixin, APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Create the new IP address(es)
+            # Create the requested objects
             using = router.db_for_write(self.queryset.model)
-            try:
-                with transaction.atomic(using=using), discard_events_on_rollback(self, using=using):
-                    created = serializer.save()
-                    self._validate_objects(created)
-            except ObjectDoesNotExist:
-                raise PermissionDenied()
+            with transaction.atomic(using=using), discard_events_on_rollback(self, using=using):
+                created = serializer.save()
+                self._validate_objects(created)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

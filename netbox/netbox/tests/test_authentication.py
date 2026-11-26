@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 from django.conf import settings
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import HttpResponse
-from django.test import Client, RequestFactory, SimpleTestCase
+from django.test import Client, RequestFactory, SimpleTestCase, tag
 from django.test import TestCase as DjangoTestCase
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -23,6 +23,7 @@ from core.choices import ManagedFileRootPathChoices
 from core.models import DataFile, DataSource, ManagedFile, ObjectType
 from dcim.models import Rack, Site
 from extras.models import ConfigTemplate, ExportTemplate, ScriptModule
+from netbox.api.viewsets import NetBoxModelViewSet
 from netbox.authentication import LDAPBackend
 from netbox.authentication.misc import _mirror_groups
 from netbox.middleware import SocialAuthExceptionMiddleware
@@ -793,6 +794,119 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         url = reverse('dcim-api:rack-detail', kwargs={'pk': self.racks[0].pk})
         response = self.client.delete(url, format='json', **self.header)
         self.assertEqual(response.status_code, 204)
+
+    @tag('regression')  # Ref: #23765
+    @override_settings(DEBUG=False)
+    def test_create_object_save_error(self):
+        self.add_permissions('dcim.add_rack')
+        self.client.raise_request_exception = False
+        url = reverse('dcim-api:rack-list')
+        initial_count = Rack.objects.count()
+        rack_save = Rack.save
+
+        def save(rack, *args, **kwargs):
+            rack_save(rack, *args, **kwargs)
+            if rack.name == 'Rack 11':
+                raise Site.DoesNotExist('Simulated save error')
+
+        with patch.object(Rack, 'save', autospec=True, side_effect=save):
+            # Create a single object
+            data = {'name': 'Rack 11', 'site': self.sites[0].pk}
+            response = self.client.post(url, data, format='json', **self.header)
+            self.assertEqual(response.status_code, 500)
+            self.assertEqual(response.json()['exception'], 'DoesNotExist')
+            self.assertEqual(response.json()['error'], 'Simulated save error')
+            self.assertEqual(Rack.objects.count(), initial_count)
+
+            # Create multiple objects (only the second fails)
+            data = [
+                {'name': 'Rack 10', 'site': self.sites[0].pk},
+                {'name': 'Rack 11', 'site': self.sites[0].pk},
+            ]
+            response = self.client.post(url, data, format='json', **self.header)
+            self.assertEqual(response.status_code, 500)
+            self.assertEqual(response.json()['exception'], 'DoesNotExist')
+            self.assertEqual(Rack.objects.count(), initial_count)
+
+    @tag('regression')  # Ref: #23765
+    @override_settings(DEBUG=False)
+    def test_edit_object_save_error(self):
+        self.add_permissions('dcim.change_rack')
+        self.client.raise_request_exception = False
+        rack_save = Rack.save
+
+        def save(rack, *args, **kwargs):
+            rack_save(rack, *args, **kwargs)
+            if rack.pk == self.racks[1].pk:
+                raise Site.DoesNotExist('Simulated save error')
+
+        with patch.object(Rack, 'save', autospec=True, side_effect=save):
+            # Edit a single object
+            url = reverse('dcim-api:rack-detail', kwargs={'pk': self.racks[1].pk})
+            response = self.client.patch(url, {'description': 'New description'}, format='json', **self.header)
+            self.assertEqual(response.status_code, 500)
+            self.assertEqual(response.json()['exception'], 'DoesNotExist')
+
+            # Edit multiple objects (only the second fails)
+            data = [{'id': rack.pk, 'description': 'New description'} for rack in self.racks[:2]]
+            response = self.client.patch(reverse('dcim-api:rack-list'), data, format='json', **self.header)
+            self.assertEqual(response.status_code, 500)
+            self.assertEqual(response.json()['exception'], 'DoesNotExist')
+
+        self.assertFalse(Rack.objects.filter(description='New description').exists())
+
+    @tag('regression')  # Ref: #23765
+    @override_settings(DEBUG=False)
+    def test_delete_object_delete_error(self):
+        self.add_permissions('dcim.delete_rack')
+        self.client.raise_request_exception = False
+        rack_delete = Rack.delete
+
+        def delete(rack, *args, **kwargs):
+            pk = rack.pk
+            rack_delete(rack, *args, **kwargs)
+            if pk == self.racks[1].pk:
+                raise Site.DoesNotExist('Simulated delete error')
+
+        with patch.object(Rack, 'delete', autospec=True, side_effect=delete):
+            # Delete a single object
+            url = reverse('dcim-api:rack-detail', kwargs={'pk': self.racks[1].pk})
+            response = self.client.delete(url, format='json', **self.header)
+            self.assertEqual(response.status_code, 500)
+            self.assertEqual(response.json()['exception'], 'DoesNotExist')
+
+            # Delete multiple objects (only the second fails)
+            data = [{'id': rack.pk} for rack in self.racks[:2]]
+            response = self.client.delete(reverse('dcim-api:rack-list'), data, format='json', **self.header)
+            self.assertEqual(response.status_code, 500)
+            self.assertEqual(response.json()['exception'], 'DoesNotExist')
+
+        self.assertEqual(Rack.objects.filter(pk__in=[rack.pk for rack in self.racks[:2]]).count(), 2)
+
+    @tag('regression')  # Ref: #23765
+    def test_delete_object_deleted_concurrently(self):
+        self.add_permissions('dcim.delete_rack')
+        racks = Rack.objects.filter(pk__in=[rack.pk for rack in self.racks[:2]])
+        header = {**self.header, 'HTTP_IF_MATCH': ', '.join(NetBoxModelViewSet._get_etag(rack) for rack in racks)}
+        perform_destroy = NetBoxModelViewSet.perform_destroy
+
+        def delete_then_perform_destroy(viewset, instance):
+            # Delete the second Rack after the view has retrieved it, before its row is locked
+            if instance.pk == self.racks[1].pk:
+                Rack.objects.filter(pk=instance.pk).delete()
+            return perform_destroy(viewset, instance)
+
+        with patch.object(NetBoxModelViewSet, 'perform_destroy', delete_then_perform_destroy):
+            # Delete multiple objects
+            data = [{'id': rack.pk} for rack in racks]
+            response = self.client.delete(reverse('dcim-api:rack-list'), data, format='json', **header)
+            self.assertEqual(response.status_code, 404)
+            self.assertTrue(Rack.objects.filter(pk=self.racks[0].pk).exists())
+
+            # Delete a single object
+            url = reverse('dcim-api:rack-detail', kwargs={'pk': self.racks[1].pk})
+            response = self.client.delete(url, format='json', **header)
+            self.assertEqual(response.status_code, 404)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
     def test_sync_object(self):

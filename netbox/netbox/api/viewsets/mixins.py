@@ -1,7 +1,7 @@
 from collections import Counter
 from contextlib import contextmanager
 
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.exceptions import PermissionDenied
 from django.db import router, transaction
 from django.db.models import ProtectedError, RestrictedError
 from django.http import Http404
@@ -825,8 +825,7 @@ class BulkDestroyModelMixin:
                     errors.append({'id': pk, 'errors': {'__all__': [str(e.message)]}})
                     error_statuses.add(status.HTTP_400_BAD_REQUEST)
                 except PermissionDenied:
-                    # Raised by perform_destroy() when the object falls outside the queryset
-                    # permitted to the requesting user (reachable via the If-Match re-check).
+                    # Raised by a perform_destroy() override or a signal receiver which denies the deletion
                     errors.append({'id': pk, 'errors': {'__all__': [PERMISSION_DENIED_MESSAGE]}})
                     error_statuses.add(status.HTTP_403_FORBIDDEN)
             if errors:
@@ -845,6 +844,6 @@ class ObjectValidationMixin:
             # Check that all instances are still included in the view's queryset
             conforming_count = self.queryset.filter(pk__in=[obj.pk for obj in instance]).count()
             if conforming_count != len(instance):
-                raise ObjectDoesNotExist
+                raise PermissionDenied()
         elif not self.queryset.filter(pk=instance.pk).exists():
-            raise ObjectDoesNotExist
+            raise PermissionDenied()
