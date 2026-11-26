@@ -444,11 +444,10 @@ class CircuitTermination(
     @classmethod
     def clear_cached_references(cls, instances, collector):
         # Called by CustomCollector ahead of the DELETE, for explicit and cascaded deletions alike
-        doomed_circuits = {circuit.pk for circuit in collector.data.get(Circuit, ())}
-
-        # A circuit only points at its own terminations, so any deleted along with it need no clear
-        pks = {instance.pk for instance in instances if instance.circuit_id not in doomed_circuits}
-        circuit_ids = {instance.circuit_id for instance in instances if instance.pk in pks}
+        # A circuit deleted along with its terminations is cleared too: restoring it (when the deletion is
+        # replayed in reverse) precedes restoring them, so it can't be restored still pointing at them
+        pks = {instance.pk for instance in instances}
+        circuit_ids = {instance.circuit_id for instance in instances}
 
         for batch in batched(circuit_ids, 1000):
             # Read and write on the deletion's alias, inside its transaction
@@ -461,6 +460,7 @@ class CircuitTermination(
                 }
                 if fields:
                     _set_circuit_terminations(circuit, fields, using=collector.using)
+                    collector.update_collected(circuit, fields)
 
     def cache_related_objects(self):
         self._provider_network = self._region = self._site_group = self._site = self._location = None

@@ -137,6 +137,9 @@ def enqueue_event(queue, instance, request, event_type, object_change_id=None):
         # rows) become inaccessible.
         if event_type == OBJECT_DELETED:
             queue[key]['event_type'] = event_type
+            # Describe the object as it was before any references were released ahead of its deletion
+            if (pre_release_state := getattr(instance, '_pre_release_state', None)) is not None:
+                queue[key].refresh_serialization_source(pre_release_state)
         else:
             # Keep the public `object` entry stable for compatibility.
             queue[key].refresh_serialization_source(instance)

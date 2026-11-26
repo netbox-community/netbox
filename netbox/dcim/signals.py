@@ -2,7 +2,7 @@ import logging
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
-from django.db.models.signals import post_delete, post_save, pre_save
+from django.db.models.signals import post_delete, post_save, pre_delete, pre_save
 from django.dispatch import receiver
 
 from dcim.choices import CableEndChoices, LinkStatusChoices
@@ -18,6 +18,7 @@ from .models import (
     FrontPort,
     Interface,
     Location,
+    MACAddress,
     PathEndpoint,
     PortMapping,
     PowerPanel,
@@ -229,19 +230,6 @@ def handle_rack_site_change(instance, created, raw=False, using=None, update_fie
 #
 
 @receiver(post_save, sender=VirtualChassis)
-def assign_virtualchassis_master(instance, created, **kwargs):
-    """
-    When a VirtualChassis is created, automatically assign its master device (if any) to the VC.
-    """
-    if created and instance.master:
-        master = Device.objects.get(pk=instance.master.pk)
-        master.snapshot()
-        master.virtual_chassis = instance
-        master.vc_position = 1
-        master.save()
-
-
-@receiver(post_save, sender=VirtualChassis)
 def update_virtualchassis_member_search_cache(instance, created, raw=False, update_fields=None, **kwargs):
     """
     Refresh the search cache for member Devices when a VirtualChassis is renamed. DeviceIndex caches
@@ -326,73 +314,75 @@ def update_passthrough_port_paths(instance, update_fields=None, **kwargs):
         cablepath.retrace()
 
 
+@receiver(pre_delete, sender=CableTermination)
+def record_cable_disconnect(instance, using, **kwargs):
+    """
+    When a Cable is deleted, clear it from the object each of its terminations attaches to, recording the change.
+    """
+    # Deleting a Cable deletes its terminations in bulk, bypassing CableTermination.delete() and the
+    # change-logged clear it performs on the terminating object; do the same here so the disconnect is
+    # recorded. This runs ahead of the deletion so that the disconnect precedes the Cable's own change record:
+    # replayed in reverse, the Cable is then restored before the terminating object is pointed back at it.
+    if not Cable._is_being_deleted(instance.cable_id):
+        return
+    model = instance.termination_type.model_class()
+
+    # The change record serializes the object twice (before and after), and ComponentModel.save()
+    # re-caches its denormalized references off the parent device: fetch both up front so neither
+    # costs a round trip per terminating object. Both the read and the save below use the alias the
+    # deletion runs on, so routing can't return a stale row or miss the object entirely.
+    queryset = model.objects.using(using).filter(pk=instance.termination_id).prefetch_related('tags')
+    if hasattr(model, 'device'):
+        queryset = queryset.select_related('device__site', 'device__location', 'device__rack')
+    if (termination := queryset.first()) is None:
+        return
+
+    termination.snapshot()
+    # clear_cable_termination() also clears the mirrored attributes on any channel subinterfaces
+    termination.clear_cable_termination(instance)
+    update_fields = ['cable', 'cable_end', 'cable_connector', 'cable_positions', 'last_updated']
+
+    # retrace_cable_paths() tears down the originating path once the Cable itself is deleted, clearing
+    # _path outside the changelog. Clear it here so the recorded state doesn't outlive the path.
+    if isinstance(termination, PathEndpoint):
+        termination._path = None
+        update_fields.append('_path')
+
+    # A narrow write: this row is read mid-cascade, and its full save() would pull in unrelated work
+    termination.save(using=using, update_fields=update_fields)
+
+
 @receiver(post_delete, sender=CableTermination)
 def nullify_connected_endpoints(instance, using, **kwargs):
     """
     Disassociate the Cable from the termination object, and retrace any affected CablePaths.
     """
-    model = instance.termination_type.model_class()
-
-    # Deleting a Cable deletes its terminations in bulk, bypassing CableTermination.delete() and the
-    # change-logged clear it performs on the terminating object; do the same here so the disconnect is
-    # recorded. `cable` is a SET_NULL FK which the deletion collector has already nulled by now, so the
-    # pre-delete values are restored before snapshotting, or the record would show no change. They are
-    # restored field by field rather than via set_cable_termination(), whose Interface override would
-    # propagate the cable back onto the channel subinterfaces we are about to clear.
-    termination = None
-    if Cable._is_being_deleted(instance.cable_id):
-        # The change record serializes the object twice (before and after), and ComponentModel.save()
-        # re-caches its denormalized references off the parent device: fetch both up front so neither
-        # costs a round trip per terminating object. Both the read and the save below use the alias the
-        # deletion ran on, so routing can't return a stale row or miss the object entirely.
-        queryset = model.objects.using(using).filter(pk=instance.termination_id).prefetch_related('tags')
-        if hasattr(model, 'device'):
-            queryset = queryset.select_related('device__site', 'device__location', 'device__rack')
-        termination = queryset.first()
-
-    if termination is not None:
-        termination.cable_id = instance.cable_id
-        termination.cable_end = instance.cable_end
-        termination.cable_connector = instance.connector
-        termination.cable_positions = instance.positions
-        termination.snapshot()
-        # clear_cable_termination() also clears the mirrored attributes on any channel subinterfaces
-        termination.clear_cable_termination(instance)
-        update_fields = ['cable', 'cable_end', 'cable_connector', 'cable_positions', 'last_updated']
-
-        # retrace_cable_paths() tears down the originating path once the Cable itself is deleted, clearing
-        # _path outside the changelog. Clear it here so the recorded state doesn't outlive the path.
-        if isinstance(termination, PathEndpoint):
-            termination._path = None
-            update_fields.append('_path')
-
-        # A narrow write: this row was read mid-cascade, and its full save() would pull in unrelated work
-        termination.save(using=using, update_fields=update_fields)
-    else:
-        # Already recorded by CableTermination.delete(), or the terminating object is going away too.
-        model.objects.filter(pk=instance.termination_id).update(
-            cable=None,
-            cable_end=None,
-            cable_connector=None,
-            cable_positions=None,
-        )
-
-        # If the removed termination was a channelized interface, also clear the cable attributes mirrored onto
-        # its channel subinterfaces. This must happen before the retrace below so that each channel's (now dead)
-        # path is torn down rather than rebuilt from a stale cable reference. These writes are deliberately not
-        # change-logged, matching propagate_channel_cables(), which doesn't log them when it sets them either.
-        # A subinterface saved through a change-logged path while connected does record its mirrored cable
-        # fields, so its disconnect goes unlogged here; that gap predates this receiver and is untouched by it.
-        if model is Interface:
-            Interface.objects.filter(parent_id=instance.termination_id, channel_id__isnull=False).update(
-                cable=None, cable_end='', cable_connector=None, cable_positions=None
-            )
-
-    # If the parent Cable is being deleted in this same operation, skip the
-    # per-termination retrace; retrace_cable_paths() will retrace each affected
-    # path once after the Cable is deleted.
+    # If the parent Cable is being deleted in this same operation, record_cable_disconnect() has already
+    # cleared the terminating object, and retrace_cable_paths() will retrace each affected path once after
+    # the Cable is deleted.
     if Cable._is_being_deleted(instance.cable_id):
         return
+
+    model = instance.termination_type.model_class()
+
+    # Already recorded by CableTermination.delete(), or the terminating object is going away too.
+    model.objects.filter(pk=instance.termination_id).update(
+        cable=None,
+        cable_end=None,
+        cable_connector=None,
+        cable_positions=None,
+    )
+
+    # If the removed termination was a channelized interface, also clear the cable attributes mirrored onto
+    # its channel subinterfaces. This must happen before the retrace below so that each channel's (now dead)
+    # path is torn down rather than rebuilt from a stale cable reference. These writes are deliberately not
+    # change-logged, matching propagate_channel_cables(), which doesn't log them when it sets them either.
+    # A subinterface saved through a change-logged path while connected does record its mirrored cable
+    # fields, so its disconnect goes unlogged here; that gap predates this receiver and is untouched by it.
+    if model is Interface:
+        Interface.objects.filter(parent_id=instance.termination_id, channel_id__isnull=False).update(
+            cable=None, cable_end='', cable_connector=None, cable_positions=None
+        )
 
     for cablepath in CablePath.objects.filter(_nodes__contains=instance.cable):
         # Remove the deleted CableTermination if it's one of the path's originating nodes
@@ -498,18 +488,22 @@ def cleanup_channel_subinterface_paths(instance, **kwargs):
             rebuild_cable_paths(parent.cable)
 
 
-@receiver(post_save, sender=Interface)
-@receiver(post_save, sender=VMInterface)
-def update_mac_address_interface(instance, created, raw, **kwargs):
+#
+# MAC addresses
+#
+
+@receiver(pre_delete, sender=MACAddress)
+def clear_primary_mac_address(instance, using, origin=None, **kwargs):
     """
-    When creating a new Interface or VMInterface, check whether a MACAddress has been designated as its primary. If so,
-    assign the MACAddress to the interface.
+    When a MACAddress is deleted, trigger save() on any interface for which it was the primary MAC address.
+    MACAddress.clear_cached_references() has already done so unless the deletion was made through a queryset.
     """
-    if created and not raw and instance.primary_mac_address:
-        # Keep any snapshot the caller took before making unsaved changes to the MAC address
-        if not hasattr(instance.primary_mac_address, '_prechange_snapshot'):
-            instance.primary_mac_address.snapshot()
-        instance.primary_mac_address.assigned_object = instance
-        instance.primary_mac_address.save()
-        # Discard the snapshot so that a later save of the MAC address takes a fresh one
-        instance.primary_mac_address.__dict__.pop('_prechange_snapshot', None)
+    # A MAC address deleted along with its interface needs no release, and the interface's deletion may already
+    # have been recorded
+    if getattr(origin, 'model', type(origin)) is not MACAddress:
+        return
+    for model in (Interface, VMInterface):
+        if interface := model.objects.using(using).filter(primary_mac_address=instance.pk).first():
+            interface.snapshot()
+            interface.primary_mac_address = None
+            interface.save(using=using, update_fields=['primary_mac_address', 'last_updated'])

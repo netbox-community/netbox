@@ -884,9 +884,9 @@ class BaseInterface(models.Model):
                 'qinq_svlan': _("Only Q-in-Q interfaces may specify a service VLAN.")
             })
 
-        # A primary MAC address must belong to this interface. On create the MAC is assigned by a
-        # post_save signal after this runs, so an as-yet-unassigned MAC is only rejected on update
-        # (self._state.adding is False), where no such signal fires. These are raised as non-field
+        # A primary MAC address must belong to this interface. On create the MAC is assigned by save()
+        # after this runs, so an as-yet-unassigned MAC is only rejected on update (self._state.adding
+        # is False), where save() assigns nothing. These are raised as non-field
         # errors: primary_mac_address is not an InterfaceForm field (it's edited via the mac_address
         # shortcut), so a field-keyed error would raise in the form's add_error() rather than render.
         if self.primary_mac_address:
@@ -913,7 +913,41 @@ class BaseInterface(models.Model):
         if not self._state.adding and self.mode != InterfaceModeChoices.MODE_TAGGED:
             self.tagged_vlans.clear()
 
-        return super().save(*args, **kwargs)
+        # A primary MAC address designated on create is assigned to the interface once it exists, then designated
+        # as primary in a change of its own, so that each recorded change is valid (and reversible) by itself.
+        primary_mac_address = None
+        if self._state.adding and self.primary_mac_address_id:
+            primary_mac_address, self.primary_mac_address = self.primary_mac_address, None
+
+        if primary_mac_address is None:
+            return super().save(*args, **kwargs)
+
+        using = kwargs.get('using') or router.db_for_write(type(self), instance=self)
+        try:
+            with transaction.atomic(using=using):
+                super().save(*args, **kwargs)
+
+                # Keep any snapshot the caller took before making unsaved changes to the MAC address
+                if not hasattr(primary_mac_address, '_prechange_snapshot'):
+                    primary_mac_address.snapshot()
+                primary_mac_address.assigned_object = self
+                primary_mac_address.save(using=using)
+                # Discard the snapshot so that a later save of the MAC address takes a fresh one
+                primary_mac_address.__dict__.pop('_prechange_snapshot', None)
+
+                self.snapshot()
+                self.primary_mac_address = primary_mac_address
+                super().save(using=using, update_fields=['primary_mac_address', 'last_updated'])
+                self.__dict__.pop('_prechange_snapshot', None)
+        except Exception:
+            # The creation was rolled back, so the interface is unsaved again
+            self.pk = None
+            self._state.adding = True
+            self.primary_mac_address = primary_mac_address
+            raise
+        finally:
+            # Anything which read the MAC address while the interface had none has cached that
+            self.__dict__.pop('mac_address', None)
 
     def set_primary_mac_address(self, mac):
         """

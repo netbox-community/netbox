@@ -392,7 +392,8 @@ class ViewTestCases:
             if issubclass(self.model, ChangeLoggingMixin):
                 objectchanges = ObjectChange.objects.filter(
                     changed_object_type=ContentType.objects.get_for_model(instance),
-                    changed_object_id=instance.pk
+                    changed_object_id=instance.pk,
+                    action=ObjectChangeActionChoices.ACTION_DELETE,
                 )
                 self.assertEqual(len(objectchanges), 1)
                 self.assertObjectChange(objectchanges[0], action=ObjectChangeActionChoices.ACTION_DELETE,
@@ -1080,7 +1081,8 @@ class ViewTestCases:
             if issubclass(self.model, ChangeLoggingMixin):
                 objectchanges = ObjectChange.objects.filter(
                     changed_object_type=ContentType.objects.get_for_model(self.model),
-                    changed_object_id__in=pk_list
+                    changed_object_id__in=pk_list,
+                    action=ObjectChangeActionChoices.ACTION_DELETE,
                 )
                 self.assertEqual(len(objectchanges), len(pk_list))
                 for oc in objectchanges:

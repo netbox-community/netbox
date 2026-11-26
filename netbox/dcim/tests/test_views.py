@@ -6131,31 +6131,30 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             self.assertIsNone(member.vc_position)
             self.assertIsNone(member.vc_priority)
 
-            # Each member is detached and then cleared in two changes, each with prechange data and valid on
-            # its own (a virtual chassis is never recorded without a position)
-            changes = list(self._get_member_changes(member))
-            self.assertEqual(len(changes), 2)
-            detach, clear = changes
-            self.assertEqual(detach.action, ObjectChangeActionChoices.ACTION_UPDATE)
-            self.assertEqual(detach.prechange_data['virtual_chassis'], vc.pk)
-            self.assertIsNotNone(detach.prechange_data['vc_position'])
-            self.assertIsNone(detach.postchange_data['virtual_chassis'])
-            self.assertEqual(detach.postchange_data['vc_position'], detach.prechange_data['vc_position'])
-            self.assertEqual(clear.action, ObjectChangeActionChoices.ACTION_UPDATE)
-            self.assertIsNone(clear.prechange_data['virtual_chassis'])
-            self.assertEqual(clear.prechange_data['vc_position'], detach.postchange_data['vc_position'])
-            self.assertIsNone(clear.postchange_data['vc_position'])
-            self.assertIsNone(clear.postchange_data['vc_priority'])
-        self.assertEqual(self._get_member_changes(members[0]).first().prechange_data['vc_priority'], 10)
+            # Each member is detached and cleared in a single change which is valid on its own
+            change = self._get_member_changes(member).get()
+            self.assertEqual(change.action, ObjectChangeActionChoices.ACTION_UPDATE)
+            self.assertEqual(change.prechange_data['virtual_chassis'], vc.pk)
+            self.assertIsNotNone(change.prechange_data['vc_position'])
+            self.assertIsNone(change.postchange_data['virtual_chassis'])
+            self.assertIsNone(change.postchange_data['vc_position'])
+            self.assertIsNone(change.postchange_data['vc_priority'])
+        self.assertEqual(self._get_member_changes(members[0]).get().prechange_data['vc_priority'], 10)
 
-        # The VC deletion is recorded once, before its (former) master is detached
-        vc_change = ObjectChange.objects.get(
+        # The master is released, then the members detached, then the VC deleted, so that reversing the changes
+        # restores the VC before its members rejoin it, and its master only once it is a member again
+        release, deletion = ObjectChange.objects.filter(
             changed_object_type=ContentType.objects.get_for_model(VirtualChassis),
             changed_object_id=vc.pk,
-        )
-        self.assertEqual(vc_change.action, ObjectChangeActionChoices.ACTION_DELETE)
-        self.assertEqual(vc_change.prechange_data['master'], members[0].pk)
-        self.assertLess(vc_change.pk, self._get_member_changes(members[0]).first().pk)
+        ).order_by('pk')
+        self.assertEqual(release.action, ObjectChangeActionChoices.ACTION_UPDATE)
+        self.assertEqual(release.prechange_data['master'], members[0].pk)
+        self.assertIsNone(release.postchange_data['master'])
+        self.assertEqual(deletion.action, ObjectChangeActionChoices.ACTION_DELETE)
+        self.assertIsNone(deletion.prechange_data['master'])
+        member_change_pks = [self._get_member_changes(member).get().pk for member in members]
+        self.assertLess(release.pk, min(member_change_pks))
+        self.assertGreater(deletion.pk, max(member_change_pks))
 
     def _add_constrained_permission(self, model, actions, constraints):
         obj_perm = ObjectPermission(name='Test permission', actions=actions, constraints=constraints)

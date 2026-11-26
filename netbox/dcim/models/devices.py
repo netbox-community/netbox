@@ -1,7 +1,9 @@
+import copy
 import decimal
 from functools import cached_property, partial
 
 import yaml
+from django.apps import apps
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.indexes import GistIndex
@@ -25,6 +27,7 @@ from extras.querysets import ConfigContextModelQuerySet
 from netbox.choices import ColorChoices
 from netbox.config import ConfigItem
 from netbox.models import NestedLtreeGroupModel, OrganizationalModel, PrimaryModel
+from netbox.models.deletion import run_protection_rules
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from netbox.models.mixins import WeightMixin
 from utilities.data import normalize_update_fields
@@ -1328,6 +1331,38 @@ class VirtualChassis(PrimaryModel):
                 )
             })
 
+    def save(self, *args, **kwargs):
+        # A master designated on create is assigned to the virtual chassis once it exists, then designated as
+        # master in a change of its own, so that each recorded change is valid (and reversible) by itself.
+        master = None
+        if self._state.adding and self.master_id:
+            master, self.master = self.master, None
+
+        if master is None:
+            return super().save(*args, **kwargs)
+
+        using = kwargs.get('using') or router.db_for_write(self.__class__, instance=self)
+        try:
+            with transaction.atomic(using=using):
+                super().save(*args, **kwargs)
+
+                member = Device.objects.using(using).get(pk=master.pk)
+                member.snapshot()
+                member.virtual_chassis = self
+                member.vc_position = 1
+                member.save(using=using)
+
+                self.snapshot()
+                self.master = master
+                super().save(using=using, update_fields=['master', 'last_updated'])
+                self.__dict__.pop('_prechange_snapshot', None)
+        except Exception:
+            # The creation was rolled back, so the virtual chassis is unsaved again
+            self.pk = None
+            self._state.adding = True
+            self.master = master
+            raise
+
     def delete(self, *args, **kwargs):
         # Check for LAG interfaces split across member chassis
         interfaces = Interface.objects.filter(
@@ -1345,19 +1380,33 @@ class VirtualChassis(PrimaryModel):
                 set(interfaces),
             )
 
-        # Core's pre_delete handler detaches each member (clearing virtual_chassis) and records that change. Clear the
-        # now-meaningless position and priority afterwards, as a second change which is valid on its own.
+        # Release the master, then detach each member, each as a recorded change which is valid on its own and
+        # precedes the deletion: replayed in reverse, the virtual chassis is restored before its members rejoin it.
         using = kwargs.get('using') or router.db_for_write(self.__class__, instance=self)
-        member_ids = list(self.members.values_list('pk', flat=True))
-        with transaction.atomic(using=using):
-            ret = super().delete(*args, **kwargs)
-            for device in Device.objects.using(using).filter(pk__in=member_ids):
-                device.snapshot()
-                device.vc_position = None
-                device.vc_priority = None
-                device.save(using=using)
+        master = self.master
+        try:
+            with transaction.atomic(using=using):
+                # Deletion protection rules must see the virtual chassis while it still has its master and members
+                run_protection_rules(self)
+                self._pre_release_state = copy.copy(self)
+                if self.master_id:
+                    self.snapshot()
+                    self.master = None
+                    super().save(using=using, update_fields=['master', 'last_updated'])
+                    self.__dict__.pop('_prechange_snapshot', None)
+                for device in Device.objects.using(using).filter(virtual_chassis=self.pk):
+                    device.snapshot()
+                    device.virtual_chassis = None
+                    device.vc_position = None
+                    device.vc_priority = None
+                    device.save(using=using)
 
-        return ret
+                return super().delete(*args, **kwargs)
+        except Exception:
+            # The deletion was rolled back, so the virtual chassis still has its master
+            self.master = master
+            self.__dict__.pop('_pre_release_state', None)
+            raise
 
 
 class VirtualDeviceContext(PrimaryModel):
@@ -1536,3 +1585,14 @@ class MACAddress(PrimaryModel):
                     raise ValidationError(
                         _("Cannot reassign MAC Address while it is designated as the primary MAC for an object")
                     )
+
+    @classmethod
+    def clear_cached_references(cls, instances, collector):
+        # Called by CustomCollector ahead of the DELETE, so each primary MAC is released before it is deleted
+        pks = {instance.pk for instance in instances}
+        for model in (apps.get_model('dcim', 'Interface'), apps.get_model('virtualization', 'VMInterface')):
+            for interface in model.objects.using(collector.using).filter(primary_mac_address__in=pks):
+                interface.snapshot()
+                interface.primary_mac_address = None
+                interface.save(using=collector.using, update_fields=['primary_mac_address', 'last_updated'])
+                collector.update_collected(interface, ['primary_mac_address'])

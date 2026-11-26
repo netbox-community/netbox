@@ -1,11 +1,35 @@
+import copy
 import logging
 
 from django.contrib.contenttypes.fields import GenericRelation
+from django.core.exceptions import FieldDoesNotExist
 from django.db import router, transaction
 from django.db.models.deletion import CASCADE, Collector
 from django.utils.translation import gettext as _
 
 logger = logging.getLogger("netbox.models.deletion")
+
+
+def run_protection_rules(instance):
+    """
+    Run any deletion protection rules for an object ahead of releasing the references to it, so that the rules see
+    it while it is still referenced. (They run again, as for any object, when its deletion is recorded.)
+    """
+    # TODO: Fix circular imports
+    from django.core.exceptions import ValidationError
+
+    from extras.utils import run_validators
+    from netbox.config import get_config
+    from utilities.data import get_config_value_ci
+    from utilities.exceptions import AbortRequest
+
+    validators = get_config_value_ci(get_config().PROTECTION_RULES, instance._meta.label_lower, default=[])
+    try:
+        run_validators(instance, validators)
+    except ValidationError as e:
+        raise AbortRequest(
+            _("Deletion is prevented by a protection rule: {message}").format(message=e)
+        )
 
 
 class CountOnly:
@@ -126,15 +150,42 @@ class CustomCollector(Collector):
                         # Add the model that the generic relation points to as a dependency
                         self.add_dependency(field.related_model, instance, reverse_dependency=True)
 
+    def update_collected(self, obj, field_names):
+        """
+        Copy the given fields from a saved copy of an object onto the instance collected for deletion (if any), so
+        that the change recorded for its deletion reflects them.
+        """
+        if (collected := self._collected_by_pk.get(type(obj))) is None:
+            collected = self._collected_by_pk[type(obj)] = {
+                instance.pk: instance for instance in self.data.get(type(obj), ())
+            }
+        if (instance := collected.get(obj.pk)) is None:
+            return
+        # Deletion protection rules must see the object as it was before its references were released
+        if not hasattr(instance, '_pre_release_state'):
+            instance._pre_release_state = copy.copy(instance)
+        # The save which released the fields may also have set these
+        for field_name in (*field_names, 'last_updated', 'custom_field_data'):
+            try:
+                attname = obj._meta.get_field(field_name).attname
+            except FieldDoesNotExist:
+                continue
+            setattr(instance, attname, getattr(obj, attname))
+        if hasattr(instance, '_prechange_snapshot'):
+            instance.snapshot()
+
     def delete(self):
         # Clear any cached references to the objects being deleted first, so that each clear is
         # recorded and precedes the DELETE. Django nulls a SET_NULL column with a bulk UPDATE,
         # which emits no post_save and so is never change-logged. Models opt in by defining
         # clear_cached_references(); it covers cascaded objects as well as directly deleted ones,
         # but only on this collector -- a queryset delete uses Django's and bypasses it.
+        self._collected_by_pk = {}
         with transaction.atomic(using=self.using, savepoint=False):
             for model, instances in self.data.items():
                 if clear_references := getattr(model, 'clear_cached_references', None):
+                    for instance in instances:
+                        run_protection_rules(instance)
                     clear_references(instances, self)
 
             return super().delete()

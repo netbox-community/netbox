@@ -822,7 +822,8 @@ class APIViewTestCases:
             if hasattr(self.model, 'to_objectchange'):
                 objectchange = ObjectChange.objects.get(
                     changed_object_type=ContentType.objects.get_for_model(instance),
-                    changed_object_id=instance.pk
+                    changed_object_id=instance.pk,
+                    action=ObjectChangeActionChoices.ACTION_DELETE,
                 )
                 self.assertObjectChange(objectchange, action=ObjectChangeActionChoices.ACTION_DELETE,
                     message=data['changelog_message'])
@@ -861,7 +862,8 @@ class APIViewTestCases:
             if issubclass(self.model, ChangeLoggingMixin):
                 objectchanges = ObjectChange.objects.filter(
                     changed_object_type=ContentType.objects.get_for_model(self.model),
-                    changed_object_id__in=id_list
+                    changed_object_id__in=id_list,
+                    action=ObjectChangeActionChoices.ACTION_DELETE,
                 )
                 self.assertEqual(len(objectchanges), len(data))
                 for oc in objectchanges:

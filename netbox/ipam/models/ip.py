@@ -1,10 +1,11 @@
 import netaddr
+from django.apps import apps
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import F
+from django.db.models import F, Q
 from django.db.models.functions import Cast
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
@@ -1183,6 +1184,25 @@ class IPAddress(ContactsMixin, PrimaryModel):
         self.dns_name = self.dns_name.lower()
 
         super().save(*args, **kwargs)
+
+    @classmethod
+    def clear_cached_references(cls, instances, collector):
+        # Called by CustomCollector ahead of the DELETE, so each primary/OOB IP is released before it is deleted
+        pks = {instance.pk for instance in instances}
+        for model, field_names in (
+            (apps.get_model('dcim', 'Device'), ('primary_ip4', 'primary_ip6', 'oob_ip')),
+            (apps.get_model('virtualization', 'VirtualMachine'), ('primary_ip4', 'primary_ip6')),
+        ):
+            query = Q()
+            for field_name in field_names:
+                query |= Q(**{f'{field_name}__in': pks})
+            for parent in model.objects.using(collector.using).filter(query):
+                parent.snapshot()
+                for field_name in field_names:
+                    if getattr(parent, f'{field_name}_id') in pks:
+                        setattr(parent, field_name, None)
+                parent.save(using=collector.using)
+                collector.update_collected(parent, field_names)
 
     def clone(self):
         attrs = super().clone()
