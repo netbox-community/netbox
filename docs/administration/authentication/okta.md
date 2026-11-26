@@ -22,6 +22,12 @@ On the next page, give the app integration a name (e.g. "NetBox") and specify th
 * Sign-in URI: `https://{netbox}/oauth/complete/okta-openidconnect/`
 * Sign-out URI: `https://{netbox}/oauth/disconnect/okta-openidconnect/`
 
+To support IdP-initiated login (for example, clicking the NetBox application tile in the Okta dashboard), also specify the Initiate login URI:
+
+* Initiate login URI: `https://{netbox}/oauth/idp-launch/okta-openidconnect/`
+
+See [IdP-Initiated Login](overview.md#idp-initiated-login) in the authentication overview for how to enable this endpoint in NetBox.
+
 ![Web app integration](../../media/authentication/okta_web_app_integration.png)
 
 Under "Assignments," select the controlled access setting most appropriate for your organization. Click "Save" to complete the creation.
@@ -46,6 +52,19 @@ SOCIAL_AUTH_OKTA_OPENIDCONNECT_KEY = '{Client ID}'
 SOCIAL_AUTH_OKTA_OPENIDCONNECT_SECRET = '{Client secret}'
 SOCIAL_AUTH_OKTA_OPENIDCONNECT_API_URL = 'https://{Okta domain}/oauth2/'
 ```
+
+!!! note "Custom authorization server"
+    When `SOCIAL_AUTH_OKTA_OPENIDCONNECT_API_URL` points to a custom authorization server (for example, `https://{Okta domain}/oauth2/default`), the Okta dashboard may send the organization domain as the token issuer rather than the authorization server's issuer. IdP-initiated login then fails because the issuer in the `iss` query parameter does not match the backend's configured issuer.
+
+    In this scenario, add the organization domain to the allowed ID token issuers:
+
+    ```python
+    SOCIAL_AUTH_OKTA_OPENIDCONNECT_ALLOWED_ID_TOKEN_ISSUERS = [
+        'https://{Okta domain}'
+    ]
+    ```
+
+    This setting is only required when the token issuer sent by Okta differs from the authorization server issuer (as can happen with a custom authorization server). It is not required for the default Okta configuration.
 
 ### 2. Restart NetBox
 
