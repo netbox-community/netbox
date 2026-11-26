@@ -1,12 +1,13 @@
 import hashlib
 import uuid
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.db.models import ProtectedError
+from django.http import Http404
 from django.test import RequestFactory, TestCase, TransactionTestCase, override_settings, tag
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
@@ -687,6 +688,19 @@ class ObjectUpdateLockingTestCase(APITestCase):
         self.assertHttpStatus(response, 400)
         self.assertEqual([e['id'] for e in response.data['errors']], [self.sites[1].pk])
         self.assertFalse(Site.objects.filter(description='Description').exists())
+
+    @tag('regression')  # Ref: #23765
+    def test_perform_update_with_object_deleted_concurrently(self):
+        """Raise Http404 if the If-Match check finds that an object retrieved without a lock has been deleted."""
+        site = Site.objects.get(pk=self.sites[0].pk)
+        viewset = SiteViewSet()
+        viewset.request = Request(RequestFactory().patch('/', HTTP_IF_MATCH=SiteViewSet._get_etag(site)))
+        serializer = Mock(instance=site)
+        Site.objects.filter(pk=site.pk).delete()
+
+        with self.assertRaises(Http404):
+            viewset.perform_update(serializer)
+        serializer.save.assert_not_called()
 
     def test_lock_object(self):
         """
