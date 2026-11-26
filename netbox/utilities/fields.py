@@ -281,10 +281,12 @@ class GenericArrayForeignKey(FieldCacheMixin, models.Field):
         rel_objects = []
         for (ct_id, db), fkeys in fk_dict.items():
             if ct_id in custom_queryset_dict:
-                rel_objects.extend(custom_queryset_dict[ct_id].filter(pk__in=fkeys))
+                queryset = custom_queryset_dict[ct_id].filter(pk__in=fkeys)
             else:
                 ct = self.get_content_type_by_id(id=ct_id, using=db)
-                rel_objects.extend(ct.get_all_objects_for_this_type(pk__in=fkeys))
+                queryset = ct.get_all_objects_for_this_type(pk__in=fkeys)
+            # Objects take the fetch mode of the instances they are prefetched onto, as with GenericForeignKey
+            rel_objects.extend(queryset.fetch_mode(instances[0]._state.fetch_mode))
 
         # reorganize objects to fix usage
         items = {

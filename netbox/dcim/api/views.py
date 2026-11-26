@@ -57,6 +57,11 @@ class CableTerminationsPrefetch(Prefetch):
 # Mixins
 
 class PathEndpointMixin:
+    field_prefetches = {
+        ('link_peers', 'link_peers_type'): (CableTerminationsPrefetch(),),
+        ('connected_endpoints', 'connected_endpoints_type'): ('_path__path_objects',),
+        ('connected_endpoints_reachable',): ('_path',),
+    }
 
     @action(detail=True, url_path='trace')
     def trace(self, request, pk):
@@ -479,33 +484,25 @@ class ModuleViewSet(NetBoxModelViewSet):
 #
 
 class ConsolePortViewSet(PathEndpointMixin, NetBoxModelViewSet):
-    queryset = ConsolePort.objects.fetch_mode(FETCH_PEERS).prefetch_related(
-        '_path', CableTerminationsPrefetch(),
-    )
+    queryset = ConsolePort.objects.fetch_mode(FETCH_PEERS)
     serializer_class = serializers.ConsolePortSerializer
     filterset_class = filtersets.ConsolePortFilterSet
 
 
 class ConsoleServerPortViewSet(PathEndpointMixin, NetBoxModelViewSet):
-    queryset = ConsoleServerPort.objects.fetch_mode(FETCH_PEERS).prefetch_related(
-        '_path', CableTerminationsPrefetch(),
-    )
+    queryset = ConsoleServerPort.objects.fetch_mode(FETCH_PEERS)
     serializer_class = serializers.ConsoleServerPortSerializer
     filterset_class = filtersets.ConsoleServerPortFilterSet
 
 
 class PowerPortViewSet(PathEndpointMixin, NetBoxModelViewSet):
-    queryset = PowerPort.objects.fetch_mode(FETCH_PEERS).prefetch_related(
-        '_path', CableTerminationsPrefetch(),
-    )
+    queryset = PowerPort.objects.fetch_mode(FETCH_PEERS)
     serializer_class = serializers.PowerPortSerializer
     filterset_class = filtersets.PowerPortFilterSet
 
 
 class PowerOutletViewSet(PathEndpointMixin, NetBoxModelViewSet):
-    queryset = PowerOutlet.objects.fetch_mode(FETCH_PEERS).prefetch_related(
-        '_path', CableTerminationsPrefetch(),
-    )
+    queryset = PowerOutlet.objects.fetch_mode(FETCH_PEERS)
     serializer_class = serializers.PowerOutletSerializer
     filterset_class = filtersets.PowerOutletFilterSet
 
@@ -658,9 +655,7 @@ class PowerPanelViewSet(NetBoxModelViewSet):
 #
 
 class PowerFeedViewSet(PathEndpointMixin, NetBoxModelViewSet):
-    queryset = PowerFeed.objects.fetch_mode(FETCH_PEERS).prefetch_related(
-        '_path', CableTerminationsPrefetch(),
-    )
+    queryset = PowerFeed.objects.fetch_mode(FETCH_PEERS)
     serializer_class = serializers.PowerFeedSerializer
     filterset_class = filtersets.PowerFeedFilterSet
 
