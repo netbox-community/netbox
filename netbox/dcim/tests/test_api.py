@@ -23,7 +23,16 @@ from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
 from dcim.api.serializers import InterfaceSerializer
 from dcim.api.serializers_.nested import NestedDeviceBaySerializer, NestedDeviceSerializer
-from dcim.api.views import CableTerminationsPrefetch, DeviceViewSet, InterfaceViewSet
+from dcim.api.views import (
+    CableTerminationsPrefetch,
+    ConsolePortViewSet,
+    ConsoleServerPortViewSet,
+    DeviceViewSet,
+    InterfaceViewSet,
+    PowerFeedViewSet,
+    PowerOutletViewSet,
+    PowerPortViewSet,
+)
 from dcim.choices import *
 from dcim.constants import *
 from dcim.graphql.types import _CABLE_TERMINATION_MODELS
@@ -242,6 +251,79 @@ class Mixins:
                         self.assertEqual(savings, {0})
                     elif params == 'brief=1':
                         self.assertGreater(savings.pop(), 0)
+
+    class ConnectedEndpointsMixin(FieldPrefetchMixin):
+        peer_termination_type = None
+        field_prefetch_cases = (
+            'omit=link_peers,link_peers_type', 'fields=id,link_peers&omit=link_peers',
+            'omit=connected_endpoints,connected_endpoints_type',
+        )
+        # Each declared lookup, loaded statically as the reference
+        eager_prefetches = (CableTerminationsPrefetch(), '_path__path_objects')
+
+        def _cable_to_peers(self, count):
+            """Cable the first endpoints to peers on an unnamed device, and return the peers by endpoint."""
+            if self.peer_termination_type is None:
+                raise NotImplementedError(_("Test case must set peer_termination_type"))
+            # Unnamed, so the device display of each peer reads its device type and manufacturer
+            peer_device = create_test_device(None, site=Site.objects.first())
+            peers = {}
+            for index, obj in enumerate(self.model.objects.order_by('pk')[:count]):
+                peers[obj] = self.peer_termination_type.objects.create(device=peer_device, name=f'Peer {index}')
+                Cable(a_terminations=[obj], b_terminations=[peers[obj]]).save()
+            return peers
+
+        def _create_field_prefetch_scopes(self):
+            """Return filters for one and for two endpoints cabled to peers."""
+            pks = [obj.pk for obj in self._cable_to_peers(2)]
+            return [f'id={pks[0]}', f'id={pks[0]}&id={pks[1]}']
+
+        def test_list_objects_connected_endpoints_query_count(self):
+            """
+            Listing path endpoints loads their connected endpoints, and the endpoints' devices and cables, with the
+            same number of queries however many endpoints are listed.
+            """
+            self.add_permissions(f'dcim.view_{self.model._meta.model_name}')
+            peers = self._cable_to_peers(3)
+
+            def check_results(objs, results):
+                endpoints = {
+                    result['id']: [endpoint['name'] for endpoint in result['connected_endpoints']]
+                    for result in results
+                }
+                self.assertEqual(endpoints, {obj.pk: [peers[obj].name] for obj in objs})
+
+            assert_list_query_count_is_constant(
+                self,
+                self._get_list_url(),
+                lambda objs: {'id': [obj.pk for obj in objs], 'fields': 'id,connected_endpoints'},
+                list(peers),
+                check_results,
+            )
+
+        def test_list_objects_connected_endpoints_reachable_query_count(self):
+            """
+            Listing path endpoints with their reachability alone loads their cable paths, and none of the paths'
+            objects.
+            """
+            self.add_permissions(f'dcim.view_{self.model._meta.model_name}')
+            pks = [obj.pk for obj in self._cable_to_peers(3)]
+
+            def get(fields):
+                with CaptureQueriesContext(connection) as queries:
+                    response = self.client.get(self._get_list_url(), {'id': pks, 'fields': fields}, **self.header)
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                # Token authentication refreshes last_used once a minute
+                count = sum('"users_token"' not in query['sql'] for query in queries.captured_queries)
+                return response.data['results'], count
+
+            # Warm per-process caches (e.g. ContentType)
+            get('id,connected_endpoints_reachable')
+            results, reachable_count = get('id,connected_endpoints_reachable')
+            _, id_count = get('id')
+            self.assertEqual([result['connected_endpoints_reachable'] for result in results], [True, True, True])
+            # One query for the cable paths
+            self.assertEqual(reachable_count, id_count + 1)
 
 
 class RegionTestCase(APIViewTestCases.APIViewTestCase):
@@ -4236,8 +4318,14 @@ class ModuleTestCase(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
 
-class ConsolePortTestCase(Mixins.ComponentTraceMixin, Mixins.LinkPeersMixin, APIViewTestCases.APIViewTestCase):
+class ConsolePortTestCase(
+    Mixins.ComponentTraceMixin,
+    Mixins.LinkPeersMixin,
+    Mixins.ConnectedEndpointsMixin,
+    APIViewTestCases.APIViewTestCase,
+):
     model = ConsolePort
+    viewset = ConsolePortViewSet
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
@@ -4281,9 +4369,40 @@ class ConsolePortTestCase(Mixins.ComponentTraceMixin, Mixins.LinkPeersMixin, API
             },
         ]
 
+    def _create_field_prefetch_scopes(self):
+        """Return filters for one and for two devices whose console ports carry every declared prefetch relation."""
+        filters = []
+        for i in range(2):
+            device = create_test_device(f'Unit Device {i}')
+            peer = create_test_device(f'Unit Peer {i}')
+            panel = create_test_device(f'Unit Panel {i}')
+            # a: direct, b: through a patch panel, c: ends at the panel, d: none
+            ports = {name: ConsolePort.objects.create(device=device, name=name) for name in 'abcd'}
+            peers = {name: ConsoleServerPort.objects.create(device=peer, name=name) for name in 'ab'}
+            front_ports, rear_ports = {}, {}
+            for name in 'bc':
+                front_ports[name] = FrontPort.objects.create(device=panel, name=name, type=PortTypeChoices.TYPE_8P8C)
+                rear_ports[name] = RearPort.objects.create(device=panel, name=name, type=PortTypeChoices.TYPE_8P8C)
+                PortMapping.objects.create(device=panel, front_port=front_ports[name], rear_port=rear_ports[name])
+            for a_termination, b_termination in (
+                (ports['a'], peers['a']),
+                (ports['b'], front_ports['b']),
+                (rear_ports['b'], peers['b']),
+                (ports['c'], front_ports['c']),
+            ):
+                Cable(a_terminations=[a_termination], b_terminations=[b_termination]).save()
+            filters.append(f'device_id={device.pk}')
+        return [filters[0], '&'.join(filters)]
 
-class ConsoleServerPortTestCase(Mixins.ComponentTraceMixin, Mixins.LinkPeersMixin, APIViewTestCases.APIViewTestCase):
+
+class ConsoleServerPortTestCase(
+    Mixins.ComponentTraceMixin,
+    Mixins.LinkPeersMixin,
+    Mixins.ConnectedEndpointsMixin,
+    APIViewTestCases.APIViewTestCase,
+):
     model = ConsoleServerPort
+    viewset = ConsoleServerPortViewSet
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
@@ -4328,8 +4447,14 @@ class ConsoleServerPortTestCase(Mixins.ComponentTraceMixin, Mixins.LinkPeersMixi
         ]
 
 
-class PowerPortTestCase(Mixins.ComponentTraceMixin, Mixins.LinkPeersMixin, APIViewTestCases.APIViewTestCase):
+class PowerPortTestCase(
+    Mixins.ComponentTraceMixin,
+    Mixins.LinkPeersMixin,
+    Mixins.ConnectedEndpointsMixin,
+    APIViewTestCases.APIViewTestCase,
+):
     model = PowerPort
+    viewset = PowerPortViewSet
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
@@ -4371,8 +4496,14 @@ class PowerPortTestCase(Mixins.ComponentTraceMixin, Mixins.LinkPeersMixin, APIVi
         ]
 
 
-class PowerOutletTestCase(Mixins.ComponentTraceMixin, Mixins.LinkPeersMixin, APIViewTestCases.APIViewTestCase):
+class PowerOutletTestCase(
+    Mixins.ComponentTraceMixin,
+    Mixins.LinkPeersMixin,
+    Mixins.ConnectedEndpointsMixin,
+    APIViewTestCases.APIViewTestCase,
+):
     model = PowerOutlet
+    viewset = PowerOutletViewSet
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
@@ -6801,8 +6932,9 @@ class PowerPanelTestCase(APIViewTestCases.APIViewTestCase):
         }
 
 
-class PowerFeedTestCase(Mixins.LinkPeersMixin, APIViewTestCases.APIViewTestCase):
+class PowerFeedTestCase(Mixins.LinkPeersMixin, Mixins.ConnectedEndpointsMixin, APIViewTestCases.APIViewTestCase):
     model = PowerFeed
+    viewset = PowerFeedViewSet
     brief_fields = ['_occupied', 'cable', 'description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'status': 'planned',
