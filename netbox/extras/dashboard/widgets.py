@@ -12,7 +12,8 @@ from django.core.cache import cache
 from django.db.models import Model
 from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, resolve
-from django.utils.translation import gettext as _
+from django.utils.encoding import force_str
+from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
 from extras.choices import BookmarkOrderingChoices
@@ -126,7 +127,8 @@ class DashboardWidget:
     def __init__(self, id=None, title=None, color=None, config=None, width=None, height=None, x=None, y=None):
         self.id = id or str(uuid.uuid4())
         self.config = config or self.default_config
-        self.title = title or self.default_title
+        # Resolve lazy titles so they can be stored in the dashboard's JSON config
+        self.title = force_str(title or self.default_title, strings_only=True)
         self.color = color
         if width:
             self.width = width

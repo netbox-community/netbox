@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from django.utils.functional import Promise
+
 from netbox.registry import registry
 from utilities.choices import Choice
 
@@ -26,7 +28,7 @@ def get_event_type(name):
 
 def get_event_text(name):
     if event := registry['event_types'].get(name):
-        return event.text
+        return str(event.text)
     return ''
 
 
@@ -49,12 +51,12 @@ class EventType:
         destructive: Indicates that the associated object was destroyed as a result of the event (default: False).
     """
     name: str
-    text: str
+    text: str | Promise
     kind: str = EVENT_TYPE_KIND_INFO
     destructive: bool = False
 
     def __str__(self):
-        return self.text
+        return str(self.text)
 
     def register(self):
         if self.name in registry['event_types']:

@@ -1,13 +1,15 @@
 from django.test import TestCase, tag
 from django.utils import translation
+from django.utils.functional import Promise
 from django.utils.translation import gettext
 
-from core.events import OBJECT_CREATED
+from core.events import JOB_COMPLETED, OBJECT_CREATED
 from core.models import ObjectType
 from dcim.models import Site
 from extras.choices import CustomFieldStatusChoices, CustomFieldTypeChoices
 from extras.models import Bookmark, CustomField, EventRule, JournalEntry, Notification, Subscription
 from extras.tables import *
+from netbox.events import get_event_type
 from utilities.testing import TableTestCases
 
 
@@ -135,6 +137,19 @@ class WebhookTableTestCase(TableTestCases.StandardTableTestCase):
 
 class EventRuleTableTestCase(TableTestCases.StandardTableTestCase):
     table = EventRuleTable
+
+    @tag('regression')  # Ref: #23790
+    def test_event_types_translated(self):
+        self.assertIsInstance(get_event_type(OBJECT_CREATED).text, Promise)
+        rule = EventRule.objects.create(
+            name='Event Rule 1', event_types=[OBJECT_CREATED, JOB_COMPLETED], action_type='webhook'
+        )
+        with translation.override('nl'):
+            table = EventRuleTable(EventRule.objects.filter(pk=rule.pk))
+            self.assertEqual(
+                table.rows[0].get_cell('event_types'),
+                f"{gettext('Object created')}, {gettext('Job completed')}"
+            )
 
 
 class EventRuleTableActionTypeRenderingTestCase(TestCase):
