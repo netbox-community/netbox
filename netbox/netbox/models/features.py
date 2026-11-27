@@ -17,7 +17,6 @@ from extras.choices import *
 from extras.constants import CUSTOMFIELD_EMPTY_VALUES
 from extras.managers import NetBoxTaggableManager, NetBoxTaggableManagerField
 from extras.utils import is_taggable
-from netbox.config import get_config
 from netbox.constants import CORE_APPS, JOB_DELETE_BATCH_SIZE
 from netbox.models.deletion import DeleteMixin
 from netbox.plugins import PluginConfig
@@ -98,11 +97,7 @@ class ChangeLoggingMixin(DeleteMixin, models.Model):
         Save a snapshot of the object's current state in preparation for modification. The snapshot is saved as
         `_prechange_snapshot` on the instance.
         """
-        exclude_fields = []
-        if get_config().CHANGELOG_SKIP_EMPTY_CHANGES:
-            exclude_fields = ['last_updated',]
-
-        self._prechange_snapshot = self.serialize_object(exclude=exclude_fields)
+        self._prechange_snapshot = self.serialize_object()
     snapshot.alters_data = True
 
     def snapshot_from_db(self, using=None):
@@ -128,10 +123,6 @@ class ChangeLoggingMixin(DeleteMixin, models.Model):
         # TODO: Fix circular import
         from core.models import ObjectChange
 
-        exclude = []
-        if get_config().CHANGELOG_SKIP_EMPTY_CHANGES:
-            exclude = ['last_updated']
-
         objectchange = ObjectChange(
             changed_object=self,
             object_repr=str(self)[:200],
@@ -141,7 +132,7 @@ class ChangeLoggingMixin(DeleteMixin, models.Model):
         if hasattr(self, '_prechange_snapshot'):
             objectchange.prechange_data = self._prechange_snapshot
         if action in (ObjectChangeActionChoices.ACTION_CREATE, ObjectChangeActionChoices.ACTION_UPDATE):
-            self._postchange_snapshot = self.serialize_object(exclude=exclude)
+            self._postchange_snapshot = self.serialize_object()
             objectchange.postchange_data = self._postchange_snapshot
 
         return objectchange
