@@ -2,8 +2,12 @@ from unittest.mock import MagicMock, patch
 
 from django.core.cache import cache
 from django.test import RequestFactory, TestCase, tag
+from django.utils import translation
+from django.utils.functional import Promise
+from django.utils.translation import gettext
 
-from extras.dashboard.widgets import ObjectListWidget, RSSFeedWidget
+from extras.dashboard.widgets import DashboardWidget, NoteWidget, ObjectListWidget, RSSFeedWidget
+from extras.models import Dashboard
 from extras.templatetags.dashboard import render_widget
 
 
@@ -50,6 +54,12 @@ class ObjectListWidgetTestCase(TestCase):
         widget = ObjectListWidget(id='2829fd9b-5dee-4c9a-81f2-5bd84c350a27', **config)
         rendered = widget.render(mock_request)
         self.assertTrue('Unable to load content. Could not resolve list URL for:' in rendered)
+
+    @tag('regression')  # Ref: #23790
+    def test_description_translated(self):
+        self.assertIsInstance(ObjectListWidget.description, Promise)
+        with translation.override('nl'):
+            self.assertEqual(str(ObjectListWidget.description), gettext('Display an arbitrary list of objects.'))
 
 
 class RSSFeedWidgetSanitizationTestCase(TestCase):
@@ -154,3 +164,21 @@ class RenderWidgetTemplateTagTestCase(TestCase):
         output = render_widget(self._make_context(), BrokenWidget())
         self.assertIn('&lt;bad&gt;', output)
         self.assertNotIn('<bad>', output)
+
+
+class DashboardWidgetTestCase(TestCase):
+
+    @tag('regression')  # Ref: #23790
+    def test_default_title_translated(self):
+        self.assertIsInstance(NoteWidget.default_title, Promise)
+        dashboard = Dashboard()
+        with translation.override('nl'):
+            widget = NoteWidget(title='')
+            dashboard.add_widget(widget)
+            title = dashboard.config[widget.id]['title']
+            self.assertIsInstance(title, str)
+            self.assertEqual(title, gettext('Note'))
+
+    @tag('regression')  # Ref: #23790
+    def test_title_without_default(self):
+        self.assertIsNone(DashboardWidget(title='').title)

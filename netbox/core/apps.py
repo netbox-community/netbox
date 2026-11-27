@@ -3,7 +3,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db import models
 from django.db.migrations.operations import AlterModelOptions
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from PIL import Image
 
 from core.events import *
