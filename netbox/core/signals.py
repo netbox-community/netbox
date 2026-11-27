@@ -188,7 +188,7 @@ def handle_changed_object(sender, instance, **kwargs):
 
 
 @receiver(pre_delete)
-def handle_deleted_object(sender, instance, **kwargs):
+def handle_deleted_object(sender, instance, using=None, **kwargs):
     """
     Fires when an object is deleted.
     """
@@ -254,7 +254,7 @@ def handle_deleted_object(sender, instance, **kwargs):
                 # change logging
                 continue
             related_object_type = ContentType.objects.get_for_model(related_model)
-            for obj in related_model.objects.filter(**{related_field_name: instance.pk}):
+            for obj in related_model.objects.using(using).filter(**{related_field_name: instance.pk}):
                 # Skip any related object that is itself being deleted as part of this same
                 # operation (e.g. a sibling caught up in the same cascade). Its deletion has
                 # already been recorded, so nulling the FK and saving here would record an
@@ -275,7 +275,12 @@ def handle_deleted_object(sender, instance, **kwargs):
                     getattr(obj, related_field_name).remove(instance)
                 elif type(relation) is ManyToOneRel and relation.null and relation.on_delete not in (CASCADE, RESTRICT):
                     setattr(obj, related_field_name, None)
-                    obj.save()
+                    # Prevent recreation of concurrently deleted objects without aborting the deletion transaction
+                    try:
+                        with transaction.atomic(using=using):
+                            obj.save(using=using, force_update=True)
+                    except related_model.NotUpdated:
+                        continue
 
     # Enqueue the object for event processing
     queue = events_queue.get()

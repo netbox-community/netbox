@@ -16,13 +16,25 @@ from core.exceptions import SyncError
 from core.models import AutoSyncRecord, ConfigRevision, DataFile, DataSource, ObjectChange, ObjectType
 from core.signals import _signals_received, clear_events, post_sync
 from dcim.choices import InterfaceTypeChoices
-from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site, SiteGroup
+from dcim.models import (
+    Device,
+    DeviceRole,
+    DeviceType,
+    Interface,
+    Location,
+    Manufacturer,
+    Platform,
+    Rack,
+    Site,
+    SiteGroup,
+)
 from extras.models import ConfigContext, Tag
 from extras.validators import CustomValidator
 from netbox.context import events_queue
 from netbox.context_managers import event_tracking
 from users.models import User
 from utilities.exceptions import AbortRequest
+from utilities.testing import PinnedConnectionRouter, create_test_device
 
 
 def _build_request(user):
@@ -173,6 +185,41 @@ class HandleDeletedObjectSignalTestCase(TestCase):
         # threading.local that is not rolled back between TestCase methods.
         _signals_received.pre_delete = set()
 
+    def assert_related_object_not_recreated(self, parent, deleted, remaining, field):
+        """Verify that deletion continues when a related object disappears before saving."""
+        model = type(deleted)
+        parent_pk = parent.pk
+        snapshot = model.snapshot
+        request = _build_request(self.user)
+        handled = []
+
+        def snapshot_then_delete(obj):
+            snapshot(obj)
+            if obj.pk in (deleted.pk, remaining.pk):
+                handled.append(obj.pk)
+            if obj.pk == deleted.pk:
+                # Simulate a concurrent deletion without dispatching signals in this request
+                model.objects.filter(pk=obj.pk)._raw_delete(using=obj._state.db)
+
+        with event_tracking(request), patch.object(model, 'snapshot', snapshot_then_delete):
+            parent.delete()
+            self.assertNotIn(f'{model._meta.label_lower}:{deleted.pk}', events_queue.get())
+
+        # In any other order, a skip that ended the loop would go unnoticed
+        self.assertEqual(handled, [deleted.pk, remaining.pk])
+        self.assertFalse(model.objects.filter(pk=deleted.pk).exists())
+        remaining.refresh_from_db()
+        self.assertIsNone(getattr(remaining, field))
+        changes = ObjectChange.objects.filter(
+            request_id=request.id,
+            changed_object_type=ContentType.objects.get_for_model(model),
+        )
+        self.assertFalse(changes.filter(changed_object_id=deleted.pk).exists())
+        change = changes.get(changed_object_id=remaining.pk)
+        self.assertEqual(change.action, ObjectChangeActionChoices.ACTION_UPDATE)
+        self.assertEqual(change.prechange_data[field], parent_pk)
+        self.assertIsNone(change.postchange_data[field])
+
     def test_delete_records_an_objectchange(self):
         site = Site.objects.create(name='Site 1', slug='site-1')
         site_pk = site.pk
@@ -256,6 +303,64 @@ class HandleDeletedObjectSignalTestCase(TestCase):
             action=ObjectChangeActionChoices.ACTION_UPDATE,
         )
         self.assertEqual(oc.prechange_data['group'], group_pk)
+        self.assertIsNone(oc.postchange_data['group'])
+
+    def test_delete_does_not_recreate_concurrently_deleted_rack(self):
+        site = Site.objects.create(name='Site', slug='site')
+        location = Location.objects.create(name='Location', slug='location', site=site)
+        rack1 = Rack.objects.create(name='Rack 1', site=site, location=location)
+        rack2 = Rack.objects.create(name='Rack 2', site=site, location=location)
+
+        self.assert_related_object_not_recreated(location, deleted=rack1, remaining=rack2, field='location')
+
+    def test_delete_does_not_recreate_concurrently_deleted_interface(self):
+        device = create_test_device('Device')
+        lag = Interface.objects.create(device=device, name='lag0', type=InterfaceTypeChoices.TYPE_LAG)
+        member1 = Interface.objects.create(
+            device=device, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED, lag=lag
+        )
+        member2 = Interface.objects.create(
+            device=device, name='eth1', type=InterfaceTypeChoices.TYPE_1GE_FIXED, lag=lag
+        )
+
+        self.assert_related_object_not_recreated(lag, deleted=member1, remaining=member2, field='lag')
+
+    def test_delete_does_not_recreate_concurrently_deleted_device(self):
+        platform = Platform.objects.create(name='Platform', slug='platform')
+        device1 = create_test_device('Device 1', platform=platform)
+        device2 = create_test_device('Device 2', platform=platform)
+
+        self.assert_related_object_not_recreated(platform, deleted=device1, remaining=device2, field='platform')
+
+    def test_delete_propagates_related_save_errors(self):
+        group = SiteGroup.objects.create(name='Group', slug='group')
+        Site.objects.create(name='Site', slug='site', group=group)
+        request = _build_request(self.user)
+
+        # Only a missing row is skipped, so any other error still aborts the deletion
+        with (
+            self.assertRaisesMessage(IntegrityError, 'Simulated save error'),
+            event_tracking(request),
+            transaction.atomic(),
+            patch.object(Site, 'save', side_effect=IntegrityError('Simulated save error')),
+        ):
+            group.delete()
+
+        self.assertTrue(SiteGroup.objects.filter(pk=group.pk).exists())
+
+    def test_delete_pins_related_queries_to_deleting_connection(self):
+        group = SiteGroup.objects.create(name='Group', slug='group')
+        site = Site.objects.create(name='Site', slug='site', group=group)
+        request = _build_request(self.user)
+
+        with override_settings(DATABASE_ROUTERS=[PinnedConnectionRouter(Site)]), event_tracking(request):
+            group.delete()
+
+        oc = ObjectChange.objects.get(
+            changed_object_type=ContentType.objects.get_for_model(Site),
+            changed_object_id=site.pk,
+            action=ObjectChangeActionChoices.ACTION_UPDATE,
+        )
         self.assertIsNone(oc.postchange_data['group'])
 
     def test_cascade_delete_does_not_record_update_after_delete(self):
@@ -747,8 +852,8 @@ class HandleDeletedObjectDirectHandlerTestCase(SimpleTestCase):
         # exact type (`type(relation) is ManyToOneRel`), so do not use
         # MagicMock(spec=ManyToOneRel): it would be skipped before reaching the
         # _netbox_private branch. Patching ManyToOneRel to this fake class keeps the
-        # exact-type check meaningful, so related_model.objects.filter() would be
-        # called if the private-model skip failed.
+        # exact-type check meaningful, so related_model.objects would be queried if
+        # the private-model skip failed.
         class FakeManyToOneRel:
             pass
 
@@ -795,4 +900,4 @@ class HandleDeletedObjectDirectHandlerTestCase(SimpleTestCase):
             content_type_model.objects.get_for_model.return_value = object()
             signals.handle_deleted_object(sender=sender, instance=instance)
 
-        FakeRelatedModel.objects.filter.assert_not_called()
+        self.assertEqual(FakeRelatedModel.objects.mock_calls, [])
