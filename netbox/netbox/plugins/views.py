@@ -1,12 +1,12 @@
 from collections import OrderedDict
 
-from django.apps import apps
 from django.urls.exceptions import NoReverseMatch
 from drf_spectacular.utils import extend_schema
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
+from netbox.plugins.utils import get_plugin_app_config
 from netbox.registry import registry
 from utilities.api import IsSuperuser
 
@@ -37,7 +37,7 @@ class InstalledPluginsAPIView(APIView):
 
     def get(self, request, format=None):
         return Response([
-            self._get_plugin_data(apps.get_app_config(plugin))
+            self._get_plugin_data(get_plugin_app_config(plugin))
             for plugin in registry['plugins']['installed']
         ])
 
@@ -51,11 +51,11 @@ class PluginsAPIRootView(APIView):
         return "Plugins"
 
     @staticmethod
-    def _get_plugin_entry(plugin, app_config, request, format):
+    def _get_plugin_entry(app_config, request, format):
         # Check if the plugin specifies any API URLs
-        api_app_name = f'{app_config.name}-api'
+        api_app_name = f'{app_config.label}-api'
         try:
-            entry = (getattr(app_config, 'base_url', app_config.label), reverse(
+            entry = (app_config.base_url or app_config.label, reverse(
                 f"plugins-api:{api_app_name}:api-root",
                 request=request,
                 format=format
@@ -70,8 +70,8 @@ class PluginsAPIRootView(APIView):
 
         entries = []
         for plugin in registry['plugins']['installed']:
-            app_config = apps.get_app_config(plugin)
-            entry = self._get_plugin_entry(plugin, app_config, request, format)
+            app_config = get_plugin_app_config(plugin)
+            entry = self._get_plugin_entry(app_config, request, format)
             if entry is not None:
                 entries.append(entry)
 
